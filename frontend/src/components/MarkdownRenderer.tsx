@@ -612,3 +612,4 @@ function formatFallbackMath(tex: string): string {
   }
   return s;
 }
+

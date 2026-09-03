@@ -83,6 +83,36 @@ export default function App() {
     const nid=`session-${Date.now()}`;
     try{ await invoke('init_session',{sessionId:nid, providerId: selectedProvider}); const l=await invoke<string[]>('list_sessions'); setSessions(l); setSessionId(nid);}catch(e){console.error(e)}
   };
+  const handleDeleteSession = async (id: string) => {
+    try {
+      await invoke('delete_session', { sessionId: id });
+      const updated = sessions.filter(s => s !== id);
+      setSessions(updated);
+      if (sessionId === id) {
+        if (updated.length > 0) {
+          await handleSelectSession(updated[0]);
+        } else {
+          await handleNewSession();
+        }
+      }
+    } catch (e) {
+      console.error('Failed to delete session', e);
+    }
+  };
+  const handleRenameSession = async (oldId: string, newId: string) => {
+    const trimmed = newId.trim();
+    if (!trimmed || trimmed === oldId) return;
+    try {
+      await invoke('rename_session', { oldId, newId: trimmed });
+      const updated = sessions.map(s => (s === oldId ? trimmed : s));
+      setSessions(updated);
+      if (sessionId === oldId) {
+        setSessionId(trimmed);
+      }
+    } catch (e) {
+      console.error('Failed to rename session', e);
+    }
+  };
   const handleProviderChange = async (id: string) => {
     setSelectedProvider(id);
     try { await invoke('set_default_provider', { providerId: id }); } catch(e){ console.error('set_default_provider failed', e); }
@@ -137,7 +167,14 @@ export default function App() {
     <div style={{display:'flex', height:'100vh', background:'var(--bg)', overflow:'hidden'}}>
       {showSidebar && (
         <div style={{width:'260px', minWidth:'260px', display:'flex', flexDirection:'column', background:'#0F0F0F', borderRight:'1px solid var(--line)'}}>
-          <SessionSidebar sessions={sessions} currentSession={sessionId} onSelect={handleSelectSession} onNew={handleNewSession} />
+          <SessionSidebar
+            sessions={sessions}
+            currentSession={sessionId}
+            onSelect={handleSelectSession}
+            onNew={handleNewSession}
+            onDelete={handleDeleteSession}
+            onRename={handleRenameSession}
+          />
         </div>
       )}
 

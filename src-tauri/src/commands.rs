@@ -167,6 +167,37 @@ pub async fn list_sessions(state: State<'_, AppState>) -> Result<Vec<String>, St
     Ok(state.session_manager.list_sessions())
 }
 
+#[command]
+pub async fn delete_session(session_id: String, state: State<'_, AppState>) -> Result<(), String> {
+    state.agent_loops.write().await.remove(&session_id);
+    state
+        .session_manager
+        .delete_session(&session_id)
+        .map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+#[command]
+pub async fn rename_session(
+    old_id: String,
+    new_id: String,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    let new_id = new_id.trim().to_string();
+    if new_id.is_empty() {
+        return Err("Session name cannot be empty".to_string());
+    }
+    state
+        .session_manager
+        .rename_session(&old_id, &new_id)
+        .map_err(|e| e.to_string())?;
+    let mut loops = state.agent_loops.write().await;
+    if let Some(agent) = loops.remove(&old_id) {
+        loops.insert(new_id, agent);
+    }
+    Ok(())
+}
+
 /// Get the message history for a session.
 #[command]
 pub async fn get_session_messages(

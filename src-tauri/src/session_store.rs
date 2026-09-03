@@ -172,18 +172,60 @@ impl SessionManager {
         Ok(persistence)
     }
 
-    /// List all session IDs.
+    /// List all session IDs, ordered by most recently modified first.
     pub fn list_sessions(&self) -> Vec<String> {
         let sessions_dir = self.app_data_dir.join("sessions");
         if !sessions_dir.exists() {
             return Vec::new();
         }
 
-        std::fs::read_dir(sessions_dir)
+        let mut entries: Vec<(std::time::SystemTime, String)> = std::fs::read_dir(&sessions_dir)
             .ok()
             .into_iter()
-            .flat_map(|entries| entries.filter_map(|e| e.ok()))
-            .filter_map(|e| e.file_name().into_string().ok())
-            .collect()
+            .flat_map(|rd| rd.filter_map(|e| e.ok()))
+            .filter_map(|e| {
+                let name = e.file_name().into_string().ok()?;
+                let modified = e.metadata().and_then(|m| m.modified()).unwrap_or(std::time::UNIX_EPOCH);
+                Some((modified, name))
+            })
+            .collect();
+
+        entries.sort_by(|a, b| b.0.cmp(&a.0));
+        entries.into_iter().map(|(_, name)| name).collect()
+    }
+
+    /// Delete a session directory and its persistent files.
+    pub fn delete_session(&self, session_id: &str) -> Result<()> {
+        let mut sessions = self.sessions.lock().unwrap();
+        sessions.remove(session_id);
+
+        let session_path = self.app_data_dir.join("sessions").join(session_id);
+        if session_path.exists() {
+            std::fs::remove_dir_all(session_path)?;
+        }
+        Ok(())
+    }
+
+    /// Rename a session directory on disk.
+    pub fn rename_session(&self, old_id: &str, new_id: &str) -> Result<()> {
+        if old_id == new_id {
+            return Ok(());
+        }
+        let sessions_dir = self.app_data_dir.join("sessions");
+        let old_path = sessions_dir.join(old_id);
+        let new_path = sessions_dir.join(new_id);
+
+        if !old_path.exists() {
+            anyhow::bail!("Session `{}` does not exist", old_id);
+        }
+        if new_path.exists() {
+            anyhow::bail!("A session named `{}` already exists", new_id);
+        }
+
+        let mut sessions = self.sessions.lock().unwrap();
+        sessions.remove(old_id);
+
+        std::fs::rename(old_path, new_path)?;
+        Ok(())
     }
 }

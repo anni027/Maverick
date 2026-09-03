@@ -19,6 +19,8 @@ fn main() -> anyhow::Result<()> {
             nexus_backend::commands::init_session,
             nexus_backend::commands::send_message,
             nexus_backend::commands::list_sessions,
+            nexus_backend::commands::delete_session,
+            nexus_backend::commands::rename_session,
             nexus_backend::commands::get_session_messages,
             nexus_backend::commands::list_providers,
             nexus_backend::commands::add_mcp,
