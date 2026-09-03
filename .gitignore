@@ -1,0 +1,21 @@
+# Rust / Cargo
+target/
+**/target/
+
+# Node / Frontend
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+.vite/
+**/.vite/
+
+# Workspace & local state
+workspace/
+**/workspace/
+*.log
+nexus_test.txt
+
+# OS files
+.DS_Store
+Thumbs.db
