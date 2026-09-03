@@ -65,8 +65,6 @@ impl AgentLoop {
 
             let defs = self.tools.tool_definitions().await;
             let mut specs: Vec<ToolSpec> = defs.into_iter().map(ToolSpec::from).collect();
-            specs.push(crate::tools::write_to_file_spec());
-
             let Some(request) = self
                 .chat
                 .build_request(specs, None, false, None, "conv-1".to_string(), format!("req-{turn}"))
