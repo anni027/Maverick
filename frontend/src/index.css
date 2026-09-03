@@ -1,0 +1,117 @@
+/* Minimal — Ferrari quiet, ChatGPT clear */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root{
+  --bg:#0A0A0A;
+  --surface:#111111;
+  --panel:#141414;
+  --line:#1E1E1E;
+  --line-2:#2A2A2A;
+  --text:#EDEDED;
+  --muted:#8A8A8A;
+  --faint:#5A5A5A;
+  --rosso:#E30613;
+  --rosso-dim:rgba(227,6,19,0.12);
+  --radius:10px;
+  --font-body:"Inter", system-ui, -apple-system, sans-serif;
+  --font-mono:"JetBrains Mono", ui-monospace, monospace;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:var(--font-body);
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow:hidden;
+}
+#root{display:flex;flex-direction:column;height:100vh}
+
+/* type */
+.mono{font-family:var(--font-mono)}
+h1,h2,h3{letter-spacing:-0.02em;line-height:1.1;font-weight:600}
+
+/* panel — minimal, no carbon, no heavy clip */
+.panel{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+}
+
+/* buttons — minimal, quiet */
+button{
+  font-family:var(--font-body);
+  font-weight:500;
+  font-size:13px;
+  letter-spacing:0.01em;
+  cursor:pointer;
+  border:1px solid var(--line);
+  background:#1A1A1A;
+  color:var(--text);
+  padding:9px 14px;
+  border-radius:8px;
+  transition:all .15s ease;
+}
+button:hover{background:#212121;border-color:var(--line-2)}
+button:active{transform:scale(0.98)}
+button:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn-rosso{
+  background:var(--rosso);
+  color:white;
+  border-color:var(--rosso);
+}
+.btn-rosso:hover{background:#C00510;border-color:#C00510}
+.btn-ghost{
+  background:transparent;
+  border-color:var(--line);
+  color:var(--text);
+}
+.btn-ghost:hover{background:var(--panel);border-color:var(--line-2)}
+.btn-ico{padding:8px;width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px}
+
+/* inputs — minimal */
+input, textarea, select{
+  font-family:var(--font-body);
+  font-size:14px;
+  background:#0F0F0F;
+  color:var(--text);
+  border:1px solid var(--line);
+  border-radius:8px;
+  outline:none;
+  padding:12px 14px;
+  transition:border-color .15s, background .15s;
+}
+input::placeholder, textarea::placeholder{color:var(--muted)}
+input:focus, textarea:focus, select:focus{
+  border-color:var(--line-2);
+  background:#141414;
+}
+select{appearance:none;padding-right:32px}
+
+/* scrollbar — minimal */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#1E1E1E;border-radius:999px}
+::-webkit-scrollbar-thumb:hover{background:#2A2A2A}
+*{scrollbar-width:thin;scrollbar-color:#1E1E1E transparent}
+
+/* selection */
+::selection{background:var(--rosso);color:white}
+*{caret-color:var(--text)}
+:focus-visible{outline:1px solid var(--line-2);outline-offset:2px}
+
+/* badge — minimal */
+.badge{
+  font-family:var(--font-mono);
+  font-size:11px;
+  letter-spacing:0.06em;
+  padding:4px 8px;
+  border:1px solid var(--line);
+  color:var(--muted);
+  border-radius:999px;
+  background:transparent;
+}
+.badge-rosso{border-color:rgba(227,6,19,0.25);color:var(--muted);background:var(--rosso-dim)}

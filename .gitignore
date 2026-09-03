@@ -1,0 +1,16 @@
+# Rust / Cargo
+/target
+**/target
+
+# Node / frontend
+node_modules
+dist
+.svelte-kit
+
+# Build artifacts we don't vendor in git
+*.zip
+protoc_dist/
+
+# Local app data
+*.log
+.DS_Store

@@ -1,0 +1,44 @@
+[package]
+name = "nexus-backend"
+version = "0.1.0"
+edition = "2024"
+default-run = "nexus-backend"
+
+[lib]
+name = "nexus_backend"
+path = "src/lib.rs"
+
+[[bin]]
+name = "nexus-backend"
+path = "src/main.rs"
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+tokio-util = { version = "0.7", features = ["rt"] }
+anyhow = "1"
+reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-features = false }
+async-trait = "0.1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.9"
+futures = "0.3"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Tauri
+tauri = { version = "2.11", features = [] }
+tauri-plugin-shell = "2.3"
+
+# Vendored xai-grok core crates (sliced from grok-build).
+xai-chat-state = { path = "../crates/codegen/xai-chat-state" }
+xai-grok-tools = { path = "../crates/codegen/xai-grok-tools" }
+xai-grok-sampler = { path = "../crates/codegen/xai-grok-sampler" }
+xai-grok-sampling-types = { path = "../crates/codegen/xai-grok-sampling-types" }
+xai-grok-mcp = { path = "../crates/codegen/xai-grok-mcp" }
+xai-grok-workspace-types = { path = "../crates/codegen/xai-grok-workspace-types" }
+xai-tool-runtime = { path = "../crates/common/xai-tool-runtime" }
+xai-tool-types = { path = "../crates/common/xai-tool-types" }
+agent-client-protocol = { version = "0.10.4", features = ["unstable"] }
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
