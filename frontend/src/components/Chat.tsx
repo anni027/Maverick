@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { listen, UnlistenFn } from '@tauri-apps/api/event';
 import { Message, AgentEventType } from '../types';
+import MarkdownRenderer from './MarkdownRenderer';
 
 interface ChatProps {
   sessionId: string;
@@ -167,11 +168,11 @@ export default function Chat({ sessionId, onNewSession, onAddMcp, availableTools
           {messages.length===0 ? (
             <div style={{flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:'28px', padding:'40px 0 80px', textAlign:'center'}}>
               <div style={{width:'56px', height:'56px', borderRadius:'16px', background:'var(--panel)', border:'1px solid var(--line)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 4px 20px rgba(0,0,0,0.3)'}}>
-                <span style={{fontWeight:700, fontSize:'16px', letterSpacing:'-0.04em'}}>N</span>
+                <span style={{fontWeight:700, fontSize:'18px', letterSpacing:'-0.04em', color:'var(--rosso)'}}>M</span>
               </div>
               <div>
                 <h2 style={{fontSize:'26px', fontWeight:650, letterSpacing:'-0.03em', lineHeight:1.1}}>Where should we start?</h2>
-                <div className="mono" style={{fontSize:'12px', color:'var(--muted)', marginTop:'8px', letterSpacing:'0.02em'}}>Ferrari precision • ChatGPT familiar • Grok build ready</div>
+                <div className="mono" style={{fontSize:'12px', color:'var(--muted)', marginTop:'8px', letterSpacing:'0.02em'}}>ChatGPT familiar • Agent intelligence • Grok build ready</div>
               </div>
               <div style={{width:'100%', maxWidth:'640px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px', textAlign:'left', marginTop:'4px'}}>
                 {suggestions.map(c=>(
@@ -185,7 +186,7 @@ export default function Chat({ sessionId, onNewSession, onAddMcp, availableTools
                 ))}
               </div>
               <div className="mono" style={{fontSize:'11px', color:'var(--faint)', maxWidth:'520px', lineHeight:1.6, marginTop:'4px'}}>
-                8 tools ready • run_terminal_cmd • read_file • grep • list_dir • Grok build connected
+                Tools ready • run_terminal_cmd • read_file • write_to_file • grep • list_dir • Grok build
               </div>
             </div>
           ) : (
@@ -193,7 +194,7 @@ export default function Chat({ sessionId, onNewSession, onAddMcp, availableTools
               {messages.map(msg => <MessageBubble key={msg.id} message={msg} />)}
               {isLoading && (
                 <div style={{display:'flex', gap:'12px', padding:'18px 0', alignItems:'center'}}>
-                  <div style={{width:'28px', height:'28px', flexShrink:0, display:'flex', alignItems:'center', justifyContent:'center', background:'var(--text)', borderRadius:'50%', color:'var(--bg)', fontSize:'10px', fontWeight:700}}>NX</div>
+                  <div style={{width:'28px', height:'28px', flexShrink:0, display:'flex', alignItems:'center', justifyContent:'center', background:'var(--text)', borderRadius:'50%', color:'var(--bg)', fontSize:'10px', fontWeight:700}}>MV</div>
                   <div style={{display:'flex', gap:'4px', alignItems:'center', padding:'10px 14px', background:'var(--panel)', border:'1px solid var(--line)', borderRadius:'16px'}}>
                     <span style={{width:'6px', height:'6px', background:'var(--muted)', borderRadius:'50%', display:'inline-block', animation:'pulse 1.2s infinite'}}/>
                     <span style={{width:'6px', height:'6px', background:'var(--muted)', borderRadius:'50%', display:'inline-block', animation:'pulse 1.2s infinite .2s'}}/>
@@ -224,7 +225,7 @@ export default function Chat({ sessionId, onNewSession, onAddMcp, availableTools
               <textarea
                 ref={textareaRef}
                 value={input} onChange={e=>setInput(e.target.value)} onKeyDown={handleKeyDown}
-                placeholder="Ask Nexus anything…"
+                placeholder="Ask Maverick anything…"
                 rows={1}
                 style={{
                   flex:1, minHeight:'44px', maxHeight:'160px', resize:'none',
@@ -261,7 +262,7 @@ export default function Chat({ sessionId, onNewSession, onAddMcp, availableTools
             </div>
           </div>
           <div className="mono" style={{textAlign:'center', fontSize:'10px', color:'var(--faint)', opacity:0.8, letterSpacing:'0.02em'}}>
-            Nexus can make mistakes. Verify critical commands. • Grok build • Ferrari precision
+            Maverick can make mistakes. Verify critical commands. • Grok build • Ferrari precision
           </div>
         </div>
       </div>
@@ -271,7 +272,7 @@ export default function Chat({ sessionId, onNewSession, onAddMcp, availableTools
           <div className="panel" style={{width:'100%', maxWidth:'520px', padding:'22px', borderRadius:'20px', boxShadow:'0 16px 48px rgba(0,0,0,0.5)'}}>
             <div style={{display:'flex', alignItems:'center', gap:'10px', marginBottom:'16px'}}>
               <span style={{width:'28px', height:'28px', borderRadius:'8px', background:'var(--panel)', border:'1px solid var(--line)', display:'flex', alignItems:'center', justifyContent:'center'}}><SparkIcon /></span>
-              <div><div style={{fontWeight:600, fontSize:'14px'}}>Add MCP server</div><div className="mono" style={{fontSize:'11px', color:'var(--muted)'}}>Extend Nexus with external tools</div></div>
+              <div><div style={{fontWeight:600, fontSize:'14px'}}>Add MCP server</div><div className="mono" style={{fontSize:'11px', color:'var(--muted)'}}>Extend Maverick with external tools</div></div>
             </div>
             <div style={{display:'flex', flexDirection:'column', gap:'10px'}}>
               <input placeholder="Server name • filesystem" value={mcpName} onChange={e=>setMcpName(e.target.value)} />
@@ -291,9 +292,19 @@ export default function Chat({ sessionId, onNewSession, onAddMcp, availableTools
 }
 
 function MessageBubble({ message }: { message: Message }) {
+  const [copied, setCopied] = useState(false);
   const isUser = message.role === 'user';
   const isTool = message.role === 'tool';
   const isError = message.content.startsWith('Error:') || message.content.startsWith('Send failed:');
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(message.content);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {}
+  };
+
   if (isTool) {
     const hasResult = !!message.toolResult;
     return (
@@ -326,17 +337,51 @@ function MessageBubble({ message }: { message: Message }) {
       <div style={{
         width:'28px', height:'28px', flexShrink:0, display:'flex', alignItems:'center', justifyContent:'center',
         background:'var(--text)', borderRadius:'50%', color:'var(--bg)', fontSize:'10px', fontWeight:750, letterSpacing:'-0.02em'
-      }}>NX</div>
+      }}>MV</div>
       <div style={{minWidth:0, flex:1, paddingTop:'1px'}}>
         <div style={{
-          whiteSpace:'pre-wrap', wordBreak:'break-word', fontSize:'14.5px', lineHeight:1.75, color:'var(--text)',
           background: isError ? 'rgba(227,6,19,0.08)' : 'transparent',
           border: isError ? '1px solid rgba(227,6,19,0.2)' : 'none',
           padding: isError ? '12px 14px' : '0',
           borderRadius: isError ? '12px' : '0'
-        }}>{message.content}</div>
-        <div className="mono" style={{fontSize:'11px', color:'var(--faint)', marginTop:'8px', display:'flex', alignItems:'center', gap:'8px'}}>
+        }}>
+          {isError ? (
+            <div style={{ whiteSpace: 'pre-wrap', color: '#ff6b6b' }}>{message.content}</div>
+          ) : (
+            <MarkdownRenderer content={message.content} />
+          )}
+        </div>
+        <div className="mono" style={{fontSize:'11px', color:'var(--faint)', marginTop:'8px', display:'flex', alignItems:'center', gap:'12px'}}>
           <span>{message.timestamp.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
+          {!isError && (
+            <button
+              onClick={handleCopy}
+              className="btn-ghost"
+              style={{
+                padding: '2px 7px',
+                fontSize: '11px',
+                borderRadius: '4px',
+                color: copied ? '#22c55e' : 'var(--muted)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+                cursor: 'pointer',
+              }}
+              aria-label="Copy message"
+            >
+              {copied ? (
+                <>
+                  <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M2.5 6.5 L4.5 8.5 L9.5 3.5"/></svg>
+                  <span>Copied</span>
+                </>
+              ) : (
+                <>
+                  <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.3"><rect x="4" y="4" width="6" height="6" rx="1"/><path d="M3 8 H2.5 A1 1 0 0 1 1.5 7 V2.5 A1 1 0 0 1 2.5 1.5 H7 A1 1 0 0 1 8 2.5 V3"/></svg>
+                  <span>Copy</span>
+                </>
+              )}
+            </button>
+          )}
           {isError && <span style={{color:'#ff6b6b'}}>• needs attention</span>}
         </div>
       </div>

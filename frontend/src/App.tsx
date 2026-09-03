@@ -10,8 +10,8 @@ import { ProviderInfo } from './types';
 function Mark({ size = 24 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <rect x="2" y="2" width="20" height="20" rx="4" fill="#E30613" />
-      <path d="M7 12 L10.5 8 L14 12 L17 8 V16 H7 V8 L10.5 12 Z" fill="white" opacity="0.96"/>
+      <rect x="2" y="2" width="20" height="20" rx="5" fill="#E30613" />
+      <path d="M6.5 16 V8.5 L10.5 13.5 L14.5 8.5 V16 M17.5 8.5 V16" stroke="white" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   );
 }
@@ -114,8 +114,8 @@ export default function App() {
         <div style={{width:'100%', maxWidth:'360px', textAlign:'center'}}>
           <div style={{display:'inline-flex', alignItems:'center', gap:'10px', marginBottom:'20px'}}>
             <Mark size={32} />
-            <span style={{fontWeight:600, fontSize:'15px', letterSpacing:'-0.02em'}}>Nexus</span>
-            <span className="mono" style={{fontSize:'11px', color:'var(--muted)', letterSpacing:'0.08em'}}>ChatGPT • Ferrari</span>
+            <span style={{fontWeight:650, fontSize:'16px', letterSpacing:'-0.02em'}}>Maverick</span>
+            <span className="mono" style={{fontSize:'11px', color:'var(--muted)', letterSpacing:'0.06em'}}>ChatGPT • Agentic</span>
           </div>
           <div className="panel" style={{padding:'16px', textAlign:'left'}}>
             <div className="mono" style={{fontSize:'11px', color:'var(--muted)', display:'flex', justifyContent:'space-between'}}>
@@ -149,8 +149,8 @@ export default function App() {
           <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
             <Mark size={22} />
             <div style={{lineHeight:1}}>
-              <div style={{fontWeight:600, fontSize:'13px', letterSpacing:'-0.02em'}}>Nexus</div>
-              <div className="mono" style={{fontSize:'10px', color:'var(--muted)'}}>Ferrari powered • ChatGPT familiar</div>
+              <div style={{fontWeight:650, fontSize:'14px', letterSpacing:'-0.02em'}}>Maverick</div>
+              <div className="mono" style={{fontSize:'10px', color:'var(--muted)'}}>ChatGPT familiar • Agent intelligence</div>
             </div>
           </div>
           <div style={{height:'20px', width:'1px', background:'var(--line)', margin:'0 4px'}} />

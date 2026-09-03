@@ -1,6 +1,6 @@
 {
-  "identifier": "com.nexus.app",
-  "productName": "Nexus",
+  "identifier": "com.maverick.app",
+  "productName": "Maverick",
   "version": "0.1.0",
   "build": {
     "beforeDevCommand": "npm run dev",
@@ -10,7 +10,7 @@
   "app": {
     "windows": [
       {
-        "title": "Nexus",
+        "title": "Maverick",
         "width": 1200,
         "height": 800,
         "minWidth": 800,
