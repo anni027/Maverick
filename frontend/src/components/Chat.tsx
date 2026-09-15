@@ -186,7 +186,7 @@ export default function Chat({ sessionId, onNewSession, onAddMcp, availableTools
                 ))}
               </div>
               <div className="mono" style={{fontSize:'11px', color:'var(--faint)', maxWidth:'520px', lineHeight:1.6, marginTop:'4px'}}>
-                Tools ready • run_terminal_cmd • read_file • write_to_file • grep • list_dir • duckduckgo_search • skill • Grok build
+                Tools ready • run_terminal_cmd • read_file • write_to_file • grep • list_dir • duckduckgo_search (fresh, time:d/w/m/y) • web_fetch • skill • Grok build
               </div>
             </div>
           ) : (

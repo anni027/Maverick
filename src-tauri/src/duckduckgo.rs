@@ -30,6 +30,9 @@ pub struct DuckDuckGoInput {
     /// Region kl e.g. us-en, wt-wt
     #[schemars(description = "Region code e.g. us-en")]
     pub region: Option<String>,
+    /// Time filter: d (past day), w (past week), m (past month), y (past year). Use for fresh results.
+    #[schemars(description = "Time filter for freshness: d=day, w=week, m=month, y=year")]
+    pub time: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -41,8 +44,9 @@ pub struct DuckDuckGoOutput {
 
 impl DuckDuckGoOutput {
     fn formatted(&self) -> String {
+        let now = chrono::Utc::now().format("%Y-%m-%d").to_string();
         let mut out = String::new();
-        out.push_str(&format!("Results for \"{}\":\n\n", self.query));
+        out.push_str(&format!("Results for \"{}\" (as of {}):\n\n", self.query, now));
         out.push_str(&self.content);
         if !self.citations.is_empty() {
             out.push_str("\n\nCitations:\n");
@@ -50,11 +54,18 @@ impl DuckDuckGoOutput {
                 out.push_str(&format!("[{}] {}\n", i + 1, c));
             }
         }
+        out.push_str(&format!("\nNote: Results are from DuckDuckGo HTML search as of {}. For freshest content, use web_fetch on citation URLs.", now));
         out
     }
 }
 
-impl xai_tool_runtime::ToolOutput for DuckDuckGoOutput {}
+impl xai_tool_runtime::ToolOutput for DuckDuckGoOutput {
+    fn model_output(&self) -> Vec<xai_tool_runtime::ContentBlock> {
+        vec![xai_tool_runtime::ContentBlock::Text {
+            text: self.formatted(),
+        }]
+    }
+}
 
 // ---------- Client ----------
 
@@ -77,12 +88,13 @@ impl DuckDuckGoClient {
         query: &str,
         region: Option<&str>,
         count: Option<u8>,
+        time: Option<&str>,
     ) -> Result<(String, Vec<String>)> {
         let mut last_err = None;
         for attempt in 0..3 {
             let url = if attempt == 1 { DDG_LITE } else { DDG_HTML };
             let use_region = region.unwrap_or("us-en");
-            match self.fetch_once(url, query, use_region).await {
+            match self.fetch_once(url, query, use_region, time).await {
                 Ok((content, urls)) if !urls.is_empty() => {
                     let n = count.unwrap_or(8).clamp(1, 10) as usize;
                     let urls_trunc = urls.into_iter().take(n).collect::<Vec<_>>();
@@ -114,8 +126,22 @@ impl DuckDuckGoClient {
         Err(last_err.unwrap_or_else(|| anyhow::anyhow!("DuckDuckGo search failed")))
     }
 
-    async fn fetch_once(&self, url: &str, query: &str, region: &str) -> Result<(String, Vec<String>)> {
-        let params = [("q", query), ("kl", region), ("b", "")];
+    async fn fetch_once(&self, url: &str, query: &str, region: &str, time: Option<&str>) -> Result<(String, Vec<String>)> {
+        let mut params = vec![("q", query), ("kl", region), ("b", "")];
+        // DuckDuckGo date filter: df=d/w/m/y for past day/week/month/year
+        if let Some(t) = time {
+            let df = match t {
+                "d" | "day" | "1d" => "d",
+                "w" | "week" | "1w" => "w",
+                "m" | "month" | "1m" => "m",
+                "y" | "year" | "1y" => "y",
+                _ => t,
+            };
+            // Only push if valid single char
+            if matches!(df, "d" | "w" | "m" | "y") {
+                params.push(("df", df));
+            }
+        }
         let resp = self
             .client
             .post(url)
@@ -283,7 +309,7 @@ impl xai_grok_tools::types::tool_metadata::ToolMetadata for DuckDuckGoTool {
         xai_grok_tools::types::tool::ToolNamespace::GrokBuild
     }
     fn description_template(&self) -> &str {
-        "Search DuckDuckGo for up-to-date web results. No API key needed. Use for tail queries, recent info, and general web search. Returns titles, snippets, and citations."
+        "Search DuckDuckGo for up-to-date web results. No API key needed. Use for recent info, tail queries, and general web search. Supports time filter (d=day, w=week, m=month, y=year) for fresh results. Current date is injected in output — always use time=\"w\" or \"m\" for recent topics and cite sources. Pair with web_fetch for freshest page content. Returns titles, snippets, and citations."
     }
     fn requires_expr(&self) -> xai_grok_tools::types::requirements::Expr<xai_grok_tools::types::requirements::ToolRequirement> {
         xai_grok_tools::types::requirements::Expr::True
@@ -326,7 +352,8 @@ impl Tool for DuckDuckGoTool {
         let client = DuckDuckGoClient::new().map_err(|e| ToolError::execution(ToolId::new("duckduckgo_search").unwrap(), e.to_string()))?;
         let count = input.count.unwrap_or(8).clamp(1, 10);
         let region = input.region.as_deref();
-        match client.search(&input.query, region, Some(count)).await {
+        let time = input.time.as_deref();
+        match client.search(&input.query, region, Some(count), time).await {
             Ok((content, citations)) => Ok(DuckDuckGoOutput {
                 query: input.query,
                 content,

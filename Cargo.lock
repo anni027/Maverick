@@ -6939,6 +6939,7 @@ dependencies = [
  "agent-client-protocol",
  "anyhow",
  "async-trait",
+ "chrono",
  "dirs-next",
  "futures",
  "reqwest 0.12.24",

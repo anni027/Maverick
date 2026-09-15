@@ -190,6 +190,7 @@ pub async fn build_tool_bridge_with_app_data(app_data_dir: Option<PathBuf>) -> R
             ToolConfig::from_id("GrokBuild:grep"),
             ToolConfig::from_id("GrokBuild:todo_write"),
             ToolConfig::for_tool::<OpenCodeSkillTool>(),
+            ToolConfig::from_id("GrokBuild:web_fetch"),
         ],
         behavior_preset: None,
     };
@@ -217,7 +218,9 @@ pub async fn build_tool_bridge_with_app_data(app_data_dir: Option<PathBuf>) -> R
         state_path,
         memory_backend: None,
         web_search_config: Default::default(),
-        web_fetch_config: Default::default(),
+        web_fetch_config: xai_grok_tools::implementations::grok_build::web_fetch::WebFetchConfig::Enabled {
+            params: Default::default(),
+        },
         lsp: None,
         image_gen_config: Default::default(),
         video_gen_config: Default::default(),
@@ -235,7 +238,8 @@ pub async fn build_tool_bridge_with_app_data(app_data_dir: Option<PathBuf>) -> R
         "properties": {
             "query": { "type": "string", "description": "Search query" },
             "count": { "type": "integer", "description": "Max results 1-10", "minimum": 1, "maximum": 10 },
-            "region": { "type": "string", "description": "Region code e.g. us-en" }
+            "region": { "type": "string", "description": "Region code e.g. us-en" },
+            "time": { "type": "string", "description": "Time filter for freshness: d=day, w=week, m=month, y=year", "enum": ["d", "w", "m", "y"] }
         },
         "required": ["query"]
     });
