@@ -6956,6 +6956,7 @@ dependencies = [
  "xai-grok-mcp",
  "xai-grok-sampler",
  "xai-grok-sampling-types",
+ "xai-grok-session-events",
  "xai-grok-tools",
  "xai-grok-workspace-types",
  "xai-tool-runtime",

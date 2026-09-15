@@ -36,6 +36,7 @@ xai-grok-tools = { path = "../crates/codegen/xai-grok-tools" }
 xai-grok-sampler = { path = "../crates/codegen/xai-grok-sampler" }
 xai-grok-sampling-types = { path = "../crates/codegen/xai-grok-sampling-types" }
 xai-grok-mcp = { path = "../crates/codegen/xai-grok-mcp" }
+xai-grok-session-events = { path = "../crates/codegen/xai-grok-session-events" }
 xai-grok-workspace-types = { path = "../crates/codegen/xai-grok-workspace-types" }
 xai-tool-runtime = { path = "../crates/common/xai-tool-runtime" }
 xai-tool-types = { path = "../crates/common/xai-tool-types" }

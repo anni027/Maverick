@@ -75,6 +75,56 @@ impl AppState {
             crate::tools::build_tool_bridge_with_app_data(Some(app_data_dir.clone())).await?,
         );
 
+        // Auto-restore MCP servers from config in background (real handshake, non-blocking)
+        {
+            let bridge_clone = tool_bridge.clone();
+            let cfg_clone = config_manager.clone();
+            tokio::spawn(async move {
+                let snapshot = cfg_clone.read().await.mcp_servers.clone();
+                for (name, srv) in snapshot {
+                    if !srv.enabled {
+                        continue;
+                    }
+                    match srv.transport.as_str() {
+                        "stdio" => {
+                            if let Some(cmd) = srv.command {
+                                let tb = bridge_clone.clone();
+                                let n = name.clone();
+                                let a = srv.args.clone();
+                                let _ = tokio::task::spawn_blocking(move || {
+                                    let rt = tokio::runtime::Builder::new_current_thread()
+                                        .enable_all()
+                                        .build()
+                                        .unwrap();
+                                    rt.block_on(async {
+                                        let _ = crate::mcp::add_mcp_server_real(&tb, &n, &cmd, a).await;
+                                    })
+                                })
+                                .await;
+                            }
+                        }
+                        "http" => {
+                            if let Some(url) = srv.url {
+                                let tb = bridge_clone.clone();
+                                let n = name.clone();
+                                let _ = tokio::task::spawn_blocking(move || {
+                                    let rt = tokio::runtime::Builder::new_current_thread()
+                                        .enable_all()
+                                        .build()
+                                        .unwrap();
+                                    rt.block_on(async {
+                                        let _ = crate::mcp::add_mcp_server_http_real(&tb, &n, &url).await;
+                                    })
+                                })
+                                .await;
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+            });
+        }
+
         Ok(Self {
             session_manager,
             provider_registry: Arc::new(tokio::sync::RwLock::new(provider_registry)),
@@ -302,7 +352,7 @@ pub async fn list_providers(state: State<'_, AppState>) -> Result<Vec<ProviderIn
         .collect())
 }
 
-/// Add an MCP server.
+/// Add an MCP server — tries real handshake, falls back to placeholder.
 #[command]
 pub async fn add_mcp(
     name: String,
@@ -310,7 +360,7 @@ pub async fn add_mcp(
     args: Vec<String>,
     state: State<'_, AppState>,
 ) -> Result<Vec<String>, String> {
-    // Register in config
+    // Register in config first (so it persists even if handshake fails)
     let mcp_config = crate::config::McpServerConfig {
         transport: "stdio".to_string(),
         command: Some(command.clone()),
@@ -324,10 +374,22 @@ pub async fn add_mcp(
         .await
         .map_err(|e| e.to_string())?;
 
-    // Register tools
-    add_mcp_server(&state.tool_bridge, &name, &command, args)
-        .await
-        .map_err(|e| e.to_string())
+    // Real handshake is !Send (contains *mut), so run it on a dedicated
+    // current_thread runtime inside spawn_blocking to keep the Tauri future Send.
+    let tool_bridge = state.tool_bridge.clone();
+    let name_c = name.clone();
+    let command_c = command.clone();
+    let args_c = args.clone();
+    let join = tokio::task::spawn_blocking(move || {
+        let rt = tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()
+            .expect("mcp rt");
+        rt.block_on(async {
+            crate::mcp::add_mcp_server_real(&tool_bridge, &name_c, &command_c, args_c).await
+        })
+    });
+    join.await.map_err(|e| e.to_string())?.map_err(|e| e.to_string())
 }
 
 /// Remove an MCP server.
@@ -483,7 +545,7 @@ pub async fn get_default_provider(state: State<'_, AppState>) -> Result<Option<S
     Ok(state.config_manager.default_provider().await)
 }
 
-/// Add an MCP server with full config.
+/// Add an MCP server with full config — persists + real handshake.
 #[command]
 pub async fn add_mcp_server_full(
     name: String,
@@ -494,17 +556,58 @@ pub async fn add_mcp_server_full(
     state: State<'_, AppState>,
 ) -> Result<(), String> {
     let mcp_config = crate::config::McpServerConfig {
-        transport,
-        command,
-        args,
-        url,
+        transport: transport.clone(),
+        command: command.clone(),
+        args: args.clone(),
+        url: url.clone(),
         enabled: true,
     };
     state
         .config_manager
-        .add_mcp_server(name, mcp_config)
+        .add_mcp_server(name.clone(), mcp_config)
         .await
-        .map_err(|e| e.to_string())
+        .map_err(|e| e.to_string())?;
+    // Try real handshake (spawn_blocking for !Send)
+    let tool_bridge = state.tool_bridge.clone();
+    let name_c = name.clone();
+    let transport_c = transport.clone();
+    let command_c = command.clone();
+    let args_c = args.clone();
+    let url_c = url.clone();
+    let join = tokio::task::spawn_blocking(move || {
+        let rt = tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()
+            .expect("mcp rt");
+        rt.block_on(async {
+            match transport_c.as_str() {
+                "stdio" => {
+                    if let Some(cmd) = command_c {
+                        let _ = crate::mcp::add_mcp_server_real(&tool_bridge, &name_c, &cmd, args_c).await;
+                    }
+                }
+                "http" => {
+                    if let Some(u) = url_c {
+                        let _ = crate::mcp::add_mcp_server_http_real(&tool_bridge, &name_c, &u).await;
+                    }
+                }
+                _ => {}
+            }
+            Ok::<(), anyhow::Error>(())
+        })
+    });
+    let _ = join.await;
+    Ok(())
+}
+
+#[command]
+pub async fn list_mcp_status(state: State<'_, AppState>) -> Result<Vec<crate::mcp::McpStatus>, String> {
+    Ok(crate::mcp::get_mcp_status(&state.tool_bridge, &state.config_manager).await)
+}
+
+#[command]
+pub async fn scan_marketplace() -> Result<Vec<crate::mcp::MarketplaceEntry>, String> {
+    Ok(crate::mcp::scan_marketplace())
 }
 
 /// Get UI config.

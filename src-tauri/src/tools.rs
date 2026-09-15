@@ -230,56 +230,16 @@ pub async fn build_tool_bridge_with_app_data(app_data_dir: Option<PathBuf>) -> R
 }
 
 /// Add an MCP server by name/command/args and register its tools.
-/// Returns the qualified tool names that were registered (e.g., "myserver__tool").
-///
-/// NOTE: Full MCP handshake (stdio spawn + `tools/list` discovery) is async and
-/// lives inside `xai-grok-mcp::McpState`. For the Maverick v1 slice we seed the
-/// state with a stdio config that actually carries `args`, and register a
-/// placeholder tool so the UI can prove the round-trip without blocking on a
-/// real server spawn. Phase 4 replaces this with hosted MCP pool init.
+/// Tries real `tools/list` handshake via `xai-grok-mcp`; falls back to placeholder
+/// on failure so UI always proves round-trip. Real tools are registered as
+/// `server__tool` via `ToolBridge::register_mcp_tools`.
 pub async fn add_mcp_server(
     tool_bridge: &ToolBridge,
     server_name: &str,
     command: &str,
     args: Vec<String>,
 ) -> Result<Vec<String>> {
-    use xai_grok_workspace_types::MCP_TOOL_NAME_DELIMITER;
-    use std::sync::Arc;
-    use xai_grok_mcp::servers::{McpState, McpTool};
-
-    // Propagate args so the config round-trips to the real MCP spawn path.
-    let mcp_server_config = acp::McpServer::Stdio(
-        acp::McpServerStdio::new(server_name.to_string(), std::path::PathBuf::from(command))
-            .args(args.clone()),
-    );
-
-    let mcp_state = Arc::new(TokioMutex::new(McpState::new(vec![mcp_server_config])));
-
-    // Placeholder tool — real discovery would await `tools/list` and register N tools.
-    let mcp_tool = McpTool::new(
-        "test_tool".to_string(),
-        "A test MCP tool (v1 placeholder — real tools appear after MCP handshake)".to_string(),
-        server_name.to_string(),
-        mcp_state.clone(),
-        serde_json::json!({"type":"object","properties":{}}),
-        None,
-    );
-
-    if let Some(registration) = mcp_tool.into_registration() {
-        let qualified_name = format!("{}{}test_tool", server_name, MCP_TOOL_NAME_DELIMITER);
-
-        tool_bridge
-            .register_mcp_tools(
-                qualified_name.clone(),
-                registration.tool,
-                Some(registration.input_schema),
-            )
-            .await?;
-
-        Ok(vec![qualified_name])
-    } else {
-        Err(anyhow::anyhow!("Failed to create MCP tool registration"))
-    }
+    crate::mcp::add_mcp_server_real(tool_bridge, server_name, command, args).await
 }
 
 #[cfg(test)]

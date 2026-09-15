@@ -46,6 +46,8 @@ fn main() -> anyhow::Result<()> {
             maverick_backend::commands::refresh_skills,
             maverick_backend::commands::search_skills,
             maverick_backend::commands::get_skill_content,
+            maverick_backend::commands::list_mcp_status,
+            maverick_backend::commands::scan_marketplace,
         ])
         .run(tauri::generate_context!())
         .map_err(anyhow::Error::from)

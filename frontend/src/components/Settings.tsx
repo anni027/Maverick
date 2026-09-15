@@ -24,6 +24,8 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
   const [apiKeys, setApiKeys] = useState<Record<string,string>>({});
   const [providerSettings, setProviderSettings] = useState<Record<string, {base_url?: string, model?: string, kind?: string}>>({});
   const [mcpServers, setMcpServers] = useState<Array<{name:string;transport:string;command?:string;args:string;url?:string;enabled:boolean}>>([]);
+  const [mcpStatus, setMcpStatus] = useState<Array<{name:string;transport:string;tool_count:number;status:string;tools:string[]}>>([]);
+  const [marketplace, setMarketplace] = useState<Array<{name:string;description:string;transport:string;command?:string;args:string[];url?:string;category:string;install_count?:number}>>([]);
   const [uiConfig, setUiConfig] = useState({ theme:'dark', show_tool_calls:true, auto_scroll:true, compact_mode:false });
   const [defaultProvider, setDefaultProvider] = useState('');
   const [activeTab, setActiveTab] = useState<'providers'|'mcp'|'skills'|'ui'>('providers');
@@ -44,12 +46,24 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
   const [kiloSearch, setKiloSearch] = useState('');
   const [kiloFilter, setKiloFilter] = useState<'all'|'free'|'paid'>('all');
 
-  useEffect(()=>{ if(isOpen) { loadConfig(); loadSkills(); } },[isOpen]);
+  useEffect(()=>{ if(isOpen) { loadConfig(); loadSkills(); loadMcpStatus(); loadMarketplace(); } },[isOpen]);
   const loadSkills = async () => {
     try {
       const list = await invoke<Array<{name:string, description:string, path:string, scope:string, display_name?:string, enabled:boolean}>>('list_skills');
       setSkills(list);
     } catch(e){ console.error('list_skills failed', e); }
+  };
+  const loadMcpStatus = async () => {
+    try {
+      const st = await invoke<Array<{name:string,transport:string,tool_count:number,status:string,tools:string[]}>>('list_mcp_status');
+      setMcpStatus(st);
+    } catch(e){ console.error('list_mcp_status failed', e); }
+  };
+  const loadMarketplace = async () => {
+    try {
+      const mp = await invoke<Array<{name:string,description:string,transport:string,command?:string,args:string[],url?:string,category:string,install_count?:number}>>('scan_marketplace');
+      setMarketplace(mp);
+    } catch(e){ console.error('scan_marketplace failed', e); }
   };
 
   const fetchKiloModels = async (target: string) => {
@@ -141,12 +155,19 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
     setSaving('mcp');
     try{
       await invoke('add_mcp_server_full',{name:newMcp.name, transport:newMcp.transport, command: newMcp.transport==='stdio'?newMcp.command:undefined, args:newMcp.args.split(' ').filter(a=>a.trim()), url: newMcp.transport==='http'?newMcp.url:undefined});
-      loadConfig(); setNewMcp({name:'',transport:'stdio',command:'',args:'',url:''});
+      loadConfig(); loadMcpStatus(); setNewMcp({name:'',transport:'stdio',command:'',args:'',url:''});
     }catch(e){ alert(String(e))} finally{ setSaving(null)}
   };
   const removeMcpServer=async(name:string)=>{
     if(!confirm(`Remove MCP server "${name}"?`)) return;
-    try{ await invoke('remove_mcp',{name}); loadConfig(); }catch(e){ alert(String(e))}
+    try{ await invoke('remove_mcp',{name}); loadConfig(); loadMcpStatus(); }catch(e){ alert(String(e))}
+  };
+  const installMarketplace = async (entry: any)=>{
+    setSaving('mp-'+entry.name);
+    try{
+      await invoke('add_mcp_server_full',{name: entry.name, transport: entry.transport, command: entry.command, args: entry.args || [], url: entry.url});
+      loadConfig(); loadMcpStatus();
+    }catch(e){ alert(String(e))} finally{ setSaving(null)}
   };
   const handleUiChange=async(k:string,v:boolean)=>{
     const nc={...uiConfig,[k]:v}; setUiConfig(nc);
@@ -363,19 +384,41 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
                       <button onClick={addMcpServer} disabled={saving==='mcp' || !newMcp.name.trim() || (newMcp.transport==='stdio' && !newMcp.command.trim()) || (newMcp.transport==='http' && !newMcp.url?.trim())} style={{alignSelf:'flex-start', borderRadius:'999px'}}>{saving==='mcp' ? 'Adding…' : 'Add server'}</button>
                     </div>
                   </div>
-                  {mcpServers.length===0 ? <div className="mono" style={{textAlign:'center', padding:'20px', color:'var(--muted)', fontSize:'12px'}}>No MCP servers configured</div> : (
+                  {mcpServers.length===0 ? <div className="mono" style={{textAlign:'center', padding:'16px', color:'var(--muted)', fontSize:'12px'}}>No MCP servers configured</div> : (
                     <div style={{display:'flex', flexDirection:'column', gap:'8px'}}>
-                      {mcpServers.map(s=>(
-                        <div key={s.name} style={{padding:'12px', border:'1px solid var(--line)', borderRadius:'12px', display:'flex', alignItems:'center', gap:'12px', background:'var(--bg)'}}>
-                          <div style={{flex:1, minWidth:0}}>
-                            <div style={{display:'flex', gap:'8px', alignItems:'center'}}><span style={{fontWeight:600, fontSize:'13px'}}>{s.name}</span><span className="badge mono">{s.transport}</span></div>
-                            <div className="mono" style={{fontSize:'11px', color:'var(--muted)', marginTop:'4px', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}}>{s.transport==='stdio' ? `${s.command} ${s.args}` : s.url}</div>
+                      {mcpServers.map(s=>{
+                        const st = mcpStatus.find(x=> x.name===s.name);
+                        return (
+                        <div key={s.name} style={{padding:'12px', border:'1px solid var(--line)', borderRadius:'12px', display:'flex', flexDirection:'column', gap:'8px', background:'var(--bg)'}}>
+                          <div style={{display:'flex', alignItems:'center', gap:'12px'}}>
+                            <div style={{flex:1, minWidth:0}}>
+                              <div style={{display:'flex', gap:'8px', alignItems:'center', flexWrap:'wrap'}}><span style={{fontWeight:600, fontSize:'13px'}}>{s.name}</span><span className="badge mono">{s.transport}</span>{st && <span className="mono" style={{fontSize:'10px', padding:'2px 6px', borderRadius:999, border:'1px solid var(--line)', color: st.status==='Ready'?'#16a34a': st.status==='Placeholder'?'var(--muted)':'#ff6b6b'}}>{st.status} • {st.tool_count} tools</span>}</div>
+                              <div className="mono" style={{fontSize:'11px', color:'var(--muted)', marginTop:'4px', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}}>{s.transport==='stdio' ? `${s.command} ${s.args}` : s.url}</div>
+                            </div>
+                            <button className="btn-ghost" onClick={()=>removeMcpServer(s.name)} style={{color:'#ff6b6b', borderRadius:'999px'}}>Remove</button>
                           </div>
-                          <button className="btn-ghost" onClick={()=>removeMcpServer(s.name)} style={{color:'#ff6b6b', borderRadius:'999px'}}>Remove</button>
+                          {st && st.tools.length>0 && <div className="mono" style={{fontSize:'10px', color:'var(--muted)', background:'var(--panel)', border:'1px solid var(--line)', padding:'6px 8px', borderRadius:'8px', wordBreak:'break-all'}}>{st.tools.slice(0,8).join(' • ')}{st.tools.length>8 ? ` +${st.tools.length-8} more` : ''}</div>}
+                        </div>
+                      )})}
+                    </div>
+                  )}
+                  <div style={{height:'1px', background:'var(--line)'}} />
+                  <div style={{padding:'16px', border:'1px dashed var(--line)', borderRadius:'12px', background:'var(--panel)'}}>
+                    <div style={{display:'flex', alignItems:'center', gap:'8px', marginBottom:'10px'}}><span style={{fontWeight:600, fontSize:'13px'}}>Marketplace</span><span className="badge mono">{marketplace.length} servers</span><button className="btn-ghost" onClick={loadMarketplace} style={{marginLeft:'auto', fontSize:'11px', padding:'4px 8px', borderRadius:'999px'}}>Refresh</button></div>
+                    <div className="mono" style={{fontSize:'11px', color:'var(--muted)', marginBottom:'12px'}}>Full marketplace via <span style={{color:'var(--text)'}}>xai-org/plugin-marketplace</span> scaffold — one-click install. Hub cache is <span style={{color:'var(--text)'}}>Server</span> scope.</div>
+                    <div style={{display:'flex', flexDirection:'column', gap:'8px', maxHeight:'280px', overflowY:'auto'}}>
+                      {marketplace.map(entry=>(
+                        <div key={entry.name} style={{padding:'12px', border:'1px solid var(--line)', borderRadius:'12px', background:'var(--bg)', display:'flex', gap:'12px', alignItems:'center'}}>
+                          <div style={{flex:1, minWidth:0}}>
+                            <div style={{display:'flex', gap:'8px', alignItems:'center', flexWrap:'wrap'}}><span style={{fontWeight:600, fontSize:'13px'}}>{entry.name}</span><span className="badge mono">{entry.category}</span><span className="mono" style={{fontSize:'10px', color:'var(--muted)'}}>{entry.transport}</span>{entry.install_count && <span className="mono" style={{fontSize:'10px', color:'var(--faint)'}}>{entry.install_count.toLocaleString()} installs</span>}</div>
+                            <div className="mono" style={{fontSize:'11px', color:'var(--muted)', marginTop:'4px', lineHeight:1.4}}>{entry.description}</div>
+                            <div className="mono" style={{fontSize:'10px', color:'var(--faint)', marginTop:'2px'}}>{entry.transport==='stdio' ? `${entry.command} ${(entry.args||[]).join(' ')}` : entry.url}</div>
+                          </div>
+                          <button onClick={()=> installMarketplace(entry)} disabled={saving==='mp-'+entry.name || mcpServers.some(s=> s.name===entry.name)} style={{borderRadius:'999px', whiteSpace:'nowrap', fontSize:'12px', padding:'8px 14px'}}>{mcpServers.some(s=> s.name===entry.name) ? 'Installed' : saving==='mp-'+entry.name ? '…' : 'Install'}</button>
                         </div>
                       ))}
                     </div>
-                  )}
+                  </div>
                 </div>
               )}
 
