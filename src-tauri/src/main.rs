@@ -38,6 +38,14 @@ fn main() -> anyhow::Result<()> {
             maverick_backend::commands::get_ui_config,
             maverick_backend::commands::set_ui_config,
             maverick_backend::commands::list_kilo_models,
+            maverick_backend::commands::list_skills,
+            maverick_backend::commands::install_skill,
+            maverick_backend::commands::remove_skill,
+            maverick_backend::commands::fetch_hub_skill,
+            maverick_backend::commands::list_hub_skills,
+            maverick_backend::commands::refresh_skills,
+            maverick_backend::commands::search_skills,
+            maverick_backend::commands::get_skill_content,
         ])
         .run(tauri::generate_context!())
         .map_err(anyhow::Error::from)

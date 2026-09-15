@@ -55,3 +55,19 @@ export interface ToolResult {
   toolCallId: string;
   content: string;
 }
+
+export interface SkillDto {
+  name: string;
+  display_name?: string | null;
+  description: string;
+  path: string;
+  scope: string;
+  enabled: boolean;
+  plugin_name?: string | null;
+  when_to_use?: string | null;
+  allowed_tools?: string[] | null;
+}
+
+export interface HubIndex {
+  skills: Record<string, { version: string; description: string; author?: string; path: string }>;
+}

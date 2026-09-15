@@ -10,7 +10,7 @@ use crate::{
     agent_loop::AgentLoop,
     providers::{ProviderInfoDto, ProviderRegistry},
     session_store::SessionManager,
-    tools::{add_mcp_server, build_chat_handle, build_tool_bridge, PermissionGuard},
+    tools::{add_mcp_server, build_chat_handle, PermissionGuard},
 };
 use xai_grok_tools::bridge::ToolBridge;
 
@@ -71,7 +71,9 @@ impl AppState {
         }
 
         let permission_guard = PermissionGuard::new(true); // auto-approve for now
-        let tool_bridge = Arc::new(build_tool_bridge().await?);
+        let tool_bridge = Arc::new(
+            crate::tools::build_tool_bridge_with_app_data(Some(app_data_dir.clone())).await?,
+        );
 
         Ok(Self {
             session_manager,
@@ -563,4 +565,105 @@ pub async fn list_kilo_models() -> Result<Vec<KiloModel>, String> {
         out.push(KiloModel { id, name, context_length, is_free, pricing });
     }
     Ok(out)
+}
+
+/// List discovered skills (local + hub)
+#[command]
+pub async fn list_skills(state: State<'_, AppState>) -> Result<Vec<crate::skills::SkillDto>, String> {
+    let ws = crate::tools::resolve_workspace_dir();
+    let skills = crate::skills::discover_skills(&state.app_data_dir, &ws);
+    Ok(skills.iter().map(crate::skills::SkillDto::from).collect())
+}
+
+/// Install a skill from raw SKILL.md content
+#[command]
+pub async fn install_skill(
+    name: String,
+    content: String,
+    scope: Option<String>,
+    state: State<'_, AppState>,
+) -> Result<String, String> {
+    let path = crate::skills::install_skill(&state.app_data_dir, &name, &content, scope)
+        .map_err(|e| e.to_string())?;
+    refresh_skills_internal(&state).await?;
+    Ok(path.to_string_lossy().to_string())
+}
+
+/// Remove a skill by name
+#[command]
+pub async fn remove_skill(name: String, state: State<'_, AppState>) -> Result<(), String> {
+    crate::skills::remove_skill(&state.app_data_dir, &name).map_err(|e| e.to_string())?;
+    refresh_skills_internal(&state).await?;
+    Ok(())
+}
+
+/// Fetch a skill from hub (agentskills.io or raw URL)
+#[command]
+pub async fn fetch_hub_skill(
+    hub_url: String,
+    owner: String,
+    name: String,
+    version: Option<String>,
+    state: State<'_, AppState>,
+) -> Result<crate::skills::SkillDto, String> {
+    let dto = crate::skills::fetch_hub_skill(&state.app_data_dir, &hub_url, &owner, &name, version)
+        .await
+        .map_err(|e| e.to_string())?;
+    refresh_skills_internal(&state).await?;
+    Ok(dto)
+}
+
+#[command]
+pub async fn list_hub_skills(state: State<'_, AppState>) -> Result<crate::skills::HubIndex, String> {
+    Ok(crate::skills::list_hub_index(&state.app_data_dir))
+}
+
+#[command]
+pub async fn refresh_skills(state: State<'_, AppState>) -> Result<Vec<crate::skills::SkillDto>, String> {
+    refresh_skills_internal(&state).await?;
+    let ws = crate::tools::resolve_workspace_dir();
+    let skills = crate::skills::discover_skills(&state.app_data_dir, &ws);
+    Ok(skills.iter().map(crate::skills::SkillDto::from).collect())
+}
+
+async fn refresh_skills_internal(state: &State<'_, AppState>) -> Result<(), String> {
+    let ws = crate::tools::resolve_workspace_dir();
+    let skills = crate::skills::discover_skills(&state.app_data_dir, &ws);
+    // Update ToolBridge baseline
+    let infos: Vec<xai_grok_tools::implementations::skills::types::SkillInfo> = skills;
+    state.tool_bridge.update_skill_baseline(infos).await;
+    // Also update AppState's tool_bridge available skills for next sessions
+    // Apply pending to refresh AvailableSkills
+    let _ = state.tool_bridge.apply_pending_skill_update().await;
+    Ok(())
+}
+
+/// Search skills by query (name/description filter, case-insensitive)
+#[command]
+pub async fn search_skills(query: String, state: State<'_, AppState>) -> Result<Vec<crate::skills::SkillDto>, String> {
+    let ws = crate::tools::resolve_workspace_dir();
+    let skills = crate::skills::discover_skills(&state.app_data_dir, &ws);
+    let q = query.to_lowercase();
+    let filtered: Vec<_> = skills
+        .iter()
+        .filter(|s| {
+            s.name.to_lowercase().contains(&q)
+                || s.description.to_lowercase().contains(&q)
+                || s.when_to_use.as_deref().unwrap_or("").to_lowercase().contains(&q)
+        })
+        .map(crate::skills::SkillDto::from)
+        .collect();
+    Ok(filtered)
+}
+
+/// Get raw SKILL.md content by skill name
+#[command]
+pub async fn get_skill_content(name: String, state: State<'_, AppState>) -> Result<String, String> {
+    let ws = crate::tools::resolve_workspace_dir();
+    let skills = crate::skills::discover_skills(&state.app_data_dir, &ws);
+    let skill = skills
+        .iter()
+        .find(|s| s.name == name)
+        .ok_or_else(|| format!("Skill '{name}' not found"))?;
+    std::fs::read_to_string(&skill.path).map_err(|e| e.to_string())
 }

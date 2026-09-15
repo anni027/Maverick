@@ -26,7 +26,11 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
   const [mcpServers, setMcpServers] = useState<Array<{name:string;transport:string;command?:string;args:string;url?:string;enabled:boolean}>>([]);
   const [uiConfig, setUiConfig] = useState({ theme:'dark', show_tool_calls:true, auto_scroll:true, compact_mode:false });
   const [defaultProvider, setDefaultProvider] = useState('');
-  const [activeTab, setActiveTab] = useState<'providers'|'mcp'|'ui'>('providers');
+  const [activeTab, setActiveTab] = useState<'providers'|'mcp'|'skills'|'ui'>('providers');
+  const [skills, setSkills] = useState<Array<{name:string, description:string, path:string, scope:string, display_name?: string, enabled:boolean}>>([]);
+  const [newSkill, setNewSkill] = useState({ name:'', content:'' });
+  const [hubFetch, setHubFetch] = useState({ owner:'', name:'', version:'', url:'https://agentskills.io' });
+  const [skillSearch, setSkillSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [newMcp, setNewMcp] = useState({ name:'', transport:'stdio', command:'', args:'', url:'' });
   const [newCustom, setNewCustom] = useState({ id:'', base_url:'', model:'', api_key:'', kind:'openai' as 'openai'|'anthropic' });
@@ -40,7 +44,13 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
   const [kiloSearch, setKiloSearch] = useState('');
   const [kiloFilter, setKiloFilter] = useState<'all'|'free'|'paid'>('all');
 
-  useEffect(()=>{ if(isOpen) loadConfig(); },[isOpen]);
+  useEffect(()=>{ if(isOpen) { loadConfig(); loadSkills(); } },[isOpen]);
+  const loadSkills = async () => {
+    try {
+      const list = await invoke<Array<{name:string, description:string, path:string, scope:string, display_name?:string, enabled:boolean}>>('list_skills');
+      setSkills(list);
+    } catch(e){ console.error('list_skills failed', e); }
+  };
 
   const fetchKiloModels = async (target: string) => {
     setShowKiloPicker(target); setKiloLoading(true); setKiloError(null);
@@ -142,6 +152,28 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
     const nc={...uiConfig,[k]:v}; setUiConfig(nc);
     try{ await invoke('set_ui_config',{ui:nc}); }catch(e){ console.error(e)}
   };
+  const handleInstallSkill = async()=>{
+    if(!newSkill.name.trim() || !newSkill.content.trim()){ alert('Name and SKILL.md content required'); return; }
+    setSaving('skill');
+    try{
+      await invoke('install_skill',{name:newSkill.name, content:newSkill.content, scope: null});
+      setNewSkill({name:'', content:''});
+      loadSkills();
+    }catch(e){ alert(String(e))} finally{ setSaving(null)}
+  };
+  const handleRemoveSkill = async(name:string)=>{
+    if(!confirm(`Remove skill "${name}"?`)) return;
+    try{ await invoke('remove_skill',{name}); loadSkills(); }catch(e){ alert(String(e))}
+  };
+  const handleFetchHub = async()=>{
+    if(!hubFetch.owner.trim() || !hubFetch.name.trim()){ alert('Owner and name required'); return; }
+    setSaving('hub');
+    try{
+      await invoke('fetch_hub_skill',{hubUrl: hubFetch.url || 'https://agentskills.io', owner: hubFetch.owner, name: hubFetch.name, version: hubFetch.version.trim() || null});
+      loadSkills();
+      setHubFetch(prev=> ({...prev, owner:'', name:'', version:''}));
+    }catch(e){ alert(String(e))} finally{ setSaving(null)}
+  };
 
   if(!isOpen) return null;
 
@@ -159,14 +191,14 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
         </div>
 
         <div style={{display:'flex', borderBottom:'1px solid var(--line)', padding:'0 8px', gap:'4px'}}>
-          {(['providers','mcp','ui'] as const).map(tab=>(
+          {(['providers','mcp','skills','ui'] as const).map(tab=>(
             <button key={tab} onClick={()=>setActiveTab(tab)} style={{
-              flex:1, padding:'10px', borderRadius:'999px', border:'none',
+              flex:1, padding:'8px', borderRadius:'999px', border:'none',
               background: activeTab===tab ? 'var(--text)' : 'transparent',
               color: activeTab===tab ? 'var(--bg)' : 'var(--muted)',
-              fontSize:'13px', margin:'8px 0'
+              fontSize:'12px', margin:'8px 0'
             }}>
-              {tab === 'providers' ? 'Providers' : tab === 'mcp' ? 'MCP' : 'Interface'}
+              {tab === 'providers' ? 'Providers' : tab === 'mcp' ? 'MCP' : tab === 'skills' ? 'Skills' : 'Interface'}
             </button>
           ))}
         </div>
@@ -344,6 +376,68 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
                       ))}
                     </div>
                   )}
+                </div>
+              )}
+
+              {activeTab==='skills' && (
+                <div style={{display:'flex', flexDirection:'column', gap:'16px'}}>
+                  <div style={{display:'flex', alignItems:'center', gap:'8px'}}>
+                    <input placeholder="Search skills • name or description" value={skillSearch} onChange={e=> setSkillSearch(e.target.value)} style={{flex:1}} />
+                    <button className="btn-ghost" onClick={loadSkills} style={{borderRadius:'999px', fontSize:'11px', padding:'6px 10px'}}>Refresh</button>
+                    <span className="mono" style={{fontSize:'11px', color:'var(--muted)', border:'1px solid var(--line)', padding:'4px 8px', borderRadius:999}}>{skills.length} skills</span>
+                  </div>
+
+                  {skills.length===0 ? <div className="mono" style={{textAlign:'center', padding:'20px', color:'var(--muted)', fontSize:'12px'}}>No skills installed — add one below or fetch from hub</div> : (
+                    <div style={{display:'flex', flexDirection:'column', gap:'8px', maxHeight:'220px', overflowY:'auto'}}>
+                      {skills.filter(s=> !skillSearch.trim() || s.name.toLowerCase().includes(skillSearch.toLowerCase()) || s.description.toLowerCase().includes(skillSearch.toLowerCase())).map(s=>(
+                        <div key={s.path} style={{padding:'12px', border:'1px solid var(--line)', borderRadius:'12px', background:'var(--bg)', display:'flex', flexDirection:'column', gap:'6px'}}>
+                          <div style={{display:'flex', gap:'8px', alignItems:'center', flexWrap:'wrap'}}>
+                            <span style={{fontWeight:600, fontSize:'13px'}}>{s.name}</span>
+                            <span className="badge mono">{s.scope}</span>
+                            {s.enabled ? <span className="mono" style={{fontSize:'10px', color:'#16a34a', border:'1px solid rgba(22,163,74,0.3)', padding:'1px 6px', borderRadius:999}}>enabled</span> : <span className="mono" style={{fontSize:'10px', color:'var(--faint)', border:'1px solid var(--line)', padding:'1px 6px', borderRadius:999}}>disabled</span>}
+                            <button className="btn-ghost" onClick={()=> handleRemoveSkill(s.name)} style={{marginLeft:'auto', color:'#ff6b6b', borderRadius:'999px', fontSize:'11px', padding:'4px 8px'}}>Remove</button>
+                          </div>
+                          <div className="mono" style={{fontSize:'11px', color:'var(--muted)', lineHeight:1.5}}>{s.description || 'No description — add one in SKILL.md frontmatter'}</div>
+                          <div className="mono" style={{fontSize:'10px', color:'var(--faint)', wordBreak:'break-all'}}>{s.path}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div style={{height:'1px', background:'var(--line)'}} />
+
+                  <div style={{padding:'16px', border:'1px solid var(--line)', borderRadius:'12px', background:'var(--bg)'}}>
+                    <div style={{fontWeight:600, fontSize:'13px', marginBottom:'4px'}}>Install local skill</div>
+                    <div className="mono" style={{fontSize:'11px', color:'var(--muted)', marginBottom:'10px'}}>Paste SKILL.md content — frontmatter optional. Will be saved to <span style={{color:'var(--text)'}}>~/.maverick/skills/&lt;name&gt;/SKILL.md</span></div>
+                    <div style={{display:'flex', flexDirection:'column', gap:'8px'}}>
+                      <input placeholder="Skill name • e.g. my-helper" value={newSkill.name} onChange={e=> setNewSkill({...newSkill, name: e.target.value})} />
+                      <textarea placeholder="SKILL.md content • ---&#10;name: my-helper&#10;description: Helps with ...&#10;---&#10;# Instructions&#10;..." value={newSkill.content} onChange={e=> setNewSkill({...newSkill, content: e.target.value})} rows={6} style={{fontFamily:'var(--font-mono)', fontSize:'12px', minHeight:'120px'}} />
+                      <button onClick={handleInstallSkill} disabled={saving==='skill' || !newSkill.name.trim() || !newSkill.content.trim()} style={{alignSelf:'flex-start', borderRadius:'999px'}}>{saving==='skill' ? 'Installing…' : 'Install skill'}</button>
+                    </div>
+                  </div>
+
+                  <div style={{padding:'16px', border:'1px dashed var(--line)', borderRadius:'12px', background:'var(--panel)'}}>
+                    <div style={{fontWeight:600, fontSize:'13px', marginBottom:'4px'}}>Fetch from hub / marketplace</div>
+                    <div className="mono" style={{fontSize:'11px', color:'var(--muted)', marginBottom:'10px'}}>Supports <span style={{color:'var(--text)'}}>agentskills.io</span> and any raw SKILL.md URL. Full marketplace browse coming soon — uses same hub cache as `Server` scope.</div>
+                    <div style={{display:'flex', flexDirection:'column', gap:'8px'}}>
+                      <div style={{display:'flex', gap:'8px'}}>
+                        <input placeholder="Hub URL • https://agentskills.io" value={hubFetch.url} onChange={e=> setHubFetch({...hubFetch, url: e.target.value})} style={{flex:1}} />
+                      </div>
+                      <div style={{display:'flex', gap:'8px', flexWrap:'wrap'}}>
+                        <input placeholder="Owner • e.g. maverick" value={hubFetch.owner} onChange={e=> setHubFetch({...hubFetch, owner: e.target.value})} style={{flex:1, minWidth:'120px'}} />
+                        <input placeholder="Skill • e.g. commit" value={hubFetch.name} onChange={e=> setHubFetch({...hubFetch, name: e.target.value})} style={{flex:1, minWidth:'120px'}} />
+                        <input placeholder="Version (optional)" value={hubFetch.version} onChange={e=> setHubFetch({...hubFetch, version: e.target.value})} style={{width:'130px'}} />
+                        <button onClick={handleFetchHub} disabled={saving==='hub' || !hubFetch.owner.trim() || !hubFetch.name.trim()} style={{borderRadius:'999px', whiteSpace:'nowrap'}}>{saving==='hub' ? 'Fetching…' : 'Fetch'}</button>
+                      </div>
+                      <div className="mono" style={{fontSize:'10px', color:'var(--muted)', background:'var(--bg)', padding:'6px 8px', borderRadius:'6px', border:'1px solid var(--line)'}}>
+                        Example: <span style={{color:'var(--text)'}}>owner=maverick name=commit</span> fetches <span style={{color:'var(--text)'}}>https://agentskills.io/maverick/commit/SKILL.md</span> → cached as <span style={{color:'var(--text)'}}>~/.maverick/hub/skills/maverick/commit/SKILL.md</span> (Server scope). Raw URL also works — paste full URL into Hub URL and set owner/name dummy.
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mono" style={{fontSize:'11px', color:'var(--muted)', background:'var(--panel)', border:'1px solid var(--line)', padding:'10px 12px', borderRadius:'8px'}}>
+                    Skills are loaded into <span style={{color:'var(--text)'}}>ToolBridge</span> as the `skill` tool — the model sees them as <span style={{color:'var(--text)'}}>available_skills</span> and can call `skill(name: "...")` to inject instructions. Add a skill, then prompt “use skill X” in chat. Marketplace (full browse/install from `xai-org/plugin-marketplace`) is next — hub cache already uses `Server` scope dedup.
+                  </div>
                 </div>
               )}
 

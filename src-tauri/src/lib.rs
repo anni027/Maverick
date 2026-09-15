@@ -12,6 +12,7 @@ pub mod commands;
 pub mod config;
 pub mod providers;
 pub mod session_store;
+pub mod skills;
 pub mod tools;
 
 pub use agent_event::{AgentEvent, AgentEventSink, PrintSink, TauriSink};
@@ -23,6 +24,7 @@ pub use providers::{
     ProviderRegistry,
 };
 pub use session_store::{JsonlChatPersistence, SessionManager};
+pub use skills::{SkillDto, discover_skills};
 pub use tools::{add_mcp_server, build_chat_handle, build_tool_bridge};
 pub use xai_grok_tools::bridge::ToolBridge;
 

@@ -17,6 +17,7 @@ use std::num::NonZeroU64;
 use xai_grok_sampling_types::{ApiBackend, SamplingConfig};
 use xai_grok_tools::bridge::ToolBridge;
 use xai_grok_tools::computer::local::{LocalFs, LocalTerminalBackend};
+use xai_grok_tools::implementations::opencode::skill::SkillTool as OpenCodeSkillTool;
 use xai_grok_tools::notification::ToolNotificationHandle;
 use xai_grok_tools::registry::types::{SessionContext, ToolConfig, ToolServerConfig};
 use xai_grok_tools::reminders::DEFAULT_REMINDER_TAG;
@@ -166,7 +167,13 @@ pub fn execute_write_to_file(args: &serde_json::Value, workspace_dir: &std::path
 
 /// Build the tool bridge with the v1-ready built-in subset, wired to the
 /// local terminal + local filesystem in the workspace directory.
+/// Now includes `skill` tool and auto-discovers local + hub skills.
 pub async fn build_tool_bridge() -> Result<ToolBridge> {
+    build_tool_bridge_with_app_data(None).await
+}
+
+/// Build the tool bridge with explicit app_data_dir for skill discovery.
+pub async fn build_tool_bridge_with_app_data(app_data_dir: Option<PathBuf>) -> Result<ToolBridge> {
     let builder = ToolBridge::get_builder();
 
     let config = ToolServerConfig {
@@ -180,12 +187,19 @@ pub async fn build_tool_bridge() -> Result<ToolBridge> {
             ToolConfig::from_id("GrokBuild:list_dir"),
             ToolConfig::from_id("GrokBuild:grep"),
             ToolConfig::from_id("GrokBuild:todo_write"),
+            ToolConfig::for_tool::<OpenCodeSkillTool>(),
         ],
         behavior_preset: None,
     };
 
     let ws_dir = resolve_workspace_dir();
     let _ = std::fs::create_dir_all(&ws_dir);
+    // Resolve app_data_dir for skill discovery
+    let app_data = app_data_dir
+        .unwrap_or_else(|| std::env::temp_dir().join("maverick-app"));
+    let _ = std::fs::create_dir_all(&app_data);
+    let skills = crate::skills::discover_skills(&app_data, &ws_dir);
+    let state_path = app_data.join("resources_state.json");
 
     let ctx = SessionContext {
         backend: Arc::new(LocalTerminalBackend::new()),
@@ -197,8 +211,8 @@ pub async fn build_tool_bridge() -> Result<ToolBridge> {
         owner_session_id: None,
         subagent: None,
         parent_scheduler_handle: None,
-        skills: vec![],
-        state_path: PathBuf::new(),
+        skills,
+        state_path,
         memory_backend: None,
         web_search_config: Default::default(),
         web_fetch_config: Default::default(),
