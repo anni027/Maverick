@@ -6912,6 +6912,35 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "47e1ffaa40ddd1f3ed91f717a33c8c0ee23fff369e3aa8772b9605cc1d22f4c3"
 
 [[package]]
+name = "maverick-backend"
+version = "0.1.0"
+dependencies = [
+ "agent-client-protocol",
+ "anyhow",
+ "async-trait",
+ "futures",
+ "reqwest 0.12.24",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-shell",
+ "tokio",
+ "tokio-util",
+ "toml 0.9.12+spec-1.1.0",
+ "tracing",
+ "tracing-subscriber",
+ "xai-chat-state",
+ "xai-grok-mcp",
+ "xai-grok-sampler",
+ "xai-grok-sampling-types",
+ "xai-grok-tools",
+ "xai-grok-workspace-types",
+ "xai-tool-runtime",
+ "xai-tool-types",
+]
+
+[[package]]
 name = "maybe-async"
 version = "0.2.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7248,35 +7277,6 @@ name = "new_debug_unreachable"
 version = "1.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "650eef8c711430f1a879fdd01d4745a7deea475becfb90269c06775983bbf086"
-
-[[package]]
-name = "nexus-backend"
-version = "0.1.0"
-dependencies = [
- "agent-client-protocol",
- "anyhow",
- "async-trait",
- "futures",
- "reqwest 0.12.24",
- "serde",
- "serde_json",
- "tauri",
- "tauri-build",
- "tauri-plugin-shell",
- "tokio",
- "tokio-util",
- "toml 0.9.12+spec-1.1.0",
- "tracing",
- "tracing-subscriber",
- "xai-chat-state",
- "xai-grok-mcp",
- "xai-grok-sampler",
- "xai-grok-sampling-types",
- "xai-grok-tools",
- "xai-grok-workspace-types",
- "xai-tool-runtime",
- "xai-tool-types",
-]
 
 [[package]]
 name = "nix"

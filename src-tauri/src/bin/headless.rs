@@ -7,5 +7,5 @@ async fn main() -> anyhow::Result<()> {
                 .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("info")),
         )
         .init();
-    nexus_backend::run_headless_demo().await
+    maverick_backend::run_headless_demo().await
 }

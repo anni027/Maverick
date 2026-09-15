@@ -71,7 +71,7 @@ pub fn build_chat_handle(
         initial_history,
         SamplingConfig {
             base_url: String::new(),
-            model: "mock".to_string(),
+            model: "maverick".to_string(),
             max_completion_tokens: None,
             temperature: None,
             top_p: None,
@@ -219,7 +219,7 @@ pub async fn build_tool_bridge() -> Result<ToolBridge> {
 /// Returns the qualified tool names that were registered (e.g., "myserver__tool").
 ///
 /// NOTE: Full MCP handshake (stdio spawn + `tools/list` discovery) is async and
-/// lives inside `xai-grok-mcp::McpState`. For the Nexus v1 slice we seed the
+/// lives inside `xai-grok-mcp::McpState`. For the Maverick v1 slice we seed the
 /// state with a stdio config that actually carries `args`, and register a
 /// placeholder tool so the UI can prove the round-trip without blocking on a
 /// real server spawn. Phase 4 replaces this with hosted MCP pool init.
@@ -274,7 +274,7 @@ mod tests {
 
     #[test]
     fn test_execute_write_to_file() {
-        let temp_dir = std::env::temp_dir().join("nexus_test_ws");
+        let temp_dir = std::env::temp_dir().join("maverick_test_ws");
         let _ = std::fs::create_dir_all(&temp_dir);
 
         let args = serde_json::json!({

@@ -1,4 +1,4 @@
-# Nexus
+# Maverick
 
 A **chat-first automation agent** built by slicing [`xai-grok`](https://github.com/xai-org/grok)
 (the `grok` CLI) into a clean, single-process Rust core. Think Hermes / OpenClaw, but
@@ -20,19 +20,18 @@ Tauri WebView (React)  ──invoke/events──▶  Rust backend (single proces
 - **`AgentLoop`** (`src-tauri/src/agent_loop.rs`) — composes three vendored, ACP-free
   building blocks: `xai-chat-state` (conversation), `xai-grok-tools` (tool runtime),
   and a pluggable `Provider`. It is deliberately free of any ACP / transport code.
-- **`Provider`** (`src-tauri/src/providers/mod.rs`) — the unified backend trait. Phase 1
-  ships a `MockProvider`; Phase 2 adds real streaming providers.
+- **`Provider`** (`src-tauri/src/providers/mod.rs`) — the unified backend trait with real streaming providers (xAI / OpenAI / Anthropic / custom).
 - **`ToolBridge`** (`src-tauri/src/tools.rs`) — the vendored tool runtime wired with the
   in-crate local terminal + local filesystem. No `xai-grok-shell` involved.
 
 ## Repo layout
 
 ```
-nexus/
+maverick/
   Cargo.toml            # workspace root (hand-authored; lists crates/ + src-tauri)
   crates/               # vendored xai-grok core crates (copied from grok-build)
   src-tauri/            # the Rust backend (AgentLoop, Provider, tools, Tauri layer)
-  frontend/             # React + TypeScript chat UI (Phase 6)
+  frontend/             # React + TypeScript chat UI
   bin/protoc.exe        # protoc v29.3 (needed only to build the proto crate)
 ```
 
@@ -48,21 +47,22 @@ nexus/
 
 ```bash
 # from repo root
-export PROTOC=/abs/path/to/nexus/bin/protoc.exe   # Windows
-cargo run -p nexus-backend
+export PROTOC=/abs/path/to/maverick/bin/protoc.exe   # Windows
+cargo run -p maverick-backend
 ```
 
-The demo builds the agent loop with a `MockProvider` + the real tool bridge, sends one
+The demo builds the agent loop with a real provider + the real tool bridge, sends one
 user message, and runs the loop — exercising text + a real `bash` tool call end-to-end
-(printed as events).
+(printed as events). Requires an API key in `maverick-app/config.toml`.
 
 ## Roadmap
 
 - [x] Phase 0 — Scaffold + vendor ACP-free core crates
-- [x] Phase 1 — Fresh `AgentLoop` + `AgentEvent` sink + `MockProvider` + real tool bridge
-- [ ] Phase 2 — Unified `Provider` system (xAI / OpenAI / Anthropic / Kilo / OpenCode)
-- [ ] Phase 3 — Tool system hardening (v1 tool subset, permission UX)
-- [ ] Phase 4 — MCP support
-- [ ] Phase 5 — Sessions + JSONL persistence
-- [ ] Phase 6 — Tauri integration + React chat UI
-- [ ] Phase 7 — Config store + API-key / MCP UX
+- [x] Phase 1 — Fresh `AgentLoop` + `AgentEvent` sink + real tool bridge
+- [x] Phase 2 — Unified `Provider` system (xAI / OpenAI / Anthropic / Kilo / OpenCode)
+- [x] Phase 3 — Tool system hardening (v1 tool subset, permission UX)
+- [x] Phase 4 — MCP placeholder + real handshake pending
+- [x] Phase 5 — Sessions + JSONL persistence
+- [x] Phase 6 — Tauri integration + React chat UI
+- [x] Phase 7 — Config store + API-key / MCP UX
+- [x] Rebrand — fully Maverick, mock removed

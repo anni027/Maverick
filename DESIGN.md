@@ -28,7 +28,7 @@ Minimal Ferrari × ChatGPT. ChatGPT's center-768 familiar, Ferrari's Rosso restr
 ## Layout
 
 - Sidebar 260, Bg #0F0F0F, right 1px Line, top New Chat full-width text/Bg, history list 8px radius, bottom user.
-- Header 56, Bg Bg, bottom 1px Line, left toggle 36px, center Mark 22 + NEXUS, model selector pill, tools count pill.
+- Header 56, Bg Bg, bottom 1px Line, left toggle 36px, center Mark 22 + MAVERICK, model selector pill, tools count pill.
 - Main: centered 760 max, chat scroll, input dock bottom 1px top, 768 centered, 8px radius.
 
 ## Iconography

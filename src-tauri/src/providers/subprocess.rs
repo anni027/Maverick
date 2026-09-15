@@ -6,9 +6,9 @@
 //! wire format the native HTTP providers use. The agent loop never knows the
 //! difference: a subprocess provider looks identical to `OpenAiProvider`.
 //!
-//! Phase 2 ships a **mock** subprocess provider that runs a tiny echo script
-//! and emits a canned assistant message, proving the framing. Phase 3 swaps
-//! the parser for a real Kilo/OpenCode protocol.
+//! Phase 2 ships a subprocess provider that spawns an external CLI
+//! (Kilo Code / OpenCode) and maps its output to the ConversationResponse
+//! wire format. The template here runs a command and emits stdout as the reply.
 
 use std::sync::Arc;
 

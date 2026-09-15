@@ -1,4 +1,4 @@
-//! Configuration system for Nexus.
+//! Configuration system for Maverick.
 //!
 //! Handles loading/saving `config.toml` with API keys, provider settings,
 //! MCP server configs, and user preferences.
@@ -15,7 +15,7 @@ use crate::providers::ProviderConfig;
 
 /// Top-level configuration file.
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
-pub struct NexusConfig {
+pub struct MaverickConfig {
     /// API keys per provider (never logged).
     #[serde(default)]
     pub api_keys: HashMap<String, String>,
@@ -100,7 +100,7 @@ fn default_theme() -> String {
     "dark".to_string()
 }
 
-impl NexusConfig {
+impl MaverickConfig {
     /// Config file path: `<app_data>/config.toml`
     pub fn config_path(app_data_dir: &Path) -> PathBuf {
         app_data_dir.join("config.toml")
@@ -226,13 +226,13 @@ impl NexusConfig {
 
 /// Runtime configuration holder with hot-reload support.
 pub struct ConfigManager {
-    config: Arc<RwLock<NexusConfig>>,
+    config: Arc<RwLock<MaverickConfig>>,
     app_data_dir: PathBuf,
 }
 
 impl ConfigManager {
     pub fn new(app_data_dir: PathBuf) -> Result<Self> {
-        let config = NexusConfig::load(&app_data_dir)?;
+        let config = MaverickConfig::load(&app_data_dir)?;
         Ok(Self {
             config: Arc::new(RwLock::new(config)),
             app_data_dir,
@@ -240,12 +240,12 @@ impl ConfigManager {
     }
 
     /// Get a read guard on the config.
-    pub async fn read(&self) -> tokio::sync::RwLockReadGuard<'_, NexusConfig> {
+    pub async fn read(&self) -> tokio::sync::RwLockReadGuard<'_, MaverickConfig> {
         self.config.read().await
     }
 
     /// Get a write guard on the config.
-    pub async fn write(&self) -> tokio::sync::RwLockWriteGuard<'_, NexusConfig> {
+    pub async fn write(&self) -> tokio::sync::RwLockWriteGuard<'_, MaverickConfig> {
         self.config.write().await
     }
 

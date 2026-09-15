@@ -12,7 +12,6 @@
 //! stdout and a native HTTP provider that streams SSE both satisfy the same
 //! contract.
 
-pub mod mock;
 pub mod provider;
 pub mod registry;
 pub mod xai;
@@ -20,7 +19,6 @@ pub mod openai;
 pub mod anthropic;
 pub mod subprocess;
 
-pub use mock::MockProvider;
 pub use provider::{
     Provider, ProviderCapabilities, ProviderConfig, ProviderInfo, ProviderInfoDto, ProviderKind,
 };
@@ -89,9 +87,6 @@ pub fn create_provider(
     model: Option<String>,
     kind: Option<String>,
 ) -> Option<Arc<dyn Provider>> {
-    if id == "mock" {
-        return Some(Arc::new(MockProvider::new()));
-    }
     let (def_base, def_model) = default_provider_config(id);
     let raw_base = base_url.filter(|s| !s.trim().is_empty()).unwrap_or(def_base);
     let base = normalize_base_url(id, &raw_base);
@@ -163,15 +158,6 @@ pub fn provider_info_for_with_kind(
                 api_key,
             },
         ),
-        "mock" => (
-            ProviderKind::Subprocess,
-            "Mock".to_string(),
-            ProviderConfig::Subprocess {
-                command: "".to_string(),
-                args: vec![],
-                env: vec![],
-            },
-        ),
         _ => {
             let is_anthropic = kind.as_deref() == Some("anthropic");
             let display_name = if is_anthropic {
@@ -200,7 +186,7 @@ pub fn provider_info_for_with_kind(
     })
 }
 
-/// Backwards-compatible helper for mock-only calls.
+/// Helper for simple provider creation without base_url/model overrides.
 pub fn provider_info_for_simple(id: &str, api_key: Option<String>) -> Option<ProviderInfo> {
     provider_info_for(id, api_key, None, None, None)
 }
@@ -238,9 +224,6 @@ mod tests {
 
     #[test]
     fn test_provider_model_reporting() {
-        let mock = create_provider("mock", None, None, None, None).unwrap();
-        assert_eq!(mock.model(), "mock");
-
         let openai = create_provider("openai", None, None, Some("gpt-4o-mini".to_string()), None).unwrap();
         assert_eq!(openai.model(), "gpt-4o-mini");
 

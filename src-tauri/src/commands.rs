@@ -8,7 +8,7 @@ use tauri::{command, AppHandle, State};
 use crate::{
     agent_event::TauriSink,
     agent_loop::AgentLoop,
-    providers::{MockProvider, ProviderInfoDto, ProviderRegistry},
+    providers::{ProviderInfoDto, ProviderRegistry},
     session_store::SessionManager,
     tools::{add_mcp_server, build_chat_handle, build_tool_bridge, PermissionGuard},
 };
@@ -34,11 +34,6 @@ impl AppState {
         let config_manager = Arc::new(crate::config::ConfigManager::new(app_data_dir.clone())?);
         let mut provider_registry = ProviderRegistry::new();
 
-        // Register mock provider by default (no API key needed)
-        if let Some(info) = crate::providers::provider_info_for("mock", None, None, None, None) {
-            provider_registry.register(info);
-        }
-
         // Register native providers for which we have API keys, with any base_url/model overrides
         {
             let cfg = config_manager.read().await;
@@ -59,7 +54,7 @@ impl AppState {
             // Also register any custom providers that have settings but no api_keys entry yet
             // (e.g. Ollama local with no key). They are stored in provider_settings.
             for (id, settings) in &cfg.provider_settings {
-                if ["xai", "openai", "anthropic", "mock"].contains(&id.as_str()) {
+                if ["xai", "openai", "anthropic"].contains(&id.as_str()) {
                     continue;
                 }
                 let api_key = cfg.api_key(id);
@@ -91,31 +86,44 @@ impl AppState {
 }
 
 /// Initialize the agent loop for a session.
-/// `provider_id` is optional — if omitted uses the configured default or `mock`.
+/// `provider_id` is optional — if omitted uses the configured default.
 #[command]
 pub async fn init_session(
     session_id: String,
     provider_id: Option<String>,
     state: State<'_, AppState>,
 ) -> Result<(), String> {
-    // Resolve provider: explicit → default → mock
+    // Resolve provider: explicit → default → first available
     let wanted = if let Some(pid) = provider_id {
         pid
     } else {
-        state
-            .config_manager
-            .default_provider()
-            .await
-            .unwrap_or_else(|| "mock".to_string())
+        state.config_manager.default_provider().await.unwrap_or_default()
     };
     let provider: Arc<dyn crate::providers::Provider> = {
         let reg = state.provider_registry.read().await;
-        if let Some(p) = reg.get(&wanted) {
-            p
-        } else if let Some(p) = reg.get("mock") {
-            p
+        if !wanted.is_empty() {
+            if let Some(p) = reg.get(&wanted) {
+                p
+            } else {
+                // Fallback to first registered provider or error if none
+                let list = reg.list();
+                if let Some(first) = list.first() {
+                    Arc::clone(&first.provider)
+                } else {
+                    return Err(
+                        "No provider configured — add an API key in Settings (xAI/OpenAI/Anthropic)".to_string(),
+                    );
+                }
+            }
         } else {
-            Arc::new(MockProvider::new())
+            let list = reg.list();
+            if let Some(first) = list.first() {
+                Arc::clone(&first.provider)
+            } else {
+                return Err(
+                    "No provider configured — add an API key in Settings (xAI/OpenAI/Anthropic)".to_string(),
+                );
+            }
         }
     };
 
@@ -378,7 +386,7 @@ pub async fn set_api_key(
     Ok(())
 }
 
-/// Remove API key for a provider — persists and unregisters it (keeps mock).
+/// Remove API key for a provider — persists and unregisters it.
 #[command]
 pub async fn remove_api_key(
     provider_id: String,
@@ -389,10 +397,8 @@ pub async fn remove_api_key(
         .remove_api_key(&provider_id)
         .await
         .map_err(|e| e.to_string())?;
-    if provider_id != "mock" {
-        let mut reg = state.provider_registry.write().await;
-        reg.remove(&provider_id);
-    }
+    let mut reg = state.provider_registry.write().await;
+    reg.remove(&provider_id);
     Ok(())
 }
 
@@ -423,7 +429,7 @@ pub async fn set_provider_settings(
         || base_url.is_some()
         || model.is_some()
         || kind.is_some()
-        || !["xai", "openai", "anthropic", "mock"].contains(&provider_id.as_str());
+        || !["xai", "openai", "anthropic"].contains(&provider_id.as_str());
     if should_register {
         if let Some(info) =
             crate::providers::provider_info_for(&provider_id, api_key, base_url.clone(), model.clone(), kind.clone())
@@ -431,7 +437,7 @@ pub async fn set_provider_settings(
             let mut reg = state.provider_registry.write().await;
             reg.register(info);
         }
-    } else if !["xai", "openai", "anthropic", "mock"].contains(&provider_id.as_str()) {
+    } else if !["xai", "openai", "anthropic"].contains(&provider_id.as_str()) {
         // Custom provider cleared completely — remove it
         let mut reg = state.provider_registry.write().await;
         reg.remove(&provider_id);

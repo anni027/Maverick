@@ -1,4 +1,4 @@
-//! Session persistence for Nexus.
+//! Session persistence for Maverick.
 //!
 //! Implements the `ChatPersistence` trait from `xai-chat-state` using a
 //! simple JSONL file per session. Each session gets a directory under

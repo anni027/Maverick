@@ -1,4 +1,4 @@
-// Provider selector — minimal, no mock
+// Provider selector — minimal
 interface ProviderSelectorProps {
   providers: Array<{ id: string; name: string }>;
   selected: string;
@@ -7,7 +7,7 @@ interface ProviderSelectorProps {
 }
 
 export default function ProviderSelector({ providers, selected, onChange, onOpenSettings }: ProviderSelectorProps) {
-  const visible = providers.filter(p => p.id !== 'mock');
+  const visible = providers;
   if (visible.length === 0) {
     return onOpenSettings ? (
       <button

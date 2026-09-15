@@ -1,15 +1,15 @@
 [package]
-name = "nexus-backend"
+name = "maverick-backend"
 version = "0.1.0"
 edition = "2024"
-default-run = "nexus-backend"
+default-run = "maverick-backend"
 
 [lib]
-name = "nexus_backend"
+name = "maverick_backend"
 path = "src/lib.rs"
 
 [[bin]]
-name = "nexus-backend"
+name = "maverick-backend"
 path = "src/main.rs"
 
 [dependencies]

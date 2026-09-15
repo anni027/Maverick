@@ -20,7 +20,7 @@ export default function App() {
   const [sessionId, setSessionId] = useState('demo-session');
   const [sessions, setSessions] = useState<string[]>([]);
   const [providers, setProviders] = useState<ProviderInfo[]>([]);
-  const [selectedProvider, setSelectedProvider] = useState('mock');
+  const [selectedProvider, setSelectedProvider] = useState('');
   const [tools, setTools] = useState<string[]>([]);
   const [showSidebar, setShowSidebar] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
@@ -52,17 +52,20 @@ export default function App() {
           withTimeout(invoke<ProviderInfo[]>('list_providers'), 5000, 'list_providers'),
           withTimeout(invoke<string | null>('get_default_provider'), 5000, 'get_default_provider').catch(() => null),
         ]);
-        const visible = pl.filter(p => p.id !== 'mock');
-        const list = visible.length ? visible : pl;
+        const list = pl;
         setProviders(list);
         if (defProvider && list.some(p => p.id === defProvider)) {
           chosenProvider = defProvider;
-        } else if (visible.length) {
-          chosenProvider = visible[0].id;
         } else if (list.length) {
           chosenProvider = list[0].id;
+        } else {
+          chosenProvider = '';
         }
         setSelectedProvider(chosenProvider);
+        if (list.length === 0) {
+          setInitError('No provider configured — open Settings to add an API key (xAI/OpenAI/Anthropic)');
+          setShowSettings(true);
+        }
       } catch(e){ setInitError(`Providers: ${String(e)}`)}
       setInitStep('Loading tools');
       try { const tl = await withTimeout(invoke<string[]>('list_tools'),5000,'list_tools'); setTools(tl.filter(t=> t !== 'test_tool')) } catch(e){ setInitError(`Tools: ${String(e)}`)}
@@ -123,12 +126,9 @@ export default function App() {
   const refreshProviders = async () => {
     try {
       const pl = await invoke<ProviderInfo[]>('list_providers');
-      const visible = pl.filter(p=> p.id !== 'mock');
-      const list = visible.length ? visible : pl;
+      const list = pl;
       setProviders(list);
-      if (visible.length > 0 && (selectedProvider === 'mock' || !visible.some(p => p.id === selectedProvider))) {
-        await handleProviderChange(visible[0].id);
-      } else if (list.length > 0 && !list.some(p => p.id === selectedProvider)) {
+      if (list.length > 0 && !list.some(p => p.id === selectedProvider)) {
         await handleProviderChange(list[0].id);
       }
     } catch(e){ console.error('refreshProviders failed', e); }
@@ -161,7 +161,7 @@ export default function App() {
     );
   }
 
-  const visibleProviders = providers.filter(p=> p.id!=='mock');
+  const visibleProviders = providers;
 
   return (
     <div style={{display:'flex', height:'100vh', background:'var(--bg)', overflow:'hidden'}}>
