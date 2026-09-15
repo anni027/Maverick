@@ -22,6 +22,8 @@ use xai_grok_tools::notification::ToolNotificationHandle;
 use xai_grok_tools::registry::types::{SessionContext, ToolConfig, ToolServerConfig};
 use xai_grok_tools::reminders::DEFAULT_REMINDER_TAG;
 
+use crate::duckduckgo::DuckDuckGoTool;
+
 use tokio::sync::{mpsc, Mutex as TokioMutex};
 
 use agent_client_protocol as acp;
@@ -226,7 +228,27 @@ pub async fn build_tool_bridge_with_app_data(app_data_dir: Option<PathBuf>) -> R
         system_reminder_tag: DEFAULT_REMINDER_TAG,
     };
 
-    Ok(ToolBridge::finalize_builder(builder, config, ctx).await?)
+    let bridge = ToolBridge::finalize_builder(builder, config, ctx).await?;
+    // Register DuckDuckGo search (keyless, no config) as dynamic tool
+    let ddg_schema = serde_json::json!({
+        "type": "object",
+        "properties": {
+            "query": { "type": "string", "description": "Search query" },
+            "count": { "type": "integer", "description": "Max results 1-10", "minimum": 1, "maximum": 10 },
+            "region": { "type": "string", "description": "Region code e.g. us-en" }
+        },
+        "required": ["query"]
+    });
+    // Ignore error if already registered (e.g., second bridge)
+    let _ = bridge
+        .register_mcp_tools(
+            "duckduckgo_search".to_string(),
+            DuckDuckGoTool,
+            Some(ddg_schema),
+        )
+        .await;
+
+    Ok(bridge)
 }
 
 /// Add an MCP server by name/command/args and register its tools.

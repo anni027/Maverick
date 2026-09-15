@@ -18,9 +18,12 @@ tokio-util = { version = "0.7", features = ["rt"] }
 anyhow = "1"
 dirs-next = "2"
 reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-features = false }
+scraper = "0.23"
+urlencoding = "2"
 async-trait = "0.1"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+schemars = { version = "1", features = ["derive"] }
 toml = "0.9"
 futures = "0.3"
 tracing = "0.1"
@@ -40,6 +43,7 @@ xai-grok-session-events = { path = "../crates/codegen/xai-grok-session-events" }
 xai-grok-workspace-types = { path = "../crates/codegen/xai-grok-workspace-types" }
 xai-tool-runtime = { path = "../crates/common/xai-tool-runtime" }
 xai-tool-types = { path = "../crates/common/xai-tool-types" }
+xai-tool-protocol = { path = "../crates/common/xai-tool-protocol" }
 agent-client-protocol = { version = "0.10.4", features = ["unstable"] }
 
 [build-dependencies]

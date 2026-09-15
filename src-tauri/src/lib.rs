@@ -10,6 +10,7 @@ pub mod agent_event;
 pub mod agent_loop;
 pub mod commands;
 pub mod config;
+pub mod duckduckgo;
 pub mod mcp;
 pub mod providers;
 pub mod session_store;
