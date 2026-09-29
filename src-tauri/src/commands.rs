@@ -3,14 +3,15 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use tauri::{command, AppHandle, State};
+use tauri::{AppHandle, State, command};
 
 use crate::{
     agent_event::TauriSink,
     agent_loop::AgentLoop,
+    config::ConfigManager,
     providers::{ProviderInfoDto, ProviderRegistry},
     session_store::SessionManager,
-    tools::{add_mcp_server, build_chat_handle, PermissionGuard},
+    tools::{PermissionGuard, add_mcp_server, build_chat_handle},
 };
 use xai_grok_tools::bridge::ToolBridge;
 
@@ -63,7 +64,9 @@ impl AppState {
                 let kind = settings.kind.clone();
                 // Only register if at least base_url or model is set
                 if base.is_some() || model.is_some() || api_key.is_some() {
-                    if let Some(info) = crate::providers::provider_info_for(id, api_key, base, model, kind) {
+                    if let Some(info) =
+                        crate::providers::provider_info_for(id, api_key, base, model, kind)
+                    {
                         provider_registry.register(info);
                     }
                 }
@@ -91,32 +94,36 @@ impl AppState {
                                 let tb = bridge_clone.clone();
                                 let n = name.clone();
                                 let a = srv.args.clone();
-                                let _ = tokio::task::spawn_blocking(move || {
+                                let label = name.clone();
+                                let joined = tokio::task::spawn_blocking(move || {
                                     let rt = tokio::runtime::Builder::new_current_thread()
                                         .enable_all()
                                         .build()
-                                        .unwrap();
-                                    rt.block_on(async {
-                                        let _ = crate::mcp::add_mcp_server_real(&tb, &n, &cmd, a).await;
-                                    })
+                                        .expect("mcp rt");
+                                    rt.block_on(crate::mcp::add_mcp_server_real(
+                                        &tb, &n, &cmd, a,
+                                    ))
                                 })
                                 .await;
+                                log_restore_result(&label, joined);
                             }
                         }
                         "http" => {
                             if let Some(url) = srv.url {
                                 let tb = bridge_clone.clone();
                                 let n = name.clone();
-                                let _ = tokio::task::spawn_blocking(move || {
+                                let label = name.clone();
+                                let joined = tokio::task::spawn_blocking(move || {
                                     let rt = tokio::runtime::Builder::new_current_thread()
                                         .enable_all()
                                         .build()
-                                        .unwrap();
-                                    rt.block_on(async {
-                                        let _ = crate::mcp::add_mcp_server_http_real(&tb, &n, &url).await;
-                                    })
+                                        .expect("mcp rt");
+                                    rt.block_on(crate::mcp::add_mcp_server_http_real(
+                                        &tb, &n, &url,
+                                    ))
                                 })
                                 .await;
+                                log_restore_result(&label, joined);
                             }
                         }
                         _ => {}
@@ -137,6 +144,114 @@ impl AppState {
     }
 }
 
+/// Hot-swap the provider for every active session that uses `provider_id`.
+///
+/// Saving a new model / base URL / API key in Settings only re-registered the
+/// provider in the registry; the live `AgentLoop`s kept holding the old
+/// provider object, so the next turn still sampled with the old model. This
+/// re-resolves the provider from the registry and replaces it on every
+/// matching session, keeping conversation history intact.
+async fn hot_swap_provider(state: &AppState, provider_id: &str) {
+    let provider = {
+        let reg = state.provider_registry.read().await;
+        match reg.get(provider_id) {
+            Some(p) => p,
+            None => return,
+        }
+    };
+
+    let loops = state.agent_loops.read().await;
+    for agent in loops.values() {
+        if agent.provider().await.id() == provider_id {
+            agent.set_provider(provider.clone()).await;
+            agent.sync_context_window().await;
+        }
+    }
+}
+
+/// Record the outcome of a background MCP restore.
+///
+/// The restore is fire-and-forget on purpose — `AppState::new` must not block
+/// on a server that can take 30s to handshake — but fire-and-forget should
+/// still mean *recorded*. Without this, a handshake failure shows up in the UI
+/// as `Error` status with nothing in the logs explaining why.
+fn log_restore_result(
+    name: &str,
+    joined: Result<Result<Vec<String>, anyhow::Error>, tokio::task::JoinError>,
+) {
+    match joined {
+        Ok(Ok(tools)) => tracing::info!(server = name, tools = tools.len(), "MCP server restored"),
+        Ok(Err(e)) => tracing::warn!(server = name, error = %e, "MCP restore handshake failed"),
+        Err(e) => tracing::warn!(server = name, error = %e, "MCP restore task panicked"),
+    }
+}
+
+/// Point every session that still uses `provider_id` somewhere else after that
+/// id was unregistered from the registry.
+///
+/// `hot_swap_provider` deliberately returns early when the id is gone, which is
+/// right for a *settings* change but wrong for key removal: the live loops keep
+/// holding a `Provider` built with the revoked key, so the next turn would keep
+/// sending it. Sessions are re-resolved with the same fallback `init_session`
+/// uses; when no provider is left to fall back to, the loop is dropped so the
+/// credential cannot be used again. History is flushed per message, and the
+/// next `init_session` rebuilds the handle from disk.
+async fn reconcile_loops_after_unregister(state: &AppState, provider_id: &str) {
+    let affected: Vec<String> = {
+        let loops = state.agent_loops.read().await;
+        let mut sessions = Vec::new();
+        for (session, agent) in loops.iter() {
+            if agent.provider().await.id() == provider_id {
+                sessions.push(session.clone());
+            }
+        }
+        sessions
+    };
+    if affected.is_empty() {
+        return;
+    }
+
+    let replacement = {
+        let reg = state.provider_registry.read().await;
+        reg.resolve(provider_id)
+    };
+
+    match replacement {
+        Ok(provider) => {
+            for session in affected {
+                let agent = {
+                    let loops = state.agent_loops.read().await;
+                    loops.get(&session).cloned()
+                };
+                if let Some(agent) = agent {
+                    agent.set_provider(provider.clone()).await;
+                    agent.sync_context_window().await;
+                }
+            }
+        }
+        Err(e) => {
+            tracing::warn!(
+                provider = provider_id,
+                error = %e,
+                "no provider left to fall back to; dropping affected session loops"
+            );
+            let mut loops = state.agent_loops.write().await;
+            for session in affected {
+                loops.remove(&session);
+            }
+        }
+    }
+}
+
+/// Why a session has no live loop, for the errors users actually see.
+async fn missing_loop_error(state: &AppState, session_id: &str) -> String {
+    if state.provider_registry.read().await.list().is_empty() {
+        "No provider configured - add an API key in Settings (xAI/OpenAI/Anthropic)".to_string()
+    } else {
+        format!("session not initialized: {session_id}")
+    }
+}
+
 /// Initialize the agent loop for a session.
 /// `provider_id` is optional — if omitted uses the configured default.
 #[command]
@@ -149,34 +264,15 @@ pub async fn init_session(
     let wanted = if let Some(pid) = provider_id {
         pid
     } else {
-        state.config_manager.default_provider().await.unwrap_or_default()
+        state
+            .config_manager
+            .default_provider()
+            .await
+            .unwrap_or_default()
     };
     let provider: Arc<dyn crate::providers::Provider> = {
         let reg = state.provider_registry.read().await;
-        if !wanted.is_empty() {
-            if let Some(p) = reg.get(&wanted) {
-                p
-            } else {
-                // Fallback to first registered provider or error if none
-                let list = reg.list();
-                if let Some(first) = list.first() {
-                    Arc::clone(&first.provider)
-                } else {
-                    return Err(
-                        "No provider configured — add an API key in Settings (xAI/OpenAI/Anthropic)".to_string(),
-                    );
-                }
-            }
-        } else {
-            let list = reg.list();
-            if let Some(first) = list.first() {
-                Arc::clone(&first.provider)
-            } else {
-                return Err(
-                    "No provider configured — add an API key in Settings (xAI/OpenAI/Anthropic)".to_string(),
-                );
-            }
-        }
+        reg.resolve(&wanted)?
     };
 
     // If agent loop already exists for this session, hot-swap the provider without destroying state
@@ -186,13 +282,18 @@ pub async fn init_session(
     };
     if let Some(agent) = existing {
         agent.set_provider(provider).await;
+        agent.sync_context_window().await;
         return Ok(());
     }
 
     let chat = build_chat_handle(&session_id, Some(state.app_data_dir.clone()))
         .map_err(|e| e.to_string())?;
+    // Align the session window with the active provider (§5.6-E) so
+    // compaction thresholds track the real model, not the 128k default.
+    crate::tools::sync_chat_context_window(&chat, provider.context_window()).await;
     let tools = (*state.tool_bridge).clone();
-    let agent = Arc::new(AgentLoop::new(chat, tools, provider));
+    let config_manager: Arc<ConfigManager> = Arc::clone(&state.config_manager);
+    let agent = Arc::new(AgentLoop::new(chat, tools, provider).with_config_manager(config_manager));
     state.agent_loops.write().await.insert(session_id, agent);
     Ok(())
 }
@@ -212,10 +313,44 @@ pub async fn send_message(
     if let Some(agent) = agent {
         let sink = TauriSink::new(app, session_id.clone());
         agent
-            .send_user_message(&text, Arc::new(sink))
+            .send_user_message_auto(&text, Arc::new(sink))
             .await
             .map_err(|e| e.to_string())?;
         Ok(())
+    } else {
+        Err(missing_loop_error(&state, &session_id).await)
+    }
+}
+
+/// Cancel the in-flight run for a session (§5.6-C). Idempotent: with no
+/// active run it is a no-op. The loop emits `Cancelled` and `send_message`
+/// resolves with a "run cancelled by user" error.
+#[command]
+pub async fn cancel_message(session_id: String, state: State<'_, AppState>) -> Result<(), String> {
+    let agent = {
+        let loops = state.agent_loops.read().await;
+        loops.get(&session_id).cloned()
+    };
+    if let Some(agent) = agent {
+        agent.cancel_current_run();
+        Ok(())
+    } else {
+        Err(format!("session not initialized: {session_id}"))
+    }
+}
+
+/// Snapshot the per-task token/cost ledger for a session (§5.6-B).
+#[command]
+pub async fn get_usage(
+    session_id: String,
+    state: State<'_, AppState>,
+) -> Result<crate::usage::UsageSnapshot, String> {
+    let agent = {
+        let loops = state.agent_loops.read().await;
+        loops.get(&session_id).cloned()
+    };
+    if let Some(agent) = agent {
+        Ok(agent.usage_snapshot().await)
     } else {
         Err(format!("session not initialized: {session_id}"))
     }
@@ -247,13 +382,36 @@ pub async fn rename_session(
     if new_id.is_empty() {
         return Err("Session name cannot be empty".to_string());
     }
+    // The chat handle (and its open history file) is bound to `old_id`'s
+    // directory. Drop the loop first: a live handle can block the directory
+    // rename on Windows and would otherwise keep writing to the old path.
+    let removed = state.agent_loops.write().await.remove(&old_id);
+    let old_provider = match &removed {
+        Some(agent) => Some(agent.provider().await),
+        None => None,
+    };
+    drop(removed);
+    // Let the chat-state actor observe the closed command channel and release
+    // its file handle before the directory moves.
+    tokio::time::sleep(std::time::Duration::from_millis(25)).await;
+
     state
         .session_manager
         .rename_session(&old_id, &new_id)
         .map_err(|e| e.to_string())?;
-    let mut loops = state.agent_loops.write().await;
-    if let Some(agent) = loops.remove(&old_id) {
-        loops.insert(new_id, agent);
+
+    if let Some(provider) = old_provider {
+        // Rebuild over the renamed directory — history is re-read from disk,
+        // so the conversation carries over while writes land in the new path.
+        let chat = build_chat_handle(&new_id, Some(state.app_data_dir.clone()))
+            .map_err(|e| e.to_string())?;
+        crate::tools::sync_chat_context_window(&chat, provider.context_window()).await;
+        let tools = (*state.tool_bridge).clone();
+        let config_manager: Arc<ConfigManager> = Arc::clone(&state.config_manager);
+        let agent = Arc::new(
+            AgentLoop::new(chat, tools, provider).with_config_manager(config_manager),
+        );
+        state.agent_loops.write().await.insert(new_id, agent);
     }
     Ok(())
 }
@@ -266,11 +424,21 @@ pub async fn get_session_messages(
 ) -> Result<Vec<serde_json::Value>, String> {
     use xai_grok_sampling_types::{ContentPart, ConversationItem};
 
-    let persistence = crate::session_store::JsonlChatPersistence::new(
-        session_id,
-        state.app_data_dir.clone(),
-    )
-    .map_err(|e| e.to_string())?;
+    crate::session_store::validate_session_id(&session_id).map_err(|e| e.to_string())?;
+    // A read must never create the session directory: probing an unknown id
+    // used to leave a phantom empty session behind in the sidebar.
+    if !state
+        .app_data_dir
+        .join("sessions")
+        .join(&session_id)
+        .exists()
+    {
+        return Ok(Vec::new());
+    }
+
+    let persistence =
+        crate::session_store::JsonlChatPersistence::new(session_id, state.app_data_dir.clone())
+            .map_err(|e| e.to_string())?;
 
     let items = persistence.history();
     let mut messages = Vec::new();
@@ -279,6 +447,9 @@ pub async fn get_session_messages(
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_millis() as i64)
         .unwrap_or(0);
+
+    let mut tool_names: std::collections::HashMap<String, String> =
+        std::collections::HashMap::new();
 
     for (i, item) in items.into_iter().enumerate() {
         match item {
@@ -311,6 +482,9 @@ pub async fn get_session_messages(
                         })
                     })
                     .collect();
+                for tc in a.tool_calls.iter() {
+                    tool_names.insert(tc.id.to_string(), tc.name.clone());
+                }
                 let mut val = serde_json::json!({
                     "id": format!("msg-{i}"),
                     "role": "assistant",
@@ -323,10 +497,16 @@ pub async fn get_session_messages(
                 messages.push(val);
             }
             ConversationItem::ToolResult(tr) => {
+                // Label the fold with the tool's name (what a live run shows),
+                // not the opaque call id.
+                let label = tool_names
+                    .get(&tr.tool_call_id)
+                    .cloned()
+                    .unwrap_or_else(|| tr.tool_call_id.to_string());
                 messages.push(serde_json::json!({
                     "id": format!("tool-{i}"),
                     "role": "tool",
-                    "content": tr.tool_call_id.to_string(),
+                    "content": label,
                     "toolResult": {
                         "toolCallId": tr.tool_call_id.to_string(),
                         "content": tr.content,
@@ -389,14 +569,18 @@ pub async fn add_mcp(
             crate::mcp::add_mcp_server_real(&tool_bridge, &name_c, &command_c, args_c).await
         })
     });
-    join.await.map_err(|e| e.to_string())?.map_err(|e| e.to_string())
+    join.await
+        .map_err(|e| e.to_string())?
+        .map_err(|e| e.to_string())
 }
 
 /// Remove an MCP server.
 #[command]
 pub async fn remove_mcp(name: String, state: State<'_, AppState>) -> Result<(), String> {
     // Remove from tool bridge
-    state.tool_bridge.unregister_tools_by_prefix(&format!("{}__", name));
+    state
+        .tool_bridge
+        .unregister_tools_by_prefix(&format!("{}__", name));
     // Remove from config
     state
         .config_manager
@@ -443,19 +627,19 @@ pub async fn set_api_key(
             s.as_ref().and_then(|x| x.kind.clone()),
         )
     };
-    if let Some(info) = crate::providers::provider_info_for(&provider_id, Some(api_key), base_url, model, kind) {
+    if let Some(info) =
+        crate::providers::provider_info_for(&provider_id, Some(api_key), base_url, model, kind)
+    {
         let mut reg = state.provider_registry.write().await;
         reg.register(info);
     }
+    hot_swap_provider(&state, &provider_id).await;
     Ok(())
 }
 
 /// Remove API key for a provider — persists and unregisters it.
 #[command]
-pub async fn remove_api_key(
-    provider_id: String,
-    state: State<'_, AppState>,
-) -> Result<(), String> {
+pub async fn remove_api_key(provider_id: String, state: State<'_, AppState>) -> Result<(), String> {
     state
         .config_manager
         .remove_api_key(&provider_id)
@@ -463,6 +647,8 @@ pub async fn remove_api_key(
         .map_err(|e| e.to_string())?;
     let mut reg = state.provider_registry.write().await;
     reg.remove(&provider_id);
+    drop(reg);
+    reconcile_loops_after_unregister(&state, &provider_id).await;
     Ok(())
 }
 
@@ -487,24 +673,42 @@ pub async fn set_provider_settings(
         .set_provider_settings(&provider_id, base_url.clone(), model.clone(), kind.clone())
         .await
         .map_err(|e| e.to_string())?;
-    // Re-register provider if we have anything to register (api_key or override)
+    // Re-register the provider when there is something to register it with
+    // (an API key or an override). Without either, a non-builtin id must be
+    // *removed* — otherwise saving settings for a provider the user just
+    // cleared leaves a ghost entry in the picker that always fails at request
+    // time. (The old condition registered every non-builtin id, which also
+    // made the removal branch below unreachable.)
     let api_key = state.config_manager.api_key(&provider_id).await;
-    let should_register = api_key.is_some()
-        || base_url.is_some()
-        || model.is_some()
-        || kind.is_some()
-        || !["xai", "openai", "anthropic"].contains(&provider_id.as_str());
-    if should_register {
-        if let Some(info) =
-            crate::providers::provider_info_for(&provider_id, api_key, base_url.clone(), model.clone(), kind.clone())
-        {
+    let has_override = base_url.is_some() || model.is_some() || kind.is_some();
+    let is_builtin = ["xai", "openai", "anthropic"].contains(&provider_id.as_str());
+    let unregistered = if api_key.is_some() || has_override {
+        if let Some(info) = crate::providers::provider_info_for(
+            &provider_id,
+            api_key,
+            base_url.clone(),
+            model.clone(),
+            kind.clone(),
+        ) {
             let mut reg = state.provider_registry.write().await;
             reg.register(info);
         }
-    } else if !["xai", "openai", "anthropic"].contains(&provider_id.as_str()) {
+        false
+    } else if !is_builtin {
         // Custom provider cleared completely — remove it
         let mut reg = state.provider_registry.write().await;
         reg.remove(&provider_id);
+        true
+    } else {
+        false
+    };
+    if unregistered {
+        // Same stale-object problem as key removal: live loops still point at
+        // the backend this override used to build, and `hot_swap_provider`
+        // returns early once the id is gone.
+        reconcile_loops_after_unregister(&state, &provider_id).await;
+    } else {
+        hot_swap_provider(&state, &provider_id).await;
     }
     Ok(())
 }
@@ -579,29 +783,33 @@ pub async fn add_mcp_server_full(
             .enable_all()
             .build()
             .expect("mcp rt");
-        rt.block_on(async {
+        rt.block_on(async move {
             match transport_c.as_str() {
                 "stdio" => {
-                    if let Some(cmd) = command_c {
-                        let _ = crate::mcp::add_mcp_server_real(&tool_bridge, &name_c, &cmd, args_c).await;
-                    }
+                    let cmd = command_c.ok_or_else(|| {
+                        anyhow::anyhow!("stdio MCP server '{name_c}' has no command")
+                    })?;
+                    crate::mcp::add_mcp_server_real(&tool_bridge, &name_c, &cmd, args_c).await?;
                 }
                 "http" => {
-                    if let Some(u) = url_c {
-                        let _ = crate::mcp::add_mcp_server_http_real(&tool_bridge, &name_c, &u).await;
-                    }
+                    let u = url_c
+                        .ok_or_else(|| anyhow::anyhow!("http MCP server '{name_c}' has no url"))?;
+                    crate::mcp::add_mcp_server_http_real(&tool_bridge, &name_c, &u).await?;
                 }
-                _ => {}
+                other => anyhow::bail!("unsupported MCP transport '{other}'"),
             }
             Ok::<(), anyhow::Error>(())
         })
     });
-    let _ = join.await;
-    Ok(())
+    join.await
+        .map_err(|e| e.to_string())?
+        .map_err(|e| e.to_string())
 }
 
 #[command]
-pub async fn list_mcp_status(state: State<'_, AppState>) -> Result<Vec<crate::mcp::McpStatus>, String> {
+pub async fn list_mcp_status(
+    state: State<'_, AppState>,
+) -> Result<Vec<crate::mcp::McpStatus>, String> {
     Ok(crate::mcp::get_mcp_status(&state.tool_bridge, &state.config_manager).await)
 }
 
@@ -612,9 +820,7 @@ pub async fn scan_marketplace() -> Result<Vec<crate::mcp::MarketplaceEntry>, Str
 
 /// Get UI config.
 #[command]
-pub async fn get_ui_config(
-    state: State<'_, AppState>,
-) -> Result<crate::config::UiConfig, String> {
+pub async fn get_ui_config(state: State<'_, AppState>) -> Result<crate::config::UiConfig, String> {
     Ok(state.config_manager.ui_config().await)
 }
 
@@ -631,7 +837,48 @@ pub async fn set_ui_config(
         .map_err(|e| e.to_string())
 }
 
-/// List available Kilo Gateway models (proxied via backend to avoid CORS).
+/// Get context-management policy (Phase 3: auto-compact + per-tool budgets).
+#[command]
+pub async fn get_context_config(
+    state: State<'_, AppState>,
+) -> Result<crate::config::ContextConfig, String> {
+    Ok(state.config_manager.context_config().await)
+}
+
+/// Set context-management policy.
+#[command]
+pub async fn set_context_config(
+    context: crate::config::ContextConfig,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    state
+        .config_manager
+        .set_context_config(context)
+        .await
+        .map_err(|e| e.to_string())
+}
+
+/// Get turn/segment budgets + spend guardrails (§5.6-B/F).
+#[command]
+pub async fn get_budget_config(
+    state: State<'_, AppState>,
+) -> Result<crate::config::BudgetConfig, String> {
+    Ok(state.config_manager.budget_config().await)
+}
+
+/// Set turn/segment budgets + spend guardrails.
+#[command]
+pub async fn set_budget_config(
+    budget: crate::config::BudgetConfig,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    state
+        .config_manager
+        .set_budget_config(budget)
+        .await
+        .map_err(|e| e.to_string())
+}
+
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct KiloModel {
     pub id: String,
@@ -641,38 +888,174 @@ pub struct KiloModel {
     pub pricing: Option<serde_json::Value>,
 }
 
+const KILO_DEFAULT_BASE_URL: &str = "https://api.kilo.ai/api/gateway";
+
+fn kilo_models_url(base_url: &str) -> String {
+    let trimmed = base_url.trim().trim_end_matches('/');
+    if trimmed.ends_with("/models") {
+        trimmed.to_string()
+    } else {
+        format!("{trimmed}/models")
+    }
+}
+
+fn kilo_error_detail(body: &str) -> String {
+    let value = serde_json::from_str::<serde_json::Value>(body).ok();
+    let message = value
+        .as_ref()
+        .and_then(|v| v.pointer("/error/message"))
+        .and_then(serde_json::Value::as_str);
+    let provider = value
+        .as_ref()
+        .and_then(|v| v.pointer("/error/metadata/provider_name"))
+        .and_then(serde_json::Value::as_str);
+    let remedy = value
+        .as_ref()
+        .and_then(|v| v.pointer("/error/metadata/remedy_hint"))
+        .and_then(serde_json::Value::as_str);
+
+    let mut parts = Vec::new();
+    if let Some(message) = message {
+        parts.push(message.to_string());
+    }
+    if let Some(provider) = provider {
+        parts.push(format!("upstream provider: {provider}"));
+    }
+    if let Some(remedy) = remedy {
+        parts.push(remedy.to_string());
+    }
+    if parts.is_empty() {
+        parts.push("upstream provider returned an error".to_string());
+    }
+    parts.join("; ").chars().take(320).collect()
+}
+
+fn parse_kilo_models(value: &serde_json::Value) -> Result<Vec<KiloModel>, String> {
+    let array = value
+        .get("data")
+        .and_then(|v| v.as_array())
+        .or_else(|| value.get("models").and_then(|v| v.as_array()))
+        .or_else(|| value.as_array())
+        .ok_or("Kilo model response did not contain a model array")?;
+
+    Ok(array
+        .iter()
+        .filter_map(|model| {
+            let id = model
+                .get("id")
+                .or_else(|| model.get("model"))
+                .or_else(|| model.get("slug"))
+                .and_then(serde_json::Value::as_str)
+                .filter(|id| !id.trim().is_empty())?
+                .trim()
+                .to_string();
+            let name = model
+                .get("name")
+                .or_else(|| model.get("display_name"))
+                .and_then(serde_json::Value::as_str)
+                .unwrap_or(&id)
+                .to_string();
+            let context_length = [
+                "context_length",
+                "contextLength",
+                "max_context_length",
+                "maxContextLength",
+                "context_window",
+            ]
+            .into_iter()
+            .find_map(|key| model.get(key).and_then(serde_json::Value::as_u64));
+            let is_free = ["isFree", "is_free", "free"]
+                .into_iter()
+                .find_map(|key| model.get(key).and_then(serde_json::Value::as_bool));
+            Some(KiloModel {
+                id,
+                name,
+                context_length,
+                is_free,
+                pricing: model.get("pricing").cloned(),
+            })
+        })
+        .collect())
+}
+
+async fn send_kilo_models_request(
+    client: &reqwest::Client,
+    endpoint: &str,
+    key: Option<&str>,
+) -> Result<reqwest::Response, String> {
+    let mut request = client.get(endpoint);
+    if let Some(key) = key {
+        let key = key.trim();
+        let value = if key.starts_with("Bearer ") {
+            key.to_string()
+        } else {
+            format!("Bearer {key}")
+        };
+        let header = reqwest::header::HeaderValue::from_str(&value)
+            .map_err(|_| "Kilo API key contains invalid header characters".to_string())?;
+        request = request.header(reqwest::header::AUTHORIZATION, header);
+    }
+    request.send().await.map_err(|e| e.to_string())
+}
+
 #[command]
-pub async fn list_kilo_models() -> Result<Vec<KiloModel>, String> {
+pub async fn list_kilo_models(
+    provider_id: Option<String>,
+    base_url: Option<String>,
+    api_key: Option<String>,
+    state: State<'_, AppState>,
+) -> Result<Vec<KiloModel>, String> {
+    let provider_id = provider_id
+        .filter(|id| !id.trim().is_empty())
+        .unwrap_or_else(|| "kilo".to_string());
+    let configured_base = state
+        .config_manager
+        .provider_settings(&provider_id)
+        .await
+        .and_then(|settings| settings.base_url);
+    let base_url = base_url
+        .filter(|url| !url.trim().is_empty())
+        .or(configured_base)
+        .unwrap_or_else(|| KILO_DEFAULT_BASE_URL.to_string());
+    let key = match api_key.filter(|key| !key.trim().is_empty()) {
+        Some(key) => Some(key),
+        None => state.config_manager.api_key(&provider_id).await,
+    };
+
     let client = reqwest::Client::builder()
         .timeout(std::time::Duration::from_secs(15))
         .build()
         .map_err(|e| e.to_string())?;
-    let resp = client
-        .get("https://api.kilo.ai/api/gateway/models")
-        .send()
-        .await
-        .map_err(|e| e.to_string())?;
-    if !resp.status().is_success() {
-        return Err(format!("gateway returned HTTP {}", resp.status()));
+    let endpoint = kilo_models_url(&base_url);
+    let mut response = send_kilo_models_request(&client, &endpoint, key.as_deref()).await?;
+    if key.is_some()
+        && matches!(
+            response.status(),
+            reqwest::StatusCode::UNAUTHORIZED
+                | reqwest::StatusCode::FORBIDDEN
+                | reqwest::StatusCode::TOO_MANY_REQUESTS
+        )
+    {
+        response = send_kilo_models_request(&client, &endpoint, None).await?;
     }
-    let v: serde_json::Value = resp.json().await.map_err(|e| e.to_string())?;
-    let arr = v.get("data").and_then(|d| d.as_array()).ok_or("missing data array")?;
-    let mut out = Vec::new();
-    for m in arr {
-        let id = m.get("id").and_then(|x| x.as_str()).unwrap_or("").to_string();
-        if id.is_empty() { continue; }
-        let name = m.get("name").and_then(|x| x.as_str()).unwrap_or(&id).to_string();
-        let context_length = m.get("context_length").and_then(|x| x.as_u64());
-        let is_free = m.get("isFree").and_then(|x| x.as_bool());
-        let pricing = m.get("pricing").cloned();
-        out.push(KiloModel { id, name, context_length, is_free, pricing });
+    let status = response.status();
+    if !status.is_success() {
+        let body = response.text().await.unwrap_or_default();
+        return Err(format!(
+            "Kilo Gateway returned HTTP {}: {}",
+            status,
+            kilo_error_detail(&body)
+        ));
     }
-    Ok(out)
+    let value: serde_json::Value = response.json().await.map_err(|e| e.to_string())?;
+    parse_kilo_models(&value)
 }
 
 /// List discovered skills (local + hub)
 #[command]
-pub async fn list_skills(state: State<'_, AppState>) -> Result<Vec<crate::skills::SkillDto>, String> {
+pub async fn list_skills(
+    state: State<'_, AppState>,
+) -> Result<Vec<crate::skills::SkillDto>, String> {
     let ws = crate::tools::resolve_workspace_dir();
     let skills = crate::skills::discover_skills(&state.app_data_dir, &ws);
     Ok(skills.iter().map(crate::skills::SkillDto::from).collect())
@@ -717,12 +1100,16 @@ pub async fn fetch_hub_skill(
 }
 
 #[command]
-pub async fn list_hub_skills(state: State<'_, AppState>) -> Result<crate::skills::HubIndex, String> {
+pub async fn list_hub_skills(
+    state: State<'_, AppState>,
+) -> Result<crate::skills::HubIndex, String> {
     Ok(crate::skills::list_hub_index(&state.app_data_dir))
 }
 
 #[command]
-pub async fn refresh_skills(state: State<'_, AppState>) -> Result<Vec<crate::skills::SkillDto>, String> {
+pub async fn refresh_skills(
+    state: State<'_, AppState>,
+) -> Result<Vec<crate::skills::SkillDto>, String> {
     refresh_skills_internal(&state).await?;
     let ws = crate::tools::resolve_workspace_dir();
     let skills = crate::skills::discover_skills(&state.app_data_dir, &ws);
@@ -743,7 +1130,10 @@ async fn refresh_skills_internal(state: &State<'_, AppState>) -> Result<(), Stri
 
 /// Search skills by query (name/description filter, case-insensitive)
 #[command]
-pub async fn search_skills(query: String, state: State<'_, AppState>) -> Result<Vec<crate::skills::SkillDto>, String> {
+pub async fn search_skills(
+    query: String,
+    state: State<'_, AppState>,
+) -> Result<Vec<crate::skills::SkillDto>, String> {
     let ws = crate::tools::resolve_workspace_dir();
     let skills = crate::skills::discover_skills(&state.app_data_dir, &ws);
     let q = query.to_lowercase();
@@ -752,7 +1142,11 @@ pub async fn search_skills(query: String, state: State<'_, AppState>) -> Result<
         .filter(|s| {
             s.name.to_lowercase().contains(&q)
                 || s.description.to_lowercase().contains(&q)
-                || s.when_to_use.as_deref().unwrap_or("").to_lowercase().contains(&q)
+                || s.when_to_use
+                    .as_deref()
+                    .unwrap_or("")
+                    .to_lowercase()
+                    .contains(&q)
         })
         .map(crate::skills::SkillDto::from)
         .collect();
@@ -769,4 +1163,443 @@ pub async fn get_skill_content(name: String, state: State<'_, AppState>) -> Resu
         .find(|s| s.name == name)
         .ok_or_else(|| format!("Skill '{name}' not found"))?;
     std::fs::read_to_string(&skill.path).map_err(|e| e.to_string())
+}
+
+// ── Skills marketplace (GitHub-backed catalog) ────────────────────────────
+
+/// List configured marketplace sources (built-in default seeded at startup).
+#[command]
+pub async fn list_marketplace_sources(
+    state: State<'_, AppState>,
+) -> Result<Vec<crate::config::MarketplaceSource>, String> {
+    Ok(state.config_manager.marketplace_sources().await)
+}
+
+/// Add (or replace by id) a marketplace source. Fields are validated
+/// before anything is stored or used in a request URL.
+#[command]
+pub async fn add_marketplace_source(
+    id: String,
+    display_name: String,
+    owner: String,
+    repo: String,
+    branch: Option<String>,
+    skills_path: Option<String>,
+    state: State<'_, AppState>,
+) -> Result<Vec<crate::config::MarketplaceSource>, String> {
+    let source = crate::skills::sanitize_marketplace_source(&crate::config::MarketplaceSource {
+        id,
+        display_name,
+        owner,
+        repo,
+        branch: branch.unwrap_or_else(|| "main".to_string()),
+        skills_path: skills_path.unwrap_or_else(|| "skills".to_string()),
+    })
+    .map_err(|e| e.to_string())?;
+    state
+        .config_manager
+        .add_marketplace_source(source)
+        .await
+        .map_err(|e| e.to_string())?;
+    Ok(state.config_manager.marketplace_sources().await)
+}
+
+/// Remove a marketplace source by id.
+#[command]
+pub async fn remove_marketplace_source(
+    id: String,
+    state: State<'_, AppState>,
+) -> Result<Vec<crate::config::MarketplaceSource>, String> {
+    state
+        .config_manager
+        .remove_marketplace_source(&id)
+        .await
+        .map_err(|e| e.to_string())?;
+    Ok(state.config_manager.marketplace_sources().await)
+}
+
+fn find_marketplace_source(
+    sources: &[crate::config::MarketplaceSource],
+    source_id: &str,
+) -> Result<crate::config::MarketplaceSource, String> {
+    sources
+        .iter()
+        .find(|s| s.id == source_id)
+        .cloned()
+        .ok_or_else(|| format!("Marketplace source '{source_id}' not found"))
+}
+
+/// Normalize a path for `installed` matching across Windows/Unix separators.
+fn normalized_skill_path(path: &str) -> String {
+    path.replace('\\', "/").to_lowercase()
+}
+
+/// Mark catalog entries already present in the hub cache as installed.
+/// Install dirs look like `.../hub/skills/marketplace/<source>/<flat>/SKILL.md`
+/// where `flat` is the repo-relative dir with `/` flattened to `-`
+/// (`skills/pdf` → `pdf`, `plugins/foo/skills` → `foo-skills`), so an
+/// entry matches when the cached flat segment equals (or ends with
+/// `-<leaf of its dir>`).
+fn mark_marketplace_installed(
+    skills: Vec<crate::skills::MarketplaceSkill>,
+    installed_paths: &[String],
+    source_id: &str,
+) -> Vec<crate::skills::MarketplaceSkill> {
+    let marker = format!("hub/skills/marketplace/{}/", source_id.to_lowercase());
+    skills
+        .into_iter()
+        .map(|mut s| {
+            let leaf = s
+                .dir
+                .rsplit('/')
+                .next()
+                .unwrap_or("")
+                .to_lowercase();
+            s.installed = installed_paths.iter().any(|p| {
+                let n = normalized_skill_path(p);
+                match n.find(&marker) {
+                    Some(i) => match n[i + marker.len()..].split('/').next() {
+                        Some(flat) => {
+                            flat == leaf || flat.ends_with(&format!("-{leaf}"))
+                        }
+                        None => false,
+                    },
+                    None => false,
+                }
+            });
+            s
+        })
+        .collect()
+}
+
+/// Browse a source catalog. Serves the disk cache unless `refresh` is set,
+/// which re-enumerates the repo (costs GitHub API requests).
+#[command]
+pub async fn list_marketplace_skills(
+    source_id: String,
+    refresh: Option<bool>,
+    state: State<'_, AppState>,
+) -> Result<Vec<crate::skills::MarketplaceSkill>, String> {
+    let sources = state.config_manager.marketplace_sources().await;
+    let source = find_marketplace_source(&sources, &source_id)?;
+    let mut skills = if refresh.unwrap_or(false) {
+        crate::skills::fetch_marketplace_catalog(&state.app_data_dir, &source)
+            .await
+            .map_err(|e| e.to_string())?
+    } else {
+        let cached = crate::skills::cached_marketplace_catalog(&state.app_data_dir, &source.id);
+        if cached.is_empty() {
+            // First browse fetches automatically so the panel is useful
+            // immediately; later browses serve cache until Refresh.
+            crate::skills::fetch_marketplace_catalog(&state.app_data_dir, &source)
+                .await
+                .map_err(|e| e.to_string())?
+        } else {
+            cached
+        }
+    };
+    let ws = crate::tools::resolve_workspace_dir();
+    let installed: Vec<String> = crate::skills::discover_skills(&state.app_data_dir, &ws)
+        .iter()
+        .map(|s| s.path.clone())
+        .collect();
+    skills = mark_marketplace_installed(skills, &installed, &source.id);
+    Ok(skills)
+}
+
+/// Search a source catalog by name/description (case-insensitive, cache).
+#[command]
+pub async fn search_marketplace_skills(
+    source_id: String,
+    query: String,
+    state: State<'_, AppState>,
+) -> Result<Vec<crate::skills::MarketplaceSkill>, String> {
+    let sources = state.config_manager.marketplace_sources().await;
+    let source = find_marketplace_source(&sources, &source_id)?;
+    let cached = crate::skills::cached_marketplace_catalog(&state.app_data_dir, &source.id);
+    let skills = if cached.is_empty() {
+        crate::skills::fetch_marketplace_catalog(&state.app_data_dir, &source)
+            .await
+            .map_err(|e| e.to_string())?
+    } else {
+        cached
+    };
+    let q = query.to_lowercase();
+    let filtered: Vec<_> = skills
+        .into_iter()
+        .filter(|s| {
+            s.name.to_lowercase().contains(&q) || s.description.to_lowercase().contains(&q)
+        })
+        .collect();
+    let ws = crate::tools::resolve_workspace_dir();
+    let installed: Vec<String> = crate::skills::discover_skills(&state.app_data_dir, &ws)
+        .iter()
+        .map(|s| s.path.clone())
+        .collect();
+    Ok(mark_marketplace_installed(filtered, &installed, &source.id))
+}
+
+/// Install a marketplace skill by repo-relative dir, then refresh the bridge.
+#[command]
+pub async fn install_marketplace_skill(
+    source_id: String,
+    dir: String,
+    state: State<'_, AppState>,
+) -> Result<crate::skills::SkillDto, String> {
+    let sources = state.config_manager.marketplace_sources().await;
+    let source = find_marketplace_source(&sources, &source_id)?;
+    let dto =
+        crate::skills::install_marketplace_skill(&state.app_data_dir, &source, &dir)
+            .await
+            .map_err(|e| e.to_string())?;
+    refresh_skills_internal(&state).await?;
+    Ok(dto)
+}
+
+// ── Composer `+` menu: workspace file browser ─────────────────────────────────
+
+/// One row of the composer workspace browser (path relative to the
+/// workspace root, forward slashes).
+#[derive(serde::Serialize, Clone)]
+pub struct WorkspaceEntry {
+    pub path: String,
+    pub name: String,
+    pub is_dir: bool,
+    pub size: Option<u64>,
+}
+
+/// A workspace text file read for attachment (24 KB cap, binary rejected).
+#[derive(serde::Serialize, Clone)]
+pub struct WorkspaceFileRead {
+    pub path: String,
+    pub content: String,
+    pub size: u64,
+    pub truncated: bool,
+}
+
+const WS_LIST_MAX_DEPTH: usize = 3;
+const WS_LIST_MAX_ENTRIES: usize = 500;
+const WS_READ_MAX_BYTES: usize = 24 * 1024;
+/// Non-hidden noise dirs; hidden dirs (`.git`, `.venv`, …) are skipped too.
+const WS_SKIP_DIRS: &[&str] = &["node_modules", "target", "dist", "__pycache__"];
+
+/// Resolve a workspace-relative path to a canonical absolute path.
+/// Denies by default: absolute paths, `..`, and anything (symlinks
+/// included) that canonicalizes outside the workspace root. Empty = root.
+fn ws_resolve(root: &std::path::Path, rel: &str) -> Result<std::path::PathBuf, String> {
+    let root_c = root.canonicalize().map_err(|e| format!("workspace unavailable: {e}"))?;
+    let rel = rel.trim().replace('\\', "/");
+    let candidate = if rel.is_empty() { root_c.clone() } else { root_c.join(&rel) };
+    let canon = candidate
+        .canonicalize()
+        .map_err(|_| format!("not found: {}", rel.trim_matches('/')))?;
+    if !canon.starts_with(&root_c) {
+        return Err("path escapes the workspace".to_string());
+    }
+    Ok(canon)
+}
+
+/// List files/dirs for the composer browser: depth ≤ 3, ≤ 500 entries,
+/// noise dirs skipped, dirs sorted before files (then name, case-insensitive).
+/// Unreadable subdirectories are skipped; an unreadable root is an error.
+fn ws_list(root: &std::path::Path, rel: &str) -> Result<Vec<WorkspaceEntry>, String> {
+    let start = ws_resolve(root, rel)?;
+    if !start.is_dir() {
+        return Err("not a directory".to_string());
+    }
+    let root_c = root.canonicalize().map_err(|e| format!("workspace unavailable: {e}"))?;
+    let base = rel.trim().replace('\\', "/").trim_matches('/').to_string();
+    let mut out: Vec<WorkspaceEntry> = Vec::new();
+    let mut stack: Vec<(std::path::PathBuf, String, usize)> = vec![(start, base, 0)];
+    'walk: while let Some((dir, prefix, depth)) = stack.pop() {
+        let rd = match std::fs::read_dir(&dir) {
+            Ok(rd) => rd,
+            Err(e) => {
+                if depth == 0 {
+                    return Err(format!("cannot list workspace: {e}"));
+                }
+                continue;
+            }
+        };
+        let mut children = Vec::new();
+        for e in rd.flatten() {
+            let name = e.file_name().to_string_lossy().to_string();
+            // metadata() follows symlinks so link-to-dir browses like a dir.
+            let md = e.metadata().ok();
+            let is_dir = md.as_ref().is_some_and(|m| m.is_dir());
+            if is_dir
+                && (name.starts_with('.') || WS_SKIP_DIRS.contains(&name.as_str()))
+            {
+                continue;
+            }
+            let size = md.as_ref().filter(|m| !m.is_dir()).map(|m| m.len());
+            children.push((e.path(), name, is_dir, size));
+        }
+        children.sort_by(|a, b| {
+            b.2.cmp(&a.2).then_with(|| a.1.to_lowercase().cmp(&b.1.to_lowercase()))
+        });
+        for (p, name, is_dir, size) in children {
+            if out.len() >= WS_LIST_MAX_ENTRIES {
+                break 'walk;
+            }
+            let child_rel =
+                if prefix.is_empty() { name.clone() } else { format!("{prefix}/{name}") };
+            out.push(WorkspaceEntry { path: child_rel.clone(), name, is_dir, size });
+            if is_dir && depth + 1 < WS_LIST_MAX_DEPTH {
+                // Jail each descent: a symlink pointing outside is not followed.
+                match p.canonicalize() {
+                    Ok(c) if c.starts_with(&root_c) => stack.push((c, child_rel, depth + 1)),
+                    _ => {}
+                }
+            }
+        }
+    }
+    Ok(out)
+}
+
+/// Read a workspace text file for attachment. Caps at 24 KB, rejects
+/// binary content (NUL sniff), and never escapes the workspace root.
+fn ws_read(root: &std::path::Path, rel: &str) -> Result<WorkspaceFileRead, String> {
+    if rel.trim().is_empty() {
+        return Err("path required".to_string());
+    }
+    let p = ws_resolve(root, rel)?;
+    if p.is_dir() {
+        return Err("not a file".to_string());
+    }
+    let size = std::fs::metadata(&p).map_err(|e| e.to_string())?.len();
+    use std::io::Read;
+    let file = std::fs::File::open(&p).map_err(|e| e.to_string())?;
+    let mut buf = Vec::with_capacity(WS_READ_MAX_BYTES + 1);
+    file.take((WS_READ_MAX_BYTES + 1) as u64)
+        .read_to_end(&mut buf)
+        .map_err(|e| e.to_string())?;
+    let truncated = buf.len() > WS_READ_MAX_BYTES;
+    if truncated {
+        buf.truncate(WS_READ_MAX_BYTES);
+    }
+    if buf.iter().take(8192).any(|&b| b == 0) {
+        return Err("binary file — attach text files only".to_string());
+    }
+    let content = match std::str::from_utf8(&buf) {
+        Ok(s) => s.to_string(),
+        Err(e) => {
+            if e.error_len().is_none() {
+                // Cut mid-character at the 24 KB boundary — drop the tail.
+                buf.truncate(e.valid_up_to());
+            }
+            String::from_utf8_lossy(&buf).into_owned()
+        }
+    };
+    Ok(WorkspaceFileRead { path: rel.trim().replace('\\', "/"), content, size, truncated })
+}
+
+/// List workspace files/dirs for the composer `+` menu. `path` is
+/// workspace-relative; empty lists the workspace root.
+#[command]
+pub async fn list_workspace_files(path: String) -> Result<Vec<WorkspaceEntry>, String> {
+    let root = crate::tools::resolve_workspace_dir();
+    ws_list(&root, &path)
+}
+
+/// Read a workspace text file for attaching (24 KB cap, binary rejected).
+#[command]
+pub async fn read_workspace_file(path: String) -> Result<WorkspaceFileRead, String> {
+    let root = crate::tools::resolve_workspace_dir();
+    ws_read(&root, &path)
+}
+
+#[cfg(test)]
+mod workspace_browser_tests {
+    use super::*;
+
+    fn tmp_root(name: &str) -> std::path::PathBuf {
+        let d = std::env::temp_dir().join(format!("maverick-ws-browser-{name}"));
+        let _ = std::fs::remove_dir_all(&d);
+        std::fs::create_dir_all(&d).unwrap();
+        d
+    }
+
+    #[test]
+    fn resolve_denies_escapes_and_accepts_root() {
+        let root = tmp_root("esc");
+        std::fs::create_dir_all(root.join("inner")).unwrap();
+        assert!(ws_resolve(&root, "").is_ok());
+        assert!(ws_resolve(&root, "inner").is_ok());
+        assert!(ws_resolve(&root, "inner/../inner").is_ok());
+        assert!(ws_resolve(&root, "../escape").is_err());
+        assert!(ws_resolve(&root, "inner/../../escape").is_err());
+        assert!(ws_resolve(&root, "/etc").is_err());
+        assert!(ws_resolve(&root, "missing-dir").is_err());
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn list_depth_skip_cap_and_order() {
+        let root = tmp_root("list");
+        std::fs::write(root.join("notes.txt"), "hi").unwrap();
+        std::fs::create_dir_all(root.join("dir1")).unwrap();
+        std::fs::write(root.join("dir1/file.txt"), "x").unwrap();
+        std::fs::create_dir_all(root.join("a/b/c")).unwrap();
+        std::fs::write(root.join("a/b/c/deep.txt"), "deep").unwrap();
+        std::fs::create_dir_all(root.join("node_modules/pkg")).unwrap();
+        std::fs::write(root.join("node_modules/pkg/index.js"), "j").unwrap();
+        std::fs::create_dir_all(root.join(".git")).unwrap();
+        std::fs::write(root.join(".git/config"), "g").unwrap();
+        std::fs::create_dir_all(root.join(".hidden")).unwrap();
+        std::fs::write(root.join(".hidden/secret.txt"), "s").unwrap();
+
+        let out = ws_list(&root, "").unwrap();
+        let paths: Vec<&str> = out.iter().map(|e| e.path.as_str()).collect();
+        assert!(paths.contains(&"notes.txt"));
+        assert!(paths.contains(&"dir1") && paths.contains(&"dir1/file.txt"));
+        assert!(paths.contains(&"a") && paths.contains(&"a/b") && paths.contains(&"a/b/c"));
+        assert!(!paths.contains(&"a/b/c/deep.txt"), "level 4 must not be listed: {paths:?}");
+        assert!(!paths.iter().any(|p| p.starts_with("node_modules")), "{paths:?}");
+        assert!(!paths.iter().any(|p| p.starts_with(".git")), "{paths:?}");
+        assert!(!paths.iter().any(|p| p.starts_with(".hidden")), "{paths:?}");
+        // Root level: dirs before files, alphabetical.
+        assert_eq!(out[0].path, "a");
+        assert_eq!(out[1].path, "dir1");
+        assert_eq!(out[2].path, "notes.txt");
+        assert!(out[0].is_dir && !out[2].is_dir);
+        assert_eq!(out[2].size, Some(2));
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn list_caps_entries_at_max() {
+        let root = tmp_root("cap");
+        for i in 0..600 {
+            std::fs::write(root.join(format!("f{i}.txt")), "x").unwrap();
+        }
+        let out = ws_list(&root, "").unwrap();
+        assert_eq!(out.len(), WS_LIST_MAX_ENTRIES);
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn read_text_binary_truncation_and_jail() {
+        let root = tmp_root("read");
+        std::fs::write(root.join("hello.txt"), "hi there").unwrap();
+        std::fs::create_dir_all(root.join("adir")).unwrap();
+        std::fs::write(root.join("bin.dat"), b"ab\x00cd").unwrap();
+        std::fs::write(root.join("big.txt"), "a".repeat(WS_READ_MAX_BYTES + 500)).unwrap();
+
+        let r = ws_read(&root, "hello.txt").unwrap();
+        assert_eq!(r.content, "hi there");
+        assert!(!r.truncated);
+        assert_eq!(r.size, 8);
+
+        let big = ws_read(&root, "big.txt").unwrap();
+        assert!(big.truncated);
+        assert_eq!(big.content.len(), WS_READ_MAX_BYTES);
+        assert_eq!(big.size, (WS_READ_MAX_BYTES + 500) as u64);
+
+        assert!(ws_read(&root, "bin.dat").is_err());
+        assert!(ws_read(&root, "adir").is_err());
+        assert!(ws_read(&root, "").is_err());
+        assert!(ws_read(&root, "../outside.txt").is_err());
+        let _ = std::fs::remove_dir_all(&root);
+    }
 }

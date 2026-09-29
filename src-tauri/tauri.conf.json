@@ -3,8 +3,9 @@
   "productName": "Maverick",
   "version": "0.1.0",
   "build": {
-    "beforeDevCommand": "powershell -Command \"if (Test-Path package.json) { npm run dev } elseif (Test-Path frontend/package.json) { npm run dev --prefix frontend } elseif (Test-Path ../frontend/package.json) { npm run dev --prefix ../frontend } elseif (Test-Path D:/grok/nexus/frontend/package.json) { npm run dev --prefix D:/grok/nexus/frontend } else { npm run dev }\"",
-    "beforeBuildCommand": "powershell -Command \"if (Test-Path package.json) { npm run build } elseif (Test-Path frontend/package.json) { npm run build --prefix frontend } elseif (Test-Path ../frontend/package.json) { npm run build --prefix ../frontend } elseif (Test-Path D:/grok/nexus/frontend/package.json) { npm run build --prefix D:/grok/nexus/frontend } else { npm run build }\"",
+    "devUrl": "http://127.0.0.1:1420",
+    "beforeDevCommand": "npm run dev --prefix ../frontend",
+    "beforeBuildCommand": "npm run build --prefix ../frontend",
     "frontendDist": "../frontend/dist"
   },
   "app": {

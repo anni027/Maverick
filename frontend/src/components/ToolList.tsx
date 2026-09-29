@@ -3,11 +3,14 @@ import { useState, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 
 export default function ToolList({ isOpen, onClose, tools }: { isOpen: boolean; onClose: () => void; tools: string[] }) {
-  const [toolDefs, setToolDefs] = useState<Array<{ name: string; description: string }>>([]);
+  // `list_tools` returns plain names — the old `Array<{name, description}>`
+  // typing made the `test_tool` filter a no-op (it read `.name` off a string)
+  // and rendered `undefined` for every description.
+  const [toolDefs, setToolDefs] = useState<string[]>([]);
   useEffect(() => {
     if (isOpen) {
-      invoke<Array<{ name: string; description: string }>>('list_tools')
-        .then(list => setToolDefs(list.filter(t => t.name !== 'test_tool')))
+      invoke<string[]>('list_tools')
+        .then(list => setToolDefs(list.filter(t => t !== 'test_tool')))
         .catch(()=>{});
     }
   }, [isOpen]);
@@ -34,10 +37,10 @@ export default function ToolList({ isOpen, onClose, tools }: { isOpen: boolean; 
         {toolDefs.length===0 ? (
           <div className="mono" style={{color:'var(--muted)', fontSize:'12px', textAlign:'center', padding:'24px 0'}}>Loading…</div>
         ) : (
-          toolDefs.map(tool => (
-            <div key={tool.name} style={{padding:'12px', border:'1px solid var(--line)', borderRadius:'12px', background:'var(--bg)'}}>
-              <div style={{fontFamily:'var(--font-mono)', fontWeight:600, fontSize:'12px'}}>{tool.name}</div>
-              <div style={{color:'var(--muted)', fontSize:'12px', lineHeight:1.5, marginTop:'4px'}}>{tool.description || 'Local tool'}</div>
+          toolDefs.map(name => (
+            <div key={name} style={{padding:'12px', border:'1px solid var(--line)', borderRadius:'12px', background:'var(--bg)'}}>
+              <div style={{fontFamily:'var(--font-mono)', fontWeight:600, fontSize:'12px'}}>{name}</div>
+              <div style={{color:'var(--muted)', fontSize:'12px', lineHeight:1.5, marginTop:'4px'}}>Local tool</div>
             </div>
           ))
         )}

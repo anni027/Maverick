@@ -12,21 +12,21 @@
 //! stdout and a native HTTP provider that streams SSE both satisfy the same
 //! contract.
 
+pub mod anthropic;
+pub mod openai;
 pub mod provider;
 pub mod registry;
-pub mod xai;
-pub mod openai;
-pub mod anthropic;
 pub mod subprocess;
+pub mod xai;
 
+pub use anthropic::AnthropicProvider;
+pub use openai::OpenAiProvider;
 pub use provider::{
     Provider, ProviderCapabilities, ProviderConfig, ProviderInfo, ProviderInfoDto, ProviderKind,
 };
 pub use registry::ProviderRegistry;
-pub use xai::XaiProvider;
-pub use openai::OpenAiProvider;
-pub use anthropic::AnthropicProvider;
 pub use subprocess::SubprocessProvider;
+pub use xai::XaiProvider;
 
 use std::sync::Arc;
 
@@ -34,9 +34,18 @@ use std::sync::Arc;
 pub fn default_provider_config(id: &str) -> (String, String) {
     match id {
         "xai" => ("https://api.x.ai/v1".to_string(), "grok-4".to_string()),
-        "openai" => ("https://api.openai.com/v1".to_string(), "gpt-4o".to_string()),
-        "anthropic" => ("https://api.anthropic.com/v1".to_string(), "claude-3-5-sonnet-20240620".to_string()),
-        _ => ("https://api.openai.com/v1".to_string(), "gpt-4o".to_string()),
+        "openai" => (
+            "https://api.openai.com/v1".to_string(),
+            "gpt-4o".to_string(),
+        ),
+        "anthropic" => (
+            "https://api.anthropic.com/v1".to_string(),
+            "claude-3-5-sonnet-20240620".to_string(),
+        ),
+        _ => (
+            "https://api.openai.com/v1".to_string(),
+            "gpt-4o".to_string(),
+        ),
     }
 }
 
@@ -88,7 +97,9 @@ pub fn create_provider(
     kind: Option<String>,
 ) -> Option<Arc<dyn Provider>> {
     let (def_base, def_model) = default_provider_config(id);
-    let raw_base = base_url.filter(|s| !s.trim().is_empty()).unwrap_or(def_base);
+    let raw_base = base_url
+        .filter(|s| !s.trim().is_empty())
+        .unwrap_or(def_base);
     let base = normalize_base_url(id, &raw_base);
     let mdl = model.filter(|s| !s.trim().is_empty()).unwrap_or(def_model);
     // For custom ids, respect explicit kind if provided
@@ -127,11 +138,21 @@ pub fn provider_info_for_with_kind(
     model: Option<String>,
     kind: Option<String>,
 ) -> Option<ProviderInfo> {
-    let provider = create_provider(id, api_key.clone(), base_url.clone(), model.clone(), kind.clone())?;
+    let provider = create_provider(
+        id,
+        api_key.clone(),
+        base_url.clone(),
+        model.clone(),
+        kind.clone(),
+    )?;
     let (def_base, def_model) = default_provider_config(id);
-    let raw_base = base_url.filter(|s| !s.trim().is_empty()).unwrap_or(def_base);
+    let raw_base = base_url
+        .filter(|s| !s.trim().is_empty())
+        .unwrap_or(def_base);
     let base = normalize_base_url(id, &raw_base);
-    let mdl = model.filter(|s| !s.trim().is_empty()).unwrap_or_else(|| def_model);
+    let mdl = model
+        .filter(|s| !s.trim().is_empty())
+        .unwrap_or_else(|| def_model);
     // Use the resolved base/model for the displayed config (so UI shows effective values)
     let (kind_enum, name, config) = match id {
         "xai" => (
@@ -165,7 +186,11 @@ pub fn provider_info_for_with_kind(
             } else {
                 format!("{} (OpenAI-compat)", id)
             };
-            let k = if is_anthropic { ProviderKind::Anthropic } else { ProviderKind::OpenAi };
+            let k = if is_anthropic {
+                ProviderKind::Anthropic
+            } else {
+                ProviderKind::OpenAi
+            };
             (
                 k,
                 display_name,
@@ -212,25 +237,71 @@ mod tests {
 
     #[test]
     fn test_normalize_base_url() {
-        assert_eq!(normalize_base_url("openai", "https://api.openai.com"), "https://api.openai.com/v1");
-        assert_eq!(normalize_base_url("openai", "https://api.openai.com/"), "https://api.openai.com/v1");
-        assert_eq!(normalize_base_url("openai", "https://api.openai.com/v1"), "https://api.openai.com/v1");
-        assert_eq!(normalize_base_url("xai", "https://api.x.ai"), "https://api.x.ai/v1");
-        assert_eq!(normalize_base_url("anthropic", "https://api.anthropic.com"), "https://api.anthropic.com/v1");
-        assert_eq!(normalize_base_url("ollama", "http://localhost:11434"), "http://localhost:11434/v1");
-        assert_eq!(normalize_base_url("ollama", "http://localhost:11434/v1"), "http://localhost:11434/v1");
-        assert_eq!(normalize_base_url("custom", "https://api.together.xyz/v1"), "https://api.together.xyz/v1");
+        assert_eq!(
+            normalize_base_url("openai", "https://api.openai.com"),
+            "https://api.openai.com/v1"
+        );
+        assert_eq!(
+            normalize_base_url("openai", "https://api.openai.com/"),
+            "https://api.openai.com/v1"
+        );
+        assert_eq!(
+            normalize_base_url("openai", "https://api.openai.com/v1"),
+            "https://api.openai.com/v1"
+        );
+        assert_eq!(
+            normalize_base_url("xai", "https://api.x.ai"),
+            "https://api.x.ai/v1"
+        );
+        assert_eq!(
+            normalize_base_url("anthropic", "https://api.anthropic.com"),
+            "https://api.anthropic.com/v1"
+        );
+        assert_eq!(
+            normalize_base_url("ollama", "http://localhost:11434"),
+            "http://localhost:11434/v1"
+        );
+        assert_eq!(
+            normalize_base_url("ollama", "http://localhost:11434/v1"),
+            "http://localhost:11434/v1"
+        );
+        assert_eq!(
+            normalize_base_url("custom", "https://api.together.xyz/v1"),
+            "https://api.together.xyz/v1"
+        );
     }
 
-    #[test]
-    fn test_provider_model_reporting() {
-        let openai = create_provider("openai", None, None, Some("gpt-4o-mini".to_string()), None).unwrap();
+    #[tokio::test]
+    async fn test_provider_model_reporting() {
+        let openai =
+            create_provider("openai", None, None, Some("gpt-4o-mini".to_string()), None).unwrap();
         assert_eq!(openai.model(), "gpt-4o-mini");
 
         let xai = create_provider("xai", None, None, Some("grok-beta".to_string()), None).unwrap();
         assert_eq!(xai.model(), "grok-beta");
 
-        let anthropic = create_provider("anthropic", None, None, Some("claude-3-opus".to_string()), None).unwrap();
+        let anthropic = create_provider(
+            "anthropic",
+            None,
+            None,
+            Some("claude-3-opus".to_string()),
+            None,
+        )
+        .unwrap();
         assert_eq!(anthropic.model(), "claude-3-opus");
+    }
+
+    /// Native context windows (§5.6-E) match the sampler configs so
+    /// compaction thresholds track the real model.
+    #[tokio::test]
+    async fn test_provider_context_windows() {
+        let xai = create_provider("xai", None, None, None, None).unwrap();
+        assert_eq!(xai.context_window(), 131_072);
+
+        let openai = create_provider("openai", None, None, None, None).unwrap();
+        assert_eq!(openai.context_window(), 128_000);
+
+        let anthropic = create_provider("anthropic", None, None, None, None).unwrap();
+        assert_eq!(anthropic.context_window(), 200_000);
     }
 }

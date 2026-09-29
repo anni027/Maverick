@@ -8,16 +8,26 @@ fn main() -> anyhow::Result<()> {
         )
         .init();
 
-    let app_data_dir = std::env::temp_dir().join("maverick-app");
-    // AppState::new is async (builds ToolBridge); block on Tauri's runtime.
-    let app_state = tauri::async_runtime::block_on(maverick_backend::AppState::new(app_data_dir))?;
-
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
-        .manage(app_state)
+        .plugin(tauri_plugin_notification::init())
+        .setup(|app| {
+            use tauri::Manager;
+            // Tauri's per-app data directory (e.g. `%APPDATA%\com.maverick.app`
+            // on Windows), not the OS temp dir: temp gets swept by the system
+            // and would take every session transcript and setting with it.
+            // AppState::new is async (builds ToolBridge).
+            let app_data_dir = app.path().app_data_dir()?;
+            let app_state =
+                tauri::async_runtime::block_on(maverick_backend::AppState::new(app_data_dir))?;
+            app.manage(app_state);
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             maverick_backend::commands::init_session,
             maverick_backend::commands::send_message,
+            maverick_backend::commands::cancel_message,
+            maverick_backend::commands::get_usage,
             maverick_backend::commands::list_sessions,
             maverick_backend::commands::delete_session,
             maverick_backend::commands::rename_session,
@@ -37,6 +47,10 @@ fn main() -> anyhow::Result<()> {
             maverick_backend::commands::add_mcp_server_full,
             maverick_backend::commands::get_ui_config,
             maverick_backend::commands::set_ui_config,
+            maverick_backend::commands::get_context_config,
+            maverick_backend::commands::set_context_config,
+            maverick_backend::commands::get_budget_config,
+            maverick_backend::commands::set_budget_config,
             maverick_backend::commands::list_kilo_models,
             maverick_backend::commands::list_skills,
             maverick_backend::commands::install_skill,
@@ -46,8 +60,16 @@ fn main() -> anyhow::Result<()> {
             maverick_backend::commands::refresh_skills,
             maverick_backend::commands::search_skills,
             maverick_backend::commands::get_skill_content,
+            maverick_backend::commands::list_marketplace_sources,
+            maverick_backend::commands::add_marketplace_source,
+            maverick_backend::commands::remove_marketplace_source,
+            maverick_backend::commands::list_marketplace_skills,
+            maverick_backend::commands::search_marketplace_skills,
+            maverick_backend::commands::install_marketplace_skill,
             maverick_backend::commands::list_mcp_status,
             maverick_backend::commands::scan_marketplace,
+            maverick_backend::commands::list_workspace_files,
+            maverick_backend::commands::read_workspace_file,
         ])
         .run(tauri::generate_context!())
         .map_err(anyhow::Error::from)

@@ -51,7 +51,7 @@ pub enum ProviderConfig {
     Http {
         #[serde(rename = "baseUrl")]
         base_url: String,
-        #[serde(rename = "apiKey")]
+        #[serde(rename = "apiKey", skip_serializing)]
         api_key: Option<String>,
     },
     Subprocess {
@@ -80,6 +80,11 @@ pub trait Provider: Send + Sync {
         ""
     }
     fn capabilities(&self) -> ProviderCapabilities;
+    /// Native context window in tokens (§5.6-E). Used for compaction
+    /// thresholds when the chat handle has no live sampling config yet.
+    fn context_window(&self) -> u64 {
+        128_000
+    }
     async fn complete(&self, request: ConversationRequest) -> Result<ConversationResponse>;
 }
 
@@ -101,6 +106,9 @@ pub struct ProviderInfoDto {
     pub name: String,
     pub kind: ProviderKind,
     pub config: ProviderConfig,
+    /// Effective model slug for this provider (e.g. `grok-4`, `gpt-4o`).
+    /// Used by the UI to label the model selector and to show the active model.
+    pub model: String,
 }
 
 impl From<&ProviderInfo> for ProviderInfoDto {
@@ -110,6 +118,7 @@ impl From<&ProviderInfo> for ProviderInfoDto {
             name: info.name.clone(),
             kind: info.kind,
             config: info.config.clone(),
+            model: info.provider.model().to_string(),
         }
     }
 }

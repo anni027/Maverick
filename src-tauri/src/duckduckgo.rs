@@ -9,9 +9,9 @@ use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
 
+use xai_tool_protocol::{ToolCapabilities, ToolId, ToolScope};
 use xai_tool_runtime::{ListToolsContext, Tool, ToolCallContext, ToolError};
 use xai_tool_types::ToolDescription;
-use xai_tool_protocol::{ToolCapabilities, ToolId, ToolScope};
 
 const DDG_HTML: &str = "https://html.duckduckgo.com/html/";
 const DDG_LITE: &str = "https://lite.duckduckgo.com/lite/";
@@ -46,7 +46,10 @@ impl DuckDuckGoOutput {
     fn formatted(&self) -> String {
         let now = chrono::Utc::now().format("%Y-%m-%d").to_string();
         let mut out = String::new();
-        out.push_str(&format!("Results for \"{}\" (as of {}):\n\n", self.query, now));
+        out.push_str(&format!(
+            "Results for \"{}\" (as of {}):\n\n",
+            self.query, now
+        ));
         out.push_str(&self.content);
         if !self.citations.is_empty() {
             out.push_str("\n\nCitations:\n");
@@ -126,7 +129,13 @@ impl DuckDuckGoClient {
         Err(last_err.unwrap_or_else(|| anyhow::anyhow!("DuckDuckGo search failed")))
     }
 
-    async fn fetch_once(&self, url: &str, query: &str, region: &str, time: Option<&str>) -> Result<(String, Vec<String>)> {
+    async fn fetch_once(
+        &self,
+        url: &str,
+        query: &str,
+        region: &str,
+        time: Option<&str>,
+    ) -> Result<(String, Vec<String>)> {
         let mut params = vec![("q", query), ("kl", region), ("b", "")];
         // DuckDuckGo date filter: df=d/w/m/y for past day/week/month/year
         if let Some(t) = time {
@@ -145,7 +154,10 @@ impl DuckDuckGoClient {
         let resp = self
             .client
             .post(url)
-            .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+            .header(
+                "Accept",
+                "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            )
             .header("Accept-Language", "en-US,en;q=0.9")
             .header("Referer", "https://html.duckduckgo.com/")
             .header("Origin", "https://html.duckduckgo.com")
@@ -159,7 +171,10 @@ impl DuckDuckGoClient {
         let status = resp.status();
         let body = resp.text().await?;
 
-        if status.as_u16() == 202 || body.contains("anomaly-modal") || body.contains("Unfortunately, bots") {
+        if status.as_u16() == 202
+            || body.contains("anomaly-modal")
+            || body.contains("Unfortunately, bots")
+        {
             anyhow::bail!("rate-limited (202/anomaly)");
         }
         if !status.is_success() {
@@ -311,7 +326,11 @@ impl xai_grok_tools::types::tool_metadata::ToolMetadata for DuckDuckGoTool {
     fn description_template(&self) -> &str {
         "Search DuckDuckGo for up-to-date web results. No API key needed. Use for recent info, tail queries, and general web search. Supports time filter (d=day, w=week, m=month, y=year) for fresh results. Current date is injected in output — always use time=\"w\" or \"m\" for recent topics and cite sources. Pair with web_fetch for freshest page content. Returns titles, snippets, and citations."
     }
-    fn requires_expr(&self) -> xai_grok_tools::types::requirements::Expr<xai_grok_tools::types::requirements::ToolRequirement> {
+    fn requires_expr(
+        &self,
+    ) -> xai_grok_tools::types::requirements::Expr<
+        xai_grok_tools::types::requirements::ToolRequirement,
+    > {
         xai_grok_tools::types::requirements::Expr::True
     }
 }
@@ -343,24 +362,29 @@ impl Tool for DuckDuckGoTool {
         input: Self::Args,
     ) -> impl std::future::Future<Output = Result<Self::Output, ToolError>> + Send {
         async move {
-        if input.query.trim().is_empty() {
-            return Err(ToolError::invalid_arguments("query is required"));
-        }
-        if input.query.len() > 499 {
-            return Err(ToolError::invalid_arguments("query too long (max 499)"));
-        }
-        let client = DuckDuckGoClient::new().map_err(|e| ToolError::execution(ToolId::new("duckduckgo_search").unwrap(), e.to_string()))?;
-        let count = input.count.unwrap_or(8).clamp(1, 10);
-        let region = input.region.as_deref();
-        let time = input.time.as_deref();
-        match client.search(&input.query, region, Some(count), time).await {
-            Ok((content, citations)) => Ok(DuckDuckGoOutput {
-                query: input.query,
-                content,
-                citations,
-            }),
-            Err(e) => Err(ToolError::execution(ToolId::new("duckduckgo_search").unwrap(), format!("DuckDuckGo search failed: {e}"))),
-        }
+            if input.query.trim().is_empty() {
+                return Err(ToolError::invalid_arguments("query is required"));
+            }
+            if input.query.len() > 499 {
+                return Err(ToolError::invalid_arguments("query too long (max 499)"));
+            }
+            let client = DuckDuckGoClient::new().map_err(|e| {
+                ToolError::execution(ToolId::new("duckduckgo_search").unwrap(), e.to_string())
+            })?;
+            let count = input.count.unwrap_or(8).clamp(1, 10);
+            let region = input.region.as_deref();
+            let time = input.time.as_deref();
+            match client.search(&input.query, region, Some(count), time).await {
+                Ok((content, citations)) => Ok(DuckDuckGoOutput {
+                    query: input.query,
+                    content,
+                    citations,
+                }),
+                Err(e) => Err(ToolError::execution(
+                    ToolId::new("duckduckgo_search").unwrap(),
+                    format!("DuckDuckGo search failed: {e}"),
+                )),
+            }
         }
     }
 }

@@ -1,19 +1,56 @@
-/* Minimal — Ferrari quiet, ChatGPT clear */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+/* Obsidian — tactical minimal, blue telemetry accents (Stitch port) */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=SN+Pro:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root{
-  --bg:#0A0A0A;
-  --surface:#111111;
-  --panel:#141414;
-  --line:#1E1E1E;
-  --line-2:#2A2A2A;
-  --text:#EDEDED;
-  --muted:#8A8A8A;
-  --faint:#5A5A5A;
-  --rosso:#E30613;
-  --rosso-dim:rgba(227,6,19,0.12);
-  --radius:10px;
-  --font-body:"Inter", system-ui, -apple-system, sans-serif;
+  --bg:#000000;
+  --surface:#000000;
+  --panel:#000000;
+  --panel-2:#000000;
+  --panel-3:#000000;
+  --line:#1f2128;
+  --line-2:#27272a;
+  --text:#f8fafc;
+  --muted:#94a3b8;
+  --faint:#64748b;
+  --accent:#00e5ff;
+  --accent-2:#38bdf8;
+  --accent-dim:rgba(0,229,255,0.10);
+  --accent-border:rgba(0,229,255,0.25);
+  --accent-2-dim:rgba(56,189,248,0.12);
+  --accent-2-border:rgba(56,189,248,0.30);
+  --error:#ffb4ab;
+  --error-bg:rgba(147,0,10,0.18);
+  --error-border:rgba(147,0,10,0.45);
+  --ok:#22c55e;
+  --ok-text:#16a34a;
+  --ok-border:rgba(22,163,74,0.30);
+  --warn:#ffd166;
+  --warn-bg:rgba(255,209,102,0.07);
+  --warn-border:rgba(255,209,102,0.25);
+  --danger:#ff6b6b;
+  --danger-solid:#93000a;
+  --danger-solid-text:#ffdad6;
+  --link:#60a5fa;
+  --void:#000000;
+  --chip:#000000;
+  --control-off:#101010;
+  --bubble-user:#000000;
+  --surface-quiet:#000000;
+  --row-selected:#111111;
+  --row-selected-line:#2e3444;
+  --row-hover:#050505;
+  --avatar-bg:#000000;
+  --code-surface:#000000;
+  --code-head:#0a0a0a;
+  --code-body:#000000;
+  --code-fg:#e0e0e0;
+  --code-fg-strong:#eaeaea;
+  --inline-code-fg:#ff8a80;
+  --radius:12px;
+  --radius-lg:16px;
+  --radius-xl:24px;
+  --font-body:"SN Pro", system-ui, -apple-system, sans-serif;
+  --font-head:"DM Sans", system-ui, -apple-system, sans-serif;
   --font-mono:"JetBrains Mono", ui-monospace, monospace;
 }
 
@@ -32,16 +69,16 @@ body{
 
 /* type */
 .mono{font-family:var(--font-mono)}
-h1,h2,h3{letter-spacing:-0.02em;line-height:1.1;font-weight:600}
+h1,h2,h3{font-family:var(--font-head);letter-spacing:-0.02em;line-height:1.1;font-weight:600}
 
-/* panel — minimal, no carbon, no heavy clip */
+/* panel — hairline borders, tonal layering */
 .panel{
   background:var(--panel);
   border:1px solid var(--line);
   border-radius:var(--radius);
 }
 
-/* buttons — minimal, quiet */
+/* buttons — quiet, hover picks up blue telemetry */
 button{
   font-family:var(--font-body);
   font-weight:500;
@@ -49,59 +86,78 @@ button{
   letter-spacing:0.01em;
   cursor:pointer;
   border:1px solid var(--line);
-  background:#1A1A1A;
+  background:#0d0d0d;
   color:var(--text);
   padding:9px 14px;
-  border-radius:8px;
-  transition:all .15s ease;
+  border-radius:10px;
+  transition:all .2s cubic-bezier(0.16,1,0.3,1);
 }
-button:hover{background:#212121;border-color:var(--line-2)}
+button:hover{background:#161616;border-color:rgba(56,189,248,0.40)}
 button:active{transform:scale(0.98)}
 button:disabled{opacity:.45;cursor:not-allowed;transform:none}
-.btn-rosso{
-  background:var(--rosso);
-  color:white;
-  border-color:var(--rosso);
+.btn-accent{
+  background:var(--accent);
+  color:#000000;
+  border-color:var(--accent);
 }
-.btn-rosso:hover{background:#C00510;border-color:#C00510}
+.btn-accent:hover{background:var(--accent-2);border-color:var(--accent-2)}
 .btn-ghost{
   background:transparent;
   border-color:var(--line);
   color:var(--text);
 }
-.btn-ghost:hover{background:var(--panel);border-color:var(--line-2)}
-.btn-ico{padding:8px;width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px}
+.btn-ghost:hover{background:#101010;border-color:var(--line-2)}
+.btn-ico{padding:8px;width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;border-radius:10px}
 
-/* inputs — minimal */
+/* composer + menu */
+.pm-item{
+  display:flex;align-items:center;gap:10px;width:100%;
+  padding:9px 10px;border:none;border-radius:10px;
+  background:transparent;color:var(--text);
+  font-size:13.5px;text-align:left;cursor:pointer;
+  transition:background .12s;
+}
+.pm-item:hover{background:#101010}
+.pm-item:disabled{opacity:.5;cursor:default}
+.pm-back{
+  display:flex;align-items:center;justify-content:center;
+  width:26px;height:26px;border:1px solid var(--line);border-radius:8px;
+  background:transparent;color:var(--text);cursor:pointer;transition:background .12s;
+}
+.pm-back:hover{background:#101010}
+.pm-chev{transform:rotate(-90deg)}
+.pm-chev-left{transform:rotate(90deg)}
+
+/* inputs — obsidian wells, blue focus telemetry */
 input, textarea, select{
   font-family:var(--font-body);
   font-size:14px;
-  background:#0F0F0F;
+  background:var(--panel-2);
   color:var(--text);
   border:1px solid var(--line);
-  border-radius:8px;
+  border-radius:10px;
   outline:none;
   padding:12px 14px;
-  transition:border-color .15s, background .15s;
+  transition:border-color .2s cubic-bezier(0.16,1,0.3,1), background .2s;
 }
-input::placeholder, textarea::placeholder{color:var(--muted)}
+input::placeholder, textarea::placeholder{color:var(--faint)}
 input:focus, textarea:focus, select:focus{
-  border-color:var(--line-2);
-  background:#141414;
+  border-color:rgba(0,229,255,0.80);
+  background:#000000;
 }
 select{appearance:none;padding-right:32px}
 
-/* scrollbar — minimal */
+/* scrollbar — minimal, blue-tinted hover */
 ::-webkit-scrollbar{width:6px;height:6px}
 ::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:#1E1E1E;border-radius:999px}
-::-webkit-scrollbar-thumb:hover{background:#2A2A2A}
-*{scrollbar-width:thin;scrollbar-color:#1E1E1E transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.10);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:rgba(56,189,248,0.35)}
+*{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.10) transparent}
 
 /* selection */
-::selection{background:var(--rosso);color:white}
+::selection{background:rgba(0,229,255,0.25);color:white}
 *{caret-color:var(--text)}
-:focus-visible{outline:1px solid var(--line-2);outline-offset:2px}
+:focus-visible{outline:1px solid rgba(56,189,248,0.55);outline-offset:2px}
 
 /* badge — minimal */
 .badge{
@@ -114,4 +170,24 @@ select{appearance:none;padding-right:32px}
   border-radius:999px;
   background:transparent;
 }
-.badge-rosso{border-color:rgba(227,6,19,0.25);color:var(--muted);background:var(--rosso-dim)}
+.badge-accent{border-color:var(--accent-border);color:var(--accent-2);background:var(--accent-dim)}
+
+/* aperture motion — disabled under reduced-motion */
+@keyframes apertureSpin{
+  0%{transform:rotate(0deg)}
+  100%{transform:rotate(360deg)}
+}
+@keyframes apertureBreathe{
+  0%,100%{transform:scale(0.92)}
+  50%{transform:scale(1.05)}
+}
+.aperture-spin{animation:apertureSpin 12s cubic-bezier(0.4,0,0.2,1) infinite}
+.aperture-breathe{animation:apertureBreathe 3s ease-in-out infinite}
+@keyframes pingSoft{
+  0%{transform:scale(1);opacity:.75}
+  80%,100%{transform:scale(2.2);opacity:0}
+}
+.ping-soft{animation:pingSoft 1.4s cubic-bezier(0,0,0.2,1) infinite}
+@media (prefers-reduced-motion: reduce){
+  .aperture-spin,.aperture-breathe,.ping-soft{animation:none}
+}

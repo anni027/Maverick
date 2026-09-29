@@ -5,9 +5,7 @@ use anyhow::Result;
 use async_trait::async_trait;
 use tokio::sync::mpsc;
 
-use xai_grok_sampler::{
-    SamplerActor, SamplerConfig, SamplerHandle, SamplingEvent, RetryPolicy,
-};
+use xai_grok_sampler::{RetryPolicy, SamplerActor, SamplerConfig, SamplerHandle, SamplingEvent};
 use xai_grok_sampling_types::{ConversationRequest, ConversationResponse};
 
 use super::provider::{Provider, ProviderCapabilities, ProviderConfig, ProviderKind};
@@ -64,6 +62,10 @@ impl Provider for AnthropicProvider {
         &self.model
     }
 
+    fn context_window(&self) -> u64 {
+        200_000
+    }
+
     fn capabilities(&self) -> ProviderCapabilities {
         ProviderCapabilities {
             supports_native_schema: true,
@@ -80,8 +82,9 @@ impl Provider for AnthropicProvider {
             .handle
             .submit_and_collect_with_metadata(request_id, request)
             .await;
-        let (response, _stats) =
-            collected.result.map_err(|e| anyhow::anyhow!("anthropic sampling failed: {e}"))?;
+        let (response, _stats) = collected
+            .result
+            .map_err(|e| anyhow::anyhow!("anthropic sampling failed: {e}"))?;
         Ok(response)
     }
 }

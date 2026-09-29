@@ -573,6 +573,14 @@ impl ToolBridge {
         self.registry.update_resources_with(seed).await;
     }
 
+    /// Clone a typed resource out of the registry's `Resources`, if present.
+    /// See [`FinalizedToolset::get_resource_cloned`]. Used by hosts that need
+    /// to read tool-maintained state (e.g. `State<TodoState>`) without parsing
+    /// the persistence file.
+    pub async fn get_resource_cloned<T: Clone + Send + Sync + 'static>(&self) -> Option<T> {
+        self.registry.get_resource_cloned::<T>().await
+    }
+
     /// Kill a background task, recording who initiated the kill.
     pub async fn kill_background_task(
         &self,

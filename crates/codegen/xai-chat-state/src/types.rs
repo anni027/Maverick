@@ -165,9 +165,52 @@ pub struct AutoCompactTrigger {
     pub utilization_percent: u8,
 }
 
+impl AutoCompactTrigger {
+    /// Build a trigger reading from a live estimated token count. Returns
+    /// `None` when utilization is below `threshold_percent` (no compaction
+    /// needed) or the window is zero.
+    pub fn check(
+        estimated_tokens: u64,
+        context_window: u64,
+        threshold_percent: u32,
+    ) -> Option<Self> {
+        let window = NonZeroU64::new(context_window)?;
+        let percent = estimated_tokens
+            .saturating_mul(100)
+            .checked_div(context_window)
+            .unwrap_or(100)
+            .min(100) as u8;
+        if (percent as u32) >= threshold_percent.max(1) {
+            Some(Self {
+                total_tokens: estimated_tokens,
+                context_window: window,
+                utilization_percent: percent,
+            })
+        } else {
+            None
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn auto_compact_trigger_fires_at_threshold_percent() {
+        // Below threshold: no trigger.
+        assert!(AutoCompactTrigger::check(108_799, 128_000, 85).is_none());
+        // At threshold: trigger with the utilization percent reported.
+        let t = AutoCompactTrigger::check(108_800, 128_000, 85).expect("trigger fires at 85%");
+        assert_eq!(t.utilization_percent, 85);
+        assert_eq!(t.total_tokens, 108_800);
+        assert_eq!(t.context_window.get(), 128_000);
+        // Over-utilization clamps to 100 rather than overflowing.
+        let full = AutoCompactTrigger::check(500_000, 128_000, 85).expect("trigger fires");
+        assert_eq!(full.utilization_percent, 100);
+        // Zero window is unrepresentable (NonZeroU64) → no trigger.
+        assert!(AutoCompactTrigger::check(1_000, 0, 85).is_none());
+    }
 
     #[test]
     fn snapshot_round_trips_through_serde_json() {

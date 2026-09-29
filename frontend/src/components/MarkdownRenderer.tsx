@@ -229,8 +229,8 @@ function BlockView({ block }: { block: Block }) {
           style={{
             margin: '12px 0',
             padding: '10px 16px',
-            borderLeft: '3px solid var(--rosso)',
-            background: 'rgba(255,255,255,0.03)',
+            borderLeft: '3px solid var(--accent)',
+            background: 'transparent',
             borderRadius: '0 8px 8px 0',
             color: 'var(--text)',
             opacity: 0.95,
@@ -245,7 +245,7 @@ function BlockView({ block }: { block: Block }) {
         <div style={{ margin: '14px 0', overflowX: 'auto', borderRadius: '10px', border: '1px solid var(--line)' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13.5px', textAlign: 'left' }}>
             <thead>
-              <tr style={{ background: 'rgba(255,255,255,0.05)', borderBottom: '1px solid var(--line)' }}>
+              <tr style={{ background: 'transparent', borderBottom: '1px solid var(--line)' }}>
                 {block.headers.map((h, i) => (
                   <th key={i} style={{ padding: '10px 14px', fontWeight: 650, color: 'var(--text)' }}>
                     <InlineContent text={h} />
@@ -259,7 +259,7 @@ function BlockView({ block }: { block: Block }) {
                   key={ri}
                   style={{
                     borderBottom: ri === block.rows.length - 1 ? 'none' : '1px solid var(--line-2)',
-                    background: ri % 2 === 1 ? 'rgba(255,255,255,0.015)' : 'transparent',
+                    background: 'transparent',
                   }}
                 >
                   {row.map((cell, ci) => (
@@ -335,7 +335,7 @@ function CodeBlock({ language, code }: { language: string; code: string }) {
         borderRadius: '12px',
         overflow: 'hidden',
         border: '1px solid var(--line)',
-        background: '#141414',
+        background: 'var(--code-surface)',
       }}
     >
       {/* Top bar */}
@@ -345,7 +345,7 @@ function CodeBlock({ language, code }: { language: string; code: string }) {
           alignItems: 'center',
           justifyContent: 'space-between',
           padding: '8px 14px',
-          background: '#1A1A1A',
+          background: 'var(--code-head)',
           borderBottom: '1px solid var(--line)',
         }}
       >
@@ -362,7 +362,7 @@ function CodeBlock({ language, code }: { language: string; code: string }) {
             display: 'inline-flex',
             alignItems: 'center',
             gap: '5px',
-            color: copied ? '#22c55e' : 'var(--muted)',
+            color: copied ? 'var(--ok)' : 'var(--muted)',
             cursor: 'pointer',
           }}
           aria-label="Copy code"
@@ -395,8 +395,8 @@ function CodeBlock({ language, code }: { language: string; code: string }) {
           fontSize: '13px',
           lineHeight: 1.55,
           overflowX: 'auto',
-          color: '#E0E0E0',
-          background: '#111111',
+          color: 'var(--code-fg)',
+          background: 'var(--code-body)',
           fontFamily: 'JetBrains Mono, Menlo, Consolas, monospace',
         }}
       >
@@ -431,14 +431,14 @@ function MathBlock({ tex }: { tex: string }) {
       style={{
         margin: '14px 0',
         padding: '14px 20px',
-        background: 'rgba(255,255,255,0.03)',
+        background: 'transparent',
         border: '1px solid var(--line)',
         borderRadius: '10px',
         textAlign: 'center',
         fontFamily: 'KaTeX_Main, Cambria Math, Times New Roman, serif',
         fontSize: '16px',
         letterSpacing: '0.04em',
-        color: '#EAEAEA',
+        color: 'var(--code-fg-strong)',
         overflowX: 'auto',
       }}
     >
@@ -478,12 +478,12 @@ function parseInline(text: string): React.ReactNode[] {
           key={key}
           className="mono"
           style={{
-            background: 'rgba(255,255,255,0.08)',
-            border: '1px solid rgba(255,255,255,0.06)',
+            background: 'transparent',
+            border: '1px solid var(--line)',
             padding: '2px 5px',
             borderRadius: '5px',
             fontSize: '12.5px',
-            color: '#ff8a80',
+            color: 'var(--inline-code-fg)',
           }}
         >
           {token.slice(1, -1)}
@@ -504,7 +504,7 @@ function parseInline(text: string): React.ReactNode[] {
                 fontFamily: 'KaTeX_Main, Cambria Math, Times New Roman, serif',
                 fontStyle: 'italic',
                 padding: '0 3px',
-                color: '#EAEAEA',
+                color: 'var(--code-fg-strong)',
               }}
             >
               {formatFallbackMath(mathTex)}
@@ -519,7 +519,7 @@ function parseInline(text: string): React.ReactNode[] {
               fontFamily: 'KaTeX_Main, Cambria Math, Times New Roman, serif',
               fontStyle: 'italic',
               padding: '0 3px',
-              color: '#EAEAEA',
+              color: 'var(--code-fg-strong)',
             }}
           >
             {formatFallbackMath(mathTex)}
@@ -548,7 +548,7 @@ function parseInline(text: string): React.ReactNode[] {
             href={linkMatch[2]}
             target="_blank"
             rel="noopener noreferrer"
-            style={{ color: '#60a5fa', textDecoration: 'underline', textUnderlineOffset: '3px' }}
+            style={{ color: 'var(--link)', textDecoration: 'underline', textUnderlineOffset: '3px' }}
           >
             {linkMatch[1]}
           </a>

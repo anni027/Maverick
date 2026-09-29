@@ -9,25 +9,43 @@
 pub mod agent_event;
 pub mod agent_loop;
 pub mod commands;
+pub mod compaction;
 pub mod config;
 pub mod duckduckgo;
 pub mod mcp;
+pub mod prompts;
 pub mod providers;
 pub mod session_store;
 pub mod skills;
+pub mod subagents;
 pub mod tools;
+pub mod usage;
 
 pub use agent_event::{AgentEvent, AgentEventSink, PrintSink, TauriSink};
 pub use agent_loop::AgentLoop;
 pub use commands::AppState;
-pub use config::{ConfigManager, ConfigSnapshot, McpServerConfig, MaverickConfig, UiConfig};
+pub use compaction::{
+    COMPACT_THRESHOLD_TOKENS, COMPACTION_SUMMARY_MARKER, CompactDecision, CompactPolicy,
+    TAIL_KEEP_ITEMS, build_checkpoint_history, build_checkpoint_history_with,
+    build_checkpoint_summary, should_compact, split_for_checkpoint,
+};
+pub use config::{
+    BudgetConfig, ConfigManager, ConfigSnapshot, ContextConfig, MaverickConfig, McpServerConfig,
+    UiConfig,
+};
+pub use prompts::{AUTOMATION_BUDGET_REMINDER, AUTOMATION_SYSTEM_ADDENDUM};
 pub use providers::{
     Provider, ProviderCapabilities, ProviderConfig, ProviderInfo, ProviderInfoDto, ProviderKind,
     ProviderRegistry,
 };
 pub use session_store::{JsonlChatPersistence, SessionManager};
 pub use skills::{SkillDto, discover_skills};
+pub use subagents::{
+    SUBAGENT_BUDGET_TURNS, SUBAGENT_MAX_DEPTH, SUBAGENT_TOOL_NAME, SubagentArgs, SubagentTask,
+    parse_subagent_args, render_subagent_summary, subagent_tool_spec,
+};
 pub use tools::{add_mcp_server, build_chat_handle, build_tool_bridge};
+pub use usage::{UsageLedger, UsageSnapshot};
 pub use xai_grok_tools::bridge::ToolBridge;
 
 /// Headless demo: build the loop with a real provider + the real tool bridge,
@@ -52,7 +70,9 @@ pub async fn run_headless_demo() -> anyhow::Result<()> {
         String::new(),
     );
     let Some(key) = api_key else {
-        anyhow::bail!("No provider API key configured — set one in Settings (xAI/OpenAI/Anthropic) before running headless demo");
+        anyhow::bail!(
+            "No provider API key configured — set one in Settings (xAI/OpenAI/Anthropic) before running headless demo"
+        );
     };
     // Prefer OpenAI if available, else xAI, else Anthropic — resolved above.
     let provider_id = if cfg.api_key("openai").is_some() {
@@ -67,10 +87,7 @@ pub async fn run_headless_demo() -> anyhow::Result<()> {
     let agent = crate::AgentLoop::new(chat, tools, provider);
     let sink: std::sync::Arc<dyn crate::AgentEventSink> = std::sync::Arc::new(crate::PrintSink);
     agent
-        .send_user_message(
-            "Introduce yourself by running a shell command.",
-            sink,
-        )
+        .send_user_message_auto("Introduce yourself by running a shell command.", sink)
         .await?;
     Ok(())
 }

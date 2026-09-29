@@ -5,19 +5,14 @@ import Chat from './components/Chat';
 import SessionSidebar from './components/SessionSidebar';
 import ProviderSelector from './components/ProviderSelector';
 import Settings from './components/Settings';
-import { ProviderInfo } from './types';
-
-function Mark({ size = 24 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <rect x="2" y="2" width="20" height="20" rx="5" fill="#E30613" />
-      <path d="M6.5 16 V8.5 L10.5 13.5 L14.5 8.5 V16 M17.5 8.5 V16" stroke="white" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-  );
-}
+import ApertureLogo from './components/ApertureLogo';
+import { PanelIcon, SettingsIcon } from './components/icons';
+import { ProviderInfo, UiConfig, DEFAULT_UI_CONFIG } from './types';
 
 export default function App() {
-  const [sessionId, setSessionId] = useState('demo-session');
+  // No placeholder id: a fake default would make `init_session` create a real
+  // `demo-session` directory whenever startup partially failed.
+  const [sessionId, setSessionId] = useState('');
   const [sessions, setSessions] = useState<string[]>([]);
   const [providers, setProviders] = useState<ProviderInfo[]>([]);
   const [selectedProvider, setSelectedProvider] = useState('');
@@ -27,6 +22,16 @@ export default function App() {
   const [isInitialized, setIsInitialized] = useState(false);
   const [initError, setInitError] = useState<string | null>(null);
   const [initStep, setInitStep] = useState('Starting');
+  // UI preferences (tool bubbles / auto-scroll / compact / theme). Loaded at
+  // startup and re-read whenever Settings saves one — previously these toggles
+  // were written to config but never read back or applied anywhere.
+  const [uiConfig, setUiConfig] = useState<UiConfig>(DEFAULT_UI_CONFIG);
+  const loadUiConfig = async () => {
+    try {
+      const ui = await invoke<Partial<UiConfig>>('get_ui_config');
+      setUiConfig({ ...DEFAULT_UI_CONFIG, ...ui });
+    } catch { /* keep defaults */ }
+  };
 
   useEffect(() => { initialize(); }, []);
 
@@ -39,13 +44,23 @@ export default function App() {
     try {
       setInitStep('Connecting');
       listen('agent-event', (e: any) => console.log('agent-event', e.payload)).catch(()=>{});
+      loadUiConfig();
       setInitStep('Loading sessions');
       let target = sessionId;
       let chosenProvider = selectedProvider;
       try {
         const l = await withTimeout(invoke<string[]>('list_sessions'), 5000, 'list_sessions');
-        setSessions(l); if(l.length && !l.includes(sessionId)){ target=l[0]; setSessionId(target); }
-      } catch(e){ setInitError(`Sessions: ${String(e)}`)}
+        setSessions(l);
+        // First existing session, or a fresh id for a first-ever run.
+        target = l.length ? l[0] : `session-${Date.now()}`;
+        setSessionId(target);
+      } catch(e){
+        setInitError(`Sessions: ${String(e)}`);
+        if (!target) {
+          target = `session-${Date.now()}`;
+          setSessionId(target);
+        }
+      }
       setInitStep('Loading providers');
       try {
         const [pl, defProvider] = await Promise.all([
@@ -72,7 +87,16 @@ export default function App() {
       setInitStep('Opening session');
       try { await withTimeout(invoke('init_session', { sessionId: target, providerId: chosenProvider }), 10000, 'init_session'); } catch(e){
         setInitError(`${String(e)}`);
-        try{ await withTimeout(invoke('init_session',{sessionId:'demo-session', providerId: chosenProvider}),8000,'retry'); setSessionId('demo-session'); setInitError(null)}catch{}
+        // Retry with a brand-new session instead of a shared placeholder —
+        // the placeholder used to leave a phantom `demo-session` directory in
+        // the sidebar every time startup hiccuped.
+        try {
+          const fresh = `session-${Date.now()}`;
+          await withTimeout(invoke('init_session',{sessionId:fresh, providerId: chosenProvider}),8000,'retry');
+          setSessionId(fresh);
+          setSessions(prev => (prev.includes(fresh) ? prev : [...prev, fresh]));
+          setInitError(null);
+        }catch{}
       }
       setInitStep('Ready');
     } catch(e){ setInitError(String(e)); } finally { clearTimeout(fallback); setTimeout(()=>setIsInitialized(true), 200); }
@@ -132,10 +156,16 @@ export default function App() {
         await handleProviderChange(list[0].id);
       }
     } catch(e){ console.error('refreshProviders failed', e); }
+    // Settings also uses this callback after saving UI preferences.
+    loadUiConfig();
   };
 
   const handleAddMcp = async (name:string, command:string, args:string[]) => {
-    try{ await invoke('add_mcp',{name,command,args}); const tl=await invoke<string[]>('list_tools'); setTools(tl.filter(t=> t!=='test_tool'))}catch(e){console.error(e)}
+    // Let the caller surface handshake failures — swallowing here made a failed
+    // add look like a success (dialog closed, tool list unchanged).
+    await invoke('add_mcp',{name,command,args});
+    const tl=await invoke<string[]>('list_tools');
+    setTools(tl.filter(t=> t!=='test_tool'));
   };
 
   if (!isInitialized) {
@@ -143,18 +173,17 @@ export default function App() {
       <div style={{height:'100vh', display:'flex', alignItems:'center', justifyContent:'center', background:'var(--bg)', padding:'32px'}}>
         <div style={{width:'100%', maxWidth:'360px', textAlign:'center'}}>
           <div style={{display:'inline-flex', alignItems:'center', gap:'10px', marginBottom:'20px'}}>
-            <Mark size={32} />
-            <span style={{fontWeight:650, fontSize:'16px', letterSpacing:'-0.02em'}}>Maverick</span>
-            <span className="mono" style={{fontSize:'11px', color:'var(--muted)', letterSpacing:'0.06em'}}>ChatGPT • Agentic</span>
+            <ApertureLogo size={30} animated />
+            <span style={{fontFamily:'var(--font-head)', fontWeight:650, fontSize:'16px', letterSpacing:'-0.02em'}}>Maverick</span>
           </div>
           <div className="panel" style={{padding:'16px', textAlign:'left'}}>
             <div className="mono" style={{fontSize:'11px', color:'var(--muted)', display:'flex', justifyContent:'space-between'}}>
-              <span>{initStep}</span><span style={{color:'var(--rosso)'}}>Syncing</span>
+              <span>{initStep}</span><span style={{color:'var(--accent)'}}>Syncing</span>
             </div>
             <div style={{height:'2px', background:'var(--line)', marginTop:'12px', borderRadius:999, overflow:'hidden'}}>
-              <div style={{height:'100%', width:'42%', background:'var(--rosso)', animation:'shim 1s ease-in-out infinite'}} />
+              <div style={{height:'100%', width:'42%', background:'var(--accent)', animation:'shim 1s ease-in-out infinite'}} />
             </div>
-            {initError && <div className="mono" style={{marginTop:'12px', fontSize:'12px', color:'#ff6b6b', background:'rgba(227,6,19,0.08)', border:'1px solid rgba(227,6,19,0.2)', padding:'8px 10px', borderRadius:'8px'}}>{initError}</div>}
+            {initError && <div className="mono" style={{marginTop:'12px', fontSize:'12px', color:'var(--error)', background:'var(--error-bg)', border:'1px solid var(--error-border)', padding:'8px 10px', borderRadius:'8px'}}>{initError}</div>}
           </div>
         </div>
       </div>
@@ -166,7 +195,7 @@ export default function App() {
   return (
     <div style={{display:'flex', height:'100vh', background:'var(--bg)', overflow:'hidden'}}>
       {showSidebar && (
-        <div style={{width:'260px', minWidth:'260px', display:'flex', flexDirection:'column', background:'#0F0F0F', borderRight:'1px solid var(--line)'}}>
+        <div style={{width:'270px', minWidth:'270px', display:'flex', flexDirection:'column', background:'var(--panel-2)', borderRight:'1px solid var(--line)'}}>
           <SessionSidebar
             sessions={sessions}
             currentSession={sessionId}
@@ -174,36 +203,39 @@ export default function App() {
             onNew={handleNewSession}
             onDelete={handleDeleteSession}
             onRename={handleRenameSession}
+            onOpenSettings={()=>setShowSettings(true)}
+            onToggleSidebar={()=>setShowSidebar(false)}
           />
         </div>
       )}
 
       <div style={{flex:1, display:'flex', flexDirection:'column', minWidth:0, background:'var(--bg)'}}>
-        <header style={{height:'56px', display:'flex', alignItems:'center', gap:'12px', padding:'0 16px', borderBottom:'1px solid var(--line)', background:'var(--bg)', flexShrink:0}}>
-          <button className="btn-ghost btn-ico" onClick={()=>setShowSidebar(v=>!v)} aria-label="Toggle sidebar">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4"><path d="M3 3.5 H13 V12.5 H3 Z"/><path d="M5.5 3.5 V12.5"/></svg>
-          </button>
-          <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
-            <Mark size={22} />
-            <div style={{lineHeight:1}}>
-              <div style={{fontWeight:650, fontSize:'14px', letterSpacing:'-0.02em'}}>Maverick</div>
-              <div className="mono" style={{fontSize:'10px', color:'var(--muted)'}}>ChatGPT familiar • Agent intelligence</div>
-            </div>
-          </div>
-          <div style={{height:'20px', width:'1px', background:'var(--line)', margin:'0 4px'}} />
+        <header style={{
+          height:'56px', display:'flex', alignItems:'center', gap:'12px', padding:'0 20px',
+          borderBottom:'1px solid var(--line)', background:'rgba(9,9,11,0.85)', backdropFilter:'blur(10px)', flexShrink:0
+        }}>
+          {!showSidebar && (
+            <button className="btn-ghost btn-ico" onClick={()=>setShowSidebar(true)} aria-label="Show sidebar">
+              <PanelIcon size={16} />
+            </button>
+          )}
           <ProviderSelector providers={visibleProviders.length?visibleProviders:providers} selected={selectedProvider} onChange={handleProviderChange} onOpenSettings={()=>setShowSettings(true)} />
+          <span style={{color:'var(--line-2)'}}>/</span>
+          <span className="mono" style={{fontSize:'12px', color:'var(--muted)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}}>{sessionId}</span>
           <div style={{flex:1}} />
           <div className="mono" style={{fontSize:'11px', color:'var(--muted)', border:'1px solid var(--line)', padding:'6px 10px', borderRadius:999}}>
             {tools.length} tools
           </div>
-          <button className="btn-ghost btn-ico" onClick={()=>setShowSettings(true)} aria-label="Settings">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3"><circle cx="8" cy="8" r="2.8"/><path d="M8 1.8 V3.2 M8 12.8 V14.2 M1.8 8 H3.2 M12.8 8 H14.2"/><path d="M3.6 3.6 L4.6 4.6 M11.4 11.4 L12.4 12.4 M12.4 3.6 L11.4 4.6 M4.6 11.4 L3.6 12.4" opacity="0.6"/></svg>
-          </button>
+          {!showSidebar && (
+            <button className="btn-ghost btn-ico" onClick={()=>setShowSettings(true)} aria-label="Settings">
+              <SettingsIcon size={16} />
+            </button>
+          )}
         </header>
 
         <div style={{flex:1, display:'flex', justifyContent:'center', overflow:'hidden'}}>
-          <div style={{width:'100%', maxWidth:'760px', display:'flex', flexDirection:'column', flex:1, minWidth:0}}>
-            <Chat sessionId={sessionId} onNewSession={handleNewSession} onAddMcp={handleAddMcp} availableTools={tools} />
+          <div style={{width:'100%', maxWidth:'768px', display:'flex', flexDirection:'column', flex:1, minWidth:0}}>
+            <Chat sessionId={sessionId} onAddMcp={handleAddMcp} availableTools={tools} ui={uiConfig} />
           </div>
         </div>
       </div>

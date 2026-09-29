@@ -6,6 +6,9 @@ export default defineConfig({
   plugins: [react()],
   clearScreen: false,
   server: {
+    // Bind IPv4 loopback explicitly: the default `localhost` can resolve to
+    // IPv6 ::1 only, while the Tauri CLI polls 127.0.0.1 and waits forever.
+    host: '127.0.0.1',
     port: 1420,
     strictPort: true,
   },

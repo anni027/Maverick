@@ -4,7 +4,7 @@ import { invoke } from '@tauri-apps/api/core';
 
 interface SettingsProps {
   isOpen: boolean; onClose: () => void;
-  providers: Array<{ id: string; name: string }>;
+  providers: Array<{ id: string; name: string; model: string }>;
   currentProvider: string; onProviderChange: (id: string) => void;
   onRefresh?: () => void;
 }
@@ -20,6 +20,35 @@ const PRESET_PROVIDERS: Array<{id:string; name:string; base_url:string; model:st
   {id:'kilo', name:'Kilo AI Gateway', base_url:'https://api.kilo.ai/api/gateway', model:'kilo-auto/free', kind:'openai', hint:'500+ models • kilo.ai — free tier, no credits needed'},
 ];
 
+/**
+ * Split a shell-style argument string into argv, honouring single/double
+ * quotes. A plain `.split(' ')` broke any argument containing a space
+ * (`--flag "a b"` arrived as two truncated argv entries).
+ */
+function splitArgs(input: string): string[] {
+  const out: string[] = [];
+  let cur = '';
+  let started = false;
+  let quote: string | null = null;
+  const flush = () => {
+    if (started) { out.push(cur); cur = ''; started = false; }
+  };
+  for (const ch of input) {
+    if (quote) {
+      if (ch === quote) quote = null;
+      else cur += ch;
+      started = true;
+      continue;
+    }
+    if (ch === '"' || ch === "'") { quote = ch; started = true; continue; }
+    if (/\s/.test(ch)) { flush(); continue; }
+    cur += ch;
+    started = true;
+  }
+  flush();
+  return out;
+}
+
 export default function Settings({ isOpen, onClose, providers, currentProvider: _cp, onProviderChange, onRefresh }: SettingsProps) {
   const [apiKeys, setApiKeys] = useState<Record<string,string>>({});
   const [providerSettings, setProviderSettings] = useState<Record<string, {base_url?: string, model?: string, kind?: string}>>({});
@@ -27,12 +56,23 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
   const [mcpStatus, setMcpStatus] = useState<Array<{name:string;transport:string;tool_count:number;status:string;tools:string[]}>>([]);
   const [marketplace, setMarketplace] = useState<Array<{name:string;description:string;transport:string;command?:string;args:string[];url?:string;category:string;install_count?:number}>>([]);
   const [uiConfig, setUiConfig] = useState({ theme:'dark', show_tool_calls:true, auto_scroll:true, compact_mode:false });
+  // Phase 3 context management (auto-compact checkpoint + per-tool output budgets).
+  const [contextConfig, setContextConfig] = useState<{ auto_compact_enabled:boolean; auto_compact_threshold_percent:number; tail_keep_items:number; tool_output_budgets: Record<string, number> }>({ auto_compact_enabled:true, auto_compact_threshold_percent:85, tail_keep_items:24, tool_output_budgets:{} });
+  // Turn/segment budgets + spend guardrails (§5.6-B/F).
+  const [budgetConfig, setBudgetConfig] = useState<{ max_turns:number; max_segments:number; auto_continue:boolean; spend_cap_usd:number|null; avg_tokens_per_turn:number }>({ max_turns:40, max_segments:3, auto_continue:true, spend_cap_usd:null, avg_tokens_per_turn:2000 });
   const [defaultProvider, setDefaultProvider] = useState('');
-  const [activeTab, setActiveTab] = useState<'providers'|'mcp'|'skills'|'ui'>('providers');
+  const [activeTab, setActiveTab] = useState<'providers'|'mcp'|'skills'|'ui'|'context'>('providers');
   const [skills, setSkills] = useState<Array<{name:string, description:string, path:string, scope:string, display_name?: string, enabled:boolean}>>([]);
   const [newSkill, setNewSkill] = useState({ name:'', content:'' });
   const [hubFetch, setHubFetch] = useState({ owner:'', name:'', version:'', url:'https://agentskills.io' });
   const [skillSearch, setSkillSearch] = useState('');
+  // Skills marketplace (GitHub-backed catalog).
+  const [mpSources, setMpSources] = useState<Array<{id:string; display_name:string; owner:string; repo:string; branch:string; skills_path:string}>>([]);
+  const [mpSourceId, setMpSourceId] = useState('');
+  const [mpSkills, setMpSkills] = useState<Array<{source_id:string; dir:string; name:string; description:string; installed:boolean}>>([]);
+  const [mpSearch, setMpSearch] = useState('');
+  const [mpLoading, setMpLoading] = useState(false);
+  const [newSource, setNewSource] = useState({ id:'', display_name:'', owner:'', repo:'', branch:'main', skills_path:'skills' });
   const [loading, setLoading] = useState(true);
   const [newMcp, setNewMcp] = useState({ name:'', transport:'stdio', command:'', args:'', url:'' });
   const [newCustom, setNewCustom] = useState({ id:'', base_url:'', model:'', api_key:'', kind:'openai' as 'openai'|'anthropic' });
@@ -46,7 +86,9 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
   const [kiloSearch, setKiloSearch] = useState('');
   const [kiloFilter, setKiloFilter] = useState<'all'|'free'|'paid'>('all');
 
-  useEffect(()=>{ if(isOpen) { loadConfig(); loadSkills(); loadMcpStatus(); loadMarketplace(); } },[isOpen]);
+  useEffect(()=>{ if(isOpen) { loadConfig(); loadSkills(); loadMcpStatus(); loadMarketplace(); loadMpSources(); } },[isOpen]);
+  // Browse the selected marketplace source (first browse auto-fetches).
+  useEffect(()=>{ if(isOpen && mpSourceId) loadMpSkills(false); },[mpSourceId]);
   const loadSkills = async () => {
     try {
       const list = await invoke<Array<{name:string, description:string, path:string, scope:string, display_name?:string, enabled:boolean}>>('list_skills');
@@ -69,10 +111,45 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
   const fetchKiloModels = async (target: string) => {
     setShowKiloPicker(target); setKiloLoading(true); setKiloError(null);
     try {
-      const list = await invoke<Array<{id:string; name:string; context_length?: number; is_free?: boolean}>>('list_kilo_models');
+      const list = await invoke<Array<{id:string; name:string; context_length?: number; is_free?: boolean}>>('list_kilo_models', {
+        providerId: target === 'new' ? null : target,
+        baseUrl: target === 'new' ? (newCustom.base_url.trim() || 'https://api.kilo.ai/api/gateway') : null,
+        apiKey: target === 'new' ? (newCustom.api_key.trim() || null) : null,
+      });
       setKiloModels(list);
     } catch(e){ setKiloError(String(e)); }
     finally{ setKiloLoading(false); }
+  };
+
+  const selectKiloModel = async (modelId: string) => {
+    if (showKiloPicker === 'new') {
+      setNewCustom(prev => ({ ...prev, id: 'kilo', base_url: prev.base_url.trim() || 'https://api.kilo.ai/api/gateway', model: modelId, kind: 'openai' }));
+      setShowKiloPicker(null);
+      return;
+    }
+
+    const providerId = showKiloPicker;
+    if (!providerId) return;
+    const settings = providerSettings[providerId] || {};
+    setSaving(providerId);
+    try {
+      const key = customKeys[providerId]?.trim();
+      if (key) await invoke('set_api_key', { providerId, apiKey: key });
+      await invoke('set_provider_settings', {
+        providerId,
+        baseUrl: settings.base_url?.trim() || null,
+        model: modelId,
+        kind: settings.kind?.trim() || null,
+      });
+      setProviderSettings(prev => ({ ...prev, [providerId]: { ...(prev[providerId] || {}), model: modelId } }));
+      setCustomKeys(prev => { const next = { ...prev }; delete next[providerId]; return next; });
+      onRefresh?.();
+      setShowKiloPicker(null);
+    } catch (e) {
+      setKiloError(String(e));
+    } finally {
+      setSaving(null);
+    }
   };
   const filteredKilo = kiloModels.filter(m=>{
     if(kiloFilter==='free' && m.is_free!==true) return false;
@@ -94,6 +171,19 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
       const arr=Object.entries(c.mcp_servers).map(([name,cfg]:[string,any])=>({name, transport:cfg.transport, command:cfg.command||'', args:cfg.args?.join(' ')||'', url:cfg.url||'', enabled:cfg.enabled}));
       setMcpServers(arr);
       setUiConfig(c.ui);
+      if(c.context) setContextConfig({
+        auto_compact_enabled: c.context.auto_compact_enabled ?? true,
+        auto_compact_threshold_percent: c.context.auto_compact_threshold_percent ?? 85,
+        tail_keep_items: c.context.tail_keep_items ?? 24,
+        tool_output_budgets: c.context.tool_output_budgets || {},
+      });
+      if(c.budget) setBudgetConfig({
+        max_turns: c.budget.max_turns ?? 40,
+        max_segments: c.budget.max_segments ?? 3,
+        auto_continue: c.budget.auto_continue ?? true,
+        spend_cap_usd: c.budget.spend_cap_usd ?? null,
+        avg_tokens_per_turn: c.budget.avg_tokens_per_turn ?? 2000,
+      });
     }catch(e){ console.error(e)} finally{ setLoading(false)}
   };
   const handleApiKeyChange=(p:string,v:string)=> setApiKeys(prev=>({...prev,[p]:v}));
@@ -154,7 +244,7 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
     if(newMcp.transport==='http' && !newMcp.url?.trim()) return;
     setSaving('mcp');
     try{
-      await invoke('add_mcp_server_full',{name:newMcp.name, transport:newMcp.transport, command: newMcp.transport==='stdio'?newMcp.command:undefined, args:newMcp.args.split(' ').filter(a=>a.trim()), url: newMcp.transport==='http'?newMcp.url:undefined});
+      await invoke('add_mcp_server_full',{name:newMcp.name, transport:newMcp.transport, command: newMcp.transport==='stdio'?newMcp.command:undefined, args:splitArgs(newMcp.args), url: newMcp.transport==='http'?newMcp.url:undefined});
       loadConfig(); loadMcpStatus(); setNewMcp({name:'',transport:'stdio',command:'',args:'',url:''});
     }catch(e){ alert(String(e))} finally{ setSaving(null)}
   };
@@ -172,6 +262,24 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
   const handleUiChange=async(k:string,v:boolean)=>{
     const nc={...uiConfig,[k]:v}; setUiConfig(nc);
     try{ await invoke('set_ui_config',{ui:nc}); }catch(e){ console.error(e)}
+    // The app shell reads these — tell it to re-read, or the toggle only
+    // takes effect after a restart.
+    onRefresh?.();
+  };
+  // Phase 3 context config: apply a patch, persist, and return the next value
+  // (avoids stale-closure reads when several fields change in one gesture).
+  const patchContext = (patch: Partial<typeof contextConfig>) => {
+    const next = { ...contextConfig, ...patch };
+    setContextConfig(next);
+    invoke('set_context_config',{context:next}).catch(e=>alert(String(e)));
+    return next;
+  };
+  // Turn/segment budgets: same patch-and-persist pattern as context.
+  const patchBudget = (patch: Partial<typeof budgetConfig>) => {
+    const next = { ...budgetConfig, ...patch };
+    setBudgetConfig(next);
+    invoke('set_budget_config',{budget:next}).catch(e=>alert(String(e)));
+    return next;
   };
   const handleInstallSkill = async()=>{
     if(!newSkill.name.trim() || !newSkill.content.trim()){ alert('Name and SKILL.md content required'); return; }
@@ -195,6 +303,65 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
       setHubFetch(prev=> ({...prev, owner:'', name:'', version:''}));
     }catch(e){ alert(String(e))} finally{ setSaving(null)}
   };
+  const loadMpSources = async()=>{
+    try{
+      const list = await invoke<Array<{id:string; display_name:string; owner:string; repo:string; branch:string; skills_path:string}>>('list_marketplace_sources');
+      setMpSources(list);
+      setMpSourceId(prev=> list.some(s=>s.id===prev) ? prev : (list[0]?.id || ''));
+    }catch(e){ console.error('list_marketplace_sources failed', e); }
+  };
+  const loadMpSkills = async(refresh=false)=>{
+    if(!mpSourceId) return;
+    setMpLoading(true);
+    try{
+      const list = await invoke<Array<{source_id:string; dir:string; name:string; description:string; installed:boolean}>>('list_marketplace_skills',{sourceId: mpSourceId, refresh});
+      setMpSkills(list);
+    }catch(e){ alert(String(e)) } finally{ setMpLoading(false) }
+  };
+  const searchMpSkills = async()=>{
+    if(!mpSourceId) return;
+    const q = mpSearch.trim();
+    setMpLoading(true);
+    try{
+      const list = q
+        ? await invoke<Array<{source_id:string; dir:string; name:string; description:string; installed:boolean}>>('search_marketplace_skills',{sourceId: mpSourceId, query: q})
+        : await invoke<Array<{source_id:string; dir:string; name:string; description:string; installed:boolean}>>('list_marketplace_skills',{sourceId: mpSourceId, refresh: false});
+      setMpSkills(list);
+    }catch(e){ alert(String(e)) } finally{ setMpLoading(false) }
+  };
+  const installMpSkill = async(skill: {source_id:string; dir:string; name:string})=>{
+    setSaving('mp-skill-'+skill.dir);
+    try{
+      await invoke('install_marketplace_skill',{sourceId: skill.source_id, dir: skill.dir});
+      loadSkills();
+      setMpSkills(prev=> prev.map(s=> s.dir===skill.dir ? {...s, installed:true} : s));
+      onRefresh?.();
+    }catch(e){ alert(String(e)) } finally{ setSaving(null) }
+  };
+  const addMpSource = async()=>{
+    if(!newSource.id.trim() || !newSource.owner.trim() || !newSource.repo.trim()){ alert('Source id, owner and repo are required'); return; }
+    setSaving('mp-source');
+    try{
+      const list = await invoke<Array<{id:string; display_name:string; owner:string; repo:string; branch:string; skills_path:string}>>('add_marketplace_source',{
+        id: newSource.id, displayName: newSource.display_name, owner: newSource.owner, repo: newSource.repo,
+        branch: newSource.branch.trim() || null, skillsPath: newSource.skills_path.trim() || null,
+      });
+      setMpSources(list);
+      // Backend sanitizes the id the same way (lowercase, non [a-z0-9_-] → '-').
+      const predicted = newSource.id.trim().toLowerCase().replace(/[^a-z0-9_-]/g,'-').replace(/^-+|-+$/g,'');
+      setMpSourceId(list.some(s=>s.id===predicted) ? predicted : (list[0]?.id || ''));
+      setNewSource({id:'', display_name:'', owner:'', repo:'', branch:'main', skills_path:'skills'});
+    }catch(e){ alert(String(e)) } finally{ setSaving(null) }
+  };
+  const removeMpSource = async(id:string)=>{
+    if(!confirm(`Remove marketplace source "${id}"? Installed skills stay installed.`)) return;
+    try{
+      const list = await invoke<Array<{id:string; display_name:string; owner:string; repo:string; branch:string; skills_path:string}>>('remove_marketplace_source',{id});
+      setMpSources(list);
+      setMpSourceId(prev=> prev===id ? (list[0]?.id || '') : prev);
+      if(!list.length) setMpSkills([]);
+    }catch(e){ alert(String(e)) }
+  };
 
   if(!isOpen) return null;
 
@@ -212,14 +379,14 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
         </div>
 
         <div style={{display:'flex', borderBottom:'1px solid var(--line)', padding:'0 8px', gap:'4px'}}>
-          {(['providers','mcp','skills','ui'] as const).map(tab=>(
+          {(['providers','mcp','skills','ui','context'] as const).map(tab=>(
             <button key={tab} onClick={()=>setActiveTab(tab)} style={{
               flex:1, padding:'8px', borderRadius:'999px', border:'none',
               background: activeTab===tab ? 'var(--text)' : 'transparent',
               color: activeTab===tab ? 'var(--bg)' : 'var(--muted)',
               fontSize:'12px', margin:'8px 0'
             }}>
-              {tab === 'providers' ? 'Providers' : tab === 'mcp' ? 'MCP' : tab === 'skills' ? 'Skills' : 'Interface'}
+              {tab === 'providers' ? 'Providers' : tab === 'mcp' ? 'MCP' : tab === 'skills' ? 'Skills' : tab === 'context' ? 'Context' : 'Interface'}
             </button>
           ))}
         </div>
@@ -252,7 +419,7 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
                           <span style={{fontWeight:600, fontSize:'13px'}}>{p.name}</span>
                           <span className="badge mono">{p.id}</span>
                           <span className="mono" style={{fontSize:'10px', color:'var(--muted)'}}>{p.hint}</span>
-                          {isConfigured && <span className="mono" style={{marginLeft:'auto', fontSize:'10px', color:'#16a34a', border:'1px solid rgba(22,163,74,0.3)', padding:'2px 6px', borderRadius:999}}>configured</span>}
+                          {isConfigured && <span className="mono" style={{marginLeft:'auto', fontSize:'10px', color:'var(--ok-text)', border:'1px solid var(--ok-border)', padding:'2px 6px', borderRadius:999}}>configured</span>}
                           <button className="btn-ghost" onClick={()=> setShowAdvanced(prev=> ({...prev, [p.id]: !prev[p.id]}))} style={{marginLeft: isConfigured ? '0' : 'auto', fontSize:'10px', padding:'4px 8px', borderRadius:'999px'}}>
                             {isAdvanced ? 'Hide' : 'Base URL / Model'}
                           </button>
@@ -260,7 +427,7 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
                         <div style={{display:'flex', gap:'8px', marginBottom: isAdvanced ? '8px' : '0'}}>
                           <input type="password" placeholder={isConfigured ? '•••••••• (saved) — enter new to replace' : 'sk-...'} value={apiKeys[p.id]||''} onChange={e=>handleApiKeyChange(p.id,e.target.value)} style={{flex:1}} />
                           <button onClick={()=>saveProviderConfig(p.id)} disabled={saving===p.id} style={{borderRadius:'999px', background: isConfigured ? 'var(--panel)' : 'var(--text)', color: isConfigured ? 'var(--text)' : 'var(--bg)'}}>{saving===p.id ? '…' : isConfigured ? 'Save' : 'Save'}</button>
-                          {isConfigured && <button className="btn-ghost" onClick={()=>removeApiKey(p.id)} style={{color:'#ff6b6b', borderRadius:'999px'}}>Remove</button>}
+                          {isConfigured && <button className="btn-ghost" onClick={()=>removeApiKey(p.id)} style={{color:'var(--danger)', borderRadius:'999px'}}>Remove</button>}
                         </div>
                         {isAdvanced && (
                           <div style={{display:'flex', flexDirection:'column', gap:'8px', padding:'10px', background:'var(--panel)', border:'1px solid var(--line)', borderRadius:'8px'}}>
@@ -298,7 +465,7 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
                       <div style={{display:'flex', gap:'8px'}}>
                         <input placeholder="Model • llama3.2 / gpt-4o-mini / claude-3-5-sonnet-20240620" value={newCustom.model} onChange={e=> setNewCustom({...newCustom, model: e.target.value})} style={{flex:1}} />
                         {(newCustom.id==='kilo' || newCustom.base_url.includes('kilo.ai')) && (
-                          <button className="btn-ghost" onClick={()=> fetchKiloModels('new')} style={{whiteSpace:'nowrap', borderRadius:'999px'}}>Browse 367</button>
+                           <button className="btn-ghost" onClick={()=> fetchKiloModels('new')} style={{whiteSpace:'nowrap', borderRadius:'999px'}}>Browse models</button>
                         )}
                       </div>
                       <input type="password" placeholder="API key (optional for local) • sk-... or leave blank for Ollama" value={newCustom.api_key} onChange={e=> setNewCustom({...newCustom, api_key: e.target.value})} />
@@ -335,7 +502,7 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
                               <span style={{fontWeight:600, fontSize:'13px'}}>{p.name}</span>
                               <span className="badge mono">{p.id}</span>
                               <span className="mono" style={{fontSize:'10px', color:'var(--muted)'}}>{s.base_url || '—'}</span>
-                              <span className="mono" style={{fontSize:'10px', color:'var(--muted)'}}>{s.model || '—'}</span>
+                              <span className="mono" style={{fontSize:'10px', color:'var(--muted)'}}>{s.model || p.model || '—'}</span>
                               <span className="mono" style={{fontSize:'10px', color:'var(--muted)', marginLeft:'auto'}}>{s.kind === 'anthropic' ? 'Anthropic-compat' : 'OpenAI-compat'}</span>
                               <button className="btn-ghost" onClick={()=> setShowAdvanced(prev=> ({...prev, [p.id]: !prev[p.id]}))} style={{fontSize:'10px', padding:'4px 8px', borderRadius:'999px'}}>{isAdvanced ? 'Hide' : 'Edit'}</button>
                             </div>
@@ -356,7 +523,7 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
                                 </div>
                               </div>
                             )}
-                            <button className="btn-ghost" onClick={async()=>{ if(confirm(`Remove ${p.id}?`)){ await invoke('remove_api_key',{providerId:p.id}); await invoke('set_provider_settings',{providerId:p.id, baseUrl:null, model:null, kind:null}); onRefresh?.(); loadConfig(); } }} style={{color:'#ff6b6b', borderRadius:'999px', alignSelf:'flex-start'}}>Remove</button>
+                            <button className="btn-ghost" onClick={async()=>{ if(confirm(`Remove ${p.id}?`)){ await invoke('remove_api_key',{providerId:p.id}); await invoke('set_provider_settings',{providerId:p.id, baseUrl:null, model:null, kind:null}); onRefresh?.(); loadConfig(); } }} style={{color:'var(--danger)', borderRadius:'999px', alignSelf:'flex-start'}}>Remove</button>
                           </div>
                         );
                       })}
@@ -392,10 +559,10 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
                         <div key={s.name} style={{padding:'12px', border:'1px solid var(--line)', borderRadius:'12px', display:'flex', flexDirection:'column', gap:'8px', background:'var(--bg)'}}>
                           <div style={{display:'flex', alignItems:'center', gap:'12px'}}>
                             <div style={{flex:1, minWidth:0}}>
-                              <div style={{display:'flex', gap:'8px', alignItems:'center', flexWrap:'wrap'}}><span style={{fontWeight:600, fontSize:'13px'}}>{s.name}</span><span className="badge mono">{s.transport}</span>{st && <span className="mono" style={{fontSize:'10px', padding:'2px 6px', borderRadius:999, border:'1px solid var(--line)', color: st.status==='Ready'?'#16a34a': st.status==='Placeholder'?'var(--muted)':'#ff6b6b'}}>{st.status} • {st.tool_count} tools</span>}</div>
+                              <div style={{display:'flex', gap:'8px', alignItems:'center', flexWrap:'wrap'}}><span style={{fontWeight:600, fontSize:'13px'}}>{s.name}</span><span className="badge mono">{s.transport}</span>{st && <span className="mono" style={{fontSize:'10px', padding:'2px 6px', borderRadius:999, border:'1px solid var(--line)', color: st.status==='Ready'?'var(--ok-text)': st.status==='Placeholder'?'var(--muted)':'var(--danger)'}}>{st.status} • {st.tool_count} tools</span>}</div>
                               <div className="mono" style={{fontSize:'11px', color:'var(--muted)', marginTop:'4px', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}}>{s.transport==='stdio' ? `${s.command} ${s.args}` : s.url}</div>
                             </div>
-                            <button className="btn-ghost" onClick={()=>removeMcpServer(s.name)} style={{color:'#ff6b6b', borderRadius:'999px'}}>Remove</button>
+                            <button className="btn-ghost" onClick={()=>removeMcpServer(s.name)} style={{color:'var(--danger)', borderRadius:'999px'}}>Remove</button>
                           </div>
                           {st && st.tools.length>0 && <div className="mono" style={{fontSize:'10px', color:'var(--muted)', background:'var(--panel)', border:'1px solid var(--line)', padding:'6px 8px', borderRadius:'8px', wordBreak:'break-all'}}>{st.tools.slice(0,8).join(' • ')}{st.tools.length>8 ? ` +${st.tools.length-8} more` : ''}</div>}
                         </div>
@@ -437,8 +604,8 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
                           <div style={{display:'flex', gap:'8px', alignItems:'center', flexWrap:'wrap'}}>
                             <span style={{fontWeight:600, fontSize:'13px'}}>{s.name}</span>
                             <span className="badge mono">{s.scope}</span>
-                            {s.enabled ? <span className="mono" style={{fontSize:'10px', color:'#16a34a', border:'1px solid rgba(22,163,74,0.3)', padding:'1px 6px', borderRadius:999}}>enabled</span> : <span className="mono" style={{fontSize:'10px', color:'var(--faint)', border:'1px solid var(--line)', padding:'1px 6px', borderRadius:999}}>disabled</span>}
-                            <button className="btn-ghost" onClick={()=> handleRemoveSkill(s.name)} style={{marginLeft:'auto', color:'#ff6b6b', borderRadius:'999px', fontSize:'11px', padding:'4px 8px'}}>Remove</button>
+                            {s.enabled ? <span className="mono" style={{fontSize:'10px', color:'var(--ok-text)', border:'1px solid var(--ok-border)', padding:'1px 6px', borderRadius:999}}>enabled</span> : <span className="mono" style={{fontSize:'10px', color:'var(--faint)', border:'1px solid var(--line)', padding:'1px 6px', borderRadius:999}}>disabled</span>}
+                            <button className="btn-ghost" onClick={()=> handleRemoveSkill(s.name)} style={{marginLeft:'auto', color:'var(--danger)', borderRadius:'999px', fontSize:'11px', padding:'4px 8px'}}>Remove</button>
                           </div>
                           <div className="mono" style={{fontSize:'11px', color:'var(--muted)', lineHeight:1.5}}>{s.description || 'No description — add one in SKILL.md frontmatter'}</div>
                           <div className="mono" style={{fontSize:'10px', color:'var(--faint)', wordBreak:'break-all'}}>{s.path}</div>
@@ -446,6 +613,61 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
                       ))}
                     </div>
                   )}
+
+                  <div style={{height:'1px', background:'var(--line)'}} />
+
+                  <div style={{padding:'16px', border:'1px dashed var(--line)', borderRadius:'12px', background:'var(--panel)'}}>
+                    <div style={{display:'flex', alignItems:'center', gap:'8px', marginBottom:'4px'}}>
+                      <span style={{fontWeight:600, fontSize:'13px'}}>Marketplace</span>
+                      <span className="badge mono">{mpSkills.length} skills</span>
+                      <button className="btn-ghost" onClick={()=>loadMpSkills(true)} disabled={mpLoading || !mpSourceId} style={{marginLeft:'auto', fontSize:'11px', padding:'4px 8px', borderRadius:'999px'}}>Refresh</button>
+                    </div>
+                    <div className="mono" style={{fontSize:'11px', color:'var(--muted)', marginBottom:'10px'}}>Browse GitHub skill repos, install with one click. Catalogs are cached locally — installs land in <span style={{color:'var(--text)'}}>~/.maverick/hub/skills/marketplace/</span>. Refresh hits the GitHub API (60 req/hr unauthenticated).</div>
+                    <div style={{display:'flex', gap:'8px', marginBottom:'8px', flexWrap:'wrap', alignItems:'center'}}>
+                      <select value={mpSourceId} onChange={e=>setMpSourceId(e.target.value)} style={{flex:1, minWidth:'180px'}}>
+                        {mpSources.length===0 && <option value="">No sources</option>}
+                        {mpSources.map(s=> <option key={s.id} value={s.id}>{s.display_name || s.id} • {s.owner}/{s.repo}</option>)}
+                      </select>
+                      {mpSourceId && <button className="btn-ghost" onClick={()=>removeMpSource(mpSourceId)} style={{color:'var(--danger)', borderRadius:'999px', fontSize:'11px', padding:'4px 8px', whiteSpace:'nowrap'}}>Remove source</button>}
+                    </div>
+                    <div style={{display:'flex', gap:'8px', marginBottom:'10px'}}>
+                      <input placeholder="Search marketplace • name or description" value={mpSearch} onChange={e=>setMpSearch(e.target.value)} onKeyDown={e=>{ if(e.key==='Enter') searchMpSkills(); }} style={{flex:1}} />
+                      <button className="btn-ghost" onClick={searchMpSkills} disabled={mpLoading || !mpSourceId} style={{borderRadius:'999px', fontSize:'11px', padding:'6px 10px', whiteSpace:'nowrap'}}>Search</button>
+                    </div>
+                    {mpLoading
+                      ? <div className="mono" style={{textAlign:'center', padding:'20px', color:'var(--muted)', fontSize:'12px'}}>Loading catalog…</div>
+                      : mpSkills.length===0
+                        ? <div className="mono" style={{textAlign:'center', padding:'20px', color:'var(--muted)', fontSize:'12px'}}>{mpSourceId ? 'No skills cached — press Refresh to fetch the catalog' : 'Add a marketplace source below'}</div>
+                        : (
+                          <div style={{display:'flex', flexDirection:'column', gap:'8px', maxHeight:'240px', overflowY:'auto'}}>
+                            {mpSkills.map(m=>(
+                              <div key={m.dir} style={{padding:'12px', border:'1px solid var(--line)', borderRadius:'12px', background:'var(--bg)', display:'flex', gap:'12px', alignItems:'center'}}>
+                                <div style={{flex:1, minWidth:0}}>
+                                  <div style={{display:'flex', gap:'8px', alignItems:'center', flexWrap:'wrap'}}>
+                                    <span style={{fontWeight:600, fontSize:'13px'}}>{m.name}</span>
+                                    {m.installed && <span className="mono" style={{fontSize:'10px', color:'var(--ok-text)', border:'1px solid var(--ok-border)', padding:'1px 6px', borderRadius:999}}>installed</span>}
+                                  </div>
+                                  <div className="mono" style={{fontSize:'11px', color:'var(--muted)', marginTop:'4px', lineHeight:1.4}}>{m.description || 'No description'}</div>
+                                  <div className="mono" style={{fontSize:'10px', color:'var(--faint)', marginTop:'2px'}}>{m.dir}/SKILL.md</div>
+                                </div>
+                                <button onClick={()=>installMpSkill(m)} disabled={m.installed || saving==='mp-skill-'+m.dir} style={{borderRadius:'999px', whiteSpace:'nowrap', fontSize:'12px', padding:'8px 14px'}}>{m.installed ? 'Installed' : saving==='mp-skill-'+m.dir ? '…' : 'Install'}</button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                    <div style={{marginTop:'10px', paddingTop:'10px', borderTop:'1px solid var(--line)'}}>
+                      <div className="mono" style={{fontSize:'11px', color:'var(--muted)', marginBottom:'8px'}}>Add source • any GitHub repo with SKILL.md files</div>
+                      <div style={{display:'flex', gap:'8px', flexWrap:'wrap'}}>
+                        <input placeholder="id • e.g. my-skills" value={newSource.id} onChange={e=>setNewSource({...newSource, id: e.target.value})} style={{flex:1, minWidth:'110px'}} />
+                        <input placeholder="Display name" value={newSource.display_name} onChange={e=>setNewSource({...newSource, display_name: e.target.value})} style={{flex:1, minWidth:'110px'}} />
+                        <input placeholder="Owner" value={newSource.owner} onChange={e=>setNewSource({...newSource, owner: e.target.value})} style={{flex:1, minWidth:'90px'}} />
+                        <input placeholder="Repo" value={newSource.repo} onChange={e=>setNewSource({...newSource, repo: e.target.value})} style={{flex:1, minWidth:'90px'}} />
+                        <input placeholder="Branch • main" value={newSource.branch} onChange={e=>setNewSource({...newSource, branch: e.target.value})} style={{width:'100px'}} />
+                        <input placeholder="Path • skills" value={newSource.skills_path} onChange={e=>setNewSource({...newSource, skills_path: e.target.value})} style={{width:'100px'}} />
+                        <button onClick={addMpSource} disabled={saving==='mp-source'} style={{borderRadius:'999px', whiteSpace:'nowrap'}}>{saving==='mp-source' ? 'Adding…' : 'Add'}</button>
+                      </div>
+                    </div>
+                  </div>
 
                   <div style={{height:'1px', background:'var(--line)'}} />
 
@@ -461,7 +683,7 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
 
                   <div style={{padding:'16px', border:'1px dashed var(--line)', borderRadius:'12px', background:'var(--panel)'}}>
                     <div style={{fontWeight:600, fontSize:'13px', marginBottom:'4px'}}>Fetch from hub / marketplace</div>
-                    <div className="mono" style={{fontSize:'11px', color:'var(--muted)', marginBottom:'10px'}}>Supports <span style={{color:'var(--text)'}}>agentskills.io</span> and any raw SKILL.md URL. Full marketplace browse coming soon — uses same hub cache as `Server` scope.</div>
+                    <div className="mono" style={{fontSize:'11px', color:'var(--muted)', marginBottom:'10px'}}>Supports <span style={{color:'var(--text)'}}>agentskills.io</span> and any raw SKILL.md URL. For browsing, use the <span style={{color:'var(--text)'}}>Marketplace</span> above — same hub cache, `Server` scope.</div>
                     <div style={{display:'flex', flexDirection:'column', gap:'8px'}}>
                       <div style={{display:'flex', gap:'8px'}}>
                         <input placeholder="Hub URL • https://agentskills.io" value={hubFetch.url} onChange={e=> setHubFetch({...hubFetch, url: e.target.value})} style={{flex:1}} />
@@ -479,7 +701,7 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
                   </div>
 
                   <div className="mono" style={{fontSize:'11px', color:'var(--muted)', background:'var(--panel)', border:'1px solid var(--line)', padding:'10px 12px', borderRadius:'8px'}}>
-                    Skills are loaded into <span style={{color:'var(--text)'}}>ToolBridge</span> as the `skill` tool — the model sees them as <span style={{color:'var(--text)'}}>available_skills</span> and can call `skill(name: "...")` to inject instructions. Add a skill, then prompt “use skill X” in chat. Marketplace (full browse/install from `xai-org/plugin-marketplace`) is next — hub cache already uses `Server` scope dedup.
+                    Skills are loaded into <span style={{color:'var(--text)'}}>ToolBridge</span> as the `skill` tool — the model sees them as <span style={{color:'var(--text)'}}>available_skills</span> and can call `skill(name: "...")` to inject instructions. Add a skill, then prompt “use skill X” in chat. Marketplace installs fetch SKILL.md only — bundled `scripts/` and `references/` folders are not downloaded yet.
                   </div>
                 </div>
               )}
@@ -490,7 +712,7 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
                     <div className="mono" style={{fontSize:'11px', color:'var(--muted)', marginBottom:'12px'}}>Theme</div>
                     <div style={{display:'flex', gap:'8px'}}>
                       {(['dark','light','system'] as const).map(t=>(
-                        <button key={t} onClick={()=>{ const n={...uiConfig, theme:t}; setUiConfig(n); invoke('set_ui_config',{ui:n}); }} style={{flex:1, background: uiConfig.theme===t ? 'var(--text)' : 'transparent', color: uiConfig.theme===t ? 'var(--bg)' : 'var(--muted)', borderRadius:'999px'}}>{t.charAt(0).toUpperCase()+t.slice(1)}</button>
+                        <button key={t} onClick={async ()=>{ const n={...uiConfig, theme:t}; setUiConfig(n); try{ await invoke('set_ui_config',{ui:n}); }catch(e){ console.error(e); } onRefresh?.(); }} style={{flex:1, background: uiConfig.theme===t ? 'var(--text)' : 'transparent', color: uiConfig.theme===t ? 'var(--bg)' : 'var(--muted)', borderRadius:'999px'}}>{t.charAt(0).toUpperCase()+t.slice(1)}</button>
                       ))}
                     </div>
                   </div>
@@ -511,6 +733,105 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
                   </div>
                 </div>
               )}
+              {activeTab==='context' && (
+                <div style={{display:'flex', flexDirection:'column', gap:'16px'}}>
+                  <div className="mono" style={{fontSize:'11px', color:'var(--muted)'}}>
+                    Context management runs a checkpoint between auto-continue segments: older history is
+                    folded into one summary item (system prompt + the newest items stay verbatim, open todos
+                    are kept) so long tasks do not blow the window.
+                  </div>
+
+                  <div style={{padding:'16px', border:'1px solid var(--line)', borderRadius:'12px', background:'var(--bg)'}}>
+                    <label style={{display:'flex', alignItems:'center', gap:'10px', cursor:'pointer', fontSize:'13px'}}>
+                      <input type="checkbox" checked={contextConfig.auto_compact_enabled}
+                        onChange={e=>patchContext({ auto_compact_enabled:e.target.checked })}
+                        style={{width:'16px', height:'16px', accentColor:'var(--text)'}} />
+                      <span>Enable auto-compact checkpoints</span>
+                    </label>
+                    <div className="mono" style={{marginTop:'8px', fontSize:'11px', color:'var(--muted)'}}>
+                      Off = history grows unbounded until the provider rejects the request.
+                    </div>
+                  </div>
+
+                  <div style={{padding:'16px', border:'1px solid var(--line)', borderRadius:'12px', background:'var(--bg)'}}>
+                    <div className="mono" style={{fontSize:'11px', color:'var(--muted)', marginBottom:'12px'}}>Trigger</div>
+                    <label style={{display:'flex', flexDirection:'column', gap:'6px', fontSize:'13px'}}>
+                      <span>Compact at <b>{contextConfig.auto_compact_threshold_percent}%</b> of the context window</span>
+                      <input type="range" min={50} max={100} step={5}
+                        value={contextConfig.auto_compact_threshold_percent}
+                        disabled={!contextConfig.auto_compact_enabled}
+                        onChange={e=>patchContext({ auto_compact_threshold_percent: Number(e.target.value) })}
+                        style={{width:'100%'}} />
+                    </label>
+                    <label style={{display:'flex', flexDirection:'column', gap:'6px', fontSize:'13px', marginTop:'12px'}}>
+                      <span>Keep the newest <b>{contextConfig.tail_keep_items}</b> messages verbatim</span>
+                      <input type="number" min={4} max={200} value={contextConfig.tail_keep_items}
+                        disabled={!contextConfig.auto_compact_enabled}
+                        onChange={e=>patchContext({ tail_keep_items: Number(e.target.value) })}
+                        style={{width:'120px'}} />
+                    </label>
+                  </div>
+
+                  <div style={{padding:'16px', border:'1px solid var(--line)', borderRadius:'12px', background:'var(--bg)'}}>
+                    <div className="mono" style={{fontSize:'11px', color:'var(--muted)', marginBottom:'12px'}}>Per-tool output budgets (bytes)</div>                    <div className="mono" style={{fontSize:'11px', color:'var(--muted)', marginBottom:'10px'}}>
+                      Tool results longer than the budget are truncated head+tail before entering history.
+                      Default is 12288 bytes for any tool not listed here.
+                    </div>
+                    {['read_file','run_terminal_cmd','duckduckgo_search','web_fetch','grep'].map(tool=>(
+                      <label key={tool} style={{display:'flex', alignItems:'center', gap:'10px', fontSize:'12px', marginBottom:'8px'}}>
+                        <span className="mono" style={{width:'150px', color:'var(--muted)'}}>{tool}</span>
+                        <input type="number" min={0} step={256}
+                          placeholder="12288 (default)"
+                          value={contextConfig.tool_output_budgets[tool] ?? ''}
+                          onChange={e=>{
+                            const v = e.target.value === '' ? undefined : Number(e.target.value);
+                            const b = {...contextConfig.tool_output_budgets};
+                            if(v === undefined || v <= 0) delete b[tool]; else b[tool] = v;
+                            patchContext({ tool_output_budgets: b });
+                          }} />
+                      </label>
+                    ))}
+                  </div>
+
+                  <div style={{padding:'16px', border:'1px solid var(--line)', borderRadius:'12px', background:'var(--bg)'}}>
+                    <div className="mono" style={{fontSize:'11px', color:'var(--muted)', marginBottom:'4px'}}>Turn &amp; segment budgets</div>
+                    <div className="mono" style={{fontSize:'11px', color:'var(--muted)', marginBottom:'12px'}}>
+                      A long task runs as N segments × up to max turns each, checkpointed by todos between segments.
+                    </div>
+                    <label style={{display:'flex', alignItems:'center', gap:'10px', cursor:'pointer', fontSize:'13px', marginBottom:'12px'}}>
+                      <input type="checkbox" checked={budgetConfig.auto_continue}
+                        onChange={e=>patchBudget({ auto_continue:e.target.checked })}
+                        style={{width:'16px', height:'16px', accentColor:'var(--text)'}} />
+                      <span>Auto-continue across segments</span>
+                    </label>
+                    <div style={{display:'flex', gap:'16px', flexWrap:'wrap'}}>
+                      <label style={{display:'flex', flexDirection:'column', gap:'6px', fontSize:'12px'}}>
+                        <span className="mono" style={{color:'var(--muted)'}}>Max turns / segment</span>
+                        <input type="number" min={1} max={200} value={budgetConfig.max_turns}
+                          onChange={e=>patchBudget({ max_turns: Math.max(1, Number(e.target.value) || 1) })}
+                          style={{width:'110px'}} />
+                      </label>
+                      <label style={{display:'flex', flexDirection:'column', gap:'6px', fontSize:'12px'}}>
+                        <span className="mono" style={{color:'var(--muted)'}}>Max segments / task</span>
+                        <input type="number" min={1} max={10} value={budgetConfig.max_segments}
+                          onChange={e=>patchBudget({ max_segments: Math.max(1, Number(e.target.value) || 1) })}
+                          style={{width:'110px'}} />
+                      </label>
+                      <label style={{display:'flex', flexDirection:'column', gap:'6px', fontSize:'12px'}}>
+                        <span className="mono" style={{color:'var(--muted)'}}>Spend cap (USD, blank = none)</span>
+                        <input type="number" min={0} step={0.1} placeholder="none"
+                          value={budgetConfig.spend_cap_usd ?? ''}
+                          onChange={e=>patchBudget({ spend_cap_usd: e.target.value === '' ? null : Math.max(0, Number(e.target.value)) })}
+                          style={{width:'130px'}} />
+                      </label>
+                    </div>
+                    <div className="mono" style={{marginTop:'10px', fontSize:'11px', color:'var(--muted)'}}>
+                      Crossing 80% of max segments × max turns × ~2000 tokens/turn emits a spend warning;
+                      breaching the spend cap stops further segments.
+                    </div>
+                  </div>
+                </div>
+              )}
             </>
           )}
         </div>
@@ -525,7 +846,7 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
         <div style={{position:'fixed', inset:0, background:'rgba(0,0,0,0.6)', backdropFilter:'blur(8px)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:200, padding:'16px'}} onClick={()=> setShowKiloPicker(null)}>
           <div onClick={e=>e.stopPropagation()} style={{width:'100%', maxWidth:'560px', maxHeight:'78vh', display:'flex', flexDirection:'column', background:'var(--panel)', border:'1px solid var(--line)', borderRadius:'16px', overflow:'hidden'}}>
             <div style={{padding:'14px 16px', borderBottom:'1px solid var(--line)', display:'flex', justifyContent:'space-between', alignItems:'center'}}>
-              <div><div style={{fontWeight:600, fontSize:'13px'}}>Kilo models</div><div className="mono" style={{fontSize:'11px', color:'var(--muted)'}}>{kiloModels.length} available • GET https://api.kilo.ai/api/gateway/models</div></div>
+               <div><div style={{fontWeight:600, fontSize:'13px'}}>Kilo models</div><div className="mono" style={{fontSize:'11px', color:'var(--muted)'}}>{kiloModels.length} available • configured Kilo Gateway catalog</div></div>
               <button className="btn-ghost btn-ico" onClick={()=> setShowKiloPicker(null)} style={{borderRadius:'999px'}}>✕</button>
             </div>
             <div style={{padding:'12px 16px', borderBottom:'1px solid var(--line)', display:'flex', flexDirection:'column', gap:'8px'}}>
@@ -539,20 +860,13 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
             </div>
             <div style={{flex:1, overflowY:'auto', padding:'8px'}}>
               {kiloLoading ? <div className="mono" style={{textAlign:'center', padding:'24px', color:'var(--muted)'}}>Loading…</div>
-               : kiloError ? <div className="mono" style={{textAlign:'center', padding:'24px', color:'#ff6b6b'}}>{kiloError}</div>
+               : kiloError ? <div className="mono" style={{textAlign:'center', padding:'24px', color:'var(--danger)'}}>{kiloError}</div>
                : filteredKilo.length===0 ? <div className="mono" style={{textAlign:'center', padding:'24px', color:'var(--muted)'}}>No matches</div>
                : filteredKilo.slice(0,120).map(m=>(
-                <button key={m.id} onClick={()=>{
-                  if(showKiloPicker==='new'){
-                    setNewCustom(prev=> ({...prev, id:'kilo', base_url:'https://api.kilo.ai/api/gateway', model:m.id, kind:'openai'}));
-                  } else {
-                    handleProviderSettingsChange(showKiloPicker!, 'model', m.id);
-                  }
-                  setShowKiloPicker(null);
-                }} style={{width:'100%', textAlign:'left', display:'flex', flexDirection:'column', gap:'2px', padding:'10px 12px', marginBottom:'6px', background:'var(--bg)', border:'1px solid var(--line)', borderRadius:'12px'}}>
+                 <button key={m.id} onClick={()=>selectKiloModel(m.id)} disabled={saving === (showKiloPicker || 'new')} style={{width:'100%', textAlign:'left', display:'flex', flexDirection:'column', gap:'2px', padding:'10px 12px', marginBottom:'6px', background:'var(--bg)', border:'1px solid var(--line)', borderRadius:'12px', opacity: saving === (showKiloPicker || 'new') ? 0.6 : 1}}>
                   <div style={{display:'flex', gap:'8px', alignItems:'center', flexWrap:'wrap'}}>
                     <span style={{fontWeight:600, fontSize:'12px', wordBreak:'break-all'}}>{m.id}</span>
-                    {m.is_free ? <span className="mono" style={{fontSize:'10px', color:'#16a34a', border:'1px solid rgba(22,163,74,0.3)', padding:'1px 6px', borderRadius:999}}>free</span> : <span className="mono" style={{fontSize:'10px', color:'var(--muted)', border:'1px solid var(--line)', padding:'1px 6px', borderRadius:999}}>paid</span>}
+                    {m.is_free ? <span className="mono" style={{fontSize:'10px', color:'var(--ok-text)', border:'1px solid var(--ok-border)', padding:'1px 6px', borderRadius:999}}>free</span> : <span className="mono" style={{fontSize:'10px', color:'var(--muted)', border:'1px solid var(--line)', padding:'1px 6px', borderRadius:999}}>paid</span>}
                     {m.context_length ? <span className="mono" style={{fontSize:'10px', color:'var(--muted)'}}>{Math.round(m.context_length/1000)}k</span> : null}
                   </div>
                   <div className="mono" style={{fontSize:'11px', color:'var(--muted)', lineHeight:1.4}}>{m.name}</div>

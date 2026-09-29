@@ -35,6 +35,159 @@ pub struct MaverickConfig {
     /// UI preferences.
     #[serde(default)]
     pub ui: UiConfig,
+    /// Context management (Phase 3).
+    #[serde(default)]
+    pub context: ContextConfig,
+    /// Turn/segment budgets + spend guardrails (§5.6-B/F).
+    #[serde(default)]
+    pub budget: BudgetConfig,
+    /// Skills marketplace sources (GitHub repos used as skill catalogs).
+    #[serde(default)]
+    pub marketplace_sources: Vec<MarketplaceSource>,
+}
+
+/// Context-management policy (Phase 3).
+///
+/// All knobs have safe defaults; the whole subsystem is a no-op unless
+/// estimated context occupancy crosses `auto_compact_threshold_percent` of
+/// the session context window. Mirrors the vendored `CompactionPolicy`
+/// threshold semantics (percent of window) without pulling in the shell.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ContextConfig {
+    /// Master switch for segment-boundary checkpoints. Default true.
+    #[serde(default = "default_true")]
+    pub auto_compact_enabled: bool,
+    /// Percentage of the context window that triggers a checkpoint.
+    /// Default 85 (matches the vendored `CompactionPolicy` default).
+    #[serde(default = "default_compact_threshold")]
+    pub auto_compact_threshold_percent: u32,
+    /// Newest conversation items always kept verbatim. Default 24.
+    #[serde(default = "default_tail_keep")]
+    pub tail_keep_items: usize,
+    /// Per-tool output budgets in bytes (Phase 3 tuning): tool name →
+    /// max bytes before head+tail truncation. Unlisted tools use the
+    /// loop default (12 KB). Budgets only ever *shrink* below the default.
+    #[serde(default)]
+    pub tool_output_budgets: HashMap<String, usize>,
+}
+
+fn default_compact_threshold() -> u32 {
+    85
+}
+
+fn default_tail_keep() -> usize {
+    24
+}
+
+/// Turn/segment budgets + spend guardrails (§5.6-B/F).
+///
+/// `MAX_TURNS` (40) and `MAX_SEGMENTS` (3) used to be hardcoded in
+/// `agent_loop.rs`; they now live here with the same defaults so real-run
+/// measurements (§5.6-A) can tune them without a rebuild. Legacy
+/// `config.toml` files without `[budget]` deserialize to these defaults.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BudgetConfig {
+    /// Tool-call turns allowed per segment before the forced wrap-up.
+    /// Default 40. Clamped to ≥ 1 at read time.
+    #[serde(default = "default_max_turns")]
+    pub max_turns: u32,
+    /// Auto-continued segments allowed per user message. Default 3.
+    /// Clamped to ≥ 1 at read time.
+    ///
+    /// Safety limit only when `spend_cap_usd` is `None`: with a spend cap set,
+    /// segments are unbounded and the run stops on natural finish, the
+    /// identical-wrap-up guard, the cap, or cancel.
+    #[serde(default = "default_max_segments")]
+    pub max_segments: u32,
+    /// When false, the runner stops after the first segment even on a
+    /// budget hit (K=1 behaviour with graceful wrap-up). Default true.
+    #[serde(default = "default_true")]
+    pub auto_continue: bool,
+    /// Optional per-task spend cap in USD. When the accumulated
+    /// provider-reported cost exceeds it, further segments abort.
+    /// Default None (unbounded). `None` also survives a TOML round-trip.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub spend_cap_usd: Option<f64>,
+    /// Assumed tokens per turn for the 80%-of-budget warn event
+    /// (`max_segments × max_turns × avg_tokens_per_turn`). Default 2000.
+    #[serde(default = "default_avg_tokens_per_turn")]
+    pub avg_tokens_per_turn: u64,
+}
+
+fn default_max_turns() -> u32 {
+    crate::agent_loop::MAX_TURNS
+}
+
+fn default_max_segments() -> u32 {
+    crate::agent_loop::MAX_SEGMENTS
+}
+
+fn default_avg_tokens_per_turn() -> u64 {
+    2000
+}
+
+impl Default for BudgetConfig {
+    fn default() -> Self {
+        Self {
+            max_turns: default_max_turns(),
+            max_segments: default_max_segments(),
+            auto_continue: true,
+            spend_cap_usd: None,
+            avg_tokens_per_turn: default_avg_tokens_per_turn(),
+        }
+    }
+}
+
+impl BudgetConfig {
+    /// Effective per-segment turn budget (≥ 1).
+    pub fn effective_max_turns(&self) -> u32 {
+        self.max_turns.max(1)
+    }
+
+    /// Effective segment cap (≥ 1).
+    pub fn effective_max_segments(&self) -> u32 {
+        self.max_segments.max(1)
+    }
+
+    /// Turn at which the budget warning fires (≈ 3 turns before wrap-up).
+    /// Saturating so tiny budgets (1–3) still warn on turn 1 instead of
+    /// underflowing.
+    pub fn warning_at(&self) -> u32 {
+        self.effective_max_turns().saturating_sub(3).max(1)
+    }
+
+    /// Forced no-tools wrap-up turn.
+    pub fn wrap_up_at(&self) -> u32 {
+        self.effective_max_turns() + 1
+    }
+
+    /// Last-resort bail (model emits tool calls despite none offered).
+    pub fn hard_ceiling(&self) -> u32 {
+        self.effective_max_turns() + 2
+    }
+
+    /// Token budget for the 80% spend warning. Saturating: a zero average
+    /// disables the warning (budget 0 ⇒ never reach 80% of nothing… instead
+    /// treat as unbounded by returning `u64::MAX`).
+    pub fn budget_tokens(&self) -> u64 {
+        if self.avg_tokens_per_turn == 0 {
+            return u64::MAX;
+        }
+        (self.effective_max_segments() as u64)
+            .saturating_mul(self.effective_max_turns() as u64)
+            .saturating_mul(self.avg_tokens_per_turn)
+    }
+}
+
+impl Default for ContextConfig {
+    fn default() -> Self {
+        Self {
+            auto_compact_enabled: true,
+            auto_compact_threshold_percent: default_compact_threshold(),
+            tail_keep_items: default_tail_keep(),
+            tool_output_budgets: HashMap::new(),
+        }
+    }
 }
 
 /// MCP server configuration.
@@ -79,6 +232,50 @@ fn default_true() -> bool {
     true
 }
 
+/// A GitHub repo used as a skills marketplace catalog source.
+///
+/// Skills are discovered as `SKILL.md` files under `skills_path`
+/// (e.g. `skills/pdf/SKILL.md` in `anthropics/skills`), enumerated via
+/// the public GitHub Trees API and downloaded via raw.githubusercontent.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MarketplaceSource {
+    /// Stable id, also used for the hub cache + catalog cache filenames.
+    pub id: String,
+    pub display_name: String,
+    pub owner: String,
+    pub repo: String,
+    /// Branch to read (default `main`).
+    #[serde(default = "default_marketplace_branch")]
+    pub branch: String,
+    /// Repo-relative directory scanned for skills (default `skills`).
+    /// Empty string means the repo root.
+    #[serde(default = "default_marketplace_skills_path")]
+    pub skills_path: String,
+}
+
+fn default_marketplace_branch() -> String {
+    "main".to_string()
+}
+fn default_marketplace_skills_path() -> String {
+    "skills".to_string()
+}
+
+impl MarketplaceSource {
+    /// Built-in default source. Returned by `ConfigManager` whenever the
+    /// user has no stored sources, so a fresh install browses something
+    /// without writing to `config.toml` first.
+    pub fn anthropic_official() -> Self {
+        Self {
+            id: "anthropic-skills".to_string(),
+            display_name: "Anthropic Official Skills".to_string(),
+            owner: "anthropics".to_string(),
+            repo: "skills".to_string(),
+            branch: "main".to_string(),
+            skills_path: "skills".to_string(),
+        }
+    }
+}
+
 /// UI preferences.
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct UiConfig {
@@ -107,26 +304,49 @@ impl MaverickConfig {
     }
 
     /// Load config from disk, or create default.
+    ///
+    /// A corrupt file is moved aside rather than refusing to start the app:
+    /// losing a few settings beats a hard startup failure. The original is
+    /// kept as `config.toml.corrupt` for manual recovery. Pure I/O failures
+    /// (permissions, disk) still surface, since silently ignoring them would
+    /// write defaults over a real config on the next persist.
     pub fn load(app_data_dir: &Path) -> Result<Self> {
         let path = Self::config_path(app_data_dir);
-        if path.exists() {
-            let content = std::fs::read_to_string(&path)?;
-            Ok(toml::from_str(&content)?)
-        } else {
-            Ok(Self::default())
+        if !path.exists() {
+            return Ok(Self::default());
+        }
+        let content = std::fs::read_to_string(&path)?;
+        match toml::from_str::<Self>(&content) {
+            Ok(config) => Ok(config),
+            Err(e) => {
+                let backup = path.with_extension("toml.corrupt");
+                let _ = std::fs::rename(&path, &backup);
+                tracing::error!(
+                    error = %e,
+                    backup = %backup.display(),
+                    "config.toml failed to parse; moved aside and starting from defaults"
+                );
+                Ok(Self::default())
+            }
         }
     }
 
     /// Save config to disk atomically (write tmp + rename) to avoid
     /// torn writes if two `persist()` calls race.
     pub fn save(&self, app_data_dir: &Path) -> Result<()> {
+        use std::io::Write;
         let path = Self::config_path(app_data_dir);
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent)?;
         }
         let content = toml::to_string_pretty(self)?;
         let tmp = path.with_extension("toml.tmp");
-        std::fs::write(&tmp, content)?;
+        // Sync before the rename: a crash between the two would otherwise
+        // leave an empty/partial config.toml in place of a valid one.
+        let mut file = std::fs::File::create(&tmp)?;
+        file.write_all(content.as_bytes())?;
+        file.sync_all()?;
+        drop(file);
         std::fs::rename(&tmp, &path)?;
         Ok(())
     }
@@ -153,20 +373,44 @@ impl MaverickConfig {
 
     /// Set provider settings (base_url / model / kind). Pass None to clear.
     pub fn set_provider_settings(&mut self, provider_id: &str, settings: ProviderSettings) {
-        let is_empty = settings.base_url.as_ref().map(|s| s.trim().is_empty()).unwrap_or(true)
-            && settings.model.as_ref().map(|s| s.trim().is_empty()).unwrap_or(true)
-            && settings.kind.as_ref().map(|s| s.trim().is_empty()).unwrap_or(true);
+        let is_empty = settings
+            .base_url
+            .as_ref()
+            .map(|s| s.trim().is_empty())
+            .unwrap_or(true)
+            && settings
+                .model
+                .as_ref()
+                .map(|s| s.trim().is_empty())
+                .unwrap_or(true)
+            && settings
+                .kind
+                .as_ref()
+                .map(|s| s.trim().is_empty())
+                .unwrap_or(true);
         if is_empty {
             self.provider_settings.remove(provider_id);
         } else {
             let mut s = settings;
-            if s.base_url.as_ref().map(|x| x.trim().is_empty()).unwrap_or(false) {
+            if s.base_url
+                .as_ref()
+                .map(|x| x.trim().is_empty())
+                .unwrap_or(false)
+            {
                 s.base_url = None;
             }
-            if s.model.as_ref().map(|x| x.trim().is_empty()).unwrap_or(false) {
+            if s.model
+                .as_ref()
+                .map(|x| x.trim().is_empty())
+                .unwrap_or(false)
+            {
                 s.model = None;
             }
-            if s.kind.as_ref().map(|x| x.trim().is_empty()).unwrap_or(false) {
+            if s.kind
+                .as_ref()
+                .map(|x| x.trim().is_empty())
+                .unwrap_or(false)
+            {
                 s.kind = None;
             }
             self.provider_settings.insert(provider_id.to_string(), s);
@@ -179,9 +423,18 @@ impl MaverickConfig {
         let api_key = self.api_key(provider_id);
         let (default_base, default_model) = match provider_id {
             "xai" => ("https://api.x.ai/v1".to_string(), "grok-4".to_string()),
-            "openai" => ("https://api.openai.com/v1".to_string(), "gpt-4o".to_string()),
-            "anthropic" => ("https://api.anthropic.com/v1".to_string(), "claude-3-5-sonnet-20240620".to_string()),
-            _ => ("https://api.openai.com/v1".to_string(), "gpt-4o".to_string()),
+            "openai" => (
+                "https://api.openai.com/v1".to_string(),
+                "gpt-4o".to_string(),
+            ),
+            "anthropic" => (
+                "https://api.anthropic.com/v1".to_string(),
+                "claude-3-5-sonnet-20240620".to_string(),
+            ),
+            _ => (
+                "https://api.openai.com/v1".to_string(),
+                "gpt-4o".to_string(),
+            ),
         };
         let raw_base = settings
             .and_then(|s| s.base_url.clone())
@@ -200,25 +453,23 @@ impl MaverickConfig {
         self.mcp_servers
             .iter()
             .filter(|(_, c)| c.enabled)
-            .filter_map(|(name, config)| {
-                match config.transport.as_str() {
-                    "stdio" => config.command.as_ref().map(|cmd| {
-                        let config = ProviderConfig::Subprocess {
-                            command: cmd.clone(),
-                            args: config.args.clone(),
-                            env: vec![],
-                        };
-                        (name.clone(), config)
-                    }),
-                    "http" => config.url.as_ref().map(|url| {
-                        let config = ProviderConfig::Http {
-                            base_url: url.clone(),
-                            api_key: None,
-                        };
-                        (name.clone(), config)
-                    }),
-                    _ => None,
-                }
+            .filter_map(|(name, config)| match config.transport.as_str() {
+                "stdio" => config.command.as_ref().map(|cmd| {
+                    let config = ProviderConfig::Subprocess {
+                        command: cmd.clone(),
+                        args: config.args.clone(),
+                        env: vec![],
+                    };
+                    (name.clone(), config)
+                }),
+                "http" => config.url.as_ref().map(|url| {
+                    let config = ProviderConfig::Http {
+                        base_url: url.clone(),
+                        api_key: None,
+                    };
+                    (name.clone(), config)
+                }),
+                _ => None,
             })
             .collect()
     }
@@ -228,14 +479,27 @@ impl MaverickConfig {
 pub struct ConfigManager {
     config: Arc<RwLock<MaverickConfig>>,
     app_data_dir: PathBuf,
+    /// Serializes disk writes. Two commands persisting at once would share the
+    /// same `config.toml.tmp` and the loser's rename can fail (or land a
+    /// half-written file) once the winner already moved it into place.
+    persist_lock: tokio::sync::Mutex<()>,
 }
 
 impl ConfigManager {
     pub fn new(app_data_dir: PathBuf) -> Result<Self> {
-        let config = MaverickConfig::load(&app_data_dir)?;
+        let mut config = MaverickConfig::load(&app_data_dir)?;
+        if config.marketplace_sources.is_empty() {
+            // Fresh installs (and pre-marketplace configs) browse the
+            // built-in source. In-memory only — persisted on the next
+            // config mutation, so startup never rewrites the user's file.
+            config
+                .marketplace_sources
+                .push(MarketplaceSource::anthropic_official());
+        }
         Ok(Self {
             config: Arc::new(RwLock::new(config)),
             app_data_dir,
+            persist_lock: tokio::sync::Mutex::new(()),
         })
     }
 
@@ -289,15 +553,25 @@ impl ConfigManager {
             let mut config = self.config.write().await;
             config.set_provider_settings(
                 provider_id,
-                ProviderSettings { base_url, model, kind },
+                ProviderSettings {
+                    base_url,
+                    model,
+                    kind,
+                },
             );
         }
         self.persist().await
     }
 
     /// Effective base_url/model + api_key for a provider.
-    pub async fn effective_provider_config(&self, provider_id: &str) -> (String, String, Option<String>) {
-        self.config.read().await.effective_provider_config(provider_id)
+    pub async fn effective_provider_config(
+        &self,
+        provider_id: &str,
+    ) -> (String, String, Option<String>) {
+        self.config
+            .read()
+            .await
+            .effective_provider_config(provider_id)
     }
 
     /// Get MCP provider configs.
@@ -319,6 +593,38 @@ impl ConfigManager {
         {
             let mut config_guard = self.config.write().await;
             config_guard.mcp_servers.remove(name);
+        }
+        self.persist().await
+    }
+
+    /// Stored marketplace sources (the built-in default is seeded in
+    /// `ConfigManager::new`, so this is never empty in practice).
+    pub async fn marketplace_sources(&self) -> Vec<MarketplaceSource> {
+        self.config.read().await.marketplace_sources.clone()
+    }
+
+    /// Add (or replace by id) a marketplace source and persist.
+    pub async fn add_marketplace_source(&self, source: MarketplaceSource) -> Result<()> {
+        {
+            let mut config_guard = self.config.write().await;
+            if let Some(existing) = config_guard
+                .marketplace_sources
+                .iter_mut()
+                .find(|s| s.id == source.id)
+            {
+                *existing = source;
+            } else {
+                config_guard.marketplace_sources.push(source);
+            }
+        }
+        self.persist().await
+    }
+
+    /// Remove a marketplace source by id and persist.
+    pub async fn remove_marketplace_source(&self, id: &str) -> Result<()> {
+        {
+            let mut config_guard = self.config.write().await;
+            config_guard.marketplace_sources.retain(|s| s.id != id);
         }
         self.persist().await
     }
@@ -351,6 +657,34 @@ impl ConfigManager {
         self.persist().await
     }
 
+    /// Get context-management config.
+    pub async fn context_config(&self) -> ContextConfig {
+        self.config.read().await.context.clone()
+    }
+
+    /// Set context-management config and persist.
+    pub async fn set_context_config(&self, context: ContextConfig) -> Result<()> {
+        {
+            let mut config = self.config.write().await;
+            config.context = context;
+        }
+        self.persist().await
+    }
+
+    /// Get turn/segment budget config.
+    pub async fn budget_config(&self) -> BudgetConfig {
+        self.config.read().await.budget.clone()
+    }
+
+    /// Set turn/segment budget config and persist.
+    pub async fn set_budget_config(&self, budget: BudgetConfig) -> Result<()> {
+        {
+            let mut config = self.config.write().await;
+            config.budget = budget;
+        }
+        self.persist().await
+    }
+
     /// Get config for Tauri commands (serializable snapshot).
     pub async fn snapshot(&self) -> ConfigSnapshot {
         let config = self.config.read().await;
@@ -360,12 +694,15 @@ impl ConfigManager {
             provider_settings: config.provider_settings.clone(),
             mcp_servers: config.mcp_servers.clone(),
             ui: config.ui.clone(),
+            context: config.context.clone(),
+            budget: config.budget.clone(),
         }
     }
 
     /// Persist current config to disk — snapshot under read lock so the
     /// filesystem write happens without holding the lock.
     async fn persist(&self) -> Result<()> {
+        let _write = self.persist_lock.lock().await;
         let snapshot = self.config.read().await.clone();
         snapshot.save(&self.app_data_dir)
     }
@@ -379,4 +716,7 @@ pub struct ConfigSnapshot {
     pub provider_settings: HashMap<String, ProviderSettings>,
     pub mcp_servers: HashMap<String, McpServerConfig>,
     pub ui: UiConfig,
+    pub context: ContextConfig,
+    #[serde(default)]
+    pub budget: BudgetConfig,
 }
