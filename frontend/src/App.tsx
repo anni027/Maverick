@@ -3,11 +3,12 @@ import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import Chat from './components/Chat';
 import SessionSidebar from './components/SessionSidebar';
-import ProviderSelector from './components/ProviderSelector';
+import ModelPresetBadge from './components/ModelPresetBadge';
 import Settings from './components/Settings';
 import ApertureLogo from './components/ApertureLogo';
-import { PanelIcon, SettingsIcon } from './components/icons';
+import { PanelIcon, SettingsIcon, PlusIcon } from './components/icons';
 import { ProviderInfo, UiConfig, DEFAULT_UI_CONFIG } from './types';
+import { useTheme, type ThemeMode } from './hooks/useTheme';
 
 export default function App() {
   // No placeholder id: a fake default would make `init_session` create a real
@@ -32,6 +33,14 @@ export default function App() {
       setUiConfig({ ...DEFAULT_UI_CONFIG, ...ui });
     } catch { /* keep defaults */ }
   };
+
+  // Theme: UiConfig.theme (config.toml) is the source of truth; push it into
+  // ThemeProvider, which applies the `dark` class + localStorage mirror.
+  const { setMode } = useTheme();
+  useEffect(() => {
+    const t = uiConfig.theme;
+    setMode(t === 'light' || t === 'dark' || t === 'system' ? (t as ThemeMode) : 'dark');
+  }, [uiConfig.theme, setMode]);
 
   useEffect(() => { initialize(); }, []);
 
@@ -140,12 +149,25 @@ export default function App() {
       console.error('Failed to rename session', e);
     }
   };
+
   const handleProviderChange = async (id: string) => {
     setSelectedProvider(id);
     try { await invoke('set_default_provider', { providerId: id }); } catch(e){ console.error('set_default_provider failed', e); }
     // Re-init current session with new provider so next message uses it
     try { await invoke('init_session', { sessionId, providerId: id }); } catch(e){ console.error('re-init with new provider failed', e); }
   };
+
+  // ModelPresetBadge dispatches `model-select` events; route them through the
+  // existing provider-change flow so a badge click does the same hot-swap as
+  // the old `<select>` onChange.
+  useEffect(() => {
+    const onModelSelect = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail?.id) handleProviderChange(detail.id);
+    };
+    window.addEventListener('model-select', onModelSelect);
+    return () => window.removeEventListener('model-select', onModelSelect);
+  }, [handleProviderChange]);
 
   const refreshProviders = async () => {
     try {
@@ -195,7 +217,7 @@ export default function App() {
   return (
     <div style={{display:'flex', height:'100vh', background:'var(--bg)', overflow:'hidden'}}>
       {showSidebar && (
-        <div style={{width:'270px', minWidth:'270px', display:'flex', flexDirection:'column', background:'var(--panel-2)', borderRight:'1px solid var(--line)'}}>
+        <div style={{width:'260px', minWidth:'260px', display:'flex', flexDirection:'column', background:'var(--panel-2)', borderRight:'1px solid var(--line)'}}>
           <SessionSidebar
             sessions={sessions}
             currentSession={sessionId}
@@ -211,34 +233,61 @@ export default function App() {
 
       <div style={{flex:1, display:'flex', flexDirection:'column', minWidth:0, background:'var(--bg)'}}>
         <header style={{
-          height:'56px', display:'flex', alignItems:'center', gap:'12px', padding:'0 20px',
-          borderBottom:'1px solid var(--line)', background:'rgba(9,9,11,0.85)', backdropFilter:'blur(10px)', flexShrink:0
+          height:'52px', display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 16px',
+          borderBottom:'1px solid var(--line)', background:'var(--header-bg)', backdropFilter:'blur(12px)', flexShrink:0
         }}>
-          {!showSidebar && (
-            <button className="btn-ghost btn-ico" onClick={()=>setShowSidebar(true)} aria-label="Show sidebar">
-              <PanelIcon size={16} />
-            </button>
-          )}
-          <ProviderSelector providers={visibleProviders.length?visibleProviders:providers} selected={selectedProvider} onChange={handleProviderChange} onOpenSettings={()=>setShowSettings(true)} />
-          <span style={{color:'var(--line-2)'}}>/</span>
-          <span className="mono" style={{fontSize:'12px', color:'var(--muted)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}}>{sessionId}</span>
-          <div style={{flex:1}} />
-          <div className="mono" style={{fontSize:'11px', color:'var(--muted)', border:'1px solid var(--line)', padding:'6px 10px', borderRadius:999}}>
-            {tools.length} tools
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {!showSidebar && (
+              <button
+                className="btn-ghost btn-ico"
+                onClick={()=>setShowSidebar(true)}
+                aria-label="Open sidebar"
+                title="Open sidebar"
+                style={{ padding: '6px', borderRadius: '8px', color: 'var(--muted)' }}
+              >
+                <PanelIcon size={16} />
+              </button>
+            )}
+            <ModelPresetBadge providers={visibleProviders.length?visibleProviders:providers} selected={selectedProvider} onOpenSettings={()=>setShowSettings(true)} />
           </div>
-          {!showSidebar && (
-            <button className="btn-ghost btn-ico" onClick={()=>setShowSettings(true)} aria-label="Settings">
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            {!showSidebar && (
+              <button
+                className="btn-ghost btn-ico"
+                onClick={handleNewSession}
+                aria-label="New chat"
+                title="New chat"
+                style={{ padding: '6px', borderRadius: '8px', color: 'var(--muted)' }}
+              >
+                <PlusIcon size={16} />
+              </button>
+            )}
+            <button
+              className="btn-ghost btn-ico"
+              onClick={()=>setShowSettings(true)}
+              aria-label="Settings"
+              title="Settings"
+              style={{ padding: '6px', borderRadius: '8px', color: 'var(--muted)' }}
+            >
               <SettingsIcon size={16} />
             </button>
-          )}
+          </div>
         </header>
 
-        <div style={{flex:1, display:'flex', justifyContent:'center', overflow:'hidden'}}>
-          <div style={{width:'100%', maxWidth:'768px', display:'flex', flexDirection:'column', flex:1, minWidth:0}}>
-            <Chat sessionId={sessionId} onAddMcp={handleAddMcp} availableTools={tools} ui={uiConfig} />
-          </div>
+        <div style={{flex:1, display:'flex', minWidth:0, overflow:'hidden', position:'relative'}}>
+          <Chat
+            sessionId={sessionId}
+            onAddMcp={handleAddMcp}
+            availableTools={tools}
+            ui={uiConfig}
+            providers={visibleProviders.length ? visibleProviders : providers}
+            selectedProvider={selectedProvider}
+            onProviderChange={handleProviderChange}
+          />
         </div>
       </div>
+
 
       <Settings isOpen={showSettings} onClose={()=>setShowSettings(false)} providers={visibleProviders.length?visibleProviders:providers} currentProvider={selectedProvider} onProviderChange={handleProviderChange} onRefresh={refreshProviders} />
     </div>

@@ -28,7 +28,7 @@ use anyhow::Result;
 use tokio::sync::{Mutex, RwLock};
 use tokio_util::sync::CancellationToken;
 use xai_chat_state::ChatStateHandle;
-use xai_grok_sampling_types::{ConversationItem, ToolSpec};
+use xai_grok_sampling_types::{ConversationItem, ReasoningEffort, ToolSpec};
 use xai_grok_tools::bridge::ToolBridge;
 use xai_grok_tools::implementations::grok_build::todo::{TodoState, TodoStatus};
 use xai_grok_tools::types::resources::State;
@@ -279,6 +279,27 @@ impl AgentLoop {
     pub async fn sync_context_window(&self) -> bool {
         let window = self.provider.read().await.context_window();
         crate::tools::sync_chat_context_window(&self.chat, window).await
+    }
+
+    /// Apply (or clear) the reasoning effort for future requests. `effort` is
+    /// a lowercase tier name (`none`…`max`, with `extra` aliased to `xhigh`).
+    /// Clears the stored effort whenever the provider kind cannot accept
+    /// `reasoning_effort` or no value is given, so a switch to an unsupported
+    /// provider never forwards a stale effort upstream.
+    pub async fn set_reasoning_effort(&self, effort: Option<&str>) -> Result<(), String> {
+        let supported = self.provider.read().await.capabilities().supports_reasoning_effort;
+        let parsed = match effort.map(str::trim).filter(|s| !s.is_empty()) {
+            Some(raw) if supported => {
+                let normalized = if raw.eq_ignore_ascii_case("extra") { "xhigh" } else { raw };
+                Some(normalized.parse::<ReasoningEffort>()?)
+            }
+            _ => None,
+        };
+        if let Some(mut config) = self.chat.get_sampling_config().await {
+            config.reasoning_effort = parsed;
+            self.chat.update_sampling_config(config);
+        }
+        Ok(())
     }
 
     /// Effective turn/segment budgets: live config when attached, the

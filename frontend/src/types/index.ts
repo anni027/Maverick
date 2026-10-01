@@ -12,6 +12,20 @@ export interface ProviderInfo {
   model: string;
   kind: 'Xai' | 'OpenAi' | 'Anthropic' | 'Subprocess' | 'Mcp';
   config: ProviderConfig;
+  /** Provider kind accepts a `reasoning_effort` request field. */
+  supports_reasoning_effort?: boolean;
+}
+
+/** Per-model reasoning capability resolved by the backend. Kilo gateways
+ * answer from the live model catalog; other kinds report a kind-wide default. */
+export interface ReasoningProfile {
+  model: string;
+  /** Model accepts a `reasoning_effort` request field at all. */
+  supported: boolean;
+  /** Wire tiers (`none`…`max`) in ascending order; empty when unsupported. */
+  efforts: string[];
+  /** `kilo-catalog` | `provider-kind` | `none`. */
+  source: string;
 }
 
 export type ProviderConfig =
@@ -70,8 +84,9 @@ export interface Message {
   /** Frontend-local wall time from ToolCallStarted to ToolCallCompleted. */
   durationMs?: number;
   /** Frontend-local reasoning timeline (ThinkingStarted / ThinkingStep). */
-  thinking?: { open: boolean; steps: string[] };
+  thinking?: { open: boolean; steps: string[]; isThinking?: boolean; durationSec?: number };
   timestamp: Date;
+  isStreaming?: boolean;
 }
 
 export interface ToolCall {

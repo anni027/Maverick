@@ -1,12 +1,34 @@
 import { useEffect, useRef, useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { listen, UnlistenFn } from '@tauri-apps/api/event';
-import { Message, AgentEventType, UiConfig } from '../types';
-import MarkdownRenderer from './MarkdownRenderer';
-import RunStatusBar, { RunStatusData } from './RunStatusBar';
+import { Message, AgentEventType, UiConfig, ProviderInfo, ReasoningProfile } from '../types';
+import { type RunStatusData } from './RunStatusBar';
 import ApertureLogo, { ApertureTile } from './ApertureLogo';
-import { ChevronIcon, ToolsIcon, StopIcon, CopyIcon, CheckIcon, AttachIcon, XIcon } from './icons';
+import ShinyText from './ShinyText';
+import { ChevronIcon, CopyIcon, CheckIcon } from './icons';
+import MarkdownRenderer from './MarkdownRenderer';
 import ComposerPlusMenu, { Attachment, fmtBytes } from './ComposerPlusMenu';
+import PromptBar, { PromptBarModel } from './PromptBar';
+import ThoughtLine from './ThoughtLine';
+import CallChip, { CallChipIcon } from './CallChip';
+
+/// Fallback effort tiers: shown while a model's profile loads, and for kinds
+/// where the backend reports only its kind-wide default. Sent as strings; the
+/// backend maps them onto its ReasoningEffort enum (`Extra` → `xhigh`).
+const DEFAULT_EFFORTS: string[] = ['Low', 'Medium', 'High', 'Extra', 'Max'];
+
+/// Wire tier → slider label (`Extra` is the UI name for `xhigh`; the backend
+/// aliases it back on send).
+const EFFORT_LABELS: Record<string, string> = {
+  none: 'None',
+  minimal: 'Minimal',
+  low: 'Low',
+  medium: 'Medium',
+  high: 'High',
+  xhigh: 'Extra',
+  max: 'Max',
+};
+const effortLabel = (wire: string): string => EFFORT_LABELS[wire] ?? wire;
 
 /// Taskbar progress, best-effort (no-op outside Tauri).
 async function setTaskbarProgress(status: 'indeterminate' | 'none' | 'error') {
@@ -42,12 +64,24 @@ interface ChatProps {
   onAddMcp: (name: string, command: string, args: string[]) => Promise<void>;
   availableTools: string[];
   ui: UiConfig;
+  providers: ProviderInfo[];
+  selectedProvider: string;
+  onProviderChange: (id: string) => void;
 }
 
-export default function Chat({ sessionId, onAddMcp, availableTools, ui }: ChatProps) {
+export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvider, onProviderChange }: ChatProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [attachments, setAttachments] = useState<Attachment[]>([]);
+  // Reasoning effort picked in the composer. Empty until the user touches the
+  // slider: sends without a picked effort keep the provider default, so a
+  // model that rejects `reasoning_effort` never gets one by accident.
+  const [effort, setEffort] = useState('');
+  // Effort tiers the *selected model* accepts (backend: Kilo catalog for
+  // gateways, kind default otherwise). Unsupported models get an empty list,
+  // which hides the slider entirely.
+  const [efforts, setEfforts] = useState<string[]>(DEFAULT_EFFORTS);
+  const [profile, setProfile] = useState<ReasoningProfile | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showMcpDialog, setShowMcpDialog] = useState(false);
   const [mcpName, setMcpName] = useState('');
@@ -58,10 +92,39 @@ export default function Chat({ sessionId, onAddMcp, availableTools, ui }: ChatPr
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
 
-  // ── Live run status (status bar + banners + attention) ──────────────
-  const [runStatus, setRunStatus] = useState<RunStatusData | null>(null);
+  // Sync the effort slider to the selected model's capabilities. The backend
+  // answers from the Kilo catalog (cached) for gateway providers and from the
+  // provider kind otherwise; a picked tier that the new model lacks is dropped
+  // so a stale effort can never be sent.
+  useEffect(() => {
+    let alive = true;
+    const provider = providers.find(p => p.id === selectedProvider);
+    setProfile(null);
+    invoke<ReasoningProfile>('get_model_reasoning', {
+      providerId: selectedProvider,
+      model: provider?.model ?? null,
+    })
+      .then(resolved => {
+        if (!alive) return;
+        setProfile(resolved);
+        const labels = resolved.supported ? resolved.efforts.map(effortLabel) : [];
+        setEfforts(labels);
+        setEffort(prev => (prev && labels.includes(prev) ? prev : ''));
+      })
+      .catch(() => {
+        if (!alive) return;
+        setProfile(null);
+        setEfforts(DEFAULT_EFFORTS);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [selectedProvider, providers]);
+
+  // ── Live run status (banners + attention; no status bar readout) ────
+  const [, setRunStatus] = useState<RunStatusData | null>(null);
   const [runBanner, setRunBanner] = useState<{ kind: 'warn' | 'cap'; text: string } | null>(null);
-  const [runSummary, setRunSummary] = useState<string | null>(null);
+  const [, setRunSummary] = useState<string | null>(null);
   // Ref mirror: the `agent-event` listener closure is bound on mount, so
   // handlers must read run state from refs, never from stale state.
   const runStatusRef = useRef<RunStatusData | null>(null);
@@ -79,8 +142,97 @@ export default function Chat({ sessionId, onAddMcp, availableTools, ui }: ChatPr
   // an older render.
   const sessionIdRef = useRef(sessionId);
   sessionIdRef.current = sessionId;
+  const [isStreaming, setIsStreaming] = useState(false);
+  const isStreamingRef = useRef(false);
+  const streamFrameRef = useRef<number | null>(null);
+  const streamTargetMapRef = useRef<Map<string, { current: string; target: string }>>(new Map());
+  const thinkingStartTimeRef = useRef<number>(0);
+  const currentAssistantIdRef = useRef<string | null>(null);
   const runHere = runSessionId === sessionId;
-  const busy = isLoading && runHere;
+  const busy = (isLoading || isStreaming) && runHere;
+
+  const clearStreamingLoop = () => {
+    if (streamFrameRef.current !== null) {
+      cancelAnimationFrame(streamFrameRef.current);
+      streamFrameRef.current = null;
+    }
+  };
+
+  const pushStreamingText = (msgId: string, fullTargetText: string) => {
+    let existing = streamTargetMapRef.current.get(msgId);
+    if (!existing) {
+      existing = { current: '', target: '' };
+      streamTargetMapRef.current.set(msgId, existing);
+    }
+    existing.target = fullTargetText;
+
+    setIsStreaming(true);
+    isStreamingRef.current = true;
+
+    if (streamFrameRef.current !== null) return;
+
+    let lastTick = performance.now();
+    const pumpLoop = (now: number) => {
+      // Pump on frame tick (~16ms delta cadence, synced to monitor refresh rate)
+      if (now - lastTick >= 16) {
+        lastTick = now;
+        let activeAny = false;
+        streamTargetMapRef.current.forEach((data, id) => {
+          if (data.current.length < data.target.length) {
+            activeAny = true;
+            const remaining = data.target.slice(data.current.length);
+            const nextSpace = remaining.indexOf(' ');
+            // Natural token pacing (nanobot-inspired stream)
+            const stepSize = nextSpace > 0 && nextSpace <= 8 ? nextSpace + 1 : Math.min(remaining.length, 5);
+            data.current += remaining.slice(0, stepSize);
+
+            setMessages(prev =>
+              prev.map(m => (m.id === id ? { ...m, content: data.current, isStreaming: true } : m))
+            );
+          }
+        });
+
+        if (ui.auto_scroll) {
+          scrollerRef.current?.scrollTo({ top: scrollerRef.current.scrollHeight, behavior: 'smooth' });
+        }
+
+        if (!activeAny) {
+          clearStreamingLoop();
+          isStreamingRef.current = false;
+          setIsStreaming(false);
+          setMessages(prev => prev.map(m => (m.isStreaming ? { ...m, isStreaming: false } : m)));
+          if (!isLoading) {
+            setIsLoading(false);
+          }
+          return;
+        }
+      }
+      streamFrameRef.current = requestAnimationFrame(pumpLoop);
+    };
+
+    streamFrameRef.current = requestAnimationFrame(pumpLoop);
+  };
+
+  // Nanobot inspiration: flush streaming text on window regain focus
+  useEffect(() => {
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible' && isStreamingRef.current) {
+        streamTargetMapRef.current.forEach((data, id) => {
+          if (data.current.length < data.target.length) {
+            data.current = data.target;
+            setMessages(prev =>
+              prev.map(m => (m.id === id ? { ...m, content: data.target, isStreaming: false } : m))
+            );
+          }
+        });
+        clearStreamingLoop();
+        isStreamingRef.current = false;
+        setIsStreaming(false);
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => document.removeEventListener('visibilitychange', onVisibility);
+  }, []);
 
   const setStatus = (
     next: RunStatusData | null | ((p: RunStatusData | null) => RunStatusData | null),
@@ -98,6 +250,12 @@ export default function Chat({ sessionId, onAddMcp, availableTools, ui }: ChatPr
   };
 
   const finishRun = (kind: 'done' | 'error' | 'cancelled' | 'cap', detail: string) => {
+    if (kind !== 'done') {
+      clearStreamingLoop();
+      isStreamingRef.current = false;
+      setIsStreaming(false);
+      setMessages(prev => prev.map(m => (m.isStreaming ? { ...m, isStreaming: false } : m)));
+    }
     const s = runStatusRef.current;
     const elapsed = s ? Date.now() - s.startedAt : 0;
     const mm = String(Math.floor(elapsed / 60000)).padStart(2, '0');
@@ -146,7 +304,26 @@ export default function Chat({ sessionId, onAddMcp, availableTools, ui }: ChatPr
         ...m,
         timestamp: m.timestamp ? new Date(m.timestamp) : new Date(),
       }));
-      setMessages(mapped);
+      setMessages(prev => {
+        const streamingMsg = prev.find(m => m.isStreaming);
+        const thinkingMap = new Map<string, any>();
+        prev.forEach(m => {
+          if (m.thinking) thinkingMap.set(m.id, m.thinking);
+        });
+        const next = mapped.map(m => {
+          if (streamingMsg && m.id === streamingMsg.id) {
+            return streamingMsg;
+          }
+          if (thinkingMap.has(m.id)) {
+            return { ...m, thinking: thinkingMap.get(m.id) };
+          }
+          return m;
+        });
+        if (streamingMsg && !next.some(m => m.id === streamingMsg.id)) {
+          next.push(streamingMsg);
+        }
+        return next;
+      });
       requestAnimationFrame(() => scrollerRef.current?.scrollTo({ top: scrollerRef.current.scrollHeight, behavior: 'auto' }));
     } catch (e) {
       console.warn('Failed to load session messages', e);
@@ -176,17 +353,26 @@ export default function Chat({ sessionId, onAddMcp, availableTools, ui }: ChatPr
 
     return () => {
       disposed = true;
+      clearStreamingLoop();
+      isStreamingRef.current = false;
+      setIsStreaming(false);
+      streamTargetMapRef.current.clear();
       if (unlisten) unlisten();
     };
   }, [sessionId]);
 
-  // auto-resize textarea
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 160) + 'px';
+  // Textarea sizing is owned by PromptBar — no auto-resize effect here.
+
+  const sanitizeThinkingStep = (raw: string): string => {
+    const trimmed = raw.trim();
+    if (/^building request for turn \d+/i.test(trimmed)) {
+      return 'Analyzing prompt and selecting capabilities';
     }
-  }, [input]);
+    if (/^provider returned \d+ item/i.test(trimmed)) {
+      return 'Synthesizing response';
+    }
+    return trimmed;
+  };
 
   const handleAgentEvent = (event: AgentEventType) => {
     // The listener already filters by session, but a second session can own
@@ -197,51 +383,130 @@ export default function Chat({ sessionId, onAddMcp, availableTools, ui }: ChatPr
       case 'TurnStarted':
         touchStatus({ turn: event.turn });
         break;
-      case 'ThinkingStarted':
+      case 'ThinkingStarted': {
+        thinkingStartTimeRef.current = Date.now();
+        const targetId = currentAssistantIdRef.current;
         setMessages(prev => {
-          const last = prev[prev.length - 1];
-          if (last && last.role === 'assistant' && last.thinking) {
+          const idx = targetId ? prev.findIndex(m => m.id === targetId) : -1;
+          if (idx >= 0) {
             const upd = [...prev];
-            upd[upd.length - 1] = { ...upd[upd.length - 1], thinking: { ...last.thinking, open: true } };
+            upd[idx] = {
+              ...upd[idx],
+              thinking: {
+                open: false,
+                steps: upd[idx].thinking?.steps || ['Analyzing request...'],
+                isThinking: true
+              }
+            };
             return upd;
           }
+          const newId = `asst-${Date.now()}`;
+          currentAssistantIdRef.current = newId;
           return [...prev, {
-            id: `think-${Date.now()}-${Math.random()}`,
+            id: newId,
             role: 'assistant',
             content: '',
             timestamp: new Date(),
-            thinking: { open: true, steps: [] }
+            thinking: { open: false, steps: ['Analyzing request...'], isThinking: true }
           }];
         });
         break;
-      case 'ThinkingStep':
+      }
+      case 'ThinkingStep': {
+        const sanitized = sanitizeThinkingStep(event.text);
         setMessages(prev => {
+          const targetId = currentAssistantIdRef.current;
           const upd = [...prev];
-          let idx = -1;
-          for (let i = upd.length - 1; i >= 0; i--) {
-            if (upd[i].role === 'assistant' && upd[i].thinking) { idx = i; break; }
+          let idx = targetId ? upd.findIndex(m => m.id === targetId) : -1;
+          if (idx < 0) {
+            for (let i = upd.length - 1; i >= 0; i--) {
+              if (upd[i].role === 'assistant') { idx = i; break; }
+            }
           }
           if (idx >= 0) {
+            const prevSteps = upd[idx].thinking?.steps || [];
+            const newSteps = prevSteps[prevSteps.length - 1] === sanitized
+              ? prevSteps
+              : [...prevSteps, sanitized];
             upd[idx] = {
               ...upd[idx],
-              thinking: { ...upd[idx].thinking!, steps: [...(upd[idx].thinking?.steps || []), event.text] }
+              thinking: {
+                open: upd[idx].thinking?.open ?? false,
+                steps: newSteps,
+                isThinking: true
+              }
             };
           }
           return upd;
         });
         break;
-      case 'AssistantText':
+      }
+      case 'AssistantText': {
+        let incomingText = event.text;
+        const thinkMatch = incomingText.match(/<think>([\s\S]*?)<\/think>/i);
+        let extraThoughts: string[] = [];
+        if (thinkMatch) {
+          const rawThink = thinkMatch[1].trim();
+          incomingText = incomingText.replace(/<think>[\s\S]*?<\/think>/i, '').trim();
+          if (rawThink) {
+            extraThoughts = rawThink.split('\n').map(s => s.trim()).filter(Boolean);
+          }
+        }
+
+        const durationSec = Math.max(1, Math.round((Date.now() - (thinkingStartTimeRef.current || Date.now())) / 1000));
+        let targetId = currentAssistantIdRef.current;
+        if (!targetId) {
+          targetId = `asst-${Date.now()}`;
+          currentAssistantIdRef.current = targetId;
+        }
+
         setMessages(prev => {
-          const last = prev[prev.length - 1];
-          if (last && last.role === 'assistant' && !last.toolCalls) {
-            const upd = [...prev];
-            upd[upd.length - 1] = { ...upd[upd.length - 1], content: upd[upd.length - 1].content + event.text };
+          const upd = [...prev];
+          const idx = upd.findIndex(m => m.id === targetId);
+          if (idx >= 0) {
+            const existing = upd[idx];
+            const existingThinking = existing.thinking;
+            const combinedSteps = [...(existingThinking?.steps || []), ...extraThoughts];
+            upd[idx] = {
+              ...existing,
+              thinking: existingThinking ? {
+                ...existingThinking,
+                steps: combinedSteps,
+                isThinking: false,
+                durationSec: existingThinking.durationSec || durationSec,
+                open: false,
+              } : (extraThoughts.length > 0 ? {
+                open: false,
+                steps: extraThoughts,
+                isThinking: false,
+                durationSec,
+              } : undefined),
+              isStreaming: true,
+            };
             return upd;
           }
-          return [...prev, { id: `msg-${Date.now()}-${Math.random()}`, role: 'assistant', content: event.text, timestamp: new Date() }];
+          return [...prev, {
+            id: targetId!,
+            role: 'assistant',
+            content: '',
+            isStreaming: true,
+            timestamp: new Date(),
+            thinking: {
+              open: false,
+              steps: extraThoughts.length > 0 ? extraThoughts : ['Completed thought process'],
+              isThinking: false,
+              durationSec,
+            }
+          }];
         });
+
+        if (incomingText) {
+          pushStreamingText(targetId, incomingText);
+        }
         touchStatus({});
         break;
+      }
+
       case 'ToolCallStarted':
         toolStartRef.current.push({ name: event.name, at: Date.now() });
         touchStatus({ lastTool: event.name });
@@ -276,7 +541,9 @@ export default function Chat({ sessionId, onAddMcp, availableTools, ui }: ChatPr
       // this only refreshes the transcript — the run finalizes when
       // `send_message` resolves (or on Cancelled / SpendCapReached / Error).
       case 'TurnCompleted':
-        loadSessionMessages(sessionId);
+        if (!isStreamingRef.current) {
+          loadSessionMessages(sessionId);
+        }
         touchStatus({});
         break;
       case 'BudgetWarning':
@@ -330,16 +597,26 @@ export default function Chat({ sessionId, onAddMcp, availableTools, ui }: ChatPr
     }
   };
 
-  const handleSend = async () => {
-    if ((!input.trim() && !attachments.length) || busy) return;
+  const handleSend = async (draft: string) => {
+    if ((!draft.trim() && !attachments.length) || busy) return;
     // Attachments serialize as fenced blocks; prompt context first, ask last.
     const blocks = attachments
       .map(a => `[Attached file: ${a.name}]\n\`\`\`\n${a.content}\n\`\`\``)
       .join('\n\n');
-    const text = blocks ? `${blocks}\n\n${input.trim()}` : input;
+    const text = blocks ? `${blocks}\n\n${draft.trim()}` : draft;
     const sentSession = sessionId;
     const userMessage: Message = { id: `msg-${Date.now()}`, role: 'user', content: text, timestamp: new Date() };
-    setMessages(prev => [...prev, userMessage]);
+    const assistantId = `asst-${Date.now()}`;
+    currentAssistantIdRef.current = assistantId;
+    thinkingStartTimeRef.current = Date.now();
+    const assistantMessage: Message = {
+      id: assistantId,
+      role: 'assistant',
+      content: '',
+      timestamp: new Date(),
+      thinking: { open: false, steps: ['Analyzing request and selecting capabilities'], isThinking: true }
+    };
+    setMessages(prev => [...prev, userMessage, assistantMessage]);
     setInput('');
     setAttachments([]);
     setIsLoading(true);
@@ -367,20 +644,23 @@ export default function Chat({ sessionId, onAddMcp, availableTools, ui }: ChatPr
         setStatus(prev => (prev ? { ...prev, capUsd: cap, maxSegments: maxSeg } : prev));
       })
       .catch(() => {});
-    if (textareaRef.current) textareaRef.current.style.height = '44px';
     // A session switch hands the run UI to whoever is visible now, and a newer
     // send overwrites run ownership entirely — a stale continuation must stop
     // writing into the wrong transcript in both cases.
     const stillMyRun = () => runSessionIdRef.current === sentSession;
     const visibleHere = () => sessionIdRef.current === sentSession;
     try {
-      await invoke('send_message', { sessionId: sentSession, text });
+      await invoke('send_message', {
+        sessionId: sentSession,
+        text,
+        effort: effort && efforts.includes(effort) ? effort : null,
+      });
       if (!stillMyRun()) {
         notifyUser('Maverick — run finished', 'A background run finished.');
       } else {
         // Transcript load only matters while this session is on screen; the
         // run summary/status updates are gated by `runHere` at render time.
-        if (visibleHere()) await loadSessionMessages(sentSession);
+        if (visibleHere() && !isStreamingRef.current) await loadSessionMessages(sentSession);
         // Natural finish (or graceful cap stop): finalize unless a terminal
         // event (cap / cancel / error) already did.
         if (!runStatusRef.current?.finished) finishRun('done', '');
@@ -406,13 +686,6 @@ export default function Chat({ sessionId, onAddMcp, availableTools, ui }: ChatPr
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  };
-
   // Skills picker drops a natural-language skill reference at the caret.
   const insertSkill = (name: string) => {
     const snippet = `use skill "${name}"`;
@@ -428,6 +701,12 @@ export default function Chat({ sessionId, onAddMcp, availableTools, ui }: ChatPr
   };
 
   const handleCancel = async () => {
+    clearStreamingLoop();
+    isStreamingRef.current = false;
+    setIsStreaming(false);
+    streamTargetMapRef.current.clear();
+    setMessages(prev => prev.map(m => (m.isStreaming ? { ...m, isStreaming: false } : m)));
+    setIsLoading(false);
     // Cancel the run's own session, not whatever session happens to be visible.
     const target = runSessionIdRef.current ?? sessionId;
     try {
@@ -453,44 +732,63 @@ export default function Chat({ sessionId, onAddMcp, availableTools, ui }: ChatPr
       setMcpError(String(e));
     }
   };
-
   const suggestions = [
-    { k: 'Build', v: 'Run tests and fix failures' },
-    { k: 'Explore', v: 'Read src-tauri/ and explain the agent loop' },
-    { k: 'Search', v: 'Find all TODOs in the codebase' },
-    { k: 'Automate', v: 'Create a branch, commit, and push' },
+    { title: 'Explore Codebase', desc: 'Read and explain architecture & agent loop', prompt: 'Read src-tauri/ and explain the agent loop' },
+    { title: 'Run Tests & Fix', desc: 'Execute cargo tests and fix any failing specs', prompt: 'Run tests and fix failures' },
+    { title: 'Search Code', desc: 'Locate functions, structs, or TODOs across files', prompt: 'Find all TODOs in the codebase' },
+    { title: 'Git Workflow', desc: 'Check diff, status, and prepare next commit', prompt: 'Show current git status and modified files' },
   ];
 
   return (
     <div style={{display:'flex', flexDirection:'column', flex:1, minHeight:0, background:'var(--bg)', position:'relative'}}>
       {/* Messages */}
       <div ref={scrollerRef} style={{flex:1, overflowY:'auto', overflowX:'hidden', display:'flex', flexDirection:'column'}}>
-        <div style={{width:'100%', maxWidth:'768px', margin:'0 auto', flex:1, display:'flex', flexDirection:'column', padding: messages.length===0 ? '0 24px' : '32px 24px 0', gap:'0', minHeight:'100%'}}>
+        <div style={{width:'100%', maxWidth:'768px', margin:'0 auto', flex:1, display:'flex', flexDirection:'column', padding: messages.length===0 ? '0 20px' : '24px 20px 0', gap:'0', minHeight:'100%'}}>
           {messages.length===0 ? (
             <div style={{flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:'28px', padding:'40px 0 80px', textAlign:'center'}}>
               <div style={{
-                width:'64px', height:'64px', borderRadius:'18px', background:'var(--void)',
+                width:'48px', height:'48px', borderRadius:'50%', background:'var(--panel)',
                 border:'1px solid var(--line)', display:'flex', alignItems:'center', justifyContent:'center',
-                boxShadow:'0 4px 24px rgba(0,0,0,0.4)'
               }}>
-                <ApertureLogo size={40} animated />
+                <ApertureLogo size={28} />
               </div>
               <div>
-                <h2 style={{fontSize:'26px', fontWeight:500, letterSpacing:'-0.03em', lineHeight:1.1}}>Where should we start?</h2>
-                <div className="mono" style={{fontSize:'12px', color:'var(--muted)', marginTop:'8px', letterSpacing:'0.02em'}}>Agent intelligence • local tools • background tasks</div>
+                <ShinyText
+                  text="What can I help with today?"
+                  color="var(--muted)"
+                  shineColor="var(--text)"
+                  spread={120}
+                  speed={3}
+                  direction="left"
+                  className="text-[26px] font-medium tracking-[-0.025em] leading-[1.2]"
+                />
               </div>
               <div style={{width:'100%', maxWidth:'640px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px', textAlign:'left', marginTop:'4px'}}>
                 {suggestions.map(c=>(
-                  <button key={c.k} onClick={()=>setInput(c.v)} style={{textAlign:'left', padding:'14px 16px', background:'var(--panel-3)', border:'1px solid var(--line)', borderRadius:'14px', display:'flex', flexDirection:'column', gap:'6px', transition:'all .2s cubic-bezier(0.16,1,0.3,1)'}}>
-                    <div style={{display:'flex', alignItems:'center', gap:'8px'}}>
-                      <span className="mono" style={{fontSize:'11px', color:'var(--accent-2)', letterSpacing:'0.06em', fontWeight:600}}>{c.k}</span>
-                    </div>
-                    <div style={{fontSize:'13px', lineHeight:1.45, color:'var(--text)'}}>{c.v}</div>
+                  <button
+                    key={c.title}
+                    onClick={() => {
+                      setInput(c.prompt);
+                      requestAnimationFrame(() => textareaRef.current?.focus());
+                    }}
+                    style={{
+                      textAlign:'left',
+                      padding:'14px 16px',
+                      background:'var(--panel)',
+                      border:'1px solid var(--line)',
+                      borderRadius:'12px',
+                      display:'flex',
+                      flexDirection:'column',
+                      gap:'4px',
+                      cursor:'pointer',
+                      transition:'all .15s ease'
+                    }}
+                    className="hover:bg-[var(--control-hover)]"
+                  >
+                    <div style={{fontSize:'13.5px', fontWeight:500, color:'var(--text)'}}>{c.title}</div>
+                    <div style={{fontSize:'12px', lineHeight:1.4, color:'var(--muted)'}}>{c.desc}</div>
                   </button>
                 ))}
-              </div>
-              <div className="mono" style={{fontSize:'11px', color:'var(--faint)', maxWidth:'520px', lineHeight:1.6, marginTop:'4px'}}>
-                Terminal • files • search • fetch • background jobs — all executed locally
               </div>
             </div>
           ) : (
@@ -498,17 +796,6 @@ export default function Chat({ sessionId, onAddMcp, availableTools, ui }: ChatPr
               {(ui.show_tool_calls ? messages : messages.filter(m => m.role !== 'tool')).map(msg => (
                 <MessageBubble key={msg.id} message={msg} compact={ui.compact_mode} />
               ))}
-              {busy && (
-                <div style={{display:'flex', gap:'14px', padding:'16px 0', alignItems:'center'}}>
-                  <ApertureTile size={28} animated />
-                  <div className="mono" style={{display:'flex', gap:'8px', alignItems:'center', fontSize:'12px', color:'var(--muted)'}}>
-                    <span style={{width:7, height:7, borderRadius:'50%', background:'var(--accent)', display:'inline-block'}} className="ping-soft-wrap">
-                      <span style={{display:'inline-block', width:7, height:7, borderRadius:'50%', background:'var(--accent)'}} className="ping-soft" />
-                    </span>
-                    working…
-                  </div>
-                </div>
-              )}
               <div ref={messagesEndRef} />
             </div>
           )}
@@ -516,109 +803,80 @@ export default function Chat({ sessionId, onAddMcp, availableTools, ui }: ChatPr
       </div>
 
       {/* Floating prompt dock */}
-      <div style={{padding:'0 16px 18px', background:'linear-gradient(transparent, var(--bg) 28%)', flexShrink:0, display:'flex', justifyContent:'center'}}>
-        <div style={{width:'100%', maxWidth:'768px', display:'flex', flexDirection:'column', gap:'10px'}}>
-          {runHere && (runBanner || runStatus) && (
-            <div style={{display:'flex', flexDirection:'column', gap:'8px'}}>
-              {runBanner && (
-                <div
-                  className="mono"
-                  style={{
-                    fontSize:'11px', padding:'8px 12px', borderRadius:'14px', border:'1px solid',
-                    ...(runBanner.kind === 'cap'
-                      ? { color:'var(--error)', background:'var(--error-bg)', borderColor:'var(--error-border)' }
-                      : { color:'var(--warn)', background:'var(--warn-bg)', borderColor:'var(--warn-border)' }),
-                  }}
-                >
-                  {runBanner.text}
-                </div>
-              )}
-              <RunStatusBar status={runStatus} summary={runSummary} />
+      <div style={{padding:'0 16px 20px', background:'linear-gradient(transparent, var(--bg) 28%)', flexShrink:0, display:'flex', justifyContent:'center'}}>
+        <div className="thread-composer-surface" style={{width:'100%', maxWidth:'768px', display:'flex', flexDirection:'column', gap:'8px'}}>
+          {runHere && runBanner && (
+            <div
+              className="mono"
+              style={{
+                fontSize:'11px', padding:'7px 12px', borderRadius:'10px', border:'1px solid',
+                ...(runBanner.kind === 'cap'
+                  ? { color:'var(--error)', background:'var(--error-bg)', borderColor:'var(--error-border)' }
+                  : { color:'var(--warn)', background:'var(--warn-bg)', borderColor:'var(--warn-border)' }),
+              }}
+            >
+              {runBanner.text}
             </div>
           )}
-          {/* Dock */}
-          <div style={{
-            display:'flex', flexDirection:'column',
-            background:'rgba(0,0,0,0.95)',
-            backdropFilter:'blur(10px)',
-            border:'1px solid var(--line-2)',
-            borderRadius:'28px',
-            boxShadow:'0 8px 32px rgba(0,0,0,0.45)',
-            padding:'14px 16px 10px',
-            gap:'8px',
-            transition:'border-color .2s cubic-bezier(0.16,1,0.3,1)'
-          }}>
-            {attachments.length > 0 && (
-              <div style={{display:'flex', gap:'6px', flexWrap:'wrap'}}>
-                {attachments.map(a => (
-                  <span key={a.id} className="mono" style={{display:'inline-flex', alignItems:'center', gap:'6px', maxWidth:'240px', fontSize:'11px', padding:'4px 8px', background:'var(--chip)', border:'1px solid var(--line)', borderRadius:999, color:'var(--text)'}}>
-                    <AttachIcon size={11} />
-                    <span style={{overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{a.name}</span>
-                    <span style={{color:'var(--faint)'}}>{fmtBytes(a.size)}</span>
-                    <button onClick={()=>setAttachments(prev=>prev.filter(x=>x.id!==a.id))} aria-label={`Remove ${a.name}`} style={{display:'flex', padding:0, border:'none', background:'transparent', color:'var(--muted)', cursor:'pointer', borderRadius:'50%'}}>
-                      <XIcon size={9} />
-                    </button>
-                  </span>
-                ))}
-              </div>
-            )}
-            <textarea
-              ref={textareaRef}
-              value={input} onChange={e=>setInput(e.target.value)} onKeyDown={handleKeyDown}
-              placeholder="Ask Maverick anything…"
-              rows={1}
-              style={{
-                width:'100%', minHeight:'28px', maxHeight:'160px', resize:'none',
-                background:'transparent', border:'none', padding:'2px 2px',
-                fontSize:'14.5px', lineHeight:1.6, outline:'none', color:'var(--text)'
-              }}
-              disabled={busy}
-            />
-            <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', borderTop:'1px solid var(--line)', paddingTop:'8px'}}>
-              <div style={{display:'flex', gap:'8px', alignItems:'center', flexWrap:'wrap'}}>
-                <ComposerPlusMenu
-                  onAttach={a => setAttachments(prev => {
-                    if (prev.length >= 6) { alert('Attachment limit is 6 files per message'); return prev; }
-                    return [...prev, a];
-                  })}
-                  onInsertSkill={insertSkill}
-                  onAddMcp={() => setShowMcpDialog(true)}
-                />
-                <span className="mono" style={{fontSize:'11.5px', color:'var(--muted)', background:'var(--chip)', border:'1px solid var(--line)', padding:'5px 11px', borderRadius:999, display:'inline-flex', alignItems:'center', gap:'6px'}}>
-                  <ToolsIcon size={13} /> {availableTools.length} tools
-                </span>
-              </div>
-              <div style={{display:'flex', gap:'8px', alignItems:'center'}}>
-                {busy && (
-                  <button className="btn-ghost" onClick={handleCancel} style={{fontSize:'12px', padding:'6px 12px', borderRadius:999, color:'var(--error)', display:'inline-flex', alignItems:'center', gap:'6px'}}>
-                    <StopIcon size={10} /> Stop
-                  </button>
-                )}
-                <button
-                  onClick={handleSend} disabled={(!input.trim() && !attachments.length) || busy}
-                  aria-label="Send"
-                  style={{
-                    width:'36px', height:'36px', padding:0, display:'flex', alignItems:'center', justifyContent:'center',
-                    background: (input.trim() || attachments.length) && !busy ? 'var(--accent)' : 'var(--control-off)',
-                    color: (input.trim() || attachments.length) && !busy ? 'var(--bg)' : 'var(--faint)',
-                    border:'none',
-                    borderRadius:'50%', flexShrink:0, transition:'all .15s'
-                  }}
-                >
-                  {busy ? <span className="mono" style={{fontSize:'11px'}}>…</span> : <span style={{transform:'rotate(180deg)', display:'flex'}}><SendArrow /></span>}
-                </button>
-              </div>
-            </div>
-          </div>
-          <div className="mono" style={{textAlign:'center', fontSize:'10px', color:'var(--faint)', opacity:0.8, letterSpacing:'0.02em'}}>
+          {/* Composer — PromptBar owns the field, model picker, and effort slider */}
+          <PromptBar
+            value={input}
+            onChange={setInput}
+            inputRef={textareaRef}
+            onSend={t => handleSend(t)}
+            onStop={handleCancel}
+            models={providers.map<PromptBarModel>(p => ({
+              key: p.id,
+              name: p.name,
+              tag: p.model,
+              description:
+                p.id === selectedProvider
+                  ? profile
+                    ? profile.supported
+                      ? `Reasoning: ${efforts.join(' · ')}`
+                      : 'No reasoning effort'
+                    : undefined
+                  : p.supports_reasoning_effort
+                    ? 'Reasoning models supported'
+                    : undefined,
+            }))}
+            defaultModel={selectedProvider}
+            onModelChange={onProviderChange}
+            efforts={efforts}
+            defaultEffort={effort}
+            onEffortChange={setEffort}
+            chips={attachments.map(a => ({ key: a.id, name: a.name, meta: fmtBytes(a.size) }))}
+            onRemoveChip={key => setAttachments(prev => prev.filter(x => x.id !== key))}
+            extraCanSend={attachments.length > 0}
+            leftSlot={
+              <ComposerPlusMenu
+                onAttach={a => setAttachments(prev => {
+                  if (prev.length >= 6) { alert('Attachment limit is 6 files per message'); return prev; }
+                  return [...prev, a];
+                })}
+                onInsertSkill={insertSkill}
+                onAddMcp={() => setShowMcpDialog(true)}
+              />
+            }
+            sources={[]}
+            commands={[]}
+            busy={busy}
+            background="#00000d"
+            color="#f5f5f5"
+            menuBackground="#000006"
+            sparkColor="#ffffff"
+            sparkBoost={1}
+            width={768}
+            radius={16}
+          />
+          <div style={{textAlign:'center', fontSize:'11px', color:'var(--faint)', opacity:0.85, letterSpacing:'0.01em'}}>
             Maverick can make mistakes. Verify important info.
           </div>
         </div>
       </div>
-
       {showMcpDialog && (
         <div style={{position:'fixed', inset:0, background:'rgba(0,0,0,0.55)', backdropFilter:'blur(10px)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:100, padding:'16px'}}>
-          <div className="panel" style={{width:'100%', maxWidth:'520px', padding:'22px', borderRadius:'20px', boxShadow:'0 16px 48px rgba(0,0,0,0.5)'}}>
+          <div className="panel" style={{width:'100%', maxWidth:'520px', padding:'22px', borderRadius:'20px', border:'1px solid var(--line)'}}>
             <div style={{display:'flex', alignItems:'center', gap:'10px', marginBottom:'16px'}}>
               <span style={{width:'28px', height:'28px', borderRadius:'8px', background:'var(--void)', border:'1px solid var(--line)', display:'flex', alignItems:'center', justifyContent:'center'}}><ApertureLogo size={16} /></span>
               <div><div style={{fontWeight:600, fontSize:'14px'}}>Add MCP server</div><div className="mono" style={{fontSize:'11px', color:'var(--muted)'}}>Extend Maverick with external tools</div></div>
@@ -642,160 +900,279 @@ export default function Chat({ sessionId, onAddMcp, availableTools, ui }: ChatPr
   );
 }
 
-function SendArrow() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="M8 3v10M3.5 8.5 8 13l4.5-4.5" />
-    </svg>
-  );
-}
-
 function MessageBubble({ message, compact = false }: { message: Message; compact?: boolean }) {
   const [copied, setCopied] = useState(false);
+  const [open, setOpen] = useState(false);
   const isUser = message.role === 'user';
   const isTool = message.role === 'tool';
   const isError = message.content.startsWith('Error:') || message.content.startsWith('Send failed:');
 
-  const handleCopy = async () => {
+  const handleCopy = async (text: string) => {
     try {
-      await navigator.clipboard.writeText(message.content);
+      await navigator.clipboard.writeText(text);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {}
   };
 
+  // 1. Tool Call Capsule (nanobot + ChatGPT hybrid)
   if (isTool) {
     const hasResult = !!message.toolResult;
+    const isRunning = !hasResult;
+    const toolName = message.content;
+    const duration = message.durationMs != null ? `${message.durationMs}ms` : null;
+    const args = message.toolCalls?.[0]?.arguments;
+    const output = message.toolResult?.content;
+
+    const chipIcon: CallChipIcon =
+      toolName === 'bash' || toolName === 'shell'
+        ? 'terminal'
+        : toolName === 'grep' || toolName === 'search' || toolName === 'glob'
+          ? 'search'
+          : toolName === 'edit' || toolName === 'write'
+            ? 'edit'
+            : 'file';
+    let chipArg = '';
+    if (args) {
+      try {
+        const parsed = JSON.parse(args);
+        chipArg = parsed.command ?? parsed.path ?? parsed.query ?? parsed.file_path ?? '';
+      } catch {
+        if (args.length < 60 && !args.startsWith('{')) chipArg = args;
+      }
+      if (!chipArg) chipArg = args.length > 60 ? `${args.slice(0, 57)}…` : args;
+    }
+    const chipStatus = isRunning ? 'running' : output?.startsWith('Error') ? 'error' : 'done';
+
     return (
-      <details
-        open={!hasResult}
-        className="tool-fold"
-        style={{
-          margin: compact ? '4px 0' : '10px 0',
-          borderRadius:'14px',
-          border:'1px solid var(--line)',
-          background:'rgba(0,0,0,0.80)',
-          overflow:'hidden',
-        }}
-      >
-        <summary style={{
-          display:'flex', alignItems:'center', gap:'9px', padding:'9px 12px', cursor:'pointer', listStyle:'none',
-          fontSize:'12px', color:'var(--muted)'
-        }}>
-          <span style={{position:'relative', width:8, height:8, flexShrink:0, display:'inline-flex', alignItems:'center', justifyContent:'center'}}>
-            {hasResult ? (
-              <span style={{width:8, height:8, borderRadius:'50%', background:'var(--accent-2)', display:'inline-block'}} />
-            ) : (
-              <>
-                <span className="ping-soft" style={{position:'absolute', width:8, height:8, borderRadius:'50%', background:'var(--accent)', opacity:0.75}} />
-                <span style={{width:8, height:8, borderRadius:'50%', background:'var(--accent)', display:'inline-block'}} />
-              </>
-            )}
-          </span>
-          <span className="mono" style={{fontWeight:600, color: hasResult ? 'var(--text)' : 'var(--muted)'}}>{message.content}</span>
-          <span className="mono" style={{fontSize:'10px', color: hasResult ? 'var(--accent-2)' : 'var(--muted)', border:`1px solid ${hasResult ? 'var(--accent-border)' : 'var(--line)'}`, padding:'1px 7px', borderRadius:999}}>
-            {hasResult ? 'completed' : 'running…'}
-          </span>
-          {hasResult && message.durationMs != null && (
-            <span className="mono" style={{fontSize:'10px', color:'var(--faint)'}}>· {(message.durationMs / 1000).toFixed(1)}s</span>
+      <div style={{ margin: compact ? '4px 0' : '6px 0', width: '100%' }}>
+        <button
+          onClick={() => setOpen(o => !o)}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '4px 8px',
+            fontSize: '12.5px',
+            borderRadius: '10px',
+            border: '1px solid var(--line)',
+            background: open ? 'var(--control-hover)' : 'transparent',
+            color: 'var(--text)',
+            cursor: 'pointer',
+            maxWidth: '100%',
+            transition: 'all 0.15s ease',
+          }}
+          title={open ? 'Click to collapse' : 'Click to inspect execution'}
+        >
+          <CallChip
+            icon={chipIcon}
+            name={toolName}
+            argument={chipArg}
+            status={chipStatus}
+            size={30}
+            radius={9}
+            color="var(--text)"
+            surfaceColor="var(--panel-2)"
+            progressColor="var(--accent)"
+            doneColor="var(--ok)"
+            errorColor="var(--error)"
+            showTimer={isRunning}
+          />
+
+          {duration && !isRunning && (
+            <span className="mono" style={{ fontSize: '11px', color: 'var(--faint)' }}>
+              ({duration})
+            </span>
           )}
-          <span style={{flex:1}} />
-          <ChevronIcon size={14} className="fold-chev" />
-        </summary>
-        <div style={{padding:'0 12px 12px', borderTop:'1px solid var(--line)', paddingTop: message.toolCalls ? 10 : 0}}>
-          {message.toolCalls && <div className="mono" style={{fontSize:'11px', color:'var(--faint)', wordBreak:'break-all', background:'var(--panel-2)', border:'1px solid var(--line)', padding:'8px 10px', borderRadius:'10px'}}>{message.toolCalls[0]?.arguments.slice(0,600)}</div>}
-          {message.toolResult && <div className="mono" style={{marginTop:'8px', fontSize:'12px', background:'var(--panel-2)', border:'1px solid var(--line)', padding:'10px 12px', borderRadius:'12px', whiteSpace:'pre-wrap', maxHeight:'220px', overflowY:'auto', lineHeight:1.5}}>{message.toolResult.content.slice(0,2000)}</div>}
-        </div>
-        <style>{`.tool-fold summary::-webkit-details-marker{display:none} .tool-fold .fold-chev{transition:transform .2s} .tool-fold[open] .fold-chev{transform:rotate(180deg)}`}</style>
-      </details>
-    );
-  }
-  if (isUser) {
-    return (
-      <div style={{display:'flex', justifyContent:'flex-end', padding: compact ? '4px 0' : '10px 0'}}>
-        <div style={{maxWidth:'80%', background:'var(--bubble-user)', border:'1px solid var(--line-2)', color:'var(--text)', padding:'10px 16px', borderRadius:'18px', boxShadow:'0 1px 8px rgba(0,0,0,0.2)'}}>
-          <div style={{whiteSpace:'pre-wrap', wordBreak:'break-word', fontSize:'14.5px', lineHeight:1.6}}>{message.content}</div>
+
+          <span
+            style={{
+              flexShrink: 0,
+              transition: 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+              transform: open ? 'rotate(180deg)' : 'none',
+              color: 'var(--faint)',
+              marginLeft: '2px',
+              display: 'flex',
+            }}
+          >
+            <ChevronIcon size={12} />
+          </span>
+        </button>
+
+        {/* Smooth CSS Grid Drawer (nanobot style) */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateRows: open ? '1fr' : '0fr',
+            opacity: open ? 1 : 0,
+            transition: 'grid-template-rows 300ms cubic-bezier(0.16, 1, 0.3, 1), opacity 200ms ease',
+          }}
+        >
+          <div style={{ minHeight: 0, overflow: 'hidden' }}>
+            <div
+              style={{
+                marginTop: '6px',
+                borderRadius: '10px',
+                border: '1px solid var(--line)',
+                background: 'var(--code-surface)',
+                overflow: 'hidden',
+                fontSize: '12px',
+              }}
+            >
+              {args && (
+                <div style={{ borderBottom: output ? '1px solid var(--line)' : 'none' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 12px', background: 'var(--code-head)' }}>
+                    <span className="mono" style={{ fontSize: '11px', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Input</span>
+                    <CopySnippet text={args} />
+                  </div>
+                  <pre className="mono" style={{ margin: 0, padding: '10px 12px', overflowX: 'auto', color: 'var(--code-fg)', lineHeight: 1.5, fontSize: '11.5px' }}>
+                    <code>{args}</code>
+                  </pre>
+                </div>
+              )}
+              {output && (
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 12px', background: 'var(--code-head)' }}>
+                    <span className="mono" style={{ fontSize: '11px', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Output</span>
+                    <CopySnippet text={output} />
+                  </div>
+                  <pre className="mono" style={{ margin: 0, padding: '10px 12px', overflowX: 'auto', maxHeight: '240px', color: 'var(--code-fg)', lineHeight: 1.5, fontSize: '11.5px', whiteSpace: 'pre-wrap' }}>
+                    <code>{output}</code>
+                  </pre>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     );
   }
+
+  // 2. User Message
+  if (isUser) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'flex-end', padding: compact ? '4px 0' : '10px 0' }}>
+        <div
+          style={{
+            maxWidth: '82%',
+            background: 'var(--bubble-user)',
+            color: 'var(--text)',
+            padding: '10px 18px',
+            borderRadius: '22px',
+            border: '1px solid var(--line)',
+          }}
+        >
+          <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', fontSize: '15px', lineHeight: 1.6 }}>
+            {message.content}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 3. Assistant Message (with ChatGPT o1/o3 reasoning fold)
+  const isCurrentlyBusy = message.isStreaming || message.thinking?.isThinking;
+  const hasContent = message.content.length > 0;
+
   return (
-    <div style={{display:'flex', gap:'14px', padding: compact ? '6px 0' : '14px 0', alignItems:'flex-start'}}>
+    <div style={{ display: 'flex', gap: '14px', padding: compact ? '6px 0' : '16px 0', alignItems: 'flex-start' }}>
       <ApertureTile size={28} />
-      <div style={{minWidth:0, flex:1, paddingTop:'1px'}}>
+      <div style={{ minWidth: 0, flex: 1, paddingTop: '1px' }}>
+        {/* Collapsible Reasoning */}
         {message.thinking && message.thinking.steps.length > 0 && (
-          <details
-            open={message.thinking.open}
-            className="thinking-fold"
-            style={{
-              margin:'0 0 10px',
-              borderRadius:'14px',
-              border:'1px solid var(--line)',
-              background:'rgba(0,0,0,0.85)',
-              overflow:'hidden',
-            }}
-          >
-            <summary style={{
-              display:'flex', alignItems:'center', gap:'9px', padding:'9px 12px', cursor:'pointer', listStyle:'none',
-              fontSize:'12px', color:'var(--muted)'
-            }}>
-              <span style={{position:'relative', width:8, height:8, flexShrink:0, display:'inline-flex', alignItems:'center', justifyContent:'center'}}>
-                <span className="ping-soft" style={{position:'absolute', width:8, height:8, borderRadius:'50%', background:'var(--accent)', opacity:0.75}} />
-                <span style={{width:8, height:8, borderRadius:'50%', background:'var(--accent)', display:'inline-block'}} />
-              </span>
-              <span className="mono" style={{fontWeight:600, color:'var(--text)'}}>Thought for {message.thinking.steps.length} step{message.thinking.steps.length === 1 ? '' : 's'}</span>
-              <span className="mono" style={{fontSize:'10px', color:'var(--faint)', marginLeft:'auto'}}>{message.thinking.open ? 'thinking…' : 'done'}</span>
-              <ChevronIcon size={14} className="fold-chev" />
-            </summary>
-            <div style={{padding:'10px 12px 12px', borderTop:'1px solid var(--line)', display:'flex', flexDirection:'column', gap:'8px', position:'relative'}}>
-              <div style={{position:'absolute', left:'21px', top:'14px', bottom:'14px', width:'1px', background:'var(--line)'}} />
-              {message.thinking.steps.map((s, i) => (
-                <div key={i} style={{display:'flex', gap:'8px', position:'relative', zIndex:1, alignItems:'flex-start'}}>
-                  <span style={{width:6, height:6, borderRadius:'50%', background:'var(--accent-2)', flexShrink:0, marginTop:'5px'}} />
-                  <span className="mono" style={{fontSize:'11.5px', color:'var(--muted)', lineHeight:1.55, wordBreak:'break-word'}}>{s}</span>
-                </div>
-              ))}
-            </div>
-            <style>{`.thinking-fold summary::-webkit-details-marker{display:none} .thinking-fold .fold-chev{transition:transform .2s} .thinking-fold[open] .fold-chev{transform:rotate(180deg)}`}</style>
-          </details>
+          <ThoughtLine
+            working={!!message.thinking.isThinking}
+            steps={message.thinking.steps}
+            label="Thinking…"
+            doneLabel="Thought for"
+            glyph="sparkle"
+            collapsible
+            collapseOnSettle
+            color="var(--muted)"
+            fontSize={13}
+            elapsed={message.thinking.durationSec}
+          />
         )}
-        <div style={{
-          background: isError ? 'var(--error-bg)' : 'transparent',
-          border: isError ? '1px solid var(--error-border)' : 'none',
-          padding: isError ? '12px 14px' : '0',
-          borderRadius: isError ? '14px' : '0'
-        }}>
-          {isError ? (
-            <div style={{ whiteSpace: 'pre-wrap', color: 'var(--error)' }}>{message.content}</div>
-          ) : (
-            <MarkdownRenderer content={message.content} />
-          )}
-        </div>
-        <div className="mono" style={{fontSize:'11px', color:'var(--faint)', marginTop:'8px', display:'flex', alignItems:'center', gap:'12px'}}>
-          <span>{message.timestamp.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
-          {!isError && (
-            <button
-              onClick={handleCopy}
-              className="btn-ghost"
-              style={{
-                padding: '2px 7px',
-                fontSize: '11px',
-                borderRadius: '4px',
-                color: copied ? 'var(--accent-2)' : 'var(--muted)',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '4px',
-                cursor: 'pointer',
-              }}
-              aria-label="Copy message"
-            >
-              {copied ? <CheckIcon size={11} /> : <CopyIcon size={11} />}
-              <span>{copied ? 'Copied' : 'Copy'}</span>
-            </button>
-          )}
-          {isError && <span style={{color:'var(--error)'}}>• needs attention</span>}
-        </div>
+
+        {/* Assistant Content */}
+        {(hasContent || message.isStreaming) && (
+          <div style={{
+            background: isError ? 'var(--error-bg)' : 'transparent',
+            border: isError ? '1px solid var(--error-border)' : 'none',
+            padding: isError ? '12px 14px' : '0',
+            borderRadius: isError ? '12px' : '0'
+          }}>
+            {isError ? (
+              <div style={{ whiteSpace: 'pre-wrap', color: 'var(--error)', fontSize: '14px' }}>{message.content}</div>
+            ) : (
+              <div style={{ position: 'relative' }}>
+                <MarkdownRenderer content={message.content} />
+                {message.isStreaming && <span className="streaming-caret" />}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Footer Actions */}
+        {!isCurrentlyBusy && hasContent && (
+          <div style={{ fontSize: '11px', color: 'var(--faint)', marginTop: '8px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <span>{message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+            {!isError && (
+              <button
+                onClick={() => handleCopy(message.content)}
+                className="btn-ghost"
+                style={{
+                  padding: '2px 6px',
+                  fontSize: '11px',
+                  borderRadius: '4px',
+                  color: copied ? 'var(--ok)' : 'var(--muted)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  cursor: 'pointer',
+                }}
+                aria-label="Copy message"
+              >
+                {copied ? <CheckIcon size={11} /> : <CopyIcon size={11} />}
+                <span>{copied ? 'Copied' : 'Copy'}</span>
+              </button>
+            )}
+            {isError && <span style={{ color: 'var(--error)' }}>• needs attention</span>}
+          </div>
+        )}
       </div>
     </div>
   );
 }
+
+function CopySnippet({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {}
+  };
+  return (
+    <button
+      onClick={handleCopy}
+      className="btn-ghost"
+      style={{
+        padding: '2px 6px',
+        fontSize: '11px',
+        borderRadius: '4px',
+        color: copied ? 'var(--ok)' : 'var(--muted)',
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '4px',
+        cursor: 'pointer',
+      }}
+    >
+      {copied ? <CheckIcon size={11} /> : <CopyIcon size={11} />}
+      <span>{copied ? 'Copied' : 'Copy'}</span>
+    </button>
+  );
+}
+

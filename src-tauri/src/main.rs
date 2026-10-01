@@ -52,6 +52,7 @@ fn main() -> anyhow::Result<()> {
             maverick_backend::commands::get_budget_config,
             maverick_backend::commands::set_budget_config,
             maverick_backend::commands::list_kilo_models,
+            maverick_backend::commands::get_model_reasoning,
             maverick_backend::commands::list_skills,
             maverick_backend::commands::install_skill,
             maverick_backend::commands::remove_skill,

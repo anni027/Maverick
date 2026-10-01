@@ -109,6 +109,8 @@ pub struct ProviderInfoDto {
     /// Effective model slug for this provider (e.g. `grok-4`, `gpt-4o`).
     /// Used by the UI to label the model selector and to show the active model.
     pub model: String,
+    /// Provider kind accepts a `reasoning_effort` request field.
+    pub supports_reasoning_effort: bool,
 }
 
 impl From<&ProviderInfo> for ProviderInfoDto {
@@ -119,6 +121,7 @@ impl From<&ProviderInfo> for ProviderInfoDto {
             kind: info.kind,
             config: info.config.clone(),
             model: info.provider.model().to_string(),
+            supports_reasoning_effort: info.provider.capabilities().supports_reasoning_effort,
         }
     }
 }

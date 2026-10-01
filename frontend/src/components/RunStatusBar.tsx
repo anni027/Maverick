@@ -69,35 +69,39 @@ export default function RunStatusBar({
       style={{
         display: 'flex',
         alignItems: 'center',
-        gap: '10px',
+        gap: '8px',
         flexWrap: 'wrap',
         fontSize: '11px',
         color: 'var(--muted)',
         background: 'var(--panel)',
         border: '1px solid var(--line)',
-        borderRadius: '14px',
-        padding: '7px 12px',
+        borderRadius: '10px',
+        padding: '6px 12px',
       }}
       aria-live="polite"
     >
       <span
         style={{
-          width: '7px',
-          height: '7px',
+          width: '6px',
+          height: '6px',
           borderRadius: '50%',
           flexShrink: 0,
           background: status.finished ? 'var(--ok)' : 'var(--accent)',
-          animation: status.finished ? 'none' : 'pulse 1.2s infinite',
+          opacity: status.finished ? 1 : 0.85,
         }}
       />
       <span style={{ color: 'var(--text)', fontWeight: 600 }}>{segLabel}</span>
+      <span style={{ color: 'var(--faint)' }}>·</span>
       <span>Turn {status.turn}</span>
+      <span style={{ color: 'var(--faint)' }}>·</span>
       <span>{fmtElapsed(elapsed)}</span>
+      <span style={{ color: 'var(--faint)' }}>·</span>
       <span>
         {fmtTokens(status.totalTokens)} tokens · {fmtUsd(status.costUsd)}
         {status.capUsd != null ? ` / ${fmtUsd(status.capUsd)} cap` : ''}
       </span>
-      <span style={{ color: 'var(--faint)' }}>{summary ?? activity}</span>
+      <span style={{ color: 'var(--faint)', marginLeft: 'auto' }}>{summary ?? activity}</span>
     </div>
   );
 }
+

@@ -79,6 +79,12 @@ export const CheckIcon = ({ size = 12, className }: IconProps) => (
   <svg width={size} height={size} viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden className={className}><path d="M2.5 6.5 4.5 8.5 9.5 3.5" /></svg>
 );
 
+export const CircleDashedIcon = ({ size = 14, className }: IconProps) => (
+  <svg {...base(size)} strokeWidth={1.6} strokeDasharray="3 3" className={className}>
+    <circle cx="8" cy="8" r="5.5" />
+  </svg>
+);
+
 export const FileIcon = ({ size = 16, className }: IconProps) => (
   <svg {...base(size)} className={className}><path d="M9.5 2H5A1.5 1.5 0 0 0 3.5 3.5v9A1.5 1.5 0 0 0 5 14h6a1.5 1.5 0 0 0 1.5-1.5V5.5z" /><path d="M9.5 2v3.5H13" /></svg>
 );
@@ -89,4 +95,38 @@ export const PlugIcon = ({ size = 16, className }: IconProps) => (
 
 export const XIcon = ({ size = 10, className }: IconProps) => (
   <svg {...base(size)} strokeWidth={1.8} className={className}><path d="M4.5 4.5l7 7M11.5 4.5l-7 7" /></svg>
+);
+
+export const TerminalIcon = ({ size = 14, className }: IconProps) => (
+  <svg {...base(size)} strokeWidth={1.5} className={className}>
+    <polyline points="4 6 7 8.5 4 11" />
+    <line x1="8.5" y1="11" x2="12" y2="11" />
+  </svg>
+);
+
+export const SparklesIcon = ({ size = 14, className }: IconProps) => (
+  <svg {...base(size)} strokeWidth={1.5} className={className}>
+    <path d="M8 2l1.2 3.6L13 6.8l-3.8 1.2L8 12l-1.2-4L3 6.8l3.8-1.2z" />
+  </svg>
+);
+
+export const SearchIcon = ({ size = 14, className }: IconProps) => (
+  <svg {...base(size)} strokeWidth={1.5} className={className}>
+    <circle cx="7" cy="7" r="4.5" />
+    <line x1="10.5" y1="10.5" x2="13.5" y2="13.5" />
+  </svg>
+);
+
+export const EditIcon = ({ size = 14, className }: IconProps) => (
+  <svg {...base(size)} strokeWidth={1.4} className={className}>
+    <path d="M11 2.5l2.5 2.5-8 8H3v-2.5l8-8z" />
+  </svg>
+);
+
+export const TrashIcon = ({ size = 14, className }: IconProps) => (
+  <svg {...base(size)} strokeWidth={1.4} className={className}>
+    <polyline points="2.5 4.5 13.5 4.5" />
+    <path d="M5.5 4.5v-1a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v1" />
+    <path d="M4 4.5l.8 8.5a1 1 0 0 0 1 .9h4.4a1 1 0 0 0 1-.9l.8-8.5" />
+  </svg>
 );

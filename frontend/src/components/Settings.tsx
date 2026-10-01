@@ -20,6 +20,17 @@ const PRESET_PROVIDERS: Array<{id:string; name:string; base_url:string; model:st
   {id:'kilo', name:'Kilo AI Gateway', base_url:'https://api.kilo.ai/api/gateway', model:'kilo-auto/free', kind:'openai', hint:'500+ models • kilo.ai — free tier, no credits needed'},
 ];
 
+/** Row shape returned by `list_kilo_models`. */
+type KiloModelRow = {
+  id: string;
+  name: string;
+  context_length?: number;
+  is_free?: boolean;
+  supported_parameters?: string[];
+  /** Effort tiers from `opencode.variants`, ascending (`none`…`max`). */
+  efforts?: string[];
+};
+
 /**
  * Split a shell-style argument string into argv, honouring single/double
  * quotes. A plain `.split(' ')` broke any argument containing a space
@@ -79,7 +90,7 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
   const [saving, setSaving] = useState<string|null>(null);
   const [showAdvanced, setShowAdvanced] = useState<Record<string, boolean>>({});
   const [customKeys, setCustomKeys] = useState<Record<string, string>>({});
-  const [kiloModels, setKiloModels] = useState<Array<{id:string; name:string; context_length?: number; is_free?: boolean}>>([]);
+  const [kiloModels, setKiloModels] = useState<KiloModelRow[]>([]);
   const [kiloLoading, setKiloLoading] = useState(false);
   const [kiloError, setKiloError] = useState<string|null>(null);
   const [showKiloPicker, setShowKiloPicker] = useState<string|null>(null); // providerId or 'new'
@@ -111,7 +122,7 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
   const fetchKiloModels = async (target: string) => {
     setShowKiloPicker(target); setKiloLoading(true); setKiloError(null);
     try {
-      const list = await invoke<Array<{id:string; name:string; context_length?: number; is_free?: boolean}>>('list_kilo_models', {
+      const list = await invoke<KiloModelRow[]>('list_kilo_models', {
         providerId: target === 'new' ? null : target,
         baseUrl: target === 'new' ? (newCustom.base_url.trim() || 'https://api.kilo.ai/api/gateway') : null,
         apiKey: target === 'new' ? (newCustom.api_key.trim() || null) : null,
@@ -868,6 +879,8 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
                     <span style={{fontWeight:600, fontSize:'12px', wordBreak:'break-all'}}>{m.id}</span>
                     {m.is_free ? <span className="mono" style={{fontSize:'10px', color:'var(--ok-text)', border:'1px solid var(--ok-border)', padding:'1px 6px', borderRadius:999}}>free</span> : <span className="mono" style={{fontSize:'10px', color:'var(--muted)', border:'1px solid var(--line)', padding:'1px 6px', borderRadius:999}}>paid</span>}
                     {m.context_length ? <span className="mono" style={{fontSize:'10px', color:'var(--muted)'}}>{Math.round(m.context_length/1000)}k</span> : null}
+                    {m.supported_parameters?.some(p=>p==='reasoning_effort'||p==='reasoning') ? <span className="mono" style={{fontSize:'10px', color:'var(--accent)', border:'1px solid var(--line)', padding:'1px 6px', borderRadius:999}}>reasoning</span> : null}
+                    {m.efforts?.length ? <span className="mono" style={{fontSize:'10px', color:'var(--muted)', border:'1px solid var(--line)', padding:'1px 6px', borderRadius:999}}>{m.efforts.join(' · ')}</span> : null}
                   </div>
                   <div className="mono" style={{fontSize:'11px', color:'var(--muted)', lineHeight:1.4}}>{m.name}</div>
                 </button>

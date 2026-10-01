@@ -4,6 +4,21 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Maverick — Chat-First Automation</title>
+    <script>
+      // Apply the persisted theme before first paint to avoid a light flash.
+      // Mirrors `maverick.theme` (mode string) written by ThemeProvider; the
+      // backend UiConfig.theme remains the source of truth once React boots.
+      (function () {
+        try {
+          var m = localStorage.getItem('maverick.theme') || 'dark';
+          var dark = m === 'dark' || (m !== 'light' &&
+            (!window.matchMedia || window.matchMedia('(prefers-color-scheme: dark)').matches));
+          document.documentElement.classList.toggle('dark', dark);
+        } catch (e) {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" crossorigin="anonymous" />
   </head>
   <body>

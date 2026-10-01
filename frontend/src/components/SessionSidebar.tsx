@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ApertureLogo from './ApertureLogo';
-import { PlusIcon, CheckIcon, PanelIcon, SettingsIcon } from './icons';
+import { PlusIcon, CheckIcon, PanelIcon, SettingsIcon, EditIcon, TrashIcon } from './icons';
 
 interface SessionSidebarProps {
   sessions: string[];
@@ -241,34 +241,30 @@ export default function SessionSidebar({
       <div
         key={id}
         onClick={() => onSelect(id)}
-        className="session-row"
+        className="session-row group"
         style={{
           position: 'relative',
-          padding: '8px 10px',
+          padding: '7px 10px',
           display: 'flex',
           alignItems: 'center',
           gap: '8px',
-          background: selected ? 'var(--row-selected)' : 'transparent',
-          border: selected ? '1px solid var(--row-selected-line)' : '1px solid transparent',
+          background: selected ? 'var(--control-hover)' : 'transparent',
           color: selected ? 'var(--text)' : 'var(--muted)',
-          borderRadius: '10px',
+          borderRadius: '8px',
           cursor: 'pointer',
-          transition: 'background .15s',
+          transition: 'all .12s ease',
         }}
       >
-        {selected && (
-          <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent)', flexShrink: 0 }} />
-        )}
         <span
           title={id}
-          className="mono"
           style={{
-            fontSize: '12.5px',
+            fontSize: '13px',
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             flex: 1,
             fontWeight: selected ? 500 : 400,
+            color: selected ? 'var(--text)' : 'inherit',
           }}
         >
           {id}
@@ -284,8 +280,8 @@ export default function SessionSidebar({
             title="Rename chat"
             className="btn-ghost"
             style={{
-              padding: '3px 4px',
-              borderRadius: '5px',
+              padding: '4px',
+              borderRadius: '4px',
               color: 'var(--muted)',
               display: 'flex',
               alignItems: 'center',
@@ -293,17 +289,15 @@ export default function SessionSidebar({
               border: 'none',
             }}
           >
-            <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.3">
-              <path d="M9.5 2.5 L11.5 4.5 L4.5 11.5 H2.5 V9.5 L9.5 2.5 Z" />
-            </svg>
+            <EditIcon size={12} />
           </button>
           <button
             onClick={e => handleStartDelete(e, id)}
             title="Delete chat"
             className="btn-ghost"
             style={{
-              padding: '3px 4px',
-              borderRadius: '5px',
+              padding: '4px',
+              borderRadius: '4px',
               color: 'var(--muted)',
               display: 'flex',
               alignItems: 'center',
@@ -311,63 +305,49 @@ export default function SessionSidebar({
               border: 'none',
             }}
           >
-            <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.3">
-              <path d="M3 4.5 H11 M5.5 4.5 V2.5 H8.5 V4.5 M4 4.5 L4.8 11.5 H9.2 L10 4.5" />
-            </svg>
+            <TrashIcon size={12} />
           </button>
         </div>
       </div>
     );
+
   };
 
   const groups = groupSessions(sessions);
 
   return (
-    <aside style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-      {/* Brand header */}
+    <aside style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, background: 'var(--panel-2)' }}>
+      {/* Brand & collapse header */}
       <div
         style={{
-          height: 56,
-          padding: '0 14px',
+          height: 48,
+          padding: '0 12px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          borderBottom: '1px solid var(--line)',
           flexShrink: 0,
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <ApertureLogo size={22} />
-          <span style={{ fontFamily: 'var(--font-head)', fontWeight: 500, fontSize: 14, letterSpacing: '-0.01em' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingLeft: '4px' }}>
+          <ApertureLogo size={20} />
+          <span style={{ fontWeight: 600, fontSize: '14px', letterSpacing: '-0.02em', color: 'var(--text)' }}>
             Maverick
           </span>
-          <span
-            className="mono"
-            style={{
-              fontSize: 10,
-              color: 'var(--accent-2)',
-              background: 'var(--accent-dim)',
-              border: '1px solid var(--accent-border)',
-              padding: '1px 6px',
-              borderRadius: 6,
-              fontWeight: 600,
-            }}
-          >
-            agent
-          </span>
         </div>
+
         <button
           className="btn-ghost btn-ico"
           onClick={onToggleSidebar}
-          aria-label="Collapse sidebar"
-          title="Collapse sidebar"
+          aria-label="Close sidebar"
+          title="Close sidebar"
+          style={{ color: 'var(--muted)', borderRadius: '8px', padding: '6px' }}
         >
           <PanelIcon size={16} />
         </button>
       </div>
 
-      {/* New chat */}
-      <div style={{ padding: 12 }}>
+      {/* New chat button */}
+      <div style={{ padding: '4px 10px 8px' }}>
         <button
           onClick={onNew}
           style={{
@@ -375,39 +355,41 @@ export default function SessionSidebar({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            background: 'var(--surface-quiet)',
+            background: 'var(--panel)',
+            border: '1px solid var(--line)',
             color: 'var(--text)',
-            fontWeight: 500,
-            borderRadius: '12px',
-            padding: '10px 14px',
+            borderRadius: '8px',
+            padding: '8px 12px',
             fontSize: '13px',
+            fontWeight: 500,
+            cursor: 'pointer',
+            transition: 'all .12s ease',
           }}
+          className="hover:bg-[var(--control-hover)]"
         >
           <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <PlusIcon size={15} className="accent-ico" />
-            Start new chat
+            <PlusIcon size={14} />
+            <span>New chat</span>
           </span>
         </button>
       </div>
 
+
       {/* Grouped history */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '0 8px 12px' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '6px 8px 12px' }}>
         {groups.length === 0 ? (
-          <div style={{ padding: '24px 12px', textAlign: 'center' }}>
-            <div className="mono" style={{ fontSize: '12px', color: 'var(--muted)' }}>
-              No history yet
-            </div>
-            <div style={{ marginTop: 6, fontSize: '12px', color: 'var(--muted)', opacity: 0.8 }}>
-              Your chats will appear here.
+          <div style={{ padding: '32px 12px', textAlign: 'center' }}>
+            <div style={{ fontSize: '13px', color: 'var(--muted)' }}>
+              No chats yet
             </div>
           </div>
         ) : (
           groups.map(group => (
-            <div key={group.label} style={{ marginBottom: 14 }}>
-              <div style={{ padding: '0 10px 4px', fontSize: 11, fontWeight: 500, color: 'var(--faint)' }}>
+            <div key={group.label} style={{ marginBottom: 16 }}>
+              <div style={{ padding: '6px 10px 4px', fontSize: '11px', fontWeight: 600, color: 'var(--faint)', letterSpacing: '0.02em' }}>
                 {group.label}
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                 {group.items.map(renderRow)}
               </div>
             </div>
@@ -416,25 +398,26 @@ export default function SessionSidebar({
       </div>
 
       {/* Footer — user + settings */}
-      <div style={{ padding: 12, borderTop: '1px solid var(--line)', background: 'var(--panel-2)' }}>
+      <div style={{ padding: '8px 10px', borderTop: '1px solid var(--line)', background: 'var(--panel-2)' }}>
         <div
           style={{
             display: 'flex',
             alignItems: 'center',
             gap: 10,
-            padding: 6,
-            borderRadius: 12,
+            padding: '6px 8px',
+            borderRadius: 8,
           }}
+          className="hover:bg-[var(--control-hover)] transition-colors"
         >
           <div
             style={{
-              width: 32,
-              height: 32,
+              width: 28,
+              height: 28,
               borderRadius: '50%',
-              background: 'var(--avatar-bg)',
-              color: 'var(--accent-2)',
-              border: '1px solid rgba(29,78,216,0.5)',
-              fontSize: 12,
+              background: 'var(--panel)',
+              color: 'var(--text)',
+              border: '1px solid var(--line)',
+              fontSize: 11,
               fontWeight: 600,
               display: 'flex',
               alignItems: 'center',
@@ -444,28 +427,28 @@ export default function SessionSidebar({
           >
             OP
           </div>
-          <div style={{ minWidth: 0, flex: 1, lineHeight: 1.3 }}>
-            <div style={{ fontSize: 13, fontWeight: 500 }}>Operator</div>
-            <div style={{ fontSize: 11, color: 'var(--muted)' }}>Local session</div>
+          <div style={{ minWidth: 0, flex: 1, lineHeight: 1.2 }}>
+            <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--text)' }}>Operator</div>
           </div>
           <button
             className="btn-ghost btn-ico"
             onClick={onOpenSettings}
             aria-label="Settings"
             title="Settings"
+            style={{ color: 'var(--muted)', borderRadius: '6px', padding: '5px' }}
           >
-            <SettingsIcon size={16} />
+            <SettingsIcon size={15} />
           </button>
         </div>
       </div>
 
       <style>{`
-        .accent-ico { color: var(--accent); }
-        .session-row .session-actions { opacity: 0; transition: opacity 0.15s ease-in-out; }
+        .session-row .session-actions { opacity: 0; transition: opacity 0.12s ease-in-out; }
         .session-row:hover .session-actions,
         .session-row:focus-within .session-actions { opacity: 1; }
-        .session-row:hover { background: var(--row-hover) !important; }
+        .session-row:hover { background: var(--control-hover) !important; }
       `}</style>
     </aside>
   );
 }
+

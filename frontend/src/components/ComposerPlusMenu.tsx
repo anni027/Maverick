@@ -46,10 +46,9 @@ const panelStyle: React.CSSProperties = {
   bottom: 'calc(100% + 10px)',
   left: 0,
   width: 300,
-  background: '#000000',
+  background: 'var(--chip)',
   border: '1px solid var(--line-2)',
   borderRadius: 14,
-  boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
   padding: 6,
   zIndex: 60,
 };
@@ -199,16 +198,16 @@ export default function ComposerPlusMenu({ onAttach, onInsertSkill, onAddMcp }: 
         aria-expanded={open}
         onClick={() => setOpen(o => !o)}
         style={{
-          width: 30,
-          height: 30,
+          width: 28,
+          height: 28,
           padding: 0,
-          borderRadius: '50%',
+          borderRadius: 8,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          border: '1px solid var(--line)',
+          border: 'none',
           background: open ? 'var(--chip)' : 'transparent',
-          color: 'var(--text)',
+          color: 'var(--muted)',
           transition: 'all .15s',
           flexShrink: 0,
         }}

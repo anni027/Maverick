@@ -298,12 +298,14 @@ pub async fn init_session(
     Ok(())
 }
 
-/// Send a user message to the agent.
+/// Send a user message to the agent. `effort` is an optional reasoning-effort
+/// tier picked in the composer (`null` = keep the provider default).
 #[command]
 pub async fn send_message(
     app: AppHandle,
     session_id: String,
     text: String,
+    effort: Option<String>,
     state: State<'_, AppState>,
 ) -> Result<(), String> {
     let agent = {
@@ -311,6 +313,33 @@ pub async fn send_message(
         loops.get(&session_id).cloned()
     };
     if let Some(agent) = agent {
+        // Catalog-gate the picked effort: a model that rejects
+        // `reasoning_effort` (or lacks the tier) must not receive one even
+        // when the provider kind accepts the field.
+        let effective = match effort
+            .as_deref()
+            .map(str::trim)
+            .filter(|raw| !raw.is_empty())
+        {
+            Some(raw) => {
+                let provider = agent.provider().await;
+                let profile =
+                    reasoning_profile(&state, provider.id(), Some(provider.model())).await;
+                let wanted = normalize_effort(raw);
+                if profile.supported
+                    && (profile.efforts.is_empty()
+                        || profile.efforts.iter().any(|tier| *tier == wanted))
+                {
+                    Some(raw.to_string())
+                } else {
+                    None
+                }
+            }
+            None => None,
+        };
+        // Applied before the send so the ordered command queue sees the new
+        // sampling config first; unsupported providers clear instead.
+        agent.set_reasoning_effort(effective.as_deref()).await?;
         let sink = TauriSink::new(app, session_id.clone());
         agent
             .send_user_message_auto(&text, Arc::new(sink))
@@ -886,9 +915,25 @@ pub struct KiloModel {
     pub context_length: Option<u64>,
     pub is_free: Option<bool>,
     pub pricing: Option<serde_json::Value>,
+    /// Raw `supported_parameters` list from Kilo — lets the picker badge
+    /// models that accept `reasoning_effort`.
+    pub supported_parameters: Option<Vec<String>>,
+    /// Distinct `opencode.variants.*.reasoning.effort` tiers this model
+    /// exposes, ascending (`none`…`max`). Empty when the catalog lists no
+    /// reasoning variants.
+    pub efforts: Option<Vec<String>>,
 }
 
 const KILO_DEFAULT_BASE_URL: &str = "https://api.kilo.ai/api/gateway";
+
+/// Ascending wire tiers a model can accept, used to order catalog efforts.
+const CANONICAL_EFFORTS: [&str; 7] = [
+    "none", "minimal", "low", "medium", "high", "xhigh", "max",
+];
+
+/// Kind-wide fallback when no catalog entry applies — the tiers the composer
+/// offered before per-model sync (and the ones every native kind accepts).
+const PROVIDER_DEFAULT_EFFORTS: [&str; 5] = ["low", "medium", "high", "xhigh", "max"];
 
 fn kilo_models_url(base_url: &str) -> String {
     let trimmed = base_url.trim().trim_end_matches('/');
@@ -967,12 +1012,47 @@ fn parse_kilo_models(value: &serde_json::Value) -> Result<Vec<KiloModel>, String
             let is_free = ["isFree", "is_free", "free"]
                 .into_iter()
                 .find_map(|key| model.get(key).and_then(serde_json::Value::as_bool));
+            let supported_parameters = model
+                .get("supported_parameters")
+                .and_then(serde_json::Value::as_array)
+                .map(|arr| {
+                    arr.iter()
+                        .filter_map(|v| v.as_str().map(str::to_string))
+                        .collect::<Vec<_>>()
+                })
+                .filter(|v| !v.is_empty());
+            // Effort tiers live under `opencode.variants.<name>.reasoning.effort`
+            // (Kilo's per-model reasoning variants), ordered canonically and
+            // deduplicated.
+            let mut efforts: Vec<String> = model
+                .pointer("/opencode/variants")
+                .and_then(serde_json::Value::as_object)
+                .map(|variants| {
+                    let mut tiers: Vec<String> = variants
+                        .values()
+                        .filter_map(|v| v.pointer("/reasoning/effort").and_then(serde_json::Value::as_str))
+                        .map(|s| s.to_lowercase())
+                        .collect();
+                    tiers.sort_by_key(|tier| {
+                        CANONICAL_EFFORTS
+                            .iter()
+                            .position(|c| c == tier)
+                            .unwrap_or(CANONICAL_EFFORTS.len())
+                    });
+                    tiers.dedup();
+                    tiers
+                })
+                .unwrap_or_default();
+            efforts.shrink_to_fit();
+            let efforts = (!efforts.is_empty()).then_some(efforts);
             Some(KiloModel {
                 id,
                 name,
                 context_length,
                 is_free,
                 pricing: model.get("pricing").cloned(),
+                supported_parameters,
+                efforts,
             })
         })
         .collect())
@@ -1026,8 +1106,17 @@ pub async fn list_kilo_models(
         .timeout(std::time::Duration::from_secs(15))
         .build()
         .map_err(|e| e.to_string())?;
-    let endpoint = kilo_models_url(&base_url);
-    let mut response = send_kilo_models_request(&client, &endpoint, key.as_deref()).await?;
+    fetch_kilo_catalog(&client, &base_url, key.as_deref()).await
+}
+
+/// One uncached Kilo `/models` fetch: request, auth-fallback retry, parse.
+async fn fetch_kilo_catalog(
+    client: &reqwest::Client,
+    base_url: &str,
+    key: Option<&str>,
+) -> Result<Vec<KiloModel>, String> {
+    let endpoint = kilo_models_url(base_url);
+    let mut response = send_kilo_models_request(client, &endpoint, key).await?;
     if key.is_some()
         && matches!(
             response.status(),
@@ -1036,7 +1125,7 @@ pub async fn list_kilo_models(
                 | reqwest::StatusCode::TOO_MANY_REQUESTS
         )
     {
-        response = send_kilo_models_request(&client, &endpoint, None).await?;
+        response = send_kilo_models_request(client, &endpoint, None).await?;
     }
     let status = response.status();
     if !status.is_success() {
@@ -1049,6 +1138,240 @@ pub async fn list_kilo_models(
     }
     let value: serde_json::Value = response.json().await.map_err(|e| e.to_string())?;
     parse_kilo_models(&value)
+}
+
+/// Per-model reasoning capability for the composer: whether the model takes a
+/// `reasoning_effort` request field, and which tiers it accepts. The slider in
+/// the chat bar is filtered to `efforts`; the send path re-checks it so a
+/// stale pick can never reach a model that rejects it.
+#[derive(Debug, Clone, serde::Serialize)]
+pub struct ReasoningProfile {
+    pub model: String,
+    /// Model accepts `reasoning_effort` at all.
+    pub supported: bool,
+    /// Wire tiers (`none`…`max`) in ascending order; empty when unsupported.
+    pub efforts: Vec<String>,
+    /// `kilo-catalog` (per-model, from the gateway catalog),
+    /// `provider-kind` (kind-wide default), or `none` (field unavailable).
+    pub source: String,
+}
+
+/// Alias-normalize a picked effort to its wire form (`Extra` → `xhigh`).
+fn normalize_effort(raw: &str) -> String {
+    let tier = raw.trim().to_lowercase();
+    if tier == "extra" { "xhigh".to_string() } else { tier }
+}
+
+/// Profile used whenever no catalog entry applies (non-Kilo base URL, catalog
+/// unreachable, or a routing slug the catalog cannot name).
+fn kind_default_profile(model: String) -> ReasoningProfile {
+    ReasoningProfile {
+        model,
+        supported: true,
+        efforts: PROVIDER_DEFAULT_EFFORTS.iter().map(|s| (*s).to_string()).collect(),
+        source: "provider-kind".to_string(),
+    }
+}
+
+/// Match a configured model slug against catalog ids: exact, bare-slug, then
+/// either side namespacing the other (`grok-4` ↔ `x-ai/grok-4`).
+fn find_kilo_model<'a>(catalog: &'a [KiloModel], model: &str) -> Option<&'a KiloModel> {
+    let needle = model.trim();
+    if needle.is_empty() {
+        return None;
+    }
+    let bare = needle.rsplit('/').next().unwrap_or(needle);
+    catalog
+        .iter()
+        .find(|entry| entry.id == needle)
+        .or_else(|| catalog.iter().find(|entry| entry.id.rsplit('/').next() == Some(bare)))
+        .or_else(|| catalog.iter().find(|entry| entry.id.ends_with(&format!("/{needle}"))))
+}
+
+/// Build a profile from a matched catalog entry. A model only counts as
+/// supported when `supported_parameters` lists `reasoning_effort` — variants
+/// behind the separate `reasoning` parameter are not what we send.
+fn profile_from_entry(model: &str, entry: &KiloModel) -> ReasoningProfile {
+    let supported = entry
+        .supported_parameters
+        .as_deref()
+        .map(|params| params.iter().any(|p| p.eq_ignore_ascii_case("reasoning_effort")))
+        .unwrap_or(false);
+    if !supported {
+        return ReasoningProfile {
+            model: model.to_string(),
+            supported: false,
+            efforts: Vec::new(),
+            source: "kilo-catalog".to_string(),
+        };
+    }
+    // Catalog listed no variants for a reasoning_effort model → offer the
+    // kind-wide tiers rather than an empty slider.
+    let mut efforts = entry.efforts.clone().unwrap_or_default();
+    if efforts.is_empty() {
+        efforts = PROVIDER_DEFAULT_EFFORTS.iter().map(|s| (*s).to_string()).collect();
+    }
+    ReasoningProfile {
+        model: model.to_string(),
+        supported: true,
+        efforts,
+        source: "kilo-catalog".to_string(),
+    }
+}
+
+/// Kilo catalog cache keyed by base URL: `(last attempt, models-or-None)`.
+/// Fresh successes serve for 10 minutes; a failed fetch backs off for a minute
+/// (keeping any previous catalog as a stale fallback) so the send path never
+/// stalls on a gateway hiccup.
+type KiloCatalogCache = HashMap<String, (std::time::Instant, Option<Vec<KiloModel>>)>;
+static KILO_CATALOG: std::sync::LazyLock<std::sync::Mutex<KiloCatalogCache>> =
+    std::sync::LazyLock::new(std::sync::Mutex::default);
+const KILO_CATALOG_TTL: std::time::Duration = std::time::Duration::from_secs(600);
+const KILO_CATALOG_BACKOFF: std::time::Duration = std::time::Duration::from_secs(60);
+
+async fn kilo_catalog(
+    base_url: &str,
+    key: Option<&str>,
+) -> Result<Vec<KiloModel>, String> {
+    let cache_key = base_url.trim_end_matches('/').to_string();
+    {
+        let cache = KILO_CATALOG.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+        if let Some((at, models)) = cache.get(&cache_key) {
+            let age = at.elapsed();
+            if age < KILO_CATALOG_TTL {
+                if let Some(models) = models {
+                    return Ok(models.clone());
+                }
+            }
+            if age < KILO_CATALOG_BACKOFF {
+                return models
+                    .clone()
+                    .ok_or_else(|| "Kilo model catalog unavailable".to_string());
+            }
+        }
+    }
+    let client = reqwest::Client::builder()
+        .timeout(std::time::Duration::from_secs(15))
+        .build()
+        .map_err(|e| e.to_string())?;
+    let fetched = fetch_kilo_catalog(&client, base_url, key).await;
+    let mut cache = KILO_CATALOG.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    let entry = cache
+        .entry(cache_key)
+        .or_insert_with(|| (std::time::Instant::now(), None));
+    match fetched {
+        Ok(models) => {
+            *entry = (std::time::Instant::now(), Some(models.clone()));
+            Ok(models)
+        }
+        Err(err) => {
+            // Keep any previous catalog as stale fallback; the refreshed
+            // timestamp is what arms the backoff window.
+            let stale = entry.1.clone();
+            entry.0 = std::time::Instant::now();
+            stale.ok_or(err)
+        }
+    }
+}
+
+/// Resolve the reasoning-effort profile for a provider's active model.
+/// Registered providers answer from their real capability flag; Kilo gateways
+/// refine that with the live catalog; every other kind reports its default.
+pub async fn reasoning_profile(
+    state: &AppState,
+    provider_id: &str,
+    model: Option<&str>,
+) -> ReasoningProfile {
+    // Registered provider wins: real capability flag, effective model, base URL.
+    // (Guard stays inside the block — never await across the lock.)
+    let registered = {
+        let reg = state.provider_registry.read().await;
+        reg.list()
+            .into_iter()
+            .find(|info| info.id == provider_id)
+            .map(|info| {
+                let base_url = match &info.config {
+                    crate::providers::ProviderConfig::Http { base_url, .. }
+                        if !base_url.trim().is_empty() =>
+                    {
+                        Some(base_url.clone())
+                    }
+                    _ => None,
+                };
+                (
+                    info.provider.capabilities().supports_reasoning_effort,
+                    info.provider.model().to_string(),
+                    base_url,
+                )
+            })
+    };
+    let settings = state.config_manager.provider_settings(provider_id).await;
+    let model = model
+        .filter(|m| !m.trim().is_empty())
+        .map(str::to_string)
+        .or_else(|| {
+            registered
+                .as_ref()
+                .and_then(|(_, m, _)| (!m.trim().is_empty()).then(|| m.clone()))
+        })
+        .or_else(|| settings.as_ref().and_then(|s| s.model.clone()))
+        .unwrap_or_else(|| crate::providers::default_provider_config(provider_id).1);
+
+    let supports = match &registered {
+        Some((supports, _, _)) => *supports,
+        // Unregistered: trust the stored kind (subprocess/MCP runtimes have no
+        // request field to fill).
+        None => !matches!(
+            settings.as_ref().and_then(|s| s.kind.as_deref()),
+            Some("subprocess" | "mcp")
+        ),
+    };
+    if !supports {
+        return ReasoningProfile {
+            model,
+            supported: false,
+            efforts: Vec::new(),
+            source: "none".to_string(),
+        };
+    }
+
+    let base_url = registered
+        .as_ref()
+        .and_then(|(_, _, base)| base.clone())
+        .or_else(|| settings.as_ref().and_then(|s| s.base_url.clone()))
+        .unwrap_or_else(|| {
+            if provider_id == "kilo" {
+                KILO_DEFAULT_BASE_URL.to_string()
+            } else {
+                crate::providers::default_provider_config(provider_id).0
+            }
+        });
+    if !base_url.to_lowercase().contains("kilo") {
+        return kind_default_profile(model);
+    }
+    let key = state.config_manager.api_key(provider_id).await;
+    match kilo_catalog(&base_url, key.as_deref()).await {
+        Ok(catalog) => match find_kilo_model(&catalog, &model) {
+            Some(entry) => profile_from_entry(&model, entry),
+            None => kind_default_profile(model),
+        },
+        // Catalog unreachable — degrade to the kind default, never block a send.
+        Err(_) => kind_default_profile(model),
+    }
+}
+
+/// Reasoning profile for the composer: reads the provider's model (or an
+/// explicit `model` override) and reports the effort tiers it accepts.
+#[command]
+pub async fn get_model_reasoning(
+    provider_id: Option<String>,
+    model: Option<String>,
+    state: State<'_, AppState>,
+) -> Result<ReasoningProfile, String> {
+    let id = provider_id
+        .filter(|id| !id.trim().is_empty())
+        .unwrap_or_else(|| "kilo".to_string());
+    Ok(reasoning_profile(&state, &id, model.as_deref()).await)
 }
 
 /// List discovered skills (local + hub)
@@ -1601,5 +1924,91 @@ mod workspace_browser_tests {
         assert!(ws_read(&root, "").is_err());
         assert!(ws_read(&root, "../outside.txt").is_err());
         let _ = std::fs::remove_dir_all(&root);
+    }
+}
+
+#[cfg(test)]
+mod reasoning_profile_tests {
+    use super::*;
+
+    fn entry(json: &str) -> KiloModel {
+        let model: serde_json::Value = serde_json::from_str(json).expect("entry json");
+        parse_kilo_models(&serde_json::json!({ "data": [model] }))
+            .expect("catalog parses")
+            .pop()
+            .expect("entry parsed")
+    }
+
+    #[test]
+    fn variants_are_ordered_canonically_and_deduped() {
+        let model = entry(
+            r#"{"id":"x/y","supported_parameters":["reasoning_effort"],
+                "opencode":{"variants":{
+                  "high":{"reasoning":{"effort":"high"}},
+                  "xhigh":{"reasoning":{"effort":"xhigh"}},
+                  "low":{"reasoning":{"effort":"low"}},
+                  "again-high":{"reasoning":{"effort":"high"}},
+                  "none":{"reasoning":{"effort":"none"}}}}}"#,
+        );
+        assert_eq!(
+            model.efforts,
+            Some(vec![
+                "none".to_string(),
+                "low".to_string(),
+                "high".to_string(),
+                "xhigh".to_string()
+            ])
+        );
+        let profile = profile_from_entry("x/y", &model);
+        assert!(profile.supported);
+        assert_eq!(profile.source, "kilo-catalog");
+        assert_eq!(profile.efforts, vec!["none", "low", "high", "xhigh"]);
+    }
+
+    #[test]
+    fn variants_behind_reasoning_param_are_unsupported() {
+        let model = entry(
+            r#"{"id":"a/b","supported_parameters":["reasoning","include_reasoning"],
+                "opencode":{"variants":{
+                  "instant":{"reasoning":{"enabled":false,"effort":"none"}},
+                  "thinking":{"reasoning":{"enabled":true,"effort":"high"}}}}}"#,
+        );
+        let profile = profile_from_entry("a/b", &model);
+        assert!(!profile.supported);
+        assert!(profile.efforts.is_empty());
+        assert_eq!(profile.source, "kilo-catalog");
+    }
+
+    #[test]
+    fn supported_model_without_variants_falls_back_to_kind_tiers() {
+        let model = entry(r#"{"id":"c/d","supported_parameters":["reasoning_effort"]}"#);
+        let profile = profile_from_entry("c/d", &model);
+        assert!(profile.supported);
+        assert_eq!(profile.source, "kilo-catalog");
+        assert_eq!(
+            profile.efforts,
+            PROVIDER_DEFAULT_EFFORTS.iter().map(|s| (*s).to_string()).collect::<Vec<_>>()
+        );
+    }
+
+    #[test]
+    fn catalog_matching_handles_bare_and_namespaced_slugs() {
+        let catalog = vec![
+            entry(r#"{"id":"x-ai/grok-4"}"#),
+            entry(r#"{"id":"kilo-auto/free"}"#),
+        ];
+        let id_of = |m: &str| find_kilo_model(&catalog, m).map(|e| e.id.clone());
+        assert_eq!(id_of("x-ai/grok-4").as_deref(), Some("x-ai/grok-4"));
+        assert_eq!(id_of("grok-4").as_deref(), Some("x-ai/grok-4"));
+        assert_eq!(id_of("kilo-auto/free").as_deref(), Some("kilo-auto/free"));
+        assert!(id_of("missing/model").is_none());
+        assert!(id_of("  ").is_none());
+    }
+
+    #[test]
+    fn normalize_effort_aliases_extra_and_lowercases() {
+        assert_eq!(normalize_effort(" Extra "), "xhigh");
+        assert_eq!(normalize_effort("HIGH"), "high");
+        assert_eq!(normalize_effort("Max"), "max");
     }
 }

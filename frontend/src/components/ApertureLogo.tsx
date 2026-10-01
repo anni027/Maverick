@@ -17,9 +17,9 @@ export default function ApertureLogo({ size = 24, animated = false, className }:
     <svg width={size} height={size} viewBox="0 0 500 500" className={className} aria-hidden>
       <defs>
         <linearGradient id={gradId} x1="0%" x2="100%" y1="100%" y2="0%">
-          <stop offset="0%" stopColor="#00e5ff" />
-          <stop offset="60%" stopColor="#38bdf8" />
-          <stop offset="100%" stopColor="#ffffff" />
+          <stop offset="0%" stopColor="var(--faint)" />
+          <stop offset="50%" stopColor="var(--muted)" />
+          <stop offset="100%" stopColor="var(--text)" />
         </linearGradient>
       </defs>
       <g transform="translate(250, 250)" className={animated ? 'aperture-spin' : undefined}>
@@ -33,7 +33,7 @@ export default function ApertureLogo({ size = 24, animated = false, className }:
   );
 }
 
-/// Aperture on a black rounded tile — avatar/sidebar brand usage.
+/// Aperture on a quiet rounded tile — avatar/sidebar brand usage.
 export function ApertureTile({ size = 28, animated = false }: { size?: number; animated?: boolean }) {
   return (
     <div
@@ -44,13 +44,13 @@ export function ApertureTile({ size = 28, animated = false }: { size?: number; a
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'var(--void)',
+        background: 'var(--panel)',
         border: '1px solid var(--line)',
-        borderRadius: Math.max(6, Math.round(size * 0.28)),
-        padding: Math.round(size * 0.14),
+        borderRadius: '50%',
+        padding: Math.round(size * 0.16),
       }}
     >
-      <ApertureLogo size={size - Math.round(size * 0.28)} animated={animated} />
+      <ApertureLogo size={size - Math.round(size * 0.32)} animated={animated} />
     </div>
   );
 }
