@@ -28,6 +28,18 @@ export interface ReasoningProfile {
   source: string;
 }
 
+/** Saved model preset (provider + model + optional effort), switchable from
+ *  the composer menu and header badge. Field names are snake_case — they
+ *  deserialize straight into Rust's `ModelPreset`. */
+export interface ModelPreset {
+  id: string;
+  name: string;
+  provider_id: string;
+  model: string;
+  /** Display effort label (`Extra`, `High`, …); null/absent = provider default. */
+  effort?: string | null;
+}
+
 export type ProviderConfig =
   | { type: 'http' | 'Http'; baseUrl: string; apiKey?: string }
   | { type: 'subprocess' | 'Subprocess'; command: string; args: string[]; env: Array<[string, string]> | Record<string, string> };

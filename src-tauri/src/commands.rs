@@ -778,6 +778,71 @@ pub async fn get_default_provider(state: State<'_, AppState>) -> Result<Option<S
     Ok(state.config_manager.default_provider().await)
 }
 
+/// Trim/validate a replace-all preset list from the UI.
+/// Add/edit/delete all funnel through `save_model_presets`.
+fn validate_presets(
+    presets: Vec<crate::config::ModelPreset>,
+) -> Result<Vec<crate::config::ModelPreset>, String> {
+    const MAX_PRESETS: usize = 50;
+    if presets.len() > MAX_PRESETS {
+        return Err(format!("Too many presets (max {MAX_PRESETS})"));
+    }
+    let mut seen = std::collections::HashSet::new();
+    let mut out = Vec::with_capacity(presets.len());
+    for mut p in presets {
+        p.id = p.id.trim().to_string();
+        p.name = p.name.trim().to_string();
+        p.provider_id = p.provider_id.trim().to_string();
+        p.model = p.model.trim().to_string();
+        if p.id.is_empty() {
+            return Err("Preset id cannot be empty".to_string());
+        }
+        if p.name.is_empty() {
+            return Err(format!("Preset id '{}' needs a name", p.id));
+        }
+        if p.provider_id.is_empty() {
+            return Err(format!("Preset '{}' needs a provider", p.name));
+        }
+        if p.model.is_empty() {
+            return Err(format!("Preset '{}' needs a model", p.name));
+        }
+        if !seen.insert(p.id.clone()) {
+            return Err(format!("Duplicate preset id '{}'", p.id));
+        }
+        if let Some(effort) = p.effort.as_mut() {
+            *effort = effort.trim().to_string();
+            if effort.is_empty() {
+                p.effort = None;
+            }
+        }
+        out.push(p);
+    }
+    Ok(out)
+}
+
+/// List saved model presets.
+#[command]
+pub async fn list_model_presets(
+    state: State<'_, AppState>,
+) -> Result<Vec<crate::config::ModelPreset>, String> {
+    Ok(state.config_manager.model_presets().await)
+}
+
+/// Replace the saved model preset list (add, edit, delete all go through this).
+#[command]
+pub async fn save_model_presets(
+    presets: Vec<crate::config::ModelPreset>,
+    state: State<'_, AppState>,
+) -> Result<Vec<crate::config::ModelPreset>, String> {
+    let presets = validate_presets(presets)?;
+    state
+        .config_manager
+        .set_model_presets(presets.clone())
+        .await
+        .map_err(|e| e.to_string())?;
+    Ok(presets)
+}
+
 /// Add an MCP server with full config — persists + real handshake.
 #[command]
 pub async fn add_mcp_server_full(
@@ -2010,5 +2075,64 @@ mod reasoning_profile_tests {
         assert_eq!(normalize_effort(" Extra "), "xhigh");
         assert_eq!(normalize_effort("HIGH"), "high");
         assert_eq!(normalize_effort("Max"), "max");
+    }
+
+    fn preset(
+        id: &str,
+        name: &str,
+        provider: &str,
+        model: &str,
+        effort: Option<&str>,
+    ) -> crate::config::ModelPreset {
+        crate::config::ModelPreset {
+            id: id.to_string(),
+            name: name.to_string(),
+            provider_id: provider.to_string(),
+            model: model.to_string(),
+            effort: effort.map(str::to_string),
+        }
+    }
+
+    #[test]
+    fn validate_presets_trims_fields_and_keeps_order() {
+        let out = validate_presets(vec![
+            preset(" p1 ", " Fast coder ", " kilo ", " grok-code-fast ", Some("high")),
+            preset("p2", "Plain", "openai", "gpt-5", None),
+        ])
+        .expect("valid list");
+        assert_eq!(out.len(), 2);
+        assert_eq!(out[0].id, "p1");
+        assert_eq!(out[0].name, "Fast coder");
+        assert_eq!(out[0].provider_id, "kilo");
+        assert_eq!(out[0].model, "grok-code-fast");
+        assert_eq!(out[0].effort.as_deref(), Some("high"));
+        assert_eq!(out[1].effort, None);
+    }
+
+    #[test]
+    fn validate_presets_rejects_blank_effort_by_clearing_it() {
+        let out = validate_presets(vec![preset("p1", "N", "kilo", "m", Some("  "))])
+            .expect("blank effort is not an error");
+        assert_eq!(out[0].effort, None);
+    }
+
+    #[test]
+    fn validate_presets_rejects_duplicates_and_missing_fields() {
+        assert!(validate_presets(vec![
+            preset("p1", "A", "kilo", "m", None),
+            preset("p1", "B", "kilo", "m", None),
+        ])
+        .is_err());
+        assert!(validate_presets(vec![preset("p1", "  ", "kilo", "m", None)]).is_err());
+        assert!(validate_presets(vec![preset("", "A", "kilo", "m", None)]).is_err());
+        assert!(validate_presets(vec![preset("p1", "A", "kilo", "  ", None)]).is_err());
+    }
+
+    #[test]
+    fn validate_presets_caps_list_size() {
+        let many: Vec<_> = (0..51)
+            .map(|i| preset(&format!("p{i}"), "N", "kilo", "m", None))
+            .collect();
+        assert!(validate_presets(many).is_err());
     }
 }

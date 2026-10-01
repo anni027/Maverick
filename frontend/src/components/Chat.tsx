@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { listen, UnlistenFn } from '@tauri-apps/api/event';
-import { Message, AgentEventType, UiConfig, ProviderInfo, ReasoningProfile } from '../types';
+import { Message, AgentEventType, UiConfig, ProviderInfo, ReasoningProfile, ModelPreset } from '../types';
 import { type RunStatusData } from './RunStatusBar';
 import ApertureLogo, { ApertureTile } from './ApertureLogo';
 import ShinyText from './ShinyText';
@@ -67,9 +67,20 @@ interface ChatProps {
   providers: ProviderInfo[];
   selectedProvider: string;
   onProviderChange: (id: string) => void;
+  /** Saved presets, rendered at the top of the composer's model menu. */
+  presets?: ModelPreset[];
+  /** Apply a preset — App owns the global default (settings + provider). */
+  onApplyPreset?: (preset: ModelPreset) => void;
+  /** Open App's "save current as preset" name dialog. */
+  onSavePresetRequest?: () => void;
+  /** Mirror the picked effort up so App can snapshot it when saving. */
+  onEffortChange?: (effort: string) => void;
+  /** App pushes a preset's effort down after apply; `token` busts re-applies
+   *  of the same preset (same tier). */
+  presetEffort?: { tier: string; token: number } | null;
 }
 
-export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvider, onProviderChange }: ChatProps) {
+export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvider, onProviderChange, presets = [], onApplyPreset, onSavePresetRequest, onEffortChange, presetEffort }: ChatProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [attachments, setAttachments] = useState<Attachment[]>([]);
@@ -120,6 +131,33 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
       alive = false;
     };
   }, [selectedProvider, providers]);
+
+  // Mirror the picked effort up to App (save-preset snapshots it). A ref keeps
+  // the effect clear of prop-identity churn across renders.
+  const onEffortChangeRef = useRef(onEffortChange);
+  onEffortChangeRef.current = onEffortChange;
+  useEffect(() => {
+    onEffortChangeRef.current?.(effort);
+  }, [effort]);
+
+  // App applies a preset by pushing its effort through a nonce so re-applying
+  // the same preset still fires. The profile sync above stays the validator:
+  // it drops tiers the target model doesn't accept once the profile resolves.
+  useEffect(() => {
+    if (!presetEffort) return;
+    setEffort(presetEffort.tier || '');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [presetEffort?.token]);
+
+  // Exact-match active preset: provider + model + effort must all line up,
+  // so the composer's checked row tracks what the next send will actually use.
+  const activePreset =
+    presets.find(p => {
+      if (p.provider_id !== selectedProvider) return false;
+      const provider = providers.find(x => x.id === selectedProvider);
+      if (!provider || p.model !== provider.model) return false;
+      return (p.effort || '') === (effort || '');
+    }) ?? null;
 
   // ── Live run status (banners + attention; no status bar readout) ────
   const [, setRunStatus] = useState<RunStatusData | null>(null);
@@ -825,23 +863,50 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
             inputRef={textareaRef}
             onSend={t => handleSend(t)}
             onStop={handleCancel}
-            models={providers.map<PromptBarModel>(p => ({
-              key: p.id,
-              name: p.name,
-              tag: p.model,
-              description:
-                p.id === selectedProvider
-                  ? profile
-                    ? profile.supported
-                      ? `Reasoning: ${efforts.join(' · ')}`
-                      : 'No reasoning effort'
-                    : undefined
-                  : p.supports_reasoning_effort
-                    ? 'Reasoning models supported'
-                    : undefined,
-            }))}
-            defaultModel={selectedProvider}
-            onModelChange={onProviderChange}
+            models={[
+              ...presets.map<PromptBarModel>(p => ({
+                key: `preset:${p.id}`,
+                name: p.name,
+                tag: p.model,
+                description: `${providers.find(x => x.id === p.provider_id)?.name ?? p.provider_id} · ${p.effort || 'default effort'}`,
+              })),
+              ...providers.map<PromptBarModel>(p => ({
+                key: p.id,
+                name: p.name,
+                tag: p.model,
+                description:
+                  p.id === selectedProvider
+                    ? profile
+                      ? profile.supported
+                        ? `Reasoning: ${efforts.join(' · ')}`
+                        : 'No reasoning effort'
+                      : undefined
+                    : p.supports_reasoning_effort
+                      ? 'Reasoning models supported'
+                      : undefined,
+              })),
+            ]}
+            defaultModel={activePreset ? `preset:${activePreset.id}` : selectedProvider}
+            onModelChange={key => {
+              if (key.startsWith('preset:')) {
+                const preset = presets.find(p => `preset:${p.id}` === key);
+                if (preset) onApplyPreset?.(preset);
+                return;
+              }
+              onProviderChange(key);
+            }}
+            modelMenuFooter={
+              onSavePresetRequest ? (
+                <button
+                  type="button"
+                  className="prompt-bar__menu-save"
+                  onMouseDown={e => e.preventDefault()}
+                  onClick={() => onSavePresetRequest()}
+                >
+                  + Save current as preset…
+                </button>
+              ) : undefined
+            }
             efforts={efforts}
             defaultEffort={effort}
             onEffortChange={setEffort}

@@ -44,6 +44,8 @@ fn main() -> anyhow::Result<()> {
             maverick_backend::commands::list_provider_settings,
             maverick_backend::commands::set_default_provider,
             maverick_backend::commands::get_default_provider,
+            maverick_backend::commands::list_model_presets,
+            maverick_backend::commands::save_model_presets,
             maverick_backend::commands::add_mcp_server_full,
             maverick_backend::commands::get_ui_config,
             maverick_backend::commands::set_ui_config,

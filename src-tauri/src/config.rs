@@ -44,6 +44,11 @@ pub struct MaverickConfig {
     /// Skills marketplace sources (GitHub repos used as skill catalogs).
     #[serde(default)]
     pub marketplace_sources: Vec<MarketplaceSource>,
+    /// Saved model presets: provider + model + reasoning effort combos
+    /// switchable from the composer menu and header badge. Legacy configs
+    /// without the key deserialize to an empty list.
+    #[serde(default)]
+    pub model_presets: Vec<ModelPreset>,
 }
 
 /// Context-management policy (Phase 3).
@@ -223,6 +228,25 @@ pub struct ProviderSettings {
     /// For custom providers: which family to use (`openai` or `anthropic`). Defaults to `openai`.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub kind: Option<String>,
+}
+
+/// A saved model preset: a provider + model (+ optional reasoning effort)
+/// combination the user can jump to from the composer menu or header badge.
+/// Applying a preset changes the *global* default (provider settings +
+/// default provider), matching how the rest of the app switches models.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ModelPreset {
+    /// Stable id (list key, deletion target). Frontend-generated.
+    pub id: String,
+    /// Display name chosen by the user.
+    pub name: String,
+    /// Provider the preset points at (e.g. `kilo`).
+    pub provider_id: String,
+    /// Model key for that provider (e.g. `grok-code-fast` or namespaced).
+    pub model: String,
+    /// Reasoning effort label; `None` = provider/model default.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub effort: Option<String>,
 }
 
 fn default_transport() -> String {
@@ -643,6 +667,20 @@ impl ConfigManager {
         self.persist().await
     }
 
+    /// Get saved model presets.
+    pub async fn model_presets(&self) -> Vec<ModelPreset> {
+        self.config.read().await.model_presets.clone()
+    }
+
+    /// Replace the model preset list and persist.
+    pub async fn set_model_presets(&self, presets: Vec<ModelPreset>) -> Result<()> {
+        {
+            let mut config = self.config.write().await;
+            config.model_presets = presets;
+        }
+        self.persist().await
+    }
+
     /// Get UI config.
     pub async fn ui_config(&self) -> UiConfig {
         self.config.read().await.ui.clone()
@@ -719,4 +757,74 @@ pub struct ConfigSnapshot {
     pub context: ContextConfig,
     #[serde(default)]
     pub budget: BudgetConfig,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn legacy_config_without_presets_deserializes() {
+        let toml = r#"
+default_provider = "openai"
+
+[ui]
+theme = "dark"
+"#;
+        let config: MaverickConfig = toml::from_str(toml).expect("legacy config parses");
+        assert_eq!(config.default_provider.as_deref(), Some("openai"));
+        assert!(config.model_presets.is_empty());
+    }
+
+    #[test]
+    fn presets_round_trip_through_toml() {
+        let mut config = MaverickConfig::default();
+        config.model_presets = vec![
+            ModelPreset {
+                id: "p1".into(),
+                name: "Fast coder".into(),
+                provider_id: "kilo".into(),
+                model: "grok-code-fast".into(),
+                effort: Some("high".into()),
+            },
+            ModelPreset {
+                id: "p2".into(),
+                name: "Default effort".into(),
+                provider_id: "openai".into(),
+                model: "gpt-5".into(),
+                effort: None,
+            },
+        ];
+        let encoded = toml::to_string_pretty(&config).expect("serializes");
+        let decoded: MaverickConfig = toml::from_str(&encoded).expect("parses back");
+        assert_eq!(decoded.model_presets, config.model_presets);
+    }
+
+    #[test]
+    fn preset_effort_none_is_omitted_from_toml() {
+        let mut config = MaverickConfig::default();
+        config.model_presets = vec![ModelPreset {
+            id: "p2".into(),
+            name: "Plain".into(),
+            provider_id: "openai".into(),
+            model: "gpt-5".into(),
+            effort: None,
+        }];
+        let encoded = toml::to_string_pretty(&config).expect("serializes");
+        assert!(!encoded.contains("effort"));
+        let decoded: MaverickConfig = toml::from_str(&encoded).expect("parses back");
+        assert_eq!(decoded.model_presets[0].effort, None);
+    }
+
+    #[test]
+    fn preset_effort_defaults_to_none() {
+        let toml = r#"
+id = "p3"
+name = "No effort key"
+provider_id = "kilo"
+model = "grok-code-fast"
+"#;
+        let preset: ModelPreset = toml::from_str(toml).expect("parses without effort");
+        assert_eq!(preset.effort, None);
+    }
 }

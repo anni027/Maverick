@@ -88,6 +88,9 @@ export interface PromptBarProps {
   /** Host element rendered at the left of the footer (its own attach menu) —
    *  takes precedence over the internal + button. */
   leftSlot?: React.ReactNode;
+  /** Host node rendered under the model-menu rows (e.g. a "Save current as
+   *  preset…" action). Only shown while the model menu is open. */
+  modelMenuFooter?: React.ReactNode;
   /** Extra send enablement (e.g. attachments staged outside the bar). */
   extraCanSend?: boolean;
   /** Host-owned attachment chips rendered inside the field (overrides the
@@ -271,6 +274,7 @@ const PromptBar: React.FC<PromptBarProps> = ({
   inputRef: inputRefProp,
   showPlus = true,
   leftSlot,
+  modelMenuFooter,
   extraCanSend = false,
   chips,
   onRemoveChip,
@@ -734,6 +738,9 @@ const PromptBar: React.FC<PromptBarProps> = ({
                 </button>
               ))}
               {list.length === 0 ? <div className="prompt-bar__empty">No matches for “{query}”</div> : null}
+              {open === 'model' && modelMenuFooter ? (
+                <div className="prompt-bar__menu-footer">{modelMenuFooter}</div>
+              ) : null}
             </>
           )}
         </div>

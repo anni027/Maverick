@@ -1,12 +1,19 @@
 // Settings — minimal, English, no mock, no generic power badge
 import React, { useEffect, useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
+import type { ModelPreset } from '../types';
 
 interface SettingsProps {
   isOpen: boolean; onClose: () => void;
   providers: Array<{ id: string; name: string; model: string }>;
   currentProvider: string; onProviderChange: (id: string) => void;
   onRefresh?: () => void;
+  /** Saved model presets (shared with the composer menu + header badge). */
+  presets?: ModelPreset[];
+  activePresetId?: string;
+  onApplyPreset?: (p: ModelPreset) => void;
+  onDeletePreset?: (id: string) => void;
+  onSavePreset?: () => void;
 }
 
 const KNOWN_PROVIDERS: Array<{id:string; name:string; hint:string}> = [
@@ -60,7 +67,7 @@ function splitArgs(input: string): string[] {
   return out;
 }
 
-export default function Settings({ isOpen, onClose, providers, currentProvider: _cp, onProviderChange, onRefresh }: SettingsProps) {
+export default function Settings({ isOpen, onClose, providers, currentProvider: _cp, onProviderChange, onRefresh, presets = [], activePresetId, onApplyPreset, onDeletePreset, onSavePreset }: SettingsProps) {
   const [apiKeys, setApiKeys] = useState<Record<string,string>>({});
   const [providerSettings, setProviderSettings] = useState<Record<string, {base_url?: string, model?: string, kind?: string}>>({});
   const [mcpServers, setMcpServers] = useState<Array<{name:string;transport:string;command?:string;args:string;url?:string;enabled:boolean}>>([]);
@@ -378,7 +385,7 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
 
   return (
     <div style={{position:'fixed', inset:0, background:'rgba(0,0,0,0.45)', backdropFilter:'blur(8px)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:100, padding:'16px'}}>
-      <div onClick={e=>e.stopPropagation()} style={{width:'100%', maxWidth:'640px', maxHeight:'90vh', display:'flex', flexDirection:'column', background:'var(--panel)', border:'1px solid var(--line)', borderRadius:'16px', overflow:'hidden'}}>
+      <div onClick={e=>e.stopPropagation()} style={{width:'100%', maxWidth:'640px', maxHeight:'90vh', minHeight:0, display:'flex', flexDirection:'column', background:'var(--panel)', border:'1px solid var(--line)', borderRadius:'16px', overflow:'hidden'}}>
         <div style={{padding:'16px 20px', borderBottom:'1px solid var(--line)', display:'flex', justifyContent:'space-between', alignItems:'center'}}>
           <div>
             <div style={{fontWeight:600, fontSize:'14px'}}>Settings</div>
@@ -402,7 +409,7 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
           ))}
         </div>
 
-        <div style={{flex:1, overflowY:'auto', padding:'20px'}}>
+        <div style={{flex:1, minHeight:0, overflow:'auto', padding:'20px'}}>
           {loading ? <div className="mono" style={{textAlign:'center', padding:'32px', color:'var(--muted)', fontSize:'13px'}}>Loading…</div> : (
             <>
               {activeTab==='providers' && (
@@ -415,6 +422,32 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
                       {providers.filter(p=> !KNOWN_PROVIDERS.find(k=>k.id===p.id)).map(p=> <option key={p.id} value={p.id}>{p.name}</option>)}
                     </select>
                     <div className="mono" style={{marginTop:'8px', fontSize:'11px', color:'var(--muted)'}}>New chats will use this provider. You can also switch per-chat via the header.</div>
+                  </div>
+                  <div>
+                    <div className="mono" style={{fontSize:'11px', color:'var(--muted)', marginBottom:'6px'}}>Model presets — provider + model + effort</div>
+                    {presets.length === 0 ? (
+                      <div className="mono" style={{fontSize:'11px', color:'var(--muted)'}}>None yet — save combos from the composer model menu or the header badge.</div>
+                    ) : (
+                      <div style={{display:'flex', flexDirection:'column', gap:'6px'}}>
+                        {presets.map(p => {
+                          const active = p.id === activePresetId;
+                          return (
+                            <div key={p.id} style={{display:'flex', alignItems:'center', gap:'8px', padding:'8px 10px', border:'1px solid var(--line)', borderRadius:'10px', background:'var(--bg)'}}>
+                              <div style={{flex:1, minWidth:0}}>
+                                <div style={{display:'flex', gap:'6px', alignItems:'center'}}>
+                                  <span style={{fontWeight:600, fontSize:'12px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{p.name}</span>
+                                  {active && <span className="mono" style={{fontSize:'10px', color:'var(--ok-text)', border:'1px solid var(--ok-border)', padding:'1px 6px', borderRadius:999}}>active</span>}
+                                </div>
+                                <div className="mono" style={{fontSize:'11px', color:'var(--muted)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}}>{p.provider_id} · {p.model}{p.effort ? ` · ${p.effort}` : ''}</div>
+                              </div>
+                              <button className="btn-ghost" onClick={()=> onApplyPreset?.(p)} style={{fontSize:'11px', padding:'4px 10px', borderRadius:'999px', border:'1px solid var(--line)'}}>Use</button>
+                              <button className="btn-ghost" onClick={()=> onDeletePreset?.(p.id)} aria-label={`Delete preset ${p.name}`} style={{fontSize:'13px', padding:'2px 8px', borderRadius:'999px', color:'var(--danger)'}}>×</button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                    <button className="btn-ghost" onClick={()=> onSavePreset?.()} style={{marginTop:'8px', fontSize:'11px', padding:'6px 10px', borderRadius:'999px', border:'1px dashed var(--line)'}}>Save current as preset…</button>
                   </div>
                   <div style={{height:'1px', background:'var(--line)'}} />
                   <div className="mono" style={{fontSize:'11px', color:'var(--muted)'}}>API keys • stored locally in config.toml • never logged</div>
@@ -855,7 +888,7 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
       {/* Kilo model picker */}
       {showKiloPicker && (
         <div style={{position:'fixed', inset:0, background:'rgba(0,0,0,0.6)', backdropFilter:'blur(8px)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:200, padding:'16px'}} onClick={()=> setShowKiloPicker(null)}>
-          <div onClick={e=>e.stopPropagation()} style={{width:'100%', maxWidth:'560px', maxHeight:'78vh', display:'flex', flexDirection:'column', background:'var(--panel)', border:'1px solid var(--line)', borderRadius:'16px', overflow:'hidden'}}>
+          <div onClick={e=>e.stopPropagation()} style={{width:'100%', maxWidth:'560px', maxHeight:'78vh', minHeight:0, display:'flex', flexDirection:'column', background:'var(--panel)', border:'1px solid var(--line)', borderRadius:'16px', overflow:'hidden'}}>
             <div style={{padding:'14px 16px', borderBottom:'1px solid var(--line)', display:'flex', justifyContent:'space-between', alignItems:'center'}}>
                <div><div style={{fontWeight:600, fontSize:'13px'}}>Kilo models</div><div className="mono" style={{fontSize:'11px', color:'var(--muted)'}}>{kiloModels.length} available • configured Kilo Gateway catalog</div></div>
               <button className="btn-ghost btn-ico" onClick={()=> setShowKiloPicker(null)} style={{borderRadius:'999px'}}>✕</button>
@@ -869,7 +902,7 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
                 <span className="mono" style={{marginLeft:'auto', fontSize:'11px', color:'var(--muted)', alignSelf:'center'}}>{filteredKilo.length} shown</span>
               </div>
             </div>
-            <div style={{flex:1, overflowY:'auto', padding:'8px'}}>
+            <div style={{flex:1, minHeight:0, overflow:'auto', padding:'8px'}}>
               {kiloLoading ? <div className="mono" style={{textAlign:'center', padding:'24px', color:'var(--muted)'}}>Loading…</div>
                : kiloError ? <div className="mono" style={{textAlign:'center', padding:'24px', color:'var(--danger)'}}>{kiloError}</div>
                : filteredKilo.length===0 ? <div className="mono" style={{textAlign:'center', padding:'24px', color:'var(--muted)'}}>No matches</div>

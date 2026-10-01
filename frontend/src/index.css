@@ -293,13 +293,6 @@ select{appearance:none;padding-right:32px}
 }
 .badge-accent{border-color:var(--accent-border);color:var(--accent-2);background:var(--accent-dim)}
 
-/* fold — collapsible transcript rows (tool calls, reasoning timeline). Marker
-   hidden and chevron flipped via [open] so fold state reads without JS. */
-.fold summary::-webkit-details-marker{display:none}
-.fold summary{list-style:none}
-.fold .fold-chev{transition:transform .2s}
-.fold[open] .fold-chev{transform:rotate(180deg)}
-
 /* aperture motion — disabled under reduced-motion */
 @keyframes apertureSpin{
   0%{transform:rotate(0deg)}
@@ -311,28 +304,15 @@ select{appearance:none;padding-right:32px}
 }
 .aperture-spin{animation:apertureSpin 12s cubic-bezier(0.4,0,0.2,1) infinite}
 .aperture-breathe{animation:apertureBreathe 3s ease-in-out infinite}
-@keyframes pingSoft{
-  0%{transform:scale(1);opacity:.75}
-  80%,100%{transform:scale(2.2);opacity:0}
-}
-.ping-soft{animation:pingSoft 1.4s cubic-bezier(0,0,0.2,1) infinite}
 } /* end @layer components */
 
 /* Unlayered so reduced-motion beats every layered animation below. */
 @media (prefers-reduced-motion: reduce){
-  .aperture-spin,.aperture-breathe,.ping-soft{animation:none}
+  .aperture-spin,.aperture-breathe{animation:none}
 }
 
 /* ── Ported from nanobot globals.css ───────────────────────────────────── */
 
-@keyframes streaming-text-sheen-ltr {
-  0% { background-position: 140% 50%; }
-  100% { background-position: -40% 50%; }
-}
-@keyframes markdown-sheen {
-  0% { background-position: 120% 0; }
-  100% { background-position: -120% 0; }
-}
 @keyframes composer-status-strip-enter {
   0% { max-height: 0; opacity: 0; transform: translateY(10px) scale(0.985); }
   72% { max-height: var(--composer-strip-max-height, 46px); opacity: 1; transform: translateY(-1px) scale(1.004); }
@@ -345,9 +325,9 @@ select{appearance:none;padding-right:32px}
 
 /* Ported nanobot classes (globals.css). Intentionally UNLAYERED: the JIT
    build purges class rules inside @layer components/utilities that no
-   scanned source file references yet — these arrive with the Phase 1–5
-   components. Unlayered also outranks Tailwind utilities for shared
-   properties, so don't stack conflicting utilities (rounded-*, bg-*) on them. */
+   scanned source file references yet. Unlayered also outranks Tailwind
+   utilities for shared properties, so don't stack conflicting utilities
+   (rounded-*, bg-*) on them. */
   /* Glass morphism — defaults derive from theme vars; a GlassCard-style
      wrapper can override individual --glass-* props inline. */
   .glass-card {
@@ -366,54 +346,6 @@ select{appearance:none;padding-right:32px}
       background-color: var(--panel);
       backdrop-filter: none;
       -webkit-backdrop-filter: none;
-    }
-  }
-
-  /* L→R sheen clipped to live activity labels: the highlight lives inside the
-     glyphs, not the row background, so light mode stays quiet. */
-  .streaming-text-sheen { position: relative; color: var(--muted); }
-  .streaming-text-sheen::after {
-    content: attr(data-sheen-text);
-    position: absolute;
-    inset: 0;
-    display: block;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    pointer-events: none;
-    color: transparent;
-    background: linear-gradient(90deg, transparent 0%, transparent 38%, var(--text) 50%, transparent 62%, transparent 100%);
-    background-size: 260% 100%;
-    background-position: 140% 50%;
-    background-repeat: no-repeat;
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: streaming-text-sheen-ltr 2.8s ease-in-out infinite;
-  }
-
-  /* Gradient sweep across the in-flight assistant message while streaming. */
-  .markdown-streaming { position: relative; }
-  .markdown-streaming::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background: linear-gradient(105deg, transparent 40%, var(--accent-dim) 50%, transparent 60%);
-    background-size: 250% 100%;
-    background-repeat: no-repeat;
-    animation: markdown-sheen 2.6s ease-in-out infinite;
-  }
-
-  /* Virtualized thread rendering: offscreen message units skip layout/paint. */
-  .thread-viewport {
-    container-name: thread-viewport;
-    container-type: inline-size;
-  }
-  @supports (content-visibility: auto) {
-    .thread-render-unit {
-      content-visibility: auto;
-      contain-intrinsic-size: auto 12rem;
     }
   }
 

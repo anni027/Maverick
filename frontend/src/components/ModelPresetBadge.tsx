@@ -1,13 +1,28 @@
 import { useEffect, useRef, useState } from 'react';
 import { ChevronIcon, CheckIcon, SparklesIcon } from './icons';
+import type { ModelPreset } from '../types';
 
 interface ModelPresetBadgeProps {
   providers: Array<{ id: string; name: string; model: string }>;
   selected: string;
+  presets?: ModelPreset[];
+  activePresetId?: string;
+  onApplyPreset?: (p: ModelPreset) => void;
+  onDeletePreset?: (id: string) => void;
+  onSavePreset?: () => void;
   onOpenSettings?: () => void;
 }
 
-export default function ModelPresetBadge({ providers, selected, onOpenSettings }: ModelPresetBadgeProps) {
+export default function ModelPresetBadge({
+  providers,
+  selected,
+  presets = [],
+  activePresetId,
+  onApplyPreset,
+  onDeletePreset,
+  onSavePreset,
+  onOpenSettings,
+}: ModelPresetBadgeProps) {
   const [open, setOpen] = useState(false);
   const [hovered, setHovered] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -98,6 +113,99 @@ export default function ModelPresetBadge({ providers, selected, onOpenSettings }
             backdropFilter: 'blur(16px)',
           }}
         >
+          {presets.length > 0 && (
+            <>
+              <div style={{ padding: '6px 8px 4px', fontSize: '11px', fontWeight: 500, color: 'var(--faint)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                Presets
+              </div>
+              {presets.map(p => {
+                const isActive = p.id === activePresetId;
+                return (
+                  <div key={p.id} style={{ display: 'flex', alignItems: 'center' }}>
+                    <button
+                      onClick={() => {
+                        onApplyPreset?.(p);
+                        setOpen(false);
+                      }}
+                      style={{
+                        flex: 1,
+                        minWidth: 0,
+                        textAlign: 'left',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '8px 10px',
+                        borderRadius: '8px',
+                        background: isActive ? 'var(--control-hover)' : 'transparent',
+                        border: 'none',
+                        cursor: 'pointer',
+                        transition: 'background .12s',
+                        color: 'var(--text)',
+                      }}
+                    >
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', minWidth: 0 }}>
+                        <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                          <SparklesIcon size={12} className="text-muted" />
+                          <span style={{ fontWeight: 500, fontSize: '13px' }}>{p.name}</span>
+                        </div>
+                        <span className="mono" style={{ fontSize: '11px', color: 'var(--muted)', paddingLeft: '18px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {p.model}{p.effort ? ` · ${p.effort}` : ''}
+                        </span>
+                      </div>
+                      {isActive && (
+                        <span style={{ color: 'var(--accent)', flexShrink: 0, marginLeft: '8px' }}>
+                          <CheckIcon size={14} />
+                        </span>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => onDeletePreset?.(p.id)}
+                      aria-label={`Delete preset ${p.name}`}
+                      title="Delete preset"
+                      style={{
+                        flexShrink: 0,
+                        width: '22px',
+                        height: '22px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        borderRadius: '6px',
+                        border: 'none',
+                        background: 'transparent',
+                        color: 'var(--faint)',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        lineHeight: 1,
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                );
+              })}
+            </>
+          )}
+          <button
+            onClick={() => {
+              onSavePreset?.();
+              setOpen(false);
+            }}
+            style={{
+              width: '100%',
+              textAlign: 'left',
+              padding: '7px 10px',
+              borderRadius: '8px',
+              border: 'none',
+              background: 'transparent',
+              cursor: 'pointer',
+              color: 'var(--muted)',
+              fontSize: '12px',
+              fontWeight: 500,
+            }}
+          >
+            Save current as preset…
+          </button>
+          <div style={{ height: '1px', background: 'var(--line)', margin: '6px 0' }} />
           <div style={{ padding: '6px 8px 4px', fontSize: '11px', fontWeight: 500, color: 'var(--faint)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
             Model
           </div>

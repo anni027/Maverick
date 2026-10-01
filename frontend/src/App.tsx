@@ -7,7 +7,7 @@ import ModelPresetBadge from './components/ModelPresetBadge';
 import Settings from './components/Settings';
 import ApertureLogo from './components/ApertureLogo';
 import { PanelIcon, SettingsIcon, PlusIcon } from './components/icons';
-import { ProviderInfo, UiConfig, DEFAULT_UI_CONFIG } from './types';
+import { ProviderInfo, UiConfig, DEFAULT_UI_CONFIG, ModelPreset } from './types';
 import { useTheme, type ThemeMode } from './hooks/useTheme';
 
 export default function App() {
@@ -27,6 +27,16 @@ export default function App() {
   // startup and re-read whenever Settings saves one — previously these toggles
   // were written to config but never read back or applied anywhere.
   const [uiConfig, setUiConfig] = useState<UiConfig>(DEFAULT_UI_CONFIG);
+  // Saved model presets (provider + model + effort). Loaded at startup; every
+  // mutation goes through save_model_presets (replace-all).
+  const [presets, setPresets] = useState<ModelPreset[]>([]);
+  // Effort mirrored up from the composer — snapshotted when saving a preset.
+  const [currentEffort, setCurrentEffort] = useState('');
+  // Down-channel: push a preset's effort into the composer. The token busts
+  // re-applying the same preset (same tier still needs to fire).
+  const [presetEffort, setPresetEffort] = useState<{ tier: string; token: number } | null>(null);
+  // "Save as preset" name dialog (App-level modal, not window.prompt).
+  const [presetDialog, setPresetDialog] = useState<{ open: boolean; name: string }>({ open: false, name: '' });
   const loadUiConfig = async () => {
     try {
       const ui = await invoke<Partial<UiConfig>>('get_ui_config');
@@ -91,6 +101,10 @@ export default function App() {
           setShowSettings(true);
         }
       } catch(e){ setInitError(`Providers: ${String(e)}`)}
+      try {
+        const saved = await withTimeout(invoke<ModelPreset[]>('list_model_presets'), 5000, 'list_model_presets');
+        setPresets(saved);
+      } catch { /* presets are optional — start with none */ }
       setInitStep('Loading tools');
       try { const tl = await withTimeout(invoke<string[]>('list_tools'),5000,'list_tools'); setTools(tl.filter(t=> t !== 'test_tool')) } catch(e){ setInitError(`Tools: ${String(e)}`)}
       setInitStep('Opening session');
@@ -157,6 +171,62 @@ export default function App() {
     try { await invoke('init_session', { sessionId, providerId: id }); } catch(e){ console.error('re-init with new provider failed', e); }
   };
 
+  // Apply a preset: persist the model onto its provider (merging base_url/kind —
+  // passing null would wipe them), switch provider if needed, then push the
+  // preset's effort down into the composer.
+  const applyPreset = async (p: ModelPreset) => {
+    try {
+      const cur = await invoke<{ base_url?: string | null; kind?: string | null } | null>('get_provider_settings', {
+        providerId: p.provider_id,
+      });
+      await invoke('set_provider_settings', {
+        providerId: p.provider_id,
+        baseUrl: cur?.base_url ?? null,
+        model: p.model,
+        kind: cur?.kind ?? null,
+      });
+      if (p.provider_id !== selectedProvider) {
+        await handleProviderChange(p.provider_id);
+      }
+      await refreshProviders();
+      setPresetEffort({ tier: p.effort || '', token: Date.now() });
+    } catch (e) {
+      console.error('applyPreset failed', e);
+      alert(String(e));
+    }
+  };
+
+  const savePreset = async () => {
+    const name = presetDialog.name.trim();
+    const provider = providers.find(p => p.id === selectedProvider);
+    if (!name || !provider) return;
+    const preset: ModelPreset = {
+      id: `preset-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      name,
+      provider_id: selectedProvider,
+      model: provider.model,
+      effort: currentEffort || null,
+    };
+    try {
+      const saved = await invoke<ModelPreset[]>('save_model_presets', { presets: [...presets, preset] });
+      setPresets(saved);
+      setPresetDialog({ open: false, name: '' });
+    } catch (e) {
+      alert(String(e));
+    }
+  };
+
+  const deletePreset = async (id: string) => {
+    try {
+      const saved = await invoke<ModelPreset[]>('save_model_presets', {
+        presets: presets.filter(p => p.id !== id),
+      });
+      setPresets(saved);
+    } catch (e) {
+      alert(String(e));
+    }
+  };
+
   // ModelPresetBadge dispatches `model-select` events; route them through the
   // existing provider-change flow so a badge click does the same hot-swap as
   // the old `<select>` onChange.
@@ -213,6 +283,14 @@ export default function App() {
   }
 
   const visibleProviders = providers;
+  const activeProviderInfo = providers.find(p => p.id === selectedProvider);
+  // Same exact-match rule the composer uses: provider + model + effort.
+  const activePresetId = presets.find(
+    p =>
+      p.provider_id === selectedProvider &&
+      p.model === activeProviderInfo?.model &&
+      (p.effort || '') === (currentEffort || '')
+  )?.id;
 
   return (
     <div style={{display:'flex', height:'100vh', background:'var(--bg)', overflow:'hidden'}}>
@@ -248,7 +326,16 @@ export default function App() {
                 <PanelIcon size={16} />
               </button>
             )}
-            <ModelPresetBadge providers={visibleProviders.length?visibleProviders:providers} selected={selectedProvider} onOpenSettings={()=>setShowSettings(true)} />
+            <ModelPresetBadge
+              providers={visibleProviders.length?visibleProviders:providers}
+              selected={selectedProvider}
+              presets={presets}
+              activePresetId={activePresetId}
+              onApplyPreset={applyPreset}
+              onDeletePreset={deletePreset}
+              onSavePreset={() => setPresetDialog({ open: true, name: '' })}
+              onOpenSettings={()=>setShowSettings(true)}
+            />
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -284,12 +371,70 @@ export default function App() {
             providers={visibleProviders.length ? visibleProviders : providers}
             selectedProvider={selectedProvider}
             onProviderChange={handleProviderChange}
+            presets={presets}
+            onApplyPreset={applyPreset}
+            onSavePresetRequest={() => setPresetDialog({ open: true, name: '' })}
+            onEffortChange={setCurrentEffort}
+            presetEffort={presetEffort}
           />
         </div>
       </div>
 
 
-      <Settings isOpen={showSettings} onClose={()=>setShowSettings(false)} providers={visibleProviders.length?visibleProviders:providers} currentProvider={selectedProvider} onProviderChange={handleProviderChange} onRefresh={refreshProviders} />
+      {/* Save-as-preset name dialog */}
+      {presetDialog.open && (
+        <div
+          style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.55)', zIndex:150, display:'flex', alignItems:'center', justifyContent:'center' }}
+          onClick={() => setPresetDialog({ open:false, name:'' })}
+        >
+          <div
+            className="panel"
+            style={{ width:'340px', padding:'16px', display:'flex', flexDirection:'column', gap:'10px' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div style={{ fontWeight:600, fontSize:'13px' }}>Save model preset</div>
+            <div className="mono" style={{ fontSize:'11px', color:'var(--muted)' }}>
+              {selectedProvider} · {activeProviderInfo?.model ?? '—'} · {currentEffort || 'default effort'}
+            </div>
+            <input
+              autoFocus
+              placeholder="Preset name"
+              value={presetDialog.name}
+              onChange={e => setPresetDialog(d => ({ ...d, name: e.target.value }))}
+              onKeyDown={e => {
+                if (e.key === 'Enter') savePreset();
+                if (e.key === 'Escape') setPresetDialog({ open:false, name:'' });
+              }}
+              style={{ width:'100%' }}
+            />
+            <div style={{ display:'flex', gap:'8px', justifyContent:'flex-end' }}>
+              <button className="btn-ghost" onClick={() => setPresetDialog({ open:false, name:'' })}>Cancel</button>
+              <button
+                className="btn-ghost"
+                disabled={!presetDialog.name.trim()}
+                onClick={savePreset}
+                style={!presetDialog.name.trim() ? { opacity:0.5 } : undefined}
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <Settings
+        isOpen={showSettings}
+        onClose={()=>setShowSettings(false)}
+        providers={visibleProviders.length?visibleProviders:providers}
+        currentProvider={selectedProvider}
+        onProviderChange={handleProviderChange}
+        onRefresh={refreshProviders}
+        presets={presets}
+        activePresetId={activePresetId}
+        onApplyPreset={applyPreset}
+        onDeletePreset={deletePreset}
+        onSavePreset={()=>setPresetDialog({ open:true, name:'' })}
+      />
     </div>
   );
 }

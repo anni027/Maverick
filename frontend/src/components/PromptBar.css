@@ -36,8 +36,34 @@
 
 .prompt-bar__menu[data-kind='model'] {
   right: auto;
-  width: 200px;
+  width: 240px;
   transform-origin: bottom left;
+}
+
+.prompt-bar__menu-footer {
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid var(--pb-hover);
+}
+
+.prompt-bar__menu-save {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--pb-muted);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.prompt-bar__menu-save:hover {
+  background: var(--pb-hover);
+  color: var(--pb-ink);
 }
 
 @keyframes prompt-bar-pop {
