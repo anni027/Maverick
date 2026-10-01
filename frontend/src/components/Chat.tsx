@@ -30,6 +30,29 @@ const EFFORT_LABELS: Record<string, string> = {
 };
 const effortLabel = (wire: string): string => EFFORT_LABELS[wire] ?? wire;
 
+/// Home-screen headline pool — one playful line per session, shuffled on click.
+const FUN_HEADLINES: string[] = [
+  "Let's noodle.",
+  "What's cooking?",
+  'Fresh chat, fresh chaos.',
+  'Got a wild idea?',
+  'Spill it — what are we building?',
+  'Whatcha thinking about?',
+  'Okay, what are we breaking today?',
+  'Type something. Or everything.',
+  'Ideas? I have coffee.',
+  "Let's make a productive mess.",
+];
+
+const pickHeadline = (exclude?: string): string => {
+  if (FUN_HEADLINES.length <= 1) return FUN_HEADLINES[0] ?? '';
+  let next = FUN_HEADLINES[Math.floor(Math.random() * FUN_HEADLINES.length)] ?? '';
+  while (exclude !== undefined && next === exclude) {
+    next = FUN_HEADLINES[Math.floor(Math.random() * FUN_HEADLINES.length)] ?? '';
+  }
+  return next;
+};
+
 /// Taskbar progress, best-effort (no-op outside Tauri).
 async function setTaskbarProgress(status: 'indeterminate' | 'none' | 'error') {
   try {
@@ -180,6 +203,12 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
   // an older render.
   const sessionIdRef = useRef(sessionId);
   sessionIdRef.current = sessionId;
+  // Home-screen headline: a fresh playful line whenever the session changes;
+  // clicking the headline shuffles to another one.
+  const [greeting, setGreeting] = useState(() => pickHeadline());
+  useEffect(() => {
+    setGreeting(pickHeadline());
+  }, [sessionId]);
   const [isStreaming, setIsStreaming] = useState(false);
   const isStreamingRef = useRef(false);
   const streamFrameRef = useRef<number | null>(null);
@@ -287,12 +316,29 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
     setStatus(prev => (prev ? { ...prev, ...patch, lastActivityAt: Date.now() } : prev));
   };
 
+  // A run that ends before the first AssistantText (error, stop, cap, empty
+  // completion) must not leave ThoughtLine spinning: flip its thinking off
+  // and stamp a duration so it reads as finished. Returns the same array when
+  // nothing is thinking, so React bails out of the state update.
+  const finalizeThinking = (prev: Message[]): Message[] => {
+    if (!prev.some(m => m.thinking?.isThinking)) return prev;
+    const startedAt = thinkingStartTimeRef.current || Date.now();
+    const durationSec = Math.max(1, Math.round((Date.now() - startedAt) / 1000));
+    return prev.map(m =>
+      m.thinking?.isThinking
+        ? { ...m, thinking: { ...m.thinking, isThinking: false, durationSec: m.thinking.durationSec || durationSec } }
+        : m,
+    );
+  };
+
   const finishRun = (kind: 'done' | 'error' | 'cancelled' | 'cap', detail: string) => {
     if (kind !== 'done') {
       clearStreamingLoop();
       isStreamingRef.current = false;
       setIsStreaming(false);
-      setMessages(prev => prev.map(m => (m.isStreaming ? { ...m, isStreaming: false } : m)));
+      setMessages(prev => finalizeThinking(prev.map(m => (m.isStreaming ? { ...m, isStreaming: false } : m))));
+    } else {
+      setMessages(prev => finalizeThinking(prev));
     }
     const s = runStatusRef.current;
     const elapsed = s ? Date.now() - s.startedAt : 0;
@@ -422,6 +468,9 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
         touchStatus({ turn: event.turn });
         break;
       case 'ThinkingStarted': {
+        // The run already terminalized (error/stop/cap): a straggler thinking
+        // event must not restart the spinner that finishRun just cleared.
+        if (runStatusRef.current?.finished) break;
         thinkingStartTimeRef.current = Date.now();
         const targetId = currentAssistantIdRef.current;
         setMessages(prev => {
@@ -451,6 +500,7 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
         break;
       }
       case 'ThinkingStep': {
+        if (runStatusRef.current?.finished) break;
         const sanitized = sanitizeThinkingStep(event.text);
         setMessages(prev => {
           const targetId = currentAssistantIdRef.current;
@@ -743,7 +793,7 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
     isStreamingRef.current = false;
     setIsStreaming(false);
     streamTargetMapRef.current.clear();
-    setMessages(prev => prev.map(m => (m.isStreaming ? { ...m, isStreaming: false } : m)));
+    setMessages(prev => finalizeThinking(prev.map(m => (m.isStreaming ? { ...m, isStreaming: false } : m))));
     setIsLoading(false);
     // Cancel the run's own session, not whatever session happens to be visible.
     const target = runSessionIdRef.current ?? sessionId;
@@ -770,79 +820,66 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
       setMcpError(String(e));
     }
   };
-  const suggestions = [
-    { title: 'Explore Codebase', desc: 'Read and explain architecture & agent loop', prompt: 'Read src-tauri/ and explain the agent loop' },
-    { title: 'Run Tests & Fix', desc: 'Execute cargo tests and fix any failing specs', prompt: 'Run tests and fix failures' },
-    { title: 'Search Code', desc: 'Locate functions, structs, or TODOs across files', prompt: 'Find all TODOs in the codebase' },
-    { title: 'Git Workflow', desc: 'Check diff, status, and prepare next commit', prompt: 'Show current git status and modified files' },
-  ];
+  // Home screen = no messages yet: the composer lifts to the vertical center
+  // with the fun headline above it and the suggestion cards below it.
+  const isEmptyState = messages.length === 0;
 
   return (
     <div style={{display:'flex', flexDirection:'column', flex:1, minHeight:0, background:'var(--bg)', position:'relative'}}>
-      {/* Messages */}
-      <div ref={scrollerRef} style={{flex:1, overflowY:'auto', overflowX:'hidden', display:'flex', flexDirection:'column'}}>
-        <div style={{width:'100%', maxWidth:'768px', margin:'0 auto', flex:1, display:'flex', flexDirection:'column', padding: messages.length===0 ? '0 20px' : '24px 20px 0', gap:'0', minHeight:'100%'}}>
-          {messages.length===0 ? (
-            <div style={{flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:'28px', padding:'40px 0 80px', textAlign:'center'}}>
+      {/* Messages — collapsed on the home screen; the empty-state hero lives
+          inside the dock below so the composer can center vertically. */}
+      <div
+        ref={scrollerRef}
+        style={isEmptyState
+          ? { height: 0, flexShrink: 0, overflow: 'hidden' }
+          : { flex: 1, overflowY: 'auto', overflowX: 'hidden', display: 'flex', flexDirection: 'column' }}
+      >
+        <div style={{width:'100%', maxWidth:'768px', margin:'0 auto', flex:1, display:'flex', flexDirection:'column', padding:'24px 20px 0', gap:'0', minHeight:'100%'}}>
+          <div style={{display:'flex', flexDirection:'column', gap:'0', paddingBottom:'24px'}}>
+            {(ui.show_tool_calls ? messages : messages.filter(m => m.role !== 'tool')).map(msg => (
+              <MessageBubble key={msg.id} message={msg} compact={ui.compact_mode} />
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
+        </div>
+      </div>
+
+      {/* Floating prompt dock — on the home screen it expands to fill the
+          viewport and centers logo → fun headline → composer. */}
+      <div
+        style={isEmptyState
+          ? { flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '0 16px', background: 'none' }
+          : { padding: '0 16px 20px', background: 'linear-gradient(transparent, var(--bg) 28%)', flexShrink: 0, display: 'flex', justifyContent: 'center' }}
+      >
+        <div
+          className="thread-composer-surface"
+          style={{ width: '100%', maxWidth: '768px', display: 'flex', flexDirection: 'column', gap: isEmptyState ? '18px' : '8px' }}
+        >
+          {isEmptyState && (
+            <div style={{display:'flex', flexDirection:'column', alignItems:'center', gap:'18px', textAlign:'center'}}>
               <div style={{
                 width:'48px', height:'48px', borderRadius:'50%', background:'var(--panel)',
                 border:'1px solid var(--line)', display:'flex', alignItems:'center', justifyContent:'center',
               }}>
                 <ApertureLogo size={28} />
               </div>
-              <div>
+              <div
+                onClick={() => setGreeting(prev => pickHeadline(prev))}
+                title="Click for another"
+                style={{ cursor:'pointer', userSelect:'none' }}
+              >
                 <ShinyText
-                  text="What can I help with today?"
+                  text={greeting}
                   color="var(--muted)"
                   shineColor="var(--text)"
                   spread={120}
                   speed={3}
                   direction="left"
-                  className="text-[26px] font-medium tracking-[-0.025em] leading-[1.2]"
+                  className="text-[30px] font-medium tracking-[-0.025em] leading-[1.2]"
                 />
               </div>
-              <div style={{width:'100%', maxWidth:'640px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px', textAlign:'left', marginTop:'4px'}}>
-                {suggestions.map(c=>(
-                  <button
-                    key={c.title}
-                    onClick={() => {
-                      setInput(c.prompt);
-                      requestAnimationFrame(() => textareaRef.current?.focus());
-                    }}
-                    style={{
-                      textAlign:'left',
-                      padding:'14px 16px',
-                      background:'var(--panel)',
-                      border:'1px solid var(--line)',
-                      borderRadius:'12px',
-                      display:'flex',
-                      flexDirection:'column',
-                      gap:'4px',
-                      cursor:'pointer',
-                      transition:'all .15s ease'
-                    }}
-                    className="hover:bg-[var(--control-hover)]"
-                  >
-                    <div style={{fontSize:'13.5px', fontWeight:500, color:'var(--text)'}}>{c.title}</div>
-                    <div style={{fontSize:'12px', lineHeight:1.4, color:'var(--muted)'}}>{c.desc}</div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div style={{display:'flex', flexDirection:'column', gap:'0', paddingBottom:'24px'}}>
-              {(ui.show_tool_calls ? messages : messages.filter(m => m.role !== 'tool')).map(msg => (
-                <MessageBubble key={msg.id} message={msg} compact={ui.compact_mode} />
-              ))}
-              <div ref={messagesEndRef} />
             </div>
           )}
-        </div>
-      </div>
-
-      {/* Floating prompt dock */}
-      <div style={{padding:'0 16px 20px', background:'linear-gradient(transparent, var(--bg) 28%)', flexShrink:0, display:'flex', justifyContent:'center'}}>
-        <div className="thread-composer-surface" style={{width:'100%', maxWidth:'768px', display:'flex', flexDirection:'column', gap:'8px'}}>
           {runHere && runBanner && (
             <div
               className="mono"
@@ -934,9 +971,6 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
             width={768}
             radius={16}
           />
-          <div style={{textAlign:'center', fontSize:'11px', color:'var(--faint)', opacity:0.85, letterSpacing:'0.01em'}}>
-            Maverick can make mistakes. Verify important info.
-          </div>
         </div>
       </div>
       {showMcpDialog && (

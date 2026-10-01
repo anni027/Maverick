@@ -385,7 +385,7 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
 
   return (
     <div style={{position:'fixed', inset:0, background:'rgba(0,0,0,0.45)', backdropFilter:'blur(8px)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:100, padding:'16px'}}>
-      <div onClick={e=>e.stopPropagation()} style={{width:'100%', maxWidth:'640px', maxHeight:'90vh', minHeight:0, display:'flex', flexDirection:'column', background:'var(--panel)', border:'1px solid var(--line)', borderRadius:'16px', overflow:'hidden'}}>
+      <div onClick={e=>e.stopPropagation()} style={{width:'100%', maxWidth:'min(960px, 92vw)', minWidth:'340px', maxHeight:'92vh', minHeight:'360px', resize:'both', display:'flex', flexDirection:'column', background:'var(--panel)', border:'1px solid var(--line)', borderRadius:'16px', overflow:'hidden'}}>
         <div style={{padding:'16px 20px', borderBottom:'1px solid var(--line)', display:'flex', justifyContent:'space-between', alignItems:'center'}}>
           <div>
             <div style={{fontWeight:600, fontSize:'14px'}}>Settings</div>

@@ -24,9 +24,7 @@ use xai_grok_tools::reminders::DEFAULT_REMINDER_TAG;
 
 use crate::duckduckgo::DuckDuckGoTool;
 
-use tokio::sync::{Mutex as TokioMutex, mpsc};
-
-use agent_client_protocol as acp;
+use tokio::sync::mpsc;
 
 /// Simple permission guard with explicit allow/deny lists (Phase 4).
 ///

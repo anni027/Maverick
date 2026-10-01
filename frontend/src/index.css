@@ -393,3 +393,21 @@ select{appearance:none;padding-right:32px}
 
 
 
+
+/* Session sidebar — drag the right edge to resize (App owns the width). */
+.sidebar-resize {
+  position: absolute;
+  top: 0;
+  right: -3px;
+  bottom: 0;
+  width: 6px;
+  z-index: 30;
+  cursor: col-resize;
+  background: transparent;
+  transition: background 0.15s ease;
+}
+.sidebar-resize:hover,
+.sidebar-resize:active {
+  background: var(--accent);
+  opacity: 0.55;
+}

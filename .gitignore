@@ -14,3 +14,6 @@ protoc_dist/
 # Local app data
 *.log
 .DS_Store
+workspace/
+**/workspace/
+

@@ -11,7 +11,7 @@ use crate::{
     config::ConfigManager,
     providers::{ProviderInfoDto, ProviderRegistry},
     session_store::SessionManager,
-    tools::{PermissionGuard, add_mcp_server, build_chat_handle},
+    tools::{PermissionGuard, build_chat_handle},
 };
 use xai_grok_tools::bridge::ToolBridge;
 

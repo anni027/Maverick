@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import Chat from './components/Chat';
@@ -19,6 +19,36 @@ export default function App() {
   const [selectedProvider, setSelectedProvider] = useState('');
   const [tools, setTools] = useState<string[]>([]);
   const [showSidebar, setShowSidebar] = useState(true);
+  // Sidebar width: drag the right edge to resize (180–480px), persisted.
+  const [sidebarWidth, setSidebarWidth] = useState(() => {
+    try {
+      const w = Number(localStorage.getItem('maverick.sidebarWidth'));
+      if (Number.isFinite(w) && w >= 180 && w <= 480) return w;
+    } catch { /* storage unavailable */ }
+    return 260;
+  });
+  const startSidebarResize = (e: ReactPointerEvent) => {
+    e.preventDefault();
+    const startX = e.clientX;
+    const startW = sidebarWidth;
+    const min = 180;
+    const max = Math.min(480, Math.max(min, window.innerWidth - 320));
+    const clamp = (x: number) => Math.round(Math.min(max, Math.max(min, startW + x)));
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    const onMove = (ev: PointerEvent) => setSidebarWidth(clamp(ev.clientX - startX));
+    const onUp = (ev: PointerEvent) => {
+      document.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerup', onUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      const w = clamp(ev.clientX - startX);
+      setSidebarWidth(w);
+      try { localStorage.setItem('maverick.sidebarWidth', String(w)); } catch { /* ignore */ }
+    };
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', onUp);
+  };
   const [showSettings, setShowSettings] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const [initError, setInitError] = useState<string | null>(null);
@@ -295,7 +325,8 @@ export default function App() {
   return (
     <div style={{display:'flex', height:'100vh', background:'var(--bg)', overflow:'hidden'}}>
       {showSidebar && (
-        <div style={{width:'260px', minWidth:'260px', display:'flex', flexDirection:'column', background:'var(--panel-2)', borderRight:'1px solid var(--line)'}}>
+        <div style={{width:sidebarWidth, minWidth:sidebarWidth, position:'relative', display:'flex', flexDirection:'column', background:'var(--panel-2)', borderRight:'1px solid var(--line)'}}>
+          <div className="sidebar-resize" onPointerDown={startSidebarResize} role="separator" aria-orientation="vertical" aria-label="Resize sidebar" />
           <SessionSidebar
             sessions={sessions}
             currentSession={sessionId}
@@ -341,6 +372,7 @@ export default function App() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             {!showSidebar && (
               <button
+                type="button"
                 className="btn-ghost btn-ico"
                 onClick={handleNewSession}
                 aria-label="New chat"

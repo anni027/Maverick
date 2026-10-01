@@ -240,42 +240,62 @@ export default function SessionSidebar({
     return (
       <div
         key={id}
-        onClick={() => onSelect(id)}
-        className="session-row group"
-        style={{
-          position: 'relative',
-          padding: '7px 10px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          background: selected ? 'var(--control-hover)' : 'transparent',
-          color: selected ? 'var(--text)' : 'var(--muted)',
-          borderRadius: '8px',
-          cursor: 'pointer',
-          transition: 'all .12s ease',
-        }}
+        className="session-row-wrap"
+        style={{ position: 'relative' }}
       >
-        <span
-          title={id}
+        <button
+          type="button"
+          onClick={() => onSelect(id)}
+          aria-current={selected ? 'true' : undefined}
+          className="session-row"
           style={{
-            fontSize: '13px',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            flex: 1,
-            fontWeight: selected ? 500 : 400,
-            color: selected ? 'var(--text)' : 'inherit',
+            width: '100%',
+            padding: '7px 10px 7px 10px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            background: selected ? 'var(--control-hover)' : 'transparent',
+            color: selected ? 'var(--text)' : 'var(--muted)',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            transition: 'all .12s ease',
+            fontFamily: 'inherit',
+            textAlign: 'left',
+            // Reserve room for the hover-only rename/delete actions overlay.
+            paddingRight: '58px',
           }}
         >
-          {id}
-        </span>
+          <span
+            title={id}
+            style={{
+              fontSize: '13px',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              flex: 1,
+              fontWeight: selected ? 500 : 400,
+              color: selected ? 'var(--text)' : 'inherit',
+            }}
+          >
+            {id}
+          </span>
+        </button>
 
         <div
           className="session-actions"
-          style={{ display: 'flex', alignItems: 'center', gap: '2px', flexShrink: 0 }}
-          onClick={e => e.stopPropagation()}
+          style={{
+            position: 'absolute',
+            right: '8px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '2px',
+          }}
         >
           <button
+            type="button"
             onClick={e => handleStartRename(e, id)}
             title="Rename chat"
             className="btn-ghost"
@@ -292,6 +312,7 @@ export default function SessionSidebar({
             <EditIcon size={12} />
           </button>
           <button
+            type="button"
             onClick={e => handleStartDelete(e, id)}
             title="Delete chat"
             className="btn-ghost"
@@ -349,6 +370,7 @@ export default function SessionSidebar({
       {/* New chat button */}
       <div style={{ padding: '4px 10px 8px' }}>
         <button
+          type="button"
           onClick={onNew}
           style={{
             width: '100%',
@@ -443,10 +465,11 @@ export default function SessionSidebar({
       </div>
 
       <style>{`
-        .session-row .session-actions { opacity: 0; transition: opacity 0.12s ease-in-out; }
-        .session-row:hover .session-actions,
-        .session-row:focus-within .session-actions { opacity: 1; }
+        .session-row-wrap .session-actions { opacity: 0; transition: opacity 0.12s ease-in-out; }
+        .session-row-wrap:hover .session-actions,
+        .session-row-wrap:focus-within .session-actions { opacity: 1; }
         .session-row:hover { background: var(--control-hover) !important; }
+        .session-row:focus-visible { outline: 1px solid var(--accent); outline-offset: -1px; }
       `}</style>
     </aside>
   );
