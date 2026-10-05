@@ -1,6 +1,6 @@
 //! Unified provider-plugin system.
 //!
-//! Every backend — a native LLM (xAI / OpenAI / Anthropic) or an external
+//! Every backend — a native LLM (OpenAI / Anthropic) or an external
 //! agent runtime (Kilo Code / OpenCode invoked as a subprocess or over MCP) —
 //! implements [`Provider`]. The agent loop only depends on this trait, so
 //! backends are fully interchangeable.
@@ -22,7 +22,6 @@ use xai_grok_sampling_types::{ConversationRequest, ConversationResponse};
 /// Stable identity of a backend.
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize)]
 pub enum ProviderKind {
-    Xai,
     OpenAi,
     Anthropic,
     /// External agent runtimes (Kilo Code, OpenCode, …) invoked as subprocesses.
@@ -34,7 +33,6 @@ pub enum ProviderKind {
 impl ProviderKind {
     pub fn as_str(&self) -> &'static str {
         match self {
-            ProviderKind::Xai => "xai",
             ProviderKind::OpenAi => "openai",
             ProviderKind::Anthropic => "anthropic",
             ProviderKind::Subprocess => "subprocess",

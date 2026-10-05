@@ -38,7 +38,7 @@ impl AppState {
         // Register native providers for which we have API keys, with any base_url/model overrides
         {
             let cfg = config_manager.read().await;
-            for key in ["xai", "openai", "anthropic"] {
+            for key in ["openai", "anthropic"] {
                 if let Some(api_key) = cfg.api_key(key) {
                     let settings = cfg.provider_settings(key);
                     if let Some(info) = crate::providers::provider_info_for(
@@ -55,7 +55,7 @@ impl AppState {
             // Also register any custom providers that have settings but no api_keys entry yet
             // (e.g. Ollama local with no key). They are stored in provider_settings.
             for (id, settings) in &cfg.provider_settings {
-                if ["xai", "openai", "anthropic"].contains(&id.as_str()) {
+                if ["openai", "anthropic"].contains(&id.as_str()) {
                     continue;
                 }
                 let api_key = cfg.api_key(id);
@@ -269,7 +269,7 @@ fn global_workspace_dir(state: &AppState) -> std::path::PathBuf {
 /// Why a session has no live loop, for the errors users actually see.
 async fn missing_loop_error(state: &AppState, session_id: &str) -> String {
     if state.provider_registry.read().await.list().is_empty() {
-        "No provider configured - add an API key in Settings (xAI/OpenAI/Anthropic)".to_string()
+        "No provider configured - add an API key in Settings (OpenAI/Anthropic)".to_string()
     } else {
         format!("session not initialized: {session_id}")
     }
@@ -762,7 +762,7 @@ pub async fn set_provider_settings(
     // made the removal branch below unreachable.)
     let api_key = state.config_manager.api_key(&provider_id).await;
     let has_override = base_url.is_some() || model.is_some() || kind.is_some();
-    let is_builtin = ["xai", "openai", "anthropic"].contains(&provider_id.as_str());
+    let is_builtin = ["openai", "anthropic"].contains(&provider_id.as_str());
     let unregistered = if api_key.is_some() || has_override {
         if let Some(info) = crate::providers::provider_info_for(
             &provider_id,

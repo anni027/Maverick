@@ -75,7 +75,7 @@ impl ProviderRegistry {
             .first()
             .map(|info| Arc::clone(&info.provider))
             .ok_or_else(|| {
-                "No provider configured - add an API key in Settings (xAI/OpenAI/Anthropic)"
+                "No provider configured - add an API key in Settings (OpenAI/Anthropic)"
                     .to_string()
             })
     }
@@ -127,19 +127,19 @@ mod tests {
     #[test]
     fn resolve_prefers_the_explicit_id() {
         let mut reg = ProviderRegistry::new();
-        reg.register(info("xai"));
         reg.register(info("openai"));
-        assert_eq!(reg.resolve("openai").unwrap().id(), "openai");
+        reg.register(info("anthropic"));
+        assert_eq!(reg.resolve("anthropic").unwrap().id(), "anthropic");
     }
 
     #[test]
     fn resolve_falls_back_to_the_first_registered() {
         let mut reg = ProviderRegistry::new();
-        reg.register(info("xai"));
         reg.register(info("openai"));
+        reg.register(info("anthropic"));
         // Unknown explicit id and empty explicit id both mean "first registered".
-        assert_eq!(reg.resolve("gone").unwrap().id(), "xai");
-        assert_eq!(reg.resolve("").unwrap().id(), "xai");
+        assert_eq!(reg.resolve("gone").unwrap().id(), "openai");
+        assert_eq!(reg.resolve("").unwrap().id(), "openai");
     }
 
     #[test]
@@ -147,7 +147,7 @@ mod tests {
         let reg = ProviderRegistry::new();
         // `.err()` rather than `unwrap_err()`: `Arc<dyn Provider>` is not `Debug`.
         let err = reg
-            .resolve("xai")
+            .resolve("openai")
             .err()
             .expect("resolve must fail with an empty registry");
         assert!(err.contains("No provider configured"), "got: {err}");
@@ -156,12 +156,12 @@ mod tests {
     #[test]
     fn resolve_tracks_the_registry_after_remove() {
         let mut reg = ProviderRegistry::new();
-        reg.register(info("xai"));
         reg.register(info("openai"));
-        reg.remove("xai");
-        assert_eq!(reg.resolve("xai").unwrap().id(), "openai");
+        reg.register(info("anthropic"));
         reg.remove("openai");
-        assert!(reg.resolve("xai").is_err());
+        assert_eq!(reg.resolve("openai").unwrap().id(), "anthropic");
+        reg.remove("anthropic");
+        assert!(reg.resolve("openai").is_err());
         assert!(reg.ids().is_empty());
     }
 }

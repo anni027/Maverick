@@ -10,7 +10,7 @@ export interface ProviderInfo {
   id: string;
   name: string;
   model: string;
-  kind: 'Xai' | 'OpenAi' | 'Anthropic' | 'Subprocess' | 'Mcp';
+  kind: 'OpenAi' | 'Anthropic' | 'Subprocess' | 'Mcp';
   config: ProviderConfig;
   /** Provider kind accepts a `reasoning_effort` request field. */
   supports_reasoning_effort?: boolean;

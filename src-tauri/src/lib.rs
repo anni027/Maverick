@@ -60,7 +60,7 @@ pub use xai_grok_tools::bridge::ToolBridge;
 /// This proves the architecture end-to-end without a UI:
 /// chat store -> build_request -> provider -> push assistant ->
 /// execute tool calls via the real vendored tool runtime -> loop.
-/// Requires a configured provider (e.g. xAI/OpenAI) — fails gracefully if none set.
+/// Requires a configured provider (e.g. OpenAI) — fails gracefully if none set.
 pub async fn run_headless_demo() -> anyhow::Result<()> {
     let app_data = std::env::temp_dir().join("maverick-demo");
     let chat = crate::build_chat_handle("demo-session", Some(app_data))?;
@@ -69,22 +69,18 @@ pub async fn run_headless_demo() -> anyhow::Result<()> {
     let app_data_dir = std::env::temp_dir().join("maverick-app");
     let cfg = crate::config::MaverickConfig::load(&app_data_dir).unwrap_or_default();
     let (api_key, _base, _model) = (
-        cfg.api_key("openai")
-            .or_else(|| cfg.api_key("xai"))
-            .or_else(|| cfg.api_key("anthropic")),
+        cfg.api_key("openai").or_else(|| cfg.api_key("anthropic")),
         String::new(),
         String::new(),
     );
     let Some(key) = api_key else {
         anyhow::bail!(
-            "No provider API key configured — set one in Settings (xAI/OpenAI/Anthropic) before running headless demo"
+            "No provider API key configured — set one in Settings (OpenAI/Anthropic) before running headless demo"
         );
     };
-    // Prefer OpenAI if available, else xAI, else Anthropic — resolved above.
+    // Prefer OpenAI if available, else Anthropic — resolved above.
     let provider_id = if cfg.api_key("openai").is_some() {
         "openai"
-    } else if cfg.api_key("xai").is_some() {
-        "xai"
     } else {
         "anthropic"
     };

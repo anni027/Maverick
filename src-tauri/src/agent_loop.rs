@@ -651,8 +651,7 @@ impl AgentLoop {
         let current = self.provider.read().await.clone();
         if !matches!(
             current.kind(),
-            crate::providers::ProviderKind::Xai
-                | crate::providers::ProviderKind::OpenAi
+            crate::providers::ProviderKind::OpenAi
                 | crate::providers::ProviderKind::Anthropic
         ) {
             return current;
@@ -1718,7 +1717,7 @@ mod tests {
             "Scripted"
         }
         fn kind(&self) -> ProviderKind {
-            ProviderKind::Xai
+            ProviderKind::OpenAi
         }
         fn capabilities(&self) -> ProviderCapabilities {
             ProviderCapabilities::default()
@@ -3123,7 +3122,7 @@ mod tests {
             "Hallucinating"
         }
         fn kind(&self) -> ProviderKind {
-            ProviderKind::Xai
+            ProviderKind::OpenAi
         }
         fn capabilities(&self) -> ProviderCapabilities {
             ProviderCapabilities::default()

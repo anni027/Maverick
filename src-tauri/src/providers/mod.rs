@@ -1,6 +1,6 @@
 //! Unified provider-plugin system.
 //!
-//! Every backend — a native LLM (xAI / OpenAI / Anthropic) or an external
+//! Every backend — a native LLM (OpenAI / Anthropic) or an external
 //! agent runtime (Kilo Code / OpenCode invoked as a subprocess or over MCP) —
 //! implements [`Provider`]. The agent loop only depends on this trait, so
 //! backends are fully interchangeable.
@@ -17,7 +17,6 @@ pub mod openai;
 pub mod provider;
 pub mod registry;
 pub mod subprocess;
-pub mod xai;
 
 pub use anthropic::AnthropicProvider;
 pub use openai::OpenAiProvider;
@@ -26,14 +25,12 @@ pub use provider::{
 };
 pub use registry::ProviderRegistry;
 pub use subprocess::SubprocessProvider;
-pub use xai::XaiProvider;
 
 use std::sync::Arc;
 
 /// Defaults for each provider family.
 pub fn default_provider_config(id: &str) -> (String, String) {
     match id {
-        "xai" => ("https://api.x.ai/v1".to_string(), "grok-4".to_string()),
         "openai" => (
             "https://api.openai.com/v1".to_string(),
             "gpt-4o".to_string(),
@@ -56,13 +53,6 @@ pub fn normalize_base_url(id: &str, base: &str) -> String {
         return default_provider_config(id).0;
     }
     match id {
-        "xai" => {
-            if trimmed == "https://api.x.ai" || trimmed == "http://api.x.ai" {
-                "https://api.x.ai/v1".to_string()
-            } else {
-                trimmed.to_string()
-            }
-        }
         "openai" => {
             if trimmed == "https://api.openai.com" || trimmed == "http://api.openai.com" {
                 "https://api.openai.com/v1".to_string()
@@ -104,8 +94,12 @@ pub fn create_provider(
     let mdl = model.filter(|s| !s.trim().is_empty()).unwrap_or(def_model);
     // For custom ids, respect explicit kind if provided
     let effective_kind = kind.as_deref().unwrap_or(id);
+    // The xAI provider was removed: a stale "xai" id must fail loudly
+    // (None) rather than fall through and misbuild as OpenAI-compatible.
+    if id == "xai" {
+        return None;
+    }
     match id {
-        "xai" => Some(Arc::new(XaiProvider::new(api_key, base, mdl))),
         "openai" => Some(Arc::new(OpenAiProvider::new(api_key, base, mdl))),
         "anthropic" => Some(Arc::new(AnthropicProvider::new(api_key, base, mdl))),
         _ => {
@@ -154,15 +148,9 @@ pub fn provider_info_for_with_kind(
         .filter(|s| !s.trim().is_empty())
         .unwrap_or_else(|| def_model);
     // Use the resolved base/model for the displayed config (so UI shows effective values)
+    // ("xai" never reaches here: `create_provider` above already returns
+    // None for the removed provider.)
     let (kind_enum, name, config) = match id {
-        "xai" => (
-            ProviderKind::Xai,
-            "xAI".to_string(),
-            ProviderConfig::Http {
-                base_url: base,
-                api_key,
-            },
-        ),
         "openai" => (
             ProviderKind::OpenAi,
             "OpenAI".to_string(),
@@ -222,9 +210,10 @@ mod tests {
 
     #[test]
     fn test_default_provider_config_includes_v1() {
+        // The removed "xai" id falls back to the OpenAI-compatible defaults.
         let (xai_base, xai_model) = default_provider_config("xai");
-        assert_eq!(xai_base, "https://api.x.ai/v1");
-        assert_eq!(xai_model, "grok-4");
+        assert_eq!(xai_base, "https://api.openai.com/v1");
+        assert_eq!(xai_model, "gpt-4o");
 
         let (openai_base, openai_model) = default_provider_config("openai");
         assert_eq!(openai_base, "https://api.openai.com/v1");
@@ -249,9 +238,10 @@ mod tests {
             normalize_base_url("openai", "https://api.openai.com/v1"),
             "https://api.openai.com/v1"
         );
+        // Removed provider: no special-casing, passes through untouched.
         assert_eq!(
             normalize_base_url("xai", "https://api.x.ai"),
-            "https://api.x.ai/v1"
+            "https://api.x.ai"
         );
         assert_eq!(
             normalize_base_url("anthropic", "https://api.anthropic.com"),
@@ -277,9 +267,6 @@ mod tests {
             create_provider("openai", None, None, Some("gpt-4o-mini".to_string()), None).unwrap();
         assert_eq!(openai.model(), "gpt-4o-mini");
 
-        let xai = create_provider("xai", None, None, Some("grok-beta".to_string()), None).unwrap();
-        assert_eq!(xai.model(), "grok-beta");
-
         let anthropic = create_provider(
             "anthropic",
             None,
@@ -295,13 +282,18 @@ mod tests {
     /// compaction thresholds track the real model.
     #[tokio::test]
     async fn test_provider_context_windows() {
-        let xai = create_provider("xai", None, None, None, None).unwrap();
-        assert_eq!(xai.context_window(), 131_072);
-
         let openai = create_provider("openai", None, None, None, None).unwrap();
         assert_eq!(openai.context_window(), 128_000);
 
         let anthropic = create_provider("anthropic", None, None, None, None).unwrap();
         assert_eq!(anthropic.context_window(), 200_000);
+    }
+
+    #[test]
+    fn test_removed_xai_id_fails_closed() {
+        // A stale "xai" id must refuse (None), never misbuild as
+        // OpenAI-compatible with the wrong endpoint.
+        assert!(create_provider("xai", None, None, None, None).is_none());
+        assert!(provider_info_for("xai", None, None, None, None).is_none());
     }
 }

@@ -546,7 +546,6 @@ impl MaverickConfig {
         let settings = self.provider_settings.get(provider_id);
         let api_key = self.api_key(provider_id);
         let (default_base, default_model) = match provider_id {
-            "xai" => ("https://api.x.ai/v1".to_string(), "grok-4".to_string()),
             "openai" => (
                 "https://api.openai.com/v1".to_string(),
                 "gpt-4o".to_string(),
@@ -619,6 +618,11 @@ impl ConfigManager {
             config
                 .marketplace_sources
                 .push(MarketplaceSource::anthropic_official());
+        }
+        if config.default_provider.as_deref() == Some("xai") {
+            // The xAI provider was removed: remap to auto-resolve
+            // (first available). In-memory only, same precedent as above.
+            config.default_provider = None;
         }
         Ok(Self {
             config: Arc::new(RwLock::new(config)),
@@ -768,8 +772,17 @@ impl ConfigManager {
     }
 
     /// Get saved model presets.
+    /// Get saved model presets (entries for the removed xAI provider are
+    /// filtered out; they vanish from the file on the next preset save).
     pub async fn model_presets(&self) -> Vec<ModelPreset> {
-        self.config.read().await.model_presets.clone()
+        self.config
+            .read()
+            .await
+            .model_presets
+            .iter()
+            .filter(|p| p.provider_id != "xai")
+            .cloned()
+            .collect()
     }
 
     /// Replace the model preset list and persist.
@@ -1011,5 +1024,41 @@ theme = "dark"
         let encoded = toml::to_string_pretty(&config).expect("serializes");
         let decoded: MaverickConfig = toml::from_str(&encoded).expect("parses back");
         assert!(!decoded.interaction.ask_user_enabled);
+    }
+
+    /// The removed xAI provider migrates gracefully: stored "xai" defaults
+    /// remap to auto-resolve, dead xai presets are filtered from reads.
+    #[test]
+    fn xai_removal_migrates_defaults_and_presets() {
+        let dir = std::env::temp_dir().join(format!("maverick-xai-mig-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(
+            dir.join("config.toml"),
+            "default_provider = \"xai\"\n\n\
+             [[model_presets]]\n\
+             id = \"dead\"\n\
+             name = \"Dead\"\n\
+             provider_id = \"xai\"\n\
+             model = \"old\"\n\n\
+             [[model_presets]]\n\
+             id = \"live\"\n\
+             name = \"Live\"\n\
+             provider_id = \"openai\"\n\
+             model = \"gpt-4o\"\n",
+        )
+        .unwrap();
+        let manager = ConfigManager::new(dir.clone()).expect("manager loads");
+        let rt = tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()
+            .unwrap();
+        rt.block_on(async {
+            assert_eq!(manager.default_provider().await, None);
+            let presets = manager.model_presets().await;
+            assert_eq!(presets.len(), 1);
+            assert_eq!(presets[0].id, "live");
+        });
+        let _ = std::fs::remove_dir_all(&dir);
     }
 }

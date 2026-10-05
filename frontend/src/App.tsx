@@ -131,7 +131,7 @@ export default function App() {
         }
         setSelectedProvider(chosenProvider);
         if (list.length === 0) {
-          setInitError('No provider configured — open Settings to add an API key (xAI/OpenAI/Anthropic)');
+          setInitError('No provider configured — open Settings to add an API key (OpenAI/Anthropic)');
           setShowSettings(true);
         }
       } catch(e){ setInitError(`Providers: ${String(e)}`)}

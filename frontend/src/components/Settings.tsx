@@ -21,7 +21,6 @@ interface SettingsProps {
 }
 
 const KNOWN_PROVIDERS: Array<{id:string; name:string; hint:string}> = [
-  {id:'xai', name:'xAI', hint:'xAI • api.x.ai/v1'},
   {id:'openai', name:'OpenAI', hint:'gpt-4o • api.openai.com/v1'},
   {id:'anthropic', name:'Anthropic', hint:'claude-3.5 • api.anthropic.com/v1'},
 ];
@@ -583,8 +582,8 @@ export default function Settings({ isOpen, onClose, sessionId, providers, curren
                     const isConfigured = providers.some(x=> x.id===p.id);
                     const settings = providerSettings[p.id] || {};
                     const isAdvanced = showAdvanced[p.id] || isConfigured;
-                    const defaultBase = p.id==='xai' ? 'https://api.x.ai/v1' : p.id==='openai' ? 'https://api.openai.com/v1' : 'https://api.anthropic.com/v1';
-                    const defaultModel = p.id==='xai' ? 'grok-4' : p.id==='openai' ? 'gpt-4o' : 'claude-3-5-sonnet-20240620';
+                    const defaultBase = p.id==='openai' ? 'https://api.openai.com/v1' : 'https://api.anthropic.com/v1';
+                    const defaultModel = p.id==='openai' ? 'gpt-4o' : 'claude-3-5-sonnet-20240620';
                     return (
                       <div key={p.id} style={{padding:'14px', border:'1px solid var(--line)', borderRadius:'12px', background:'var(--bg)', opacity: isConfigured ? 1 : 0.95}}>
                         <div style={{display:'flex', alignItems:'center', gap:'8px', marginBottom:'8px'}}>
