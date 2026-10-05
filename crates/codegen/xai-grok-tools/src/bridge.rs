@@ -212,6 +212,21 @@ impl ToolBridge {
             .await
     }
 
+    /// Call with a per-call working-directory override. Stack-local (not
+    /// shared state), so concurrent sessions with different workspaces never
+    /// race — tools that resolve `Cwd` prefer this over the shared context.
+    pub async fn call_with_cwd(
+        &self,
+        client_function_name: &str,
+        client_params: serde_json::Value,
+        tool_call_id: &str,
+        cwd: Option<std::path::PathBuf>,
+    ) -> Result<ToolRunResult, xai_tool_runtime::ToolError> {
+        self.registry
+            .call(client_function_name, client_params, tool_call_id, cwd)
+            .await
+    }
+
     pub async fn try_parse(
         &self,
         client_function_name: &str,

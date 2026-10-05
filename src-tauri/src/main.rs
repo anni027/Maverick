@@ -11,6 +11,7 @@ fn main() -> anyhow::Result<()> {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_notification::init())
+        .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
             use tauri::Manager;
             // Tauri's per-app data directory (e.g. `%APPDATA%\com.maverick.app`
@@ -53,6 +54,22 @@ fn main() -> anyhow::Result<()> {
             maverick_backend::commands::set_context_config,
             maverick_backend::commands::get_budget_config,
             maverick_backend::commands::set_budget_config,
+            maverick_backend::commands::get_memory_config,
+            maverick_backend::commands::set_memory_config,
+            maverick_backend::commands::get_memory_text,
+            maverick_backend::commands::save_memory_text,
+            maverick_backend::commands::clear_memory,
+            maverick_backend::commands::get_memory_stats,
+            maverick_backend::commands::set_session_memory_enabled,
+            maverick_backend::commands::answer_question,
+            maverick_backend::commands::get_pending_questions,
+            maverick_backend::commands::get_interaction_config,
+            maverick_backend::commands::set_interaction_config,
+            maverick_backend::commands::get_session_workspace,
+            maverick_backend::commands::set_session_workspace,
+            maverick_backend::commands::get_default_workspace,
+            maverick_backend::commands::set_default_workspace,
+            maverick_backend::commands::list_recent_workspaces,
             maverick_backend::commands::list_kilo_models,
             maverick_backend::commands::get_model_reasoning,
             maverick_backend::commands::list_skills,
@@ -73,6 +90,7 @@ fn main() -> anyhow::Result<()> {
             maverick_backend::commands::scan_marketplace,
             maverick_backend::commands::list_workspace_files,
             maverick_backend::commands::read_workspace_file,
+            maverick_backend::commands::preview_workspace_file,
         ])
         .run(tauri::generate_context!())
         .map_err(anyhow::Error::from)

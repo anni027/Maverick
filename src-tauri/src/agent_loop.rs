@@ -22,20 +22,24 @@
 //!   A hard ceiling exists only as a last resort if a model emits tool calls
 //!   despite being offered none.
 
+use std::collections::HashMap;
+use std::path::PathBuf;
 use std::sync::Arc;
+use std::sync::atomic::{AtomicU64, Ordering};
 
 use anyhow::Result;
 use tokio::sync::{Mutex, RwLock};
 use tokio_util::sync::CancellationToken;
 use xai_chat_state::ChatStateHandle;
-use xai_grok_sampling_types::{ConversationItem, ReasoningEffort, ToolSpec};
+use xai_grok_sampling_types::{ConversationItem, ConversationRequest, ReasoningEffort, ToolSpec};
 use xai_grok_tools::bridge::ToolBridge;
 use xai_grok_tools::implementations::grok_build::todo::{TodoState, TodoStatus};
 use xai_grok_tools::types::resources::State;
 
-use crate::agent_event::{AgentEvent, AgentEventSink};
+use crate::agent_event::{AgentEvent, AgentEventSink, PendingBatch};
 use crate::compaction::CompactPolicy;
-use crate::config::BudgetConfig;
+use crate::config::{BudgetConfig, MemoryConfig, MemoryScope};
+use crate::memory::{MemoryFileScope, MemoryStore};
 use crate::providers::Provider;
 use crate::subagents::{SUBAGENT_MAX_DEPTH, SUBAGENT_TOOL_NAME};
 
@@ -70,6 +74,24 @@ const TOOL_ERROR_PREFIX: &str = "[TOOL_ERROR] ";
 /// bloat every subsequent request.
 const MAX_TOOL_OUTPUT_BYTES: usize = 12_000;
 
+/// Bridge tools that only observe (recon): calling them never marks the run
+/// as acted, so briefing questions asked around them stay cap-free.
+/// Everything else — writes, commands, MCP tools, delegation — is an action.
+const READONLY_TOOLS: [&str; 6] = [
+    "read_file",
+    "list_dir",
+    "grep",
+    "web_fetch",
+    "duckduckgo_search",
+    "get_task_output",
+];
+
+/// Whether dispatching `name` counts as the run acting (ends the briefing
+/// phase for question-cap purposes). `ask_user` itself never does.
+fn tool_marks_acted(name: &str) -> bool {
+    name != crate::questions::ASK_USER_TOOL_NAME && !READONLY_TOOLS.contains(&name)
+}
+
 /// Hard cap on auto-continued segments per [`AgentLoop::send_user_message_auto`]
 /// call. Default; the live value comes from [`BudgetConfig`]. `pub(crate)` so
 /// `config.rs` derives its serde default from the same source.
@@ -83,6 +105,18 @@ pub(crate) const MAX_SEGMENTS: u32 = 3;
 /// the provider never reports cost (so the cap can never trip). Far above any
 /// realistic task; simply ends the run instead of looping forever.
 const ABSOLUTE_MAX_SEGMENTS: u32 = 500;
+
+/// Min interval between background memory extractions on one loop. The cursor
+/// also gates on fresh transcript items, so this is only the backstop.
+const MEMORY_EXTRACT_COOLDOWN_SECS: u64 = 600;
+/// Transcript tail (chars) fed to the extraction model.
+const MEMORY_EXTRACT_TRANSCRIPT_CHARS: usize = 12_000;
+/// Transcripts shorter than this are never worth an extraction call.
+const MEMORY_EXTRACT_MIN_CHARS: usize = 200;
+/// New conversation items required since the last extraction attempt.
+const MEMORY_EXTRACT_MIN_NEW_ITEMS: usize = 2;
+/// Timeout for the background extraction call — it must never hang the UI.
+const MEMORY_EXTRACT_TIMEOUT_SECS: u64 = 60;
 
 /// Injected as the user message that opens each auto-continued segment (2..).
 /// Terse on purpose.
@@ -128,6 +162,13 @@ impl SummarySink {
             _ => None,
         })
     }
+}
+
+/// One batched `ask_user` call awaiting answers: the card payload plus the
+/// channel the `answer_question` command sends the aligned answers through.
+struct PendingEntry {
+    batch: PendingBatch,
+    tx: tokio::sync::oneshot::Sender<Vec<String>>,
 }
 
 /// Mirrors a child (subagent) run's progress events to the parent sink so the
@@ -221,6 +262,42 @@ pub struct AgentLoop {
     /// Delegation depth (§5.6-D): 0 for user sessions, ≥ 1 for subagent
     /// children (which are not offered the `subagent` tool).
     subagent_depth: u32,
+    /// File-backed cross-chat memory (global + workspace MEMORY.md).
+    /// `None` in unit tests and headless runs without an app-data dir —
+    /// memory tools are then unoffered and injection is skipped.
+    memory_store: Option<MemoryStore>,
+    /// Registry id of the session provider (set at `init_session`), used to
+    /// resolve credentials when building the extraction provider.
+    provider_id: std::sync::Mutex<String>,
+    /// Extraction throttle: (last attempt, transcript length already mined).
+    /// `std` mutex: never held across `.await`.
+    last_extraction: std::sync::Mutex<(Option<std::time::Instant>, usize)>,
+    /// Per-session memory kill-switch (composer Memory toggle). Defaults on;
+    /// when off, injection, memory tools, and extraction all skip this loop.
+    /// Loop-local: resets when the session is re-initialized.
+    memory_enabled: std::sync::Mutex<bool>,
+    /// Pending `ask_user` questions: id → card payload + answer channel.
+    /// Answered via the `answer_question` command; cancelled entries are
+    /// removed so nothing dangles.
+    pending_questions: Mutex<HashMap<String, PendingEntry>>,
+    /// Monotonic question counter for `q-<n>` ids.
+    question_seq: AtomicU64,
+    /// Questions asked in the current run (dynamic per-run cap).
+    questions_asked: std::sync::Mutex<u32>,
+    /// `ask_user` interactivity. False for headless runs and subagent
+    /// children: the tool is unoffered and refused (fail closed).
+    interactive: bool,
+    /// Whether the run has executed a state-changing tool yet. Briefing
+    /// questions asked before the first action skip the per-run cap, so a
+    /// thorough brief is never cut off mid-way.
+    acted: std::sync::Mutex<bool>,
+    /// This session's workspace override (None = global default). Threaded
+    /// into every tool call as the working directory, so concurrent sessions
+    /// may work in different folders without racing.
+    session_workspace: RwLock<Option<PathBuf>>,
+    /// Workspace mapping store for the global-default fallback (None in
+    /// tests and headless runs without an app-data dir).
+    workspace_store: Option<crate::workspaces::WorkspaceStore>,
 }
 
 impl AgentLoop {
@@ -233,6 +310,17 @@ impl AgentLoop {
             usage: Arc::new(Mutex::new(crate::usage::UsageLedger::new())),
             cancel: std::sync::Mutex::new(CancellationToken::new()),
             subagent_depth: 0,
+            memory_store: None,
+            provider_id: std::sync::Mutex::new(String::new()),
+            last_extraction: std::sync::Mutex::new((None, 0)),
+            memory_enabled: std::sync::Mutex::new(true),
+            pending_questions: Mutex::new(HashMap::new()),
+            question_seq: AtomicU64::new(0),
+            questions_asked: std::sync::Mutex::new(0),
+            interactive: true,
+            acted: std::sync::Mutex::new(false),
+            session_workspace: RwLock::new(None),
+            workspace_store: None,
         }
     }
 
@@ -250,12 +338,440 @@ impl AgentLoop {
         self
     }
 
+    /// Attach the cross-chat memory store. Without it the memory tools are
+    /// unoffered, injection is skipped, and extraction is a no-op.
+    pub fn with_memory_store(mut self, store: MemoryStore) -> Self {
+        self.memory_store = Some(store);
+        self
+    }
+
+    /// Record the registry provider id for this session (set at
+    /// `init_session`, updated on provider hot-swap). Used to resolve
+    /// credentials when building the background-extraction provider.
+    pub fn set_provider_id(&self, id: &str) {
+        if let Ok(mut guard) = self.provider_id.lock() {
+            *guard = id.to_string();
+        }
+    }
+
+    /// Mark this loop as non-interactive (headless runs): the `ask_user`
+    /// tool is unoffered and any call fails closed instead of waiting.
+    pub fn with_interactive(mut self, interactive: bool) -> Self {
+        self.interactive = interactive;
+        self
+    }
+
+    /// Resolve a pending question batch with the user's aligned answers.
+    /// Returns true when the batch was still pending (answers delivered).
+    pub async fn answer_pending_question(&self, id: &str, answers: Vec<String>) -> bool {
+        let entry = self.pending_questions.lock().await.remove(id);
+        match entry {
+            Some(entry) => entry.tx.send(answers).is_ok(),
+            None => false,
+        }
+    }
+
+    /// Snapshot the currently pending question batches (re-sync after
+    /// switching back to a session whose run is waiting on the user).
+    pub async fn pending_questions(&self) -> Vec<PendingBatch> {
+        self.pending_questions
+            .lock()
+            .await
+            .values()
+            .map(|e| e.batch.clone())
+            .collect()
+    }
+
     pub async fn set_provider(&self, provider: Arc<dyn Provider>) {
         *self.provider.write().await = provider;
     }
 
     pub async fn provider(&self) -> Arc<dyn Provider> {
         self.provider.read().await.clone()
+    }
+
+    // ─── Unified memory ─────────────────────────────────────────────────────
+
+    /// Per-session kill-switch for the composer's Memory toggle.
+    pub fn set_memory_enabled(&self, enabled: bool) {
+        if let Ok(mut guard) = self.memory_enabled.lock() {
+            *guard = enabled;
+        }
+    }
+
+    fn is_memory_enabled(&self) -> bool {
+        self.memory_enabled.lock().map(|g| *g).unwrap_or(true)
+    }
+
+    /// Set this session's workspace override (None = global default).
+    /// Applied to the next dispatched tool call (immediate effect).
+    pub async fn set_session_workspace(&self, dir: Option<PathBuf>) {
+        *self.session_workspace.write().await = dir;
+    }
+
+    /// Attach the workspace mapping store (global-default fallback).
+    pub fn with_workspace_store(mut self, store: crate::workspaces::WorkspaceStore) -> Self {
+        self.workspace_store = Some(store);
+        self
+    }
+
+    /// Effective workspace for this loop: the session override, else the
+    /// global default (env → stored default → `./workspace`).
+    pub async fn workspace_dir(&self) -> PathBuf {
+        if let Some(dir) = self.session_workspace.read().await.clone() {
+            return dir;
+        }
+        match &self.workspace_store {
+            Some(store) => store.global_dir(),
+            None => crate::tools::resolve_workspace_dir(),
+        }
+    }
+
+    /// Memory config for this loop, or `None` without a config store (tests).
+    async fn memory_cfg(&self) -> Option<MemoryConfig> {
+        match &self.config_manager {
+            Some(cm) => Some(cm.memory_config().await),
+            None => None,
+        }
+    }
+
+    /// Combined memory text for this turn's `<memory-context>` slot, or
+    /// `None` when memory is disabled, unconfigured, or empty. Read from
+    /// disk every turn so tool saves, extractions, and hand edits apply to
+    /// the very next request.
+    async fn memory_reminder_text(&self) -> Option<String> {
+        if !self.is_memory_enabled() {
+            return None;
+        }
+        let store = self.memory_store.clone()?;
+        let cfg = self.memory_cfg().await?;
+        if !cfg.enabled {
+            return None;
+        }
+        let ws = self.workspace_dir().await;
+        let text = store.load_combined(cfg.scope, Some(&ws), cfg.max_chars.max(1024));
+        if text.trim().is_empty() {
+            None
+        } else {
+            Some(text)
+        }
+    }
+
+    /// Execute the `memory_save` agent tool.
+    async fn dispatch_memory_save(&self, args: &serde_json::Value) -> (String, bool) {
+        let Some(store) = self.memory_store.clone() else {
+            return (
+                "Error: memory is not configured for this session.".to_string(),
+                true,
+            );
+        };
+        let parsed = match crate::memory::parse_save_args(args) {
+            Ok(a) => a,
+            Err(e) => return (format!("Error: {e}"), true),
+        };
+        let scope_cfg = match self.memory_cfg().await {
+            Some(c) => c.scope,
+            None => MemoryScope::Both,
+        };
+        let target = crate::memory::resolve_save_target(parsed.scope.as_deref(), scope_cfg);
+        let ws = self.workspace_dir().await;
+        match store.append_bullets(target, Some(&ws), &parsed.section, &[parsed.text.clone()]) {
+            Ok(0) => ("Already in memory — nothing new saved.".to_string(), false),
+            Ok(_) => {
+                let location = match target {
+                    MemoryFileScope::Global => "global",
+                    MemoryFileScope::Workspace => "workspace",
+                };
+                (
+                    format!("Saved to {location} memory ({}).", parsed.section),
+                    false,
+                )
+            }
+            Err(e) => (format!("Error saving memory: {e}"), true),
+        }
+    }
+
+    /// Execute the `memory_forget` agent tool.
+    async fn dispatch_memory_forget(&self, args: &serde_json::Value) -> (String, bool) {
+        let Some(store) = self.memory_store.clone() else {
+            return (
+                "Error: memory is not configured for this session.".to_string(),
+                true,
+            );
+        };
+        let parsed = match crate::memory::parse_forget_args(args) {
+            Ok(a) => a,
+            Err(e) => return (format!("Error: {e}"), true),
+        };
+        let (both, only_workspace) =
+            crate::memory::resolve_forget_target(parsed.scope.as_deref());
+        let ws = self.workspace_dir().await;
+        match store.remove_matching(both, only_workspace, Some(&ws), &parsed.pattern) {
+            Ok(0) => (format!("No memories matched '{}'.", parsed.pattern), false),
+            Ok(n) => (
+                format!(
+                    "Forgot {n} memor{} matching '{}'.",
+                    if n == 1 { "y" } else { "ies" },
+                    parsed.pattern
+                ),
+                false,
+            ),
+            Err(e) => (format!("Error forgetting memory: {e}"), true),
+        }
+    }
+
+    /// Global `[interaction]` switch for the `ask_user` tool. Defaults on
+    /// without a config store (tests).
+    async fn ask_user_allowed(&self) -> bool {
+        match &self.config_manager {
+            Some(cm) => cm.interaction_config().await.ask_user_enabled,
+            None => true,
+        }
+    }
+
+    /// Execute the `ask_user` tool: publish the question card, then wait for
+    /// the `answer_question` command — or for Stop, which must always unblock
+    /// the wait (a bare channel await would hang the run forever).
+    async fn dispatch_ask_user(
+        &self,
+        args: &serde_json::Value,
+        token: &CancellationToken,
+        sink: &Arc<dyn AgentEventSink>,
+    ) -> (String, bool) {
+        // Fail closed when there is nobody to answer (headless runs,
+        // subagent children, hallucinated calls while disabled).
+        if !self.interactive {
+            return (
+                "Error: cannot ask the user in this context (non-interactive run) — proceed with your best judgment."
+                    .to_string(),
+                true,
+            );
+        }
+        if !self.ask_user_allowed().await {
+            return (
+                "Error: clarifying questions are disabled in settings — proceed with your best judgment."
+                    .to_string(),
+                true,
+            );
+        }
+        let parsed = match crate::questions::parse_ask_batch(args) {
+            Ok(b) => b,
+            Err(e) => return (format!("Error: {e}"), true),
+        };
+        // Dynamic per-run budget counts QUESTIONS, not calls: a batch of 3
+        // consumes 3. Briefing-phase questions (before the first action)
+        // never count, so a thorough brief is not cut off mid-way and forced
+        // back into guessing.
+        let briefing = !self.acted.lock().map(|g| *g).unwrap_or(true);
+        let cap =
+            crate::questions::max_questions_per_run(self.budget().await.effective_max_segments());
+        if !briefing {
+            let batch_len = parsed.questions.len() as u32;
+            let over = match self.questions_asked.lock() {
+                Ok(mut guard) => {
+                    let over = guard.saturating_add(batch_len) > cap;
+                    if !over {
+                        *guard = guard.saturating_add(batch_len);
+                    }
+                    over
+                }
+                Err(_) => true,
+            };
+            if over {
+                return (
+                    format!(
+                        "Error: question budget exhausted ({cap} per run) — proceed with your best judgment."
+                    ),
+                    true,
+                );
+            }
+        }
+        let id = format!(
+            "q-{}",
+            self.question_seq.fetch_add(1, Ordering::Relaxed) + 1
+        );
+        let pending: Vec<crate::agent_event::PendingQuestion> = parsed
+            .questions
+            .iter()
+            .enumerate()
+            .map(|(i, q)| crate::agent_event::PendingQuestion {
+                id: format!("{id}-{}", i + 1),
+                question: q.question.clone(),
+                options: q.options.clone(),
+                allow_custom: q.allow_custom,
+            })
+            .collect();
+        let (tx, rx) = tokio::sync::oneshot::channel();
+        {
+            let mut guard = self.pending_questions.lock().await;
+            guard.insert(
+                id.clone(),
+                PendingEntry {
+                    batch: PendingBatch {
+                        id: id.clone(),
+                        questions: pending.clone(),
+                    },
+                    tx,
+                },
+            );
+        }
+        sink
+            .on_event(AgentEvent::QuestionAsked {
+                id: id.clone(),
+                questions: pending,
+            })
+            .await;
+        let answers = tokio::select! {
+            ans = rx => ans.unwrap_or_default(),
+            () = token.cancelled() => {
+                self.pending_questions.lock().await.remove(&id);
+                return ("cancelled by user before answering".to_string(), true);
+            }
+        };
+        self.pending_questions.lock().await.remove(&id);
+        let pairs: Vec<(&str, &str)> = parsed
+            .questions
+            .iter()
+            .enumerate()
+            .map(|(i, q)| {
+                (
+                    q.question.as_str(),
+                    answers.get(i).map(String::as_str).unwrap_or(""),
+                )
+            })
+            .collect();
+        (crate::questions::format_batch_result(&pairs), false)
+    }
+
+    /// Resolve the background-extraction provider: the session provider's
+    /// credentials/base URL with the cheap extraction model swapped in.
+    /// Falls back to the chat provider itself when the session id is unknown
+    /// or the provider cannot swap models (external runtimes).
+    async fn extraction_provider(&self, model: &str) -> Arc<dyn Provider> {
+        let current = self.provider.read().await.clone();
+        if !matches!(
+            current.kind(),
+            crate::providers::ProviderKind::Xai
+                | crate::providers::ProviderKind::OpenAi
+                | crate::providers::ProviderKind::Anthropic
+        ) {
+            return current;
+        }
+        let pid = self
+            .provider_id
+            .lock()
+            .map(|g| g.clone())
+            .unwrap_or_default();
+        if pid.is_empty() {
+            return current;
+        }
+        let Some(cm) = &self.config_manager else {
+            return current;
+        };
+        let key = cm.api_key(&pid).await;
+        let settings = cm.provider_settings(&pid).await;
+        let (base, kind) = match settings {
+            Some(s) => (s.base_url, s.kind),
+            None => (None, None),
+        };
+        if key.is_none() && base.is_none() {
+            return current;
+        }
+        crate::providers::create_provider(&pid, key, base, Some(model.to_string()), kind)
+            .unwrap_or(current)
+    }
+
+    /// Post-run background extraction: distill durable facts from the fresh
+    /// transcript tail via a cheap model and merge them into MEMORY.md.
+    /// Called fire-and-forget from `send_message` — it never blocks the
+    /// reply. Every failure mode logs and returns; the next run retries
+    /// after the cooldown.
+    pub async fn maybe_extract_memories(&self) {
+        if !self.is_memory_enabled() {
+            return;
+        }
+        let Some(store) = self.memory_store.clone() else {
+            return;
+        };
+        let Some(cfg) = self.memory_cfg().await else {
+            return;
+        };
+        if !cfg.enabled || !cfg.auto_extract {
+            return;
+        }
+        if let Ok(guard) = self.last_extraction.lock() {
+            if guard
+                .0
+                .is_some_and(|at| at.elapsed().as_secs() < MEMORY_EXTRACT_COOLDOWN_SECS)
+            {
+                return;
+            }
+        }
+        let items = self.chat.get_conversation().await;
+        let mined = self.last_extraction.lock().map(|g| g.1).unwrap_or(0);
+        if items.len() < mined.saturating_add(MEMORY_EXTRACT_MIN_NEW_ITEMS) {
+            return;
+        }
+        let transcript = crate::memory::render_transcript(&items, MEMORY_EXTRACT_TRANSCRIPT_CHARS);
+        if transcript.len() < MEMORY_EXTRACT_MIN_CHARS {
+            return;
+        }
+        let provider = self.extraction_provider(&cfg.extract_model).await;
+        let request = ConversationRequest {
+            items: vec![ConversationItem::user(
+                crate::memory::build_extraction_prompt(&transcript),
+            )],
+            ..Default::default()
+        };
+        let outcome = tokio::time::timeout(
+            std::time::Duration::from_secs(MEMORY_EXTRACT_TIMEOUT_SECS),
+            provider.complete(request),
+        )
+        .await;
+        if let Ok(mut guard) = self.last_extraction.lock() {
+            guard.0 = Some(std::time::Instant::now());
+        }
+        let response = match outcome {
+            Ok(Ok(r)) => r,
+            Ok(Err(e)) => {
+                tracing::warn!("memory extraction call failed: {e}");
+                return;
+            }
+            Err(_) => {
+                tracing::warn!("memory extraction timed out");
+                return;
+            }
+        };
+        let pairs = crate::memory::parse_extraction(&response.assistant_text());
+        if pairs.is_empty() {
+            // Nothing durable — still advance the cursor so the same
+            // transcript tail is not re-scanned every cooldown window.
+            if let Ok(mut guard) = self.last_extraction.lock() {
+                guard.1 = items.len();
+            }
+            return;
+        }
+        let ws = self.workspace_dir().await;
+        let mut saved = 0usize;
+        for (section, bullet) in &pairs {
+            // Project conventions belong to the workspace file; personal
+            // facts and preferences are global. Honors the config scope.
+            let mut target = crate::memory::resolve_save_target(None, cfg.scope);
+            if section == "Notes" && cfg.scope.includes_workspace() {
+                target = MemoryFileScope::Workspace;
+            }
+            match store.append_bullets(target, Some(&ws), section, std::slice::from_ref(bullet)) {
+                Ok(n) => saved += n,
+                Err(e) => tracing::warn!("memory extraction store failed: {e}"),
+            }
+        }
+        if let Ok(mut guard) = self.last_extraction.lock() {
+            guard.1 = items.len();
+        }
+        tracing::info!(
+            "memory extraction: {saved} new from {} candidates",
+            pairs.len()
+        );
     }
 
     /// Cancel the in-flight run, if any (§5.6-C). Sync and idempotent;
@@ -352,6 +868,24 @@ impl AgentLoop {
         if self.subagent_depth < SUBAGENT_MAX_DEPTH {
             specs.push(crate::subagents::subagent_tool_spec());
         }
+        // Memory tools live on parent loops only, like `subagent`: a child
+        // saving directly would double-record once its summary lands, and a
+        // fresh child context must not inherit long-term state.
+        if self.memory_store.is_some()
+            && self.is_memory_enabled()
+            && self.subagent_depth < SUBAGENT_MAX_DEPTH
+        {
+            specs.push(crate::memory::memory_save_tool_spec());
+            specs.push(crate::memory::memory_forget_tool_spec());
+        }
+        // Clarifying questions: interactive parent loops only, and only when
+        // the global switch allows. Children and headless runs never see it.
+        if self.interactive
+            && self.subagent_depth < SUBAGENT_MAX_DEPTH
+            && self.ask_user_allowed().await
+        {
+            specs.push(crate::questions::ask_user_tool_spec());
+        }
         specs
     }
 
@@ -437,7 +971,7 @@ impl AgentLoop {
                 .chat
                 .build_request(
                     specs,
-                    None,
+                    self.memory_reminder_text().await,
                     false,
                     None,
                     "conv-1".to_string(),
@@ -661,12 +1195,29 @@ impl AgentLoop {
         token: &CancellationToken,
         sink: &Arc<dyn AgentEventSink>,
     ) -> (String, bool) {
+        // Everything reaching dispatch really executes (refusals and bad
+        // args are rejected before this point), so mark state-changing
+        // calls: the briefing phase ends at the first action.
+        if tool_marks_acted(name) {
+            if let Ok(mut acted) = self.acted.lock() {
+                *acted = true;
+            }
+        }
         if name == SUBAGENT_TOOL_NAME {
             return self.dispatch_subagent(args, token, sink).await;
         }
+        if name == crate::memory::MEMORY_SAVE_TOOL_NAME {
+            return self.dispatch_memory_save(args).await;
+        }
+        if name == crate::memory::MEMORY_FORGET_TOOL_NAME {
+            return self.dispatch_memory_forget(args).await;
+        }
+        if name == crate::questions::ASK_USER_TOOL_NAME {
+            return self.dispatch_ask_user(args, token, sink).await;
+        }
         match name {
             "write_to_file" | "write_file" | "create_file" => {
-                let ws = crate::tools::resolve_workspace_dir();
+                let ws = self.workspace_dir().await;
                 match crate::tools::execute_write_to_file(args, &ws) {
                     Ok(msg) => (msg, false),
                     Err(e) => (format!("Error executing write_to_file: {e}"), true),
@@ -676,8 +1227,12 @@ impl AgentLoop {
                 // Race the tool against the cancel token: a long `run_terminal_cmd`
                 // or `web_fetch` would otherwise keep the run alive after Stop and
                 // the remaining calls in this batch would still execute.
+                // The session workspace rides along as a per-call override
+                // (stack-local in the runtime), so concurrent sessions in
+                // different folders never race each other's cwd.
+                let cwd = Some(self.workspace_dir().await);
                 tokio::select! {
-                    called = self.tools.call(name, args.clone(), id) => match called {
+                    called = self.tools.call_with_cwd(name, args.clone(), id, cwd) => match called {
                         Ok(res) => (res.prompt_text, false),
                         Err(e) => (format!("Error: tool `{name}` failed: {e}"), true),
                     },
@@ -738,6 +1293,22 @@ impl AgentLoop {
             usage: Arc::new(Mutex::new(crate::usage::UsageLedger::new())),
             cancel: std::sync::Mutex::new(token.clone()),
             subagent_depth: self.subagent_depth + 1,
+            // Deliberately memory-free: a fresh child context neither reads
+            // long-term state nor saves into it; findings return via summary.
+            memory_store: None,
+            provider_id: std::sync::Mutex::new(String::new()),
+            last_extraction: std::sync::Mutex::new((None, 0)),
+            memory_enabled: std::sync::Mutex::new(true),
+            pending_questions: Mutex::new(HashMap::new()),
+            question_seq: AtomicU64::new(0),
+            questions_asked: std::sync::Mutex::new(0),
+            // Children fail `ask_user` closed: no UI is listening for them
+            // and a blocked child would hang the parent turn.
+            interactive: false,
+            acted: std::sync::Mutex::new(false),
+            // Children inherit the parent session's workspace.
+            session_workspace: RwLock::new(self.session_workspace.read().await.clone()),
+            workspace_store: None,
         };
         // Child budget: its own turn cap, single segment, no auto-continue.
         // Raw child output stays out of the parent context — the summary below
@@ -933,6 +1504,10 @@ impl AgentLoop {
         // Per-message ledger: a tripped cap must not poison later messages on
         // this session.
         self.usage.lock().await.reset();
+        // Fresh question budget every run (dynamic cap, see `dispatch_ask_user`).
+        if let Ok(mut asked) = self.questions_asked.lock() {
+            *asked = 0;
+        }
         // Unbounded running is an explicit `spend_cap_usd` opt-in *and* an
         // explicit auto-continue opt-in: a configured `auto_continue: false`
         // means one segment even when a cap is set.
@@ -1285,6 +1860,17 @@ mod tests {
             usage: Arc::new(Mutex::new(crate::usage::UsageLedger::new())),
             cancel: std::sync::Mutex::new(CancellationToken::new()),
             subagent_depth: 0,
+            memory_store: None,
+            provider_id: std::sync::Mutex::new(String::new()),
+            last_extraction: std::sync::Mutex::new((None, 0)),
+            memory_enabled: std::sync::Mutex::new(true),
+            pending_questions: Mutex::new(HashMap::new()),
+            question_seq: AtomicU64::new(0),
+            questions_asked: std::sync::Mutex::new(0),
+            interactive: true,
+            acted: std::sync::Mutex::new(false),
+            session_workspace: RwLock::new(None),
+            workspace_store: None,
         });
         (agent, manager)
     }
@@ -2743,5 +3329,255 @@ mod tests {
             ),
             "SpendCapReached emitted with spent/cap amounts"
         );
+    }
+
+    // ── ask_user ──────────────────────────────────────────────────────────
+
+    async fn ask_test_agent() -> (Arc<AgentLoop>, Arc<CollectingSink>) {
+        let chat = crate::tools::build_chat_handle("ask-test", None).expect("chat handle");
+        let tools = test_bridge("ask").await;
+        let provider: Arc<dyn Provider> =
+            Arc::new(ScriptedProvider::new(vec![ScriptedTurn { text: "x", tool_calls: vec![] }]));
+        let sink = Arc::new(CollectingSink::default());
+        let agent = Arc::new(AgentLoop::new(chat, tools, provider));
+        (agent, sink)
+    }
+
+    fn ask_args() -> serde_json::Value {
+        serde_json::json!({
+            "questions": [
+                {
+                    "question": "Which DB?",
+                    "options": [
+                        {"label": "SQLite", "description": "zero-config"},
+                        {"label": "Postgres", "description": "needs a server"}
+                    ]
+                },
+                {
+                    "question": "Which style?",
+                    "options": [
+                        {"label": "Dark"},
+                        {"label": "Light"}
+                    ]
+                }
+            ]
+        })
+    }
+
+    async fn wait_for_pending(agent: &AgentLoop) -> PendingBatch {
+        for _ in 0..200 {
+            let pending = agent.pending_questions().await;
+            if let Some(b) = pending.into_iter().next() {
+                return b;
+            }
+            tokio::time::sleep(std::time::Duration::from_millis(10)).await;
+        }
+        panic!("question never became pending");
+    }
+
+    /// Full round-trip: the run waits, the answer command resolves it, and
+    /// the tool result carries the answer back to the model.
+    #[tokio::test]
+    async fn ask_user_round_trip_delivers_answer() {
+        let (agent, sink) = ask_test_agent().await;
+        let sink_dyn: Arc<dyn AgentEventSink> = sink.clone();
+        let token = CancellationToken::new();
+        let agent2 = Arc::clone(&agent);
+        let token2 = token.clone();
+        let args = ask_args();
+        let asked = tokio::spawn(async move {
+            agent2.dispatch_ask_user(&args, &token2, &sink_dyn).await
+        });
+        let q = wait_for_pending(&agent).await;
+        assert_eq!(q.questions.len(), 2);
+        assert_eq!(q.questions[0].question, "Which DB?");
+        assert_eq!(q.questions[0].options.len(), 2);
+        assert!(
+            sink.events().iter().any(
+                |e| matches!(e, AgentEvent::QuestionAsked { id, .. } if id == &q.id)
+            ),
+            "QuestionAsked emitted for the pending id"
+        );
+        assert!(
+            agent
+                .answer_pending_question(&q.id, vec!["SQLite".to_string(), String::new()])
+                .await
+        );
+        let (text, is_error) = asked.await.expect("dispatch joins");
+        assert!(!is_error);
+        assert!(text.contains("Q1: Which DB?"), "got: {text}");
+        assert!(text.contains("A1: SQLite"), "got: {text}");
+        assert!(text.contains("A2: (skipped"), "got: {text}");
+        assert!(agent.pending_questions().await.is_empty());
+    }
+
+    /// Stop unblocks a run waiting on the user — no dangling question.
+    #[tokio::test]
+    async fn ask_user_cancel_unblocks_wait() {
+        let (agent, _sink) = ask_test_agent().await;
+        let sink_dyn: Arc<dyn AgentEventSink> = Arc::new(CollectingSink::default());
+        let token = CancellationToken::new();
+        let token2 = token.clone();
+        let agent2 = Arc::clone(&agent);
+        let args = ask_args();
+        let asked = tokio::spawn(async move {
+            agent2.dispatch_ask_user(&args, &token2, &sink_dyn).await
+        });
+        wait_for_pending(&agent).await;
+        token.cancel();
+        let (text, is_error) = asked.await.expect("dispatch joins");
+        assert!(is_error);
+        assert!(text.contains("cancelled by user"));
+        assert!(agent.pending_questions().await.is_empty());
+    }
+
+    /// Non-interactive loops (headless, children) refuse instead of hanging.
+    #[tokio::test]
+    async fn ask_user_non_interactive_fails_closed() {
+        let (agent, sink) = ask_test_agent().await;
+        let provider = agent.provider.read().await.clone();
+        let quiet = AgentLoop::new(agent.chat.clone(), agent.tools.clone(), provider)
+            .with_interactive(false);
+        let sink_dyn: Arc<dyn AgentEventSink> = sink.clone();
+        let token = CancellationToken::new();
+        let (text, is_error) = quiet
+            .dispatch_ask_user(&ask_args(), &token, &sink_dyn)
+            .await;
+        assert!(is_error);
+        assert!(text.contains("non-interactive"));
+    }
+
+    /// Past the dynamic cap the tool refuses so the run proceeds.
+    #[tokio::test]
+    async fn ask_user_cap_exhaustion_refuses() {
+        let (agent, sink) = ask_test_agent().await;
+        // Past the briefing phase (cap only applies once the run acted).
+        *agent.acted.lock().unwrap() = true;
+        *agent.questions_asked.lock().unwrap() = 100;
+        let sink_dyn: Arc<dyn AgentEventSink> = sink.clone();
+        let token = CancellationToken::new();
+        let (text, is_error) = agent
+            .dispatch_ask_user(&ask_args(), &token, &sink_dyn)
+            .await;
+        assert!(is_error);
+        assert!(text.contains("budget exhausted"));
+    }
+
+    /// Briefing-phase questions (before the first action) never consume the
+    /// per-run budget, so a thorough brief is never cut off mid-way.
+    #[tokio::test]
+    async fn ask_user_briefing_questions_skip_cap() {
+        let (agent, _sink) = ask_test_agent().await;
+        let sink_dyn: Arc<dyn AgentEventSink> = Arc::new(CollectingSink::default());
+        let token = CancellationToken::new();
+        let agent2 = Arc::clone(&agent);
+        let token2 = token.clone();
+        let args = ask_args();
+        let asked = tokio::spawn(async move {
+            agent2.dispatch_ask_user(&args, &token2, &sink_dyn).await
+        });
+        let q = wait_for_pending(&agent).await;
+        assert!(
+            agent
+                .answer_pending_question(&q.id, vec!["SQLite".to_string(), String::new()])
+                .await
+        );
+        let (text, is_error) = asked.await.expect("dispatch joins");
+        assert!(!is_error);
+        assert!(text.contains("A1: SQLite"), "got: {text}");
+        assert_eq!(*agent.questions_asked.lock().unwrap(), 0);
+    }
+
+    /// Once the run acted, questions count toward the budget again.
+    #[tokio::test]
+    async fn ask_user_post_action_questions_count() {
+        let (agent, _sink) = ask_test_agent().await;
+        *agent.acted.lock().unwrap() = true;
+        let sink_dyn: Arc<dyn AgentEventSink> = Arc::new(CollectingSink::default());
+        let token = CancellationToken::new();
+        let agent2 = Arc::clone(&agent);
+        let token2 = token.clone();
+        let args = ask_args();
+        let asked = tokio::spawn(async move {
+            agent2.dispatch_ask_user(&args, &token2, &sink_dyn).await
+        });
+        let q = wait_for_pending(&agent).await;
+        assert!(
+            agent
+                .answer_pending_question(&q.id, vec!["Postgres".to_string(), "Dark".to_string()])
+                .await
+        );
+        let (text, is_error) = asked.await.expect("dispatch joins");
+        assert!(!is_error);
+        assert!(text.contains("A1: Postgres"), "got: {text}");
+        assert!(text.contains("A2: Dark"), "got: {text}");
+        assert_eq!(*agent.questions_asked.lock().unwrap(), 2);
+    }
+
+    /// Read-only recon never ends briefing; writes, commands, delegation,
+    /// and memory tools do. `ask_user` itself never does.
+    #[test]
+    fn tool_marks_acted_splits_recon_from_action() {
+        for recon in [
+            "read_file",
+            "list_dir",
+            "grep",
+            "web_fetch",
+            "duckduckgo_search",
+            "get_task_output",
+        ] {
+            assert!(!tool_marks_acted(recon), "{recon} is recon");
+        }
+        for action in [
+            "write_to_file",
+            "run_terminal_cmd",
+            "search_replace",
+            "todo_write",
+            "kill_task",
+            "subagent",
+            "memory_save",
+            "memory_forget",
+            "some_unknown_mcp_tool",
+        ] {
+            assert!(tool_marks_acted(action), "{action} is an action");
+        }
+        assert!(!tool_marks_acted(crate::questions::ASK_USER_TOOL_NAME));
+    }
+
+    /// Answering an unknown id reports false (drives the command's error).
+    #[tokio::test]
+    async fn answer_unknown_question_returns_false() {
+        let (agent, _) = ask_test_agent().await;
+        assert!(
+            !agent
+                .answer_pending_question("q-nope", vec!["x".to_string()])
+                .await
+        );
+    }
+
+    /// The session workspace override reaches the tool runtime: a file that
+    /// exists ONLY in the session folder reads successfully by relative path.
+    #[tokio::test]
+    async fn dispatch_threads_session_workspace_cwd() {
+        let (agent, _sink) = ask_test_agent().await;
+        let dir = std::env::temp_dir().join(format!("mws-cwd-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(dir.join("ws-marker.txt"), "session-workspace-marker").unwrap();
+        agent.set_session_workspace(Some(dir.clone())).await;
+        let sink_dyn: Arc<dyn AgentEventSink> = Arc::new(CollectingSink::default());
+        let token = CancellationToken::new();
+        let (text, is_error) = agent
+            .dispatch_tool_call(
+                "read_file",
+                &serde_json::json!({"target_file": "ws-marker.txt"}),
+                "t-cwd",
+                &token,
+                &sink_dyn,
+            )
+            .await;
+        assert!(!is_error, "read failed: {text}");
+        assert!(text.contains("session-workspace-marker"), "got: {text}");
+        let _ = std::fs::remove_dir_all(&dir);
     }
 }

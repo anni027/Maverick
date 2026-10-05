@@ -10,16 +10,19 @@ declare global {
 
 interface MarkdownRendererProps {
   content: string;
+  /** Open-preview handler for html/svg/markdown fences (artifact viewer).
+   *  Absent = no preview buttons (e.g. inside the viewer itself). */
+  onOpenArtifact?: (a: { language: string; code: string; title: string }) => void;
 }
 
-export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
+export default function MarkdownRenderer({ content, onOpenArtifact }: MarkdownRendererProps) {
   if (!content) return null;
   const blocks = parseBlocks(content);
 
   return (
     <div className="markdown-body" style={{ lineHeight: 1.7, fontSize: '14.5px', color: 'var(--text)' }}>
       {blocks.map((block, idx) => (
-        <BlockView key={idx} block={block} />
+        <BlockView key={idx} block={block} onOpenArtifact={onOpenArtifact} />
       ))}
     </div>
   );
@@ -195,7 +198,7 @@ function parseBlocks(raw: string): Block[] {
 // Component Renderers
 // -----------------------------------------------------------------------------
 
-function BlockView({ block }: { block: Block }) {
+function BlockView({ block, onOpenArtifact }: { block: Block; onOpenArtifact?: (a: { language: string; code: string; title: string }) => void }) {
   switch (block.type) {
     case 'heading': {
       const Tag = (`h${Math.min(block.level, 6)}` as keyof JSX.IntrinsicElements) || 'h4';
@@ -218,7 +221,7 @@ function BlockView({ block }: { block: Block }) {
     }
 
     case 'code_block':
-      return <CodeBlock language={block.language} code={block.code} />;
+      return <CodeBlock language={block.language} code={block.code} onOpenArtifact={onOpenArtifact} />;
 
     case 'math_block':
       return <MathBlock tex={block.tex} />;
@@ -315,7 +318,7 @@ function BlockView({ block }: { block: Block }) {
 // Code Block with Copy Button
 // -----------------------------------------------------------------------------
 
-function CodeBlock({ language, code }: { language: string; code: string }) {
+function CodeBlock({ language, code, onOpenArtifact }: { language: string; code: string; onOpenArtifact?: (a: { language: string; code: string; title: string }) => void }) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -327,6 +330,16 @@ function CodeBlock({ language, code }: { language: string; code: string }) {
       // ignore
     }
   };
+
+  // Artifact viewer: html/svg/markdown fences get an Open-preview button.
+  const previewLang = (() => {
+    const l = language.trim().toLowerCase();
+    if (l === 'html' || l === 'htm') return 'html';
+    if (l === 'svg') return 'svg';
+    if (l === 'markdown' || l === 'md') return 'markdown';
+    return null;
+  })();
+  const canPreview = previewLang !== null && !!onOpenArtifact;
 
   return (
     <div
@@ -352,21 +365,46 @@ function CodeBlock({ language, code }: { language: string; code: string }) {
         <span className="mono" style={{ fontSize: '11px', color: 'var(--muted)', textTransform: 'lowercase' }}>
           {language || 'code'}
         </span>
-        <button
-          onClick={handleCopy}
-          className="btn-ghost"
-          style={{
-            padding: '3px 8px',
-            fontSize: '11px',
-            borderRadius: '6px',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '5px',
-            color: copied ? 'var(--ok)' : 'var(--muted)',
-            cursor: 'pointer',
-          }}
-          aria-label="Copy code"
-        >
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+          {canPreview && (
+            <button
+              onClick={() => onOpenArtifact?.({ language: previewLang!, code, title: `${previewLang} snippet` })}
+              className="btn-ghost"
+              style={{
+                padding: '3px 8px',
+                fontSize: '11px',
+                borderRadius: '6px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
+                color: 'var(--muted)',
+                cursor: 'pointer',
+              }}
+              aria-label="Open preview"
+              title="Open in artifact viewer"
+            >
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.3">
+                <path d="M1.5 6 C1.5 3.5 3.5 1.8 6 1.8 C8.5 1.8 10.5 3.5 10.5 6 C10.5 8.5 8.5 10.2 6 10.2 C3.5 10.2 1.5 8.5 1.5 6 Z" />
+                <circle cx="6" cy="6" r="1.6" />
+              </svg>
+              <span>Preview</span>
+            </button>
+          )}
+          <button
+            onClick={handleCopy}
+            className="btn-ghost"
+            style={{
+              padding: '3px 8px',
+              fontSize: '11px',
+              borderRadius: '6px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '5px',
+              color: copied ? 'var(--ok)' : 'var(--muted)',
+              cursor: 'pointer',
+            }}
+            aria-label="Copy code"
+          >
           {copied ? (
             <>
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6">
@@ -384,6 +422,7 @@ function CodeBlock({ language, code }: { language: string; code: string }) {
             </>
           )}
         </button>
+        </span>
       </div>
 
       {/* Code contents */}

@@ -331,7 +331,12 @@ pub async fn build_tool_bridge_with_app_data(app_data_dir: Option<PathBuf>) -> R
         behavior_preset: None,
     };
 
-    let ws_dir = resolve_workspace_dir();
+    // The bridge's baked-in cwd honors the stored default workspace (but
+    // per-call overrides from session loops take precedence at dispatch).
+    let ws_dir = match &app_data_dir {
+        Some(dir) => crate::workspaces::WorkspaceStore::new(dir).global_dir(),
+        None => resolve_workspace_dir(),
+    };
     let _ = std::fs::create_dir_all(&ws_dir);
     // Resolve app_data_dir for skill discovery
     let app_data = app_data_dir.unwrap_or_else(|| std::env::temp_dir().join("maverick-app"));

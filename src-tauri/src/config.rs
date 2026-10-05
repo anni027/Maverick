@@ -49,6 +49,14 @@ pub struct MaverickConfig {
     /// without the key deserialize to an empty list.
     #[serde(default)]
     pub model_presets: Vec<ModelPreset>,
+    /// Unified cross-chat memory (global + workspace MEMORY.md). Legacy
+    /// configs without the key deserialize to enabled-with-defaults.
+    #[serde(default)]
+    pub memory: MemoryConfig,
+    /// Clarifying-question policy (`ask_user` tool). Legacy configs without
+    /// the key deserialize to enabled.
+    #[serde(default)]
+    pub interaction: InteractionConfig,
 }
 
 /// Context-management policy (Phase 3).
@@ -139,6 +147,98 @@ impl Default for BudgetConfig {
             auto_continue: true,
             spend_cap_usd: None,
             avg_tokens_per_turn: default_avg_tokens_per_turn(),
+        }
+    }
+}
+
+/// Which memory files the loop reads and the editor shows.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum MemoryScope {
+    /// Global `MEMORY.md` + per-workspace file.
+    #[default]
+    Both,
+    /// Global file only.
+    Global,
+    /// Workspace file only.
+    Workspace,
+}
+
+impl MemoryScope {
+    pub fn includes_global(self) -> bool {
+        matches!(self, MemoryScope::Both | MemoryScope::Global)
+    }
+
+    pub fn includes_workspace(self) -> bool {
+        matches!(self, MemoryScope::Both | MemoryScope::Workspace)
+    }
+}
+
+/// Unified cross-chat memory policy.
+///
+/// Memories live in plain-Markdown `MEMORY.md` files (global + per
+/// workspace); this config only controls whether they are read, written,
+/// and how much context they may occupy. Legacy `config.toml` files without
+/// `[memory]` deserialize to these defaults (enabled).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MemoryConfig {
+    /// Master switch: injection, agent tools, and background extraction.
+    /// Default true.
+    #[serde(default = "default_true")]
+    pub enabled: bool,
+    /// Post-run background extraction of durable facts via a cheap model.
+    /// Default true.
+    #[serde(default = "default_true")]
+    pub auto_extract: bool,
+    /// Which memory files the loop reads. Default both.
+    #[serde(default)]
+    pub scope: MemoryScope,
+    /// Model slug used for background extraction (resolved against the
+    /// active provider's credentials/base URL, model swapped in).
+    /// Default "gpt-4o-mini".
+    #[serde(default = "default_extract_model")]
+    pub extract_model: String,
+    /// Max injected memory chars per request. Default 8000.
+    #[serde(default = "default_memory_max_chars")]
+    pub max_chars: usize,
+}
+
+fn default_extract_model() -> String {
+    "gpt-4o-mini".to_string()
+}
+
+fn default_memory_max_chars() -> usize {
+    8000
+}
+
+impl Default for MemoryConfig {
+    fn default() -> Self {
+        Self {
+            enabled: true,
+            auto_extract: true,
+            scope: MemoryScope::Both,
+            extract_model: default_extract_model(),
+            max_chars: default_memory_max_chars(),
+        }
+    }
+}
+
+/// Clarifying-question policy for the `ask_user` tool.
+///
+/// Legacy `config.toml` files without `[interaction]` deserialize to enabled.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct InteractionConfig {
+    /// Master switch: when false the `ask_user` tool is unoffered and any
+    /// call is refused, so the model proceeds with its best judgment.
+    /// Default true.
+    #[serde(default = "default_true")]
+    pub ask_user_enabled: bool,
+}
+
+impl Default for InteractionConfig {
+    fn default() -> Self {
+        Self {
+            ask_user_enabled: true,
         }
     }
 }
@@ -723,6 +823,34 @@ impl ConfigManager {
         self.persist().await
     }
 
+    /// Get unified-memory config.
+    pub async fn memory_config(&self) -> MemoryConfig {
+        self.config.read().await.memory.clone()
+    }
+
+    /// Set unified-memory config and persist.
+    pub async fn set_memory_config(&self, memory: MemoryConfig) -> Result<()> {
+        {
+            let mut config = self.config.write().await;
+            config.memory = memory;
+        }
+        self.persist().await
+    }
+
+    /// Get clarifying-question config.
+    pub async fn interaction_config(&self) -> InteractionConfig {
+        self.config.read().await.interaction.clone()
+    }
+
+    /// Set clarifying-question config and persist.
+    pub async fn set_interaction_config(&self, interaction: InteractionConfig) -> Result<()> {
+        {
+            let mut config = self.config.write().await;
+            config.interaction = interaction;
+        }
+        self.persist().await
+    }
+
     /// Get config for Tauri commands (serializable snapshot).
     pub async fn snapshot(&self) -> ConfigSnapshot {
         let config = self.config.read().await;
@@ -734,6 +862,8 @@ impl ConfigManager {
             ui: config.ui.clone(),
             context: config.context.clone(),
             budget: config.budget.clone(),
+            memory: config.memory.clone(),
+            interaction: config.interaction.clone(),
         }
     }
 
@@ -757,6 +887,10 @@ pub struct ConfigSnapshot {
     pub context: ContextConfig,
     #[serde(default)]
     pub budget: BudgetConfig,
+    #[serde(default)]
+    pub memory: MemoryConfig,
+    #[serde(default)]
+    pub interaction: InteractionConfig,
 }
 
 #[cfg(test)]
@@ -826,5 +960,56 @@ model = "grok-code-fast"
 "#;
         let preset: ModelPreset = toml::from_str(toml).expect("parses without effort");
         assert_eq!(preset.effort, None);
+    }
+
+    #[test]
+    fn legacy_config_without_memory_deserializes_enabled() {
+        let toml = r#"
+default_provider = "openai"
+
+[ui]
+theme = "dark"
+"#;
+        let config: MaverickConfig = toml::from_str(toml).expect("legacy config parses");
+        assert!(config.memory.enabled);
+        assert!(config.memory.auto_extract);
+        assert_eq!(config.memory.scope, MemoryScope::Both);
+        assert_eq!(config.memory.extract_model, "gpt-4o-mini");
+        assert_eq!(config.memory.max_chars, 8000);
+    }
+
+    #[test]
+    fn memory_round_trip_through_toml() {
+        let mut config = MaverickConfig::default();
+        config.memory.enabled = false;
+        config.memory.scope = MemoryScope::Workspace;
+        config.memory.extract_model = "llama3".to_string();
+        let encoded = toml::to_string_pretty(&config).expect("serializes");
+        let decoded: MaverickConfig = toml::from_str(&encoded).expect("parses back");
+        assert!(!decoded.memory.enabled);
+        assert_eq!(decoded.memory.scope, MemoryScope::Workspace);
+        assert_eq!(decoded.memory.extract_model, "llama3");
+        assert_eq!(decoded.memory.max_chars, 8000);
+    }
+
+    #[test]
+    fn legacy_config_without_interaction_deserializes_enabled() {
+        let toml = r#"
+default_provider = "openai"
+
+[ui]
+theme = "dark"
+"#;
+        let config: MaverickConfig = toml::from_str(toml).expect("legacy config parses");
+        assert!(config.interaction.ask_user_enabled);
+    }
+
+    #[test]
+    fn interaction_round_trip_through_toml() {
+        let mut config = MaverickConfig::default();
+        config.interaction.ask_user_enabled = false;
+        let encoded = toml::to_string_pretty(&config).expect("serializes");
+        let decoded: MaverickConfig = toml::from_str(&encoded).expect("parses back");
+        assert!(!decoded.interaction.ask_user_enabled);
     }
 }

@@ -243,6 +243,29 @@ async fn reconcile_loops_after_unregister(state: &AppState, provider_id: &str) {
     }
 }
 
+/// Workspace dir override for session-scoped commands: the session mapping
+/// (or stored default) when set, else the global resolver. Never trusts raw
+/// paths — only the validated mapping store.
+fn session_workspace_dir(
+    state: &AppState,
+    session_id: Option<&str>,
+) -> Option<std::path::PathBuf> {
+    let store = crate::workspaces::WorkspaceStore::new(&state.app_data_dir);
+    match session_id.filter(|s| !s.trim().is_empty()) {
+        Some(id) => Some(
+            store
+                .effective_session_dir(id)
+                .unwrap_or_else(|| store.global_dir()),
+        ),
+        None => None,
+    }
+}
+
+/// Global workspace dir honoring the stored default (env → stored → `./workspace`).
+fn global_workspace_dir(state: &AppState) -> std::path::PathBuf {
+    crate::workspaces::WorkspaceStore::new(&state.app_data_dir).global_dir()
+}
+
 /// Why a session has no live loop, for the errors users actually see.
 async fn missing_loop_error(state: &AppState, session_id: &str) -> String {
     if state.provider_registry.read().await.list().is_empty() {
@@ -261,7 +284,7 @@ pub async fn init_session(
     state: State<'_, AppState>,
 ) -> Result<(), String> {
     // Resolve provider: explicit → default → first available
-    let wanted = if let Some(pid) = provider_id {
+    let wanted = if let Some(pid) = provider_id.clone() {
         pid
     } else {
         state
@@ -282,6 +305,9 @@ pub async fn init_session(
     };
     if let Some(agent) = existing {
         agent.set_provider(provider).await;
+        if let Some(pid) = provider_id {
+            agent.set_provider_id(&pid);
+        }
         agent.sync_context_window().await;
         return Ok(());
     }
@@ -293,7 +319,22 @@ pub async fn init_session(
     crate::tools::sync_chat_context_window(&chat, provider.context_window()).await;
     let tools = (*state.tool_bridge).clone();
     let config_manager: Arc<ConfigManager> = Arc::clone(&state.config_manager);
-    let agent = Arc::new(AgentLoop::new(chat, tools, provider).with_config_manager(config_manager));
+    let agent = Arc::new(
+        AgentLoop::new(chat, tools, provider)
+            .with_config_manager(config_manager)
+            .with_memory_store(crate::memory::MemoryStore::new(
+                state.app_data_dir.clone(),
+            ))
+            .with_workspace_store(crate::workspaces::WorkspaceStore::new(
+                &state.app_data_dir,
+            )),
+    );
+    agent.set_provider_id(&wanted);
+    // Session workspace mapping (falls back to the global default).
+    let ws_store = crate::workspaces::WorkspaceStore::new(&state.app_data_dir);
+    agent
+        .set_session_workspace(ws_store.effective_session_dir(&session_id))
+        .await;
     state.agent_loops.write().await.insert(session_id, agent);
     Ok(())
 }
@@ -345,6 +386,14 @@ pub async fn send_message(
             .send_user_message_auto(&text, Arc::new(sink))
             .await
             .map_err(|e| e.to_string())?;
+        // Post-run memory extraction: fire-and-forget, never blocks the
+        // reply. Throttled inside the loop (cooldown + fresh-content gate).
+        {
+            let agent = Arc::clone(&agent);
+            tokio::spawn(async move {
+                agent.maybe_extract_memories().await;
+            });
+        }
         Ok(())
     } else {
         Err(missing_loop_error(&state, &session_id).await)
@@ -397,6 +446,9 @@ pub async fn delete_session(session_id: String, state: State<'_, AppState>) -> R
     state
         .session_manager
         .delete_session(&session_id)
+        .map_err(|e| e.to_string())?;
+    crate::workspaces::WorkspaceStore::new(&state.app_data_dir)
+        .remove_session(&session_id)
         .map_err(|e| e.to_string())?;
     Ok(())
 }
@@ -973,6 +1025,259 @@ pub async fn set_budget_config(
         .map_err(|e| e.to_string())
 }
 
+/// Get unified cross-chat memory config.
+#[command]
+pub async fn get_memory_config(
+    state: State<'_, AppState>,
+) -> Result<crate::config::MemoryConfig, String> {
+    Ok(state.config_manager.memory_config().await)
+}
+
+/// Set unified cross-chat memory config.
+#[command]
+pub async fn set_memory_config(
+    memory: crate::config::MemoryConfig,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    state
+        .config_manager
+        .set_memory_config(memory)
+        .await
+        .map_err(|e| e.to_string())
+}
+
+/// Get clarifying-question policy (`ask_user` tool).
+#[command]
+pub async fn get_interaction_config(
+    state: State<'_, AppState>,
+) -> Result<crate::config::InteractionConfig, String> {
+    Ok(state.config_manager.interaction_config().await)
+}
+
+/// Set clarifying-question policy.
+#[command]
+pub async fn set_interaction_config(
+    interaction: crate::config::InteractionConfig,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    state
+        .config_manager
+        .set_interaction_config(interaction)
+        .await
+        .map_err(|e| e.to_string())
+}
+
+/// Read one memory file verbatim for the Settings editor.
+/// `scope`: "global" (default) or "workspace". `session_id` selects whose
+/// workspace file (absent = global default workspace).
+#[command]
+pub async fn get_memory_text(
+    scope: String,
+    session_id: Option<String>,
+    state: State<'_, AppState>,
+) -> Result<String, String> {
+    let store = crate::memory::MemoryStore::new(state.app_data_dir.clone());
+    let ws = session_workspace_dir(&state, session_id.as_deref())
+        .unwrap_or_else(|| global_workspace_dir(&state));
+    let path = match scope.trim().to_lowercase().as_str() {
+        "workspace" => store.workspace_path(&ws),
+        _ => store.global_path(),
+    };
+    Ok(std::fs::read_to_string(path).unwrap_or_default())
+}
+
+/// Overwrite one memory file verbatim (Settings editor).
+/// `scope`: "global" (default) or "workspace".
+#[command]
+pub async fn save_memory_text(
+    scope: String,
+    text: String,
+    session_id: Option<String>,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    if text.len() > 200_000 {
+        return Err("memory text too large (max 200000 chars)".to_string());
+    }
+    let store = crate::memory::MemoryStore::new(state.app_data_dir.clone());
+    let ws = session_workspace_dir(&state, session_id.as_deref())
+        .unwrap_or_else(|| global_workspace_dir(&state));
+    let target = match scope.trim().to_lowercase().as_str() {
+        "workspace" => crate::memory::MemoryFileScope::Workspace,
+        _ => crate::memory::MemoryFileScope::Global,
+    };
+    store
+        .overwrite(target, Some(&ws), &text)
+        .map_err(|e| e.to_string())
+}
+
+/// Delete memory file(s). `scope`: "global", "workspace", or "both".
+#[command]
+pub async fn clear_memory(
+    scope: String,
+    session_id: Option<String>,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    let store = crate::memory::MemoryStore::new(state.app_data_dir.clone());
+    let ws = session_workspace_dir(&state, session_id.as_deref())
+        .unwrap_or_else(|| global_workspace_dir(&state));
+    // Explicit match (not `resolve_forget_target`): an unknown scope string
+    // must error, never wipe everything by falling through to "both".
+    let (both, only_workspace) = match scope.trim().to_lowercase().as_str() {
+        "global" => (false, false),
+        "workspace" => (false, true),
+        "both" => (true, false),
+        other => return Err(format!("unknown memory scope: {other}")),
+    };
+    store
+        .clear(both, only_workspace, Some(&ws))
+        .map_err(|e| e.to_string())
+}
+
+/// Memory stats for the composer indicator + Settings header.
+#[command]
+pub async fn get_memory_stats(
+    session_id: Option<String>,
+    state: State<'_, AppState>,
+) -> Result<crate::memory::MemoryStats, String> {
+    let store = crate::memory::MemoryStore::new(state.app_data_dir.clone());
+    let ws = session_workspace_dir(&state, session_id.as_deref())
+        .unwrap_or_else(|| global_workspace_dir(&state));
+    Ok(store.stats(Some(&ws)))
+}
+
+/// Per-session memory kill-switch for the composer's Memory toggle.
+/// Loop-local (resets when the session is re-initialized); the global
+/// default stays in `MemoryConfig.enabled`.
+#[command]
+pub async fn set_session_memory_enabled(
+    session_id: String,
+    enabled: bool,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    let loops = state.agent_loops.read().await;
+    match loops.get(&session_id) {
+        Some(agent) => {
+            agent.set_memory_enabled(enabled);
+            Ok(())
+        }
+        None => Err(missing_loop_error(&state, &session_id).await),
+    }
+}
+
+/// Workspace info for the session header chip.
+#[derive(Debug, Clone, serde::Serialize)]
+pub struct SessionWorkspaceInfo {
+    pub path: String,
+    pub is_default: bool,
+}
+
+/// Effective workspace for a session + whether it is the default.
+/// `path` is always concrete (mapping → env → stored default → `./workspace`).
+#[command]
+pub async fn get_session_workspace(
+    session_id: String,
+    state: State<'_, AppState>,
+) -> Result<SessionWorkspaceInfo, String> {
+    let store = crate::workspaces::WorkspaceStore::new(&state.app_data_dir);
+    if let Some(dir) = store.session_workspace(&session_id) {
+        return Ok(SessionWorkspaceInfo {
+            path: dir,
+            is_default: false,
+        });
+    }
+    Ok(SessionWorkspaceInfo {
+        path: store.global_dir().to_string_lossy().replace('\\', "/"),
+        is_default: true,
+    })
+}
+
+/// Set (or clear with null) a session's workspace. Validates the folder
+/// exists; a live loop picks it up for the next dispatch (immediate).
+/// Returns the canonical path.
+#[command]
+pub async fn set_session_workspace(
+    session_id: String,
+    path: Option<String>,
+    state: State<'_, AppState>,
+) -> Result<Option<String>, String> {
+    let store = crate::workspaces::WorkspaceStore::new(&state.app_data_dir);
+    let canon = store.set_session_workspace(&session_id, path.as_deref())?;
+    if let Some(agent) = state.agent_loops.read().await.get(&session_id) {
+        agent
+            .set_session_workspace(canon.clone().map(std::path::PathBuf::from))
+            .await;
+    }
+    Ok(canon)
+}
+
+/// Stored default workspace (canonical path or null).
+#[command]
+pub async fn get_default_workspace(
+    state: State<'_, AppState>,
+) -> Result<Option<String>, String> {
+    Ok(crate::workspaces::WorkspaceStore::new(&state.app_data_dir).default_workspace())
+}
+
+/// Set (or clear with null) the default workspace.
+#[command]
+pub async fn set_default_workspace(
+    path: Option<String>,
+    state: State<'_, AppState>,
+) -> Result<Option<String>, String> {
+    crate::workspaces::WorkspaceStore::new(&state.app_data_dir)
+        .set_default_workspace(path.as_deref())
+}
+
+/// Recent workspaces (folders that still exist, most-recent first).
+#[command]
+pub async fn list_recent_workspaces(
+    state: State<'_, AppState>,
+) -> Result<Vec<String>, String> {
+    Ok(crate::workspaces::WorkspaceStore::new(&state.app_data_dir).recent())
+}
+
+/// Answer a pending `ask_user` question batch. `answers` aligns with the
+/// batch's questions by index (empty string = that one skipped).
+/// Unknown/gone ids error — e.g. the run was cancelled or already answered.
+#[command]
+pub async fn answer_question(
+    session_id: String,
+    question_id: String,
+    answers: Vec<String>,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    let answers: Vec<String> = answers
+        .into_iter()
+        .take(8)
+        .map(|a| a.chars().take(4000).collect())
+        .collect();
+    let loops = state.agent_loops.read().await;
+    match loops.get(&session_id) {
+        Some(agent) => {
+            if agent.answer_pending_question(&question_id, answers).await {
+                Ok(())
+            } else {
+                Err("question is no longer pending (answered, skipped, or run ended)".to_string())
+            }
+        }
+        None => Err(missing_loop_error(&state, &session_id).await),
+    }
+}
+
+/// Pending `ask_user` question batches for a session (re-sync after
+/// switching back to a session whose run is waiting on the user).
+#[command]
+pub async fn get_pending_questions(
+    session_id: String,
+    state: State<'_, AppState>,
+) -> Result<Vec<crate::agent_event::PendingBatch>, String> {
+    let loops = state.agent_loops.read().await;
+    match loops.get(&session_id) {
+        Some(agent) => Ok(agent.pending_questions().await),
+        None => Err(missing_loop_error(&state, &session_id).await),
+    }
+}
+
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct KiloModel {
     pub id: String,
@@ -1444,7 +1749,7 @@ pub async fn get_model_reasoning(
 pub async fn list_skills(
     state: State<'_, AppState>,
 ) -> Result<Vec<crate::skills::SkillDto>, String> {
-    let ws = crate::tools::resolve_workspace_dir();
+    let ws = global_workspace_dir(&state);
     let skills = crate::skills::discover_skills(&state.app_data_dir, &ws);
     Ok(skills.iter().map(crate::skills::SkillDto::from).collect())
 }
@@ -1499,13 +1804,13 @@ pub async fn refresh_skills(
     state: State<'_, AppState>,
 ) -> Result<Vec<crate::skills::SkillDto>, String> {
     refresh_skills_internal(&state).await?;
-    let ws = crate::tools::resolve_workspace_dir();
+    let ws = global_workspace_dir(&state);
     let skills = crate::skills::discover_skills(&state.app_data_dir, &ws);
     Ok(skills.iter().map(crate::skills::SkillDto::from).collect())
 }
 
 async fn refresh_skills_internal(state: &State<'_, AppState>) -> Result<(), String> {
-    let ws = crate::tools::resolve_workspace_dir();
+    let ws = global_workspace_dir(&state);
     let skills = crate::skills::discover_skills(&state.app_data_dir, &ws);
     // Update ToolBridge baseline
     let infos: Vec<xai_grok_tools::implementations::skills::types::SkillInfo> = skills;
@@ -1522,7 +1827,7 @@ pub async fn search_skills(
     query: String,
     state: State<'_, AppState>,
 ) -> Result<Vec<crate::skills::SkillDto>, String> {
-    let ws = crate::tools::resolve_workspace_dir();
+    let ws = global_workspace_dir(&state);
     let skills = crate::skills::discover_skills(&state.app_data_dir, &ws);
     let q = query.to_lowercase();
     let filtered: Vec<_> = skills
@@ -1544,7 +1849,7 @@ pub async fn search_skills(
 /// Get raw SKILL.md content by skill name
 #[command]
 pub async fn get_skill_content(name: String, state: State<'_, AppState>) -> Result<String, String> {
-    let ws = crate::tools::resolve_workspace_dir();
+    let ws = global_workspace_dir(&state);
     let skills = crate::skills::discover_skills(&state.app_data_dir, &ws);
     let skill = skills
         .iter()
@@ -1686,7 +1991,7 @@ pub async fn list_marketplace_skills(
             cached
         }
     };
-    let ws = crate::tools::resolve_workspace_dir();
+    let ws = global_workspace_dir(&state);
     let installed: Vec<String> = crate::skills::discover_skills(&state.app_data_dir, &ws)
         .iter()
         .map(|s| s.path.clone())
@@ -1719,7 +2024,7 @@ pub async fn search_marketplace_skills(
             s.name.to_lowercase().contains(&q) || s.description.to_lowercase().contains(&q)
         })
         .collect();
-    let ws = crate::tools::resolve_workspace_dir();
+    let ws = global_workspace_dir(&state);
     let installed: Vec<String> = crate::skills::discover_skills(&state.app_data_dir, &ws)
         .iter()
         .map(|s| s.path.clone())
@@ -1883,18 +2188,83 @@ fn ws_read(root: &std::path::Path, rel: &str) -> Result<WorkspaceFileRead, Strin
 }
 
 /// List workspace files/dirs for the composer `+` menu. `path` is
-/// workspace-relative; empty lists the workspace root.
+/// workspace-relative; empty lists the workspace root. `session_id` selects
+/// whose workspace (absent = global default).
 #[command]
-pub async fn list_workspace_files(path: String) -> Result<Vec<WorkspaceEntry>, String> {
-    let root = crate::tools::resolve_workspace_dir();
+pub async fn list_workspace_files(
+    path: String,
+    session_id: Option<String>,
+    state: State<'_, AppState>,
+) -> Result<Vec<WorkspaceEntry>, String> {
+    let root = session_workspace_dir(&state, session_id.as_deref())
+        .unwrap_or_else(|| global_workspace_dir(&state));
     ws_list(&root, &path)
 }
 
 /// Read a workspace text file for attaching (24 KB cap, binary rejected).
 #[command]
-pub async fn read_workspace_file(path: String) -> Result<WorkspaceFileRead, String> {
-    let root = crate::tools::resolve_workspace_dir();
+pub async fn read_workspace_file(
+    path: String,
+    session_id: Option<String>,
+    state: State<'_, AppState>,
+) -> Result<WorkspaceFileRead, String> {
+    let root = session_workspace_dir(&state, session_id.as_deref())
+        .unwrap_or_else(|| global_workspace_dir(&state));
     ws_read(&root, &path)
+}
+
+/// Extensions the artifact viewer may preview.
+const PREVIEWABLE_EXTENSIONS: [&str; 4] = ["html", "htm", "svg", "md"];
+
+/// Read a file for the artifact viewer. Accepts workspace-relative paths
+/// like `read_workspace_file`, plus absolute paths that resolve strictly
+/// inside the workspace (the `write_to_file` result echoes the joined
+/// absolute path). Anything outside the workspace, binary, missing, or a
+/// non-previewable extension is refused.
+#[command]
+pub async fn preview_workspace_file(
+    path: String,
+    session_id: Option<String>,
+    state: State<'_, AppState>,
+) -> Result<WorkspaceFileRead, String> {
+    let root = session_workspace_dir(&state, session_id.as_deref())
+        .unwrap_or_else(|| global_workspace_dir(&state));
+    let rel = workspace_relative(&root, &path)?;
+    let ext = std::path::Path::new(&rel)
+        .extension()
+        .and_then(|e| e.to_str())
+        .map(|e| e.to_ascii_lowercase())
+        .unwrap_or_default();
+    if !PREVIEWABLE_EXTENSIONS.contains(&ext.as_str()) {
+        return Err(format!("not previewable (only .html, .svg, .md): {rel}"));
+    }
+    ws_read(&root, &rel)
+}
+
+/// Express `path` relative to the workspace root: workspace-relative input
+/// passes through; an absolute path strictly inside the root is stripped.
+/// `ws_read` re-validates regardless, so this is a convenience, not the
+/// trust boundary.
+fn workspace_relative(root: &std::path::Path, path: &str) -> Result<String, String> {
+    let trimmed = path.trim().replace('\\', "/");
+    // Rooted but prefix-less (`/etc/hostname`): absolute on Unix, and on
+    // Windows it would join onto the workspace drive — reject up front.
+    if trimmed.starts_with('/') {
+        return Err("absolute paths outside the workspace are rejected".to_string());
+    }
+    if !std::path::Path::new(&trimmed).is_absolute() {
+        return Ok(trimmed);
+    }
+    let root_c = root
+        .canonicalize()
+        .map_err(|e| format!("workspace unavailable: {e}"))?;
+    let canon = std::path::Path::new(&trimmed)
+        .canonicalize()
+        .map_err(|_| format!("not found: {trimmed}"))?;
+    let rel = canon
+        .strip_prefix(&root_c)
+        .map_err(|_| "path escapes the workspace".to_string())?;
+    Ok(rel.to_string_lossy().replace('\\', "/"))
 }
 
 #[cfg(test)]
@@ -1988,6 +2358,29 @@ mod workspace_browser_tests {
         assert!(ws_read(&root, "adir").is_err());
         assert!(ws_read(&root, "").is_err());
         assert!(ws_read(&root, "../outside.txt").is_err());
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn workspace_relative_accepts_inside_absolute_only() {
+        let root = tmp_root("rel");
+        std::fs::write(root.join("page.html"), "<h1>hi</h1>").unwrap();
+        // Workspace-relative passes through.
+        assert_eq!(
+            workspace_relative(&root, "page.html").unwrap(),
+            "page.html"
+        );
+        // Absolute strictly inside the root strips to relative.
+        let abs = root.join("page.html").to_string_lossy().replace('\\', "/");
+        assert_eq!(workspace_relative(&root, &abs).unwrap(), "page.html");
+        // Outside absolutes refuse here; `..` escapes pass through and are
+        // rejected by `ws_read` (which accepts benign `inner/../inner`).
+        assert!(workspace_relative(&root, "/etc/hostname").is_err());
+        assert_eq!(
+            workspace_relative(&root, "../outside.html").unwrap(),
+            "../outside.html"
+        );
+        assert!(ws_read(&root, "../outside.html").is_err());
         let _ = std::fs::remove_dir_all(&root);
     }
 }

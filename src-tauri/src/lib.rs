@@ -13,15 +13,20 @@ pub mod compaction;
 pub mod config;
 pub mod duckduckgo;
 pub mod mcp;
+pub mod memory;
 pub mod prompts;
 pub mod providers;
+pub mod questions;
 pub mod session_store;
 pub mod skills;
 pub mod subagents;
 pub mod tools;
 pub mod usage;
+pub mod workspaces;
 
-pub use agent_event::{AgentEvent, AgentEventSink, PrintSink, TauriSink};
+pub use workspaces::WorkspaceStore;
+
+pub use agent_event::{AgentEvent, AgentEventSink, PendingBatch, PendingQuestion, PrintSink, QuestionOption, TauriSink};
 pub use agent_loop::AgentLoop;
 pub use commands::AppState;
 pub use compaction::{
@@ -30,9 +35,10 @@ pub use compaction::{
     build_checkpoint_summary, should_compact, split_for_checkpoint,
 };
 pub use config::{
-    BudgetConfig, ConfigManager, ConfigSnapshot, ContextConfig, MaverickConfig, McpServerConfig,
-    UiConfig,
+    BudgetConfig, ConfigManager, ConfigSnapshot, ContextConfig, InteractionConfig, MaverickConfig,
+    McpServerConfig, MemoryConfig, MemoryScope, UiConfig,
 };
+pub use memory::{MemoryFileScope, MemoryStats, MemoryStore};
 pub use prompts::{AUTOMATION_BUDGET_REMINDER, AUTOMATION_SYSTEM_ADDENDUM};
 pub use providers::{
     Provider, ProviderCapabilities, ProviderConfig, ProviderInfo, ProviderInfoDto, ProviderKind,
@@ -84,7 +90,7 @@ pub async fn run_headless_demo() -> anyhow::Result<()> {
     };
     let provider = crate::providers::create_provider(provider_id, Some(key), None, None, None)
         .ok_or_else(|| anyhow::anyhow!("Failed to create provider {provider_id}"))?;
-    let agent = crate::AgentLoop::new(chat, tools, provider);
+    let agent = crate::AgentLoop::new(chat, tools, provider).with_interactive(false);
     let sink: std::sync::Arc<dyn crate::AgentEventSink> = std::sync::Arc::new(crate::PrintSink);
     agent
         .send_user_message_auto("Introduce yourself by running a shell command.", sink)

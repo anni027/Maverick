@@ -1,10 +1,14 @@
 // Settings — minimal, English, no mock, no generic power badge
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
-import type { ModelPreset } from '../types';
+import { open } from '@tauri-apps/plugin-dialog';
+import type { InteractionConfig, MemoryConfig, MemoryScope, MemoryStats, ModelPreset } from '../types';
+import { DEFAULT_INTERACTION_CONFIG, DEFAULT_MEMORY_CONFIG } from '../types';
 
 interface SettingsProps {
   isOpen: boolean; onClose: () => void;
+  /** Visible session — scopes the memory editor + workspace default display. */
+  sessionId?: string;
   providers: Array<{ id: string; name: string; model: string }>;
   currentProvider: string; onProviderChange: (id: string) => void;
   onRefresh?: () => void;
@@ -67,7 +71,7 @@ function splitArgs(input: string): string[] {
   return out;
 }
 
-export default function Settings({ isOpen, onClose, providers, currentProvider: _cp, onProviderChange, onRefresh, presets = [], activePresetId, onApplyPreset, onDeletePreset, onSavePreset }: SettingsProps) {
+export default function Settings({ isOpen, onClose, sessionId, providers, currentProvider: _cp, onProviderChange, onRefresh, presets = [], activePresetId, onApplyPreset, onDeletePreset, onSavePreset }: SettingsProps) {
   const [apiKeys, setApiKeys] = useState<Record<string,string>>({});
   const [providerSettings, setProviderSettings] = useState<Record<string, {base_url?: string, model?: string, kind?: string}>>({});
   const [mcpServers, setMcpServers] = useState<Array<{name:string;transport:string;command?:string;args:string;url?:string;enabled:boolean}>>([]);
@@ -78,8 +82,19 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
   const [contextConfig, setContextConfig] = useState<{ auto_compact_enabled:boolean; auto_compact_threshold_percent:number; tail_keep_items:number; tool_output_budgets: Record<string, number> }>({ auto_compact_enabled:true, auto_compact_threshold_percent:85, tail_keep_items:24, tool_output_budgets:{} });
   // Turn/segment budgets + spend guardrails (§5.6-B/F).
   const [budgetConfig, setBudgetConfig] = useState<{ max_turns:number; max_segments:number; auto_continue:boolean; spend_cap_usd:number|null; avg_tokens_per_turn:number }>({ max_turns:40, max_segments:3, auto_continue:true, spend_cap_usd:null, avg_tokens_per_turn:2000 });
+  // Clarifying questions (ask_user tool).
+  const [interactionConfig, setInteractionConfig] = useState<InteractionConfig>(DEFAULT_INTERACTION_CONFIG);
+  // Unified cross-chat memory (global + workspace MEMORY.md).
+  const [memoryConfig, setMemoryConfig] = useState<MemoryConfig>(DEFAULT_MEMORY_CONFIG);
+  const [memScope, setMemScope] = useState<'global'|'workspace'>('global');
+  const [memText, setMemText] = useState('');
+  const [memDirty, setMemDirty] = useState(false);
+  const [memStats, setMemStats] = useState<MemoryStats|null>(null);
+  // Default workspace (global fallback for sessions without their own).
+  const [defaultWs, setDefaultWs] = useState<string|null>(null);
+  const [wsDraft, setWsDraft] = useState('');
   const [defaultProvider, setDefaultProvider] = useState('');
-  const [activeTab, setActiveTab] = useState<'providers'|'mcp'|'skills'|'ui'|'context'>('providers');
+  const [activeTab, setActiveTab] = useState<'providers'|'mcp'|'skills'|'ui'|'context'|'memory'>('providers');
   const [skills, setSkills] = useState<Array<{name:string, description:string, path:string, scope:string, display_name?: string, enabled:boolean}>>([]);
   const [newSkill, setNewSkill] = useState({ name:'', content:'' });
   const [hubFetch, setHubFetch] = useState({ owner:'', name:'', version:'', url:'https://agentskills.io' });
@@ -103,8 +118,49 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
   const [showKiloPicker, setShowKiloPicker] = useState<string|null>(null); // providerId or 'new'
   const [kiloSearch, setKiloSearch] = useState('');
   const [kiloFilter, setKiloFilter] = useState<'all'|'free'|'paid'>('all');
+  // Resizable panel: custom corner handle (always visible, unlike the native
+  // `resize` grip). Size persists across opens via localStorage.
+  const [panelSize, setPanelSize] = useState<{w:number;h:number}|null>(() => {
+    try {
+      const raw = localStorage.getItem('maverick.settingsSize');
+      if (!raw) return null;
+      const p = JSON.parse(raw);
+      if (typeof p?.w === 'number' && typeof p?.h === 'number' && p.w >= 340 && p.h >= 360) return p;
+    } catch { /* corrupted — fall back to defaults */ }
+    return null;
+  });
+  const panelRef = useRef<HTMLDivElement>(null);
+  const panelSizeRef = useRef(panelSize);
+  panelSizeRef.current = panelSize;
+  const startPanelResize = (e: React.PointerEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const startX = e.clientX, startY = e.clientY;
+    const rect = panelRef.current?.getBoundingClientRect();
+    const startW = panelSizeRef.current?.w ?? rect?.width ?? 800;
+    const startH = panelSizeRef.current?.h ?? rect?.height ?? 600;
+    const onMove = (ev: PointerEvent) => {
+      const w = Math.min(window.innerWidth - 32, Math.max(340, Math.round(startW + ev.clientX - startX)));
+      const h = Math.min(window.innerHeight - 32, Math.max(360, Math.round(startH + ev.clientY - startY)));
+      setPanelSize({ w, h });
+    };
+    const onUp = () => {
+      document.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerup', onUp);
+      document.body.style.cursor = '';
+      try {
+        const cur = panelSizeRef.current;
+        if (cur) localStorage.setItem('maverick.settingsSize', JSON.stringify(cur));
+      } catch { /* private mode — session-only size */ }
+    };
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', onUp);
+    document.body.style.cursor = 'nwse-resize';
+  };
 
-  useEffect(()=>{ if(isOpen) { loadConfig(); loadSkills(); loadMcpStatus(); loadMarketplace(); loadMpSources(); } },[isOpen]);
+  useEffect(()=>{ if(isOpen) { loadConfig(); loadSkills(); loadMcpStatus(); loadMarketplace(); loadMpSources(); loadMemoryStats(); loadDefaultWs(); } },[isOpen]);
+  // Reload the editor whenever the file scope flips.
+  useEffect(()=>{ if(isOpen) loadMemoryText(memScope); },[isOpen, memScope]);
   // Browse the selected marketplace source (first browse auto-fetches).
   useEffect(()=>{ if(isOpen && mpSourceId) loadMpSkills(false); },[mpSourceId]);
   const loadSkills = async () => {
@@ -201,6 +257,16 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
         auto_continue: c.budget.auto_continue ?? true,
         spend_cap_usd: c.budget.spend_cap_usd ?? null,
         avg_tokens_per_turn: c.budget.avg_tokens_per_turn ?? 2000,
+      });
+      if(c.interaction) setInteractionConfig({
+        ask_user_enabled: c.interaction.ask_user_enabled ?? true,
+      });
+      if(c.memory) setMemoryConfig({
+        enabled: c.memory.enabled ?? true,
+        auto_extract: c.memory.auto_extract ?? true,
+        scope: (c.memory.scope as MemoryScope) ?? 'both',
+        extract_model: c.memory.extract_model ?? DEFAULT_MEMORY_CONFIG.extract_model,
+        max_chars: c.memory.max_chars ?? DEFAULT_MEMORY_CONFIG.max_chars,
       });
     }catch(e){ console.error(e)} finally{ setLoading(false)}
   };
@@ -299,6 +365,68 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
     invoke('set_budget_config',{budget:next}).catch(e=>alert(String(e)));
     return next;
   };
+  // Clarifying questions: same patch-and-persist pattern.
+  const patchInteraction = (patch: Partial<InteractionConfig>) => {
+    const next = { ...interactionConfig, ...patch };
+    setInteractionConfig(next);
+    invoke('set_interaction_config',{interaction:next}).catch(e=>alert(String(e)));
+    return next;
+  };
+  // Unified memory: same patch-and-persist pattern.
+  const patchMemory = (patch: Partial<MemoryConfig>) => {
+    const next = { ...memoryConfig, ...patch };
+    setMemoryConfig(next);
+    invoke('set_memory_config',{memory:next}).catch(e=>alert(String(e)));
+    return next;
+  };
+  const loadMemoryText = async (scope: 'global'|'workspace') => {
+    try{
+      const text = await invoke<string>('get_memory_text',{scope, sessionId: sessionId ?? null});
+      setMemText(text); setMemDirty(false);
+    }catch(e){ alert(String(e)) }
+  };
+  const loadMemoryStats = async () => {
+    try{
+      const s = await invoke<MemoryStats>('get_memory_stats',{sessionId: sessionId ?? null});
+      setMemStats(s);
+    }catch(e){ console.error('get_memory_stats failed', e) }
+  };
+  const saveMemoryText = async () => {
+    setSaving('memory');
+    try{
+      await invoke('save_memory_text',{scope:memScope, text:memText, sessionId: sessionId ?? null});
+      setMemDirty(false); loadMemoryStats();
+    }catch(e){ alert(String(e)) } finally{ setSaving(null) }
+  };
+  const clearMemory = async (scope: 'global'|'workspace'|'both') => {
+    if(!confirm(`Delete ${scope === 'both' ? 'ALL' : scope} memor${scope === 'both' ? 'ies' : 'y'}? This cannot be undone.`)) return;
+    setSaving('memory-clear');
+    try{
+      await invoke('clear_memory',{scope, sessionId: sessionId ?? null});
+      loadMemoryText(memScope); loadMemoryStats();
+    }catch(e){ alert(String(e)) } finally{ setSaving(null) }
+  };
+  const loadDefaultWs = async () => {
+    try{
+      const d = await invoke<string|null>('get_default_workspace');
+      setDefaultWs(d);
+      setWsDraft(d ?? '');
+    }catch(e){ console.error('get_default_workspace failed', e) }
+  };
+  const saveDefaultWs = async (path: string | null) => {
+    setSaving('workspace');
+    try{
+      const d = await invoke<string|null>('set_default_workspace',{path});
+      setDefaultWs(d);
+      setWsDraft(d ?? '');
+    }catch(e){ alert(String(e)) } finally{ setSaving(null) }
+  };
+  const browseDefaultWs = async () => {
+    try{
+      const picked = await open({ directory: true, multiple: false, title: 'Choose default workspace' });
+      if (typeof picked === 'string' && picked) saveDefaultWs(picked);
+    }catch(e){ alert(String(e)) }
+  };
   const handleInstallSkill = async()=>{
     if(!newSkill.name.trim() || !newSkill.content.trim()){ alert('Name and SKILL.md content required'); return; }
     setSaving('skill');
@@ -385,7 +513,7 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
 
   return (
     <div style={{position:'fixed', inset:0, background:'rgba(0,0,0,0.45)', backdropFilter:'blur(8px)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:100, padding:'16px'}}>
-      <div onClick={e=>e.stopPropagation()} style={{width:'100%', maxWidth:'min(960px, 92vw)', minWidth:'340px', maxHeight:'92vh', minHeight:'360px', resize:'both', display:'flex', flexDirection:'column', background:'var(--panel)', border:'1px solid var(--line)', borderRadius:'16px', overflow:'hidden'}}>
+      <div ref={panelRef} onClick={e=>e.stopPropagation()} style={{width: panelSize ? `${panelSize.w}px` : '100%', maxWidth:'min(960px, calc(100vw - 32px))', minWidth:'340px', height: panelSize ? `${panelSize.h}px` : undefined, maxHeight:'calc(100vh - 32px)', minHeight:'360px', position:'relative', display:'flex', flexDirection:'column', background:'var(--panel)', border:'1px solid var(--line)', borderRadius:'16px', overflow:'hidden'}}>
         <div style={{padding:'16px 20px', borderBottom:'1px solid var(--line)', display:'flex', justifyContent:'space-between', alignItems:'center'}}>
           <div>
             <div style={{fontWeight:600, fontSize:'14px'}}>Settings</div>
@@ -397,14 +525,14 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
         </div>
 
         <div style={{display:'flex', borderBottom:'1px solid var(--line)', padding:'0 8px', gap:'4px'}}>
-          {(['providers','mcp','skills','ui','context'] as const).map(tab=>(
+          {(['providers','mcp','skills','ui','context','memory'] as const).map(tab=>(
             <button key={tab} onClick={()=>setActiveTab(tab)} style={{
               flex:1, padding:'8px', borderRadius:'999px', border:'none',
               background: activeTab===tab ? 'var(--text)' : 'transparent',
               color: activeTab===tab ? 'var(--bg)' : 'var(--muted)',
               fontSize:'12px', margin:'8px 0'
             }}>
-              {tab === 'providers' ? 'Providers' : tab === 'mcp' ? 'MCP' : tab === 'skills' ? 'Skills' : tab === 'context' ? 'Context' : 'Interface'}
+              {tab === 'providers' ? 'Providers' : tab === 'mcp' ? 'MCP' : tab === 'skills' ? 'Skills' : tab === 'context' ? 'Context' : tab === 'memory' ? 'Memory' : 'Interface'}
             </button>
           ))}
         </div>
@@ -775,6 +903,30 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
                       ))}
                     </div>
                   </div>
+                  <div style={{padding:'16px', border:'1px solid var(--line)', borderRadius:'12px', background:'var(--bg)'}}>
+                    <div className="mono" style={{fontSize:'11px', color:'var(--muted)', marginBottom:'4px'}}>Default workspace</div>
+                    <div className="mono" style={{fontSize:'11px', color:'var(--muted)', marginBottom:'12px'}}>
+                      Fallback folder for chats without their own (per-chat folder via the header chip).
+                      {defaultWs ? '' : ' Not set — uses ./workspace (or MAVERICK_WORKSPACE_DIR).'}
+                    </div>
+                    {defaultWs && (
+                      <div className="mono" style={{fontSize:'12px', color:'var(--text)', wordBreak:'break-all', marginBottom:'10px'}}>{defaultWs}</div>
+                    )}
+                    <div style={{display:'flex', gap:'8px', flexWrap:'wrap', alignItems:'center'}}>
+                      <input
+                        value={wsDraft}
+                        onChange={e=>setWsDraft(e.target.value)}
+                        onKeyDown={e=>{ if(e.key==='Enter') saveDefaultWs(wsDraft.trim() || null); }}
+                        placeholder="Paste a folder path…"
+                        style={{flex:1, minWidth:'180px', fontSize:'12px'}}
+                      />
+                      <button className="btn-ghost" onClick={()=>saveDefaultWs(wsDraft.trim() || null)} disabled={saving==='workspace'} style={{borderRadius:999}}>Set</button>
+                      <button className="btn-ghost" onClick={browseDefaultWs} disabled={saving==='workspace'} style={{borderRadius:999}}>Browse…</button>
+                      {defaultWs && (
+                        <button className="btn-ghost" onClick={()=>saveDefaultWs(null)} disabled={saving==='workspace'} style={{borderRadius:999}}>Clear</button>
+                      )}
+                    </div>
+                  </div>
                 </div>
               )}
               {activeTab==='context' && (
@@ -874,6 +1026,125 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
                       breaching the spend cap stops further segments.
                     </div>
                   </div>
+
+                  <div style={{padding:'16px', border:'1px solid var(--line)', borderRadius:'12px', background:'var(--bg)'}}>
+                    <div className="mono" style={{fontSize:'11px', color:'var(--muted)', marginBottom:'4px'}}>Clarifying questions</div>
+                    <div className="mono" style={{fontSize:'11px', color:'var(--muted)', marginBottom:'12px'}}>
+                      When something is genuinely unclear, the agent asks you instead of guessing — a card
+                      appears above the composer with options, free text, and a skip path. The per-run
+                      question budget scales with max segments above.
+                    </div>
+                    <label style={{display:'flex', alignItems:'center', gap:'10px', cursor:'pointer', fontSize:'13px'}}>
+                      <input type="checkbox" checked={interactionConfig.ask_user_enabled}
+                        onChange={e=>patchInteraction({ ask_user_enabled:e.target.checked })}
+                        style={{width:'16px', height:'16px', accentColor:'var(--text)'}} />
+                      <span>Let the agent ask clarifying questions</span>
+                    </label>
+                    <div className="mono" style={{marginTop:'8px', fontSize:'11px', color:'var(--muted)'}}>
+                      Off = the tool is removed and the model proceeds with its best judgment.
+                    </div>
+                  </div>
+                </div>
+              )}
+              {activeTab==='memory' && (
+                <div style={{display:'flex', flexDirection:'column', gap:'16px'}}>
+                  <div className="mono" style={{fontSize:'11px', color:'var(--muted)'}}>
+                    Unified memory persists facts, preferences, and project notes across chats.
+                    Stored as plain Markdown (MEMORY.md) — global for you, per-workspace for projects —
+                    and injected into every run. Files live as plaintext in the app data dir.
+                    {memStats && (
+                      <> Currently: <b>{memStats.global_bullets}</b> global · <b>{memStats.workspace_bullets}</b> workspace ({memStats.workspace_name}).</>
+                    )}
+                  </div>
+
+                  <div style={{padding:'16px', border:'1px solid var(--line)', borderRadius:'12px', background:'var(--bg)'}}>
+                    <label style={{display:'flex', alignItems:'center', gap:'10px', cursor:'pointer', fontSize:'13px', marginBottom:'12px'}}>
+                      <input type="checkbox" checked={memoryConfig.enabled}
+                        onChange={e=>patchMemory({ enabled:e.target.checked })}
+                        style={{width:'16px', height:'16px', accentColor:'var(--text)'}} />
+                      <span>Enable unified memory</span>
+                    </label>
+                    <label style={{display:'flex', alignItems:'center', gap:'10px', cursor:'pointer', fontSize:'13px'}}>
+                      <input type="checkbox" checked={memoryConfig.auto_extract}
+                        disabled={!memoryConfig.enabled}
+                        onChange={e=>patchMemory({ auto_extract:e.target.checked })}
+                        style={{width:'16px', height:'16px', accentColor:'var(--text)'}} />
+                      <span>Auto-extract facts after each chat (cheap model, background)</span>
+                    </label>
+                    <div className="mono" style={{marginTop:'8px', fontSize:'11px', color:'var(--muted)'}}>
+                      The agent can also save/forget mid-run via the memory_save and memory_forget tools.
+                    </div>
+                  </div>
+
+                  <div style={{padding:'16px', border:'1px solid var(--line)', borderRadius:'12px', background:'var(--bg)'}}>
+                    <div className="mono" style={{fontSize:'11px', color:'var(--muted)', marginBottom:'12px'}}>Scope &amp; budget</div>
+                    <div style={{display:'flex', gap:'16px', flexWrap:'wrap', alignItems:'flex-end'}}>
+                      <label style={{display:'flex', flexDirection:'column', gap:'6px', fontSize:'12px'}}>
+                        <span className="mono" style={{color:'var(--muted)'}}>Read scope</span>
+                        <select value={memoryConfig.scope}
+                          disabled={!memoryConfig.enabled}
+                          onChange={e=>patchMemory({ scope: e.target.value as MemoryScope })}
+                          style={{width:'170px'}}>
+                          <option value="both">Global + workspace</option>
+                          <option value="global">Global only</option>
+                          <option value="workspace">Workspace only</option>
+                        </select>
+                      </label>
+                      <label style={{display:'flex', flexDirection:'column', gap:'6px', fontSize:'12px'}}>
+                        <span className="mono" style={{color:'var(--muted)'}}>Extraction model</span>
+                        <input value={memoryConfig.extract_model}
+                          disabled={!memoryConfig.enabled}
+                          onChange={e=>patchMemory({ extract_model: e.target.value })}
+                          placeholder="gpt-4o-mini"
+                          style={{width:'170px'}} />
+                      </label>
+                      <label style={{display:'flex', flexDirection:'column', gap:'6px', fontSize:'12px'}}>
+                        <span className="mono" style={{color:'var(--muted)'}}>Max chars / run</span>
+                        <input type="number" min={1024} max={50000} step={1000} value={memoryConfig.max_chars}
+                          disabled={!memoryConfig.enabled}
+                          onChange={e=>patchMemory({ max_chars: Math.max(1024, Number(e.target.value) || 8000) })}
+                          style={{width:'120px'}} />
+                      </label>
+                    </div>
+                    <div className="mono" style={{marginTop:'10px', fontSize:'11px', color:'var(--muted)'}}>
+                      The extraction model runs against the active provider's credentials with its model swapped —
+                      pick a cheap slug your provider serves (e.g. gpt-4o-mini, grok-4-fast, or a local Ollama model).
+                    </div>
+                  </div>
+
+                  <div style={{padding:'16px', border:'1px solid var(--line)', borderRadius:'12px', background:'var(--bg)'}}>
+                    <div style={{display:'flex', alignItems:'center', gap:'8px', marginBottom:'12px'}}>
+                      <div className="mono" style={{fontSize:'11px', color:'var(--muted)'}}>Edit memory file</div>
+                      <div style={{display:'flex', gap:'4px', marginLeft:'auto'}}>
+                        {(['global','workspace'] as const).map(s=>(
+                          <button key={s} onClick={()=>setMemScope(s)} style={{
+                            padding:'4px 12px', borderRadius:999, border:'1px solid var(--line)',
+                            background: memScope===s ? 'var(--text)' : 'transparent',
+                            color: memScope===s ? 'var(--bg)' : 'var(--muted)',
+                            fontSize:'11px', cursor:'pointer'
+                          }}>{s}</button>
+                        ))}
+                      </div>
+                    </div>
+                    <textarea value={memText}
+                      onChange={e=>{ setMemText(e.target.value); setMemDirty(true); }}
+                      rows={12} spellCheck={false}
+                      placeholder={memScope === 'global' ? 'No global memories yet — they appear here after chats, or write your own.' : 'No workspace memories yet for this project.'}
+                      className="mono"
+                      style={{width:'100%', fontSize:'12px', lineHeight:1.5, background:'var(--void)', color:'var(--text)', border:'1px solid var(--line)', borderRadius:'10px', padding:'10px 12px', resize:'vertical'}} />
+                    <div style={{display:'flex', gap:'8px', marginTop:'10px', flexWrap:'wrap', alignItems:'center'}}>
+                      <button className="btn-accent" onClick={saveMemoryText}
+                        disabled={!memDirty || saving==='memory'} style={{borderRadius:999}}>
+                        {saving==='memory' ? 'Saving…' : memDirty ? 'Save memory file' : 'Saved'}
+                      </button>
+                      <button className="btn-ghost" onClick={()=>loadMemoryText(memScope)}
+                        disabled={!memDirty} style={{borderRadius:999}}>Discard edits</button>
+                      <span style={{flex:1}} />
+                      <button className="btn-ghost" onClick={()=>clearMemory('global')} style={{borderRadius:999}}>Clear global</button>
+                      <button className="btn-ghost" onClick={()=>clearMemory('workspace')} style={{borderRadius:999}}>Clear workspace</button>
+                      <button className="btn-ghost" onClick={()=>clearMemory('both')} style={{borderRadius:999, color:'var(--error)'}}>Clear all</button>
+                    </div>
+                  </div>
                 </div>
               )}
             </>
@@ -882,6 +1153,19 @@ export default function Settings({ isOpen, onClose, providers, currentProvider: 
 
         <div style={{padding:'16px', borderTop:'1px solid var(--line)', display:'flex', justifyContent:'flex-end'}}>
           <button onClick={onClose} style={{borderRadius:'999px', background:'var(--text)', color:'var(--bg)', borderColor:'var(--text)'}}>Done</button>
+        </div>
+        <div
+          onPointerDown={startPanelResize}
+          title="Drag to resize"
+          style={{
+            position:'absolute', right:0, bottom:0, width:'28px', height:'28px',
+            cursor:'nwse-resize', zIndex:5, display:'flex', alignItems:'flex-end', justifyContent:'flex-end',
+            padding:'6px', touchAction:'none',
+          }}
+        >
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="var(--muted)" strokeWidth="1.5" strokeLinecap="round">
+            <path d="M11 1 L1 11 M11 5 L5 11 M11 9 L9 11" />
+          </svg>
         </div>
       </div>
 

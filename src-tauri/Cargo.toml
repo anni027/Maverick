@@ -33,6 +33,7 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 # Tauri
 tauri = { version = "2.11", features = [] }
 tauri-plugin-shell = "2.3"
+tauri-plugin-dialog = "2"
 
 # Vendored xai-grok core crates (sliced from grok-build).
 xai-chat-state = { path = "../crates/codegen/xai-chat-state" }

@@ -11,7 +11,8 @@
     "core:event:allow-emit",
     "core:event:allow-emit-to",
     "shell:default",
-    "notification:default"
+    "notification:default",
+    "dialog:default"
   ]
 }
 

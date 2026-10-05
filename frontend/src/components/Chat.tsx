@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { listen, UnlistenFn } from '@tauri-apps/api/event';
-import { Message, AgentEventType, UiConfig, ProviderInfo, ReasoningProfile, ModelPreset } from '../types';
+import { Message, AgentEventType, Artifact, MemoryStats, PendingBatch, UiConfig, ProviderInfo, ReasoningProfile, ModelPreset } from '../types';
+import { artifactLanguageForPath } from '../types';
 import { type RunStatusData } from './RunStatusBar';
 import ApertureLogo, { ApertureTile } from './ApertureLogo';
 import ShinyText from './ShinyText';
@@ -9,6 +10,8 @@ import { ChevronIcon, CopyIcon, CheckIcon } from './icons';
 import MarkdownRenderer from './MarkdownRenderer';
 import ComposerPlusMenu, { Attachment, fmtBytes } from './ComposerPlusMenu';
 import PromptBar, { PromptBarModel } from './PromptBar';
+import ArtifactDrawer from './ArtifactDrawer';
+import QuestionCard from './QuestionCard';
 import ThoughtLine from './ThoughtLine';
 import CallChip, { CallChipIcon } from './CallChip';
 
@@ -52,6 +55,25 @@ const pickHeadline = (exclude?: string): string => {
   }
   return next;
 };
+
+/// Tool names that create files (artifact viewer sources).
+const WRITE_TOOL_NAMES = ['write_to_file', 'write_file', 'create_file'];
+
+/** Path a write-family tool call targeted: live args JSON first, else the
+ *  "Successfully wrote N bytes to P" result line (reloaded transcripts have
+ *  no args). Null when no path can be determined. */
+function extractWritePath(msg: Message): string | null {
+  const raw = msg.toolCalls?.[0]?.arguments;
+  if (raw) {
+    try {
+      const a = JSON.parse(raw);
+      const p = a.path ?? a.file_path ?? a.target_file ?? a.filename;
+      if (typeof p === 'string' && p.trim()) return p.trim();
+    } catch { /* not JSON — fall through to result parse */ }
+  }
+  const m = msg.toolResult?.content?.match(/Successfully wrote \d+ bytes to (.+?)\s*$/);
+  return m ? m[1].trim() : null;
+}
 
 /// Taskbar progress, best-effort (no-op outside Tauri).
 async function setTaskbarProgress(status: 'indeterminate' | 'none' | 'error') {
@@ -189,7 +211,7 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
   // Ref mirror: the `agent-event` listener closure is bound on mount, so
   // handlers must read run state from refs, never from stale state.
   const runStatusRef = useRef<RunStatusData | null>(null);
-  const toolStartRef = useRef<{ name: string; at: number }[]>([]);
+  const toolStartRef = useRef<{ name: string; at: number; args?: string }[]>([]);
   const runIdRef = useRef(0);
 
   // Session that owns the in-flight run. Run UI (working spinner, banner,
@@ -209,6 +231,109 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
   useEffect(() => {
     setGreeting(pickHeadline());
   }, [sessionId]);
+  // Composer memory indicator: refresh counts when the session changes and
+  // when a run settles (background extraction may have added facts).
+  const [memStats, setMemStats] = useState<MemoryStats | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    invoke<MemoryStats>('get_memory_stats', { sessionId })
+      .then(s => { if (!cancelled) setMemStats(s); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [sessionId, isLoading]);
+  // Per-session memory kill-switch (composer + menu). Loop-local on the
+  // backend: re-sync whenever the visible session changes so a fresh loop
+  // (new/reopened session) picks up this session's choice.
+  const [memoryOff, setMemoryOff] = useState<Record<string, boolean>>({});
+  const memoryEnabled = !(memoryOff[sessionId] ?? false);
+  useEffect(() => {
+    invoke('set_session_memory_enabled', { sessionId, enabled: !(memoryOff[sessionId] ?? false) }).catch(() => {});
+    // Only the session switch re-syncs; the toggle pushes directly.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionId]);
+  const toggleMemory = () => {
+    const next = !memoryEnabled;
+    setMemoryOff(prev => ({ ...prev, [sessionId]: !next }));
+    invoke('set_session_memory_enabled', { sessionId, enabled: next }).catch(e => alert(String(e)));
+  };
+  // Artifact viewer drawer (Claude-style): chat code blocks + workspace
+  // files the agent wrote. Cleared on session switch.
+  const [artifacts, setArtifacts] = useState<Artifact[]>([]);
+  const [activeArtifactId, setActiveArtifactId] = useState<string | null>(null);
+  const [artifactOpen, setArtifactOpen] = useState(false);
+  const artifactsRef = useRef<Artifact[]>([]);
+  artifactsRef.current = artifacts;
+  const openArtifact = (a: { title: string; language: string; code: string; note?: string; path?: string }) => {
+    const id = `art-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    setArtifacts(prev => [...prev.slice(-19), { ...a, id }]);
+    setActiveArtifactId(id);
+    setArtifactOpen(true);
+  };
+  const openFileArtifact = async (path: string) => {
+    try {
+      const r = await invoke<{ path: string; content: string; size: number; truncated: boolean }>('preview_workspace_file', { path, sessionId });
+      const lang = artifactLanguageForPath(r.path) ?? artifactLanguageForPath(path);
+      if (!lang) {
+        alert(`Not previewable (only .html, .svg, .md): ${path}`);
+        return;
+      }
+      openArtifact({
+        title: r.path.split(/[\\/]/).pop() || path,
+        language: lang,
+        code: r.content,
+        note: r.truncated ? 'Showing the first 24 KB of this file.' : undefined,
+        path,
+      });
+    } catch (e) { alert(String(e)); }
+  };
+  // Live refresh: the agent rewrote `path` — reload every tracked artifact
+  // for it so an open preview never goes stale. Failures keep the old copy
+  // (file deleted/moved mid-run).
+  const refreshFileArtifacts = async (path: string) => {
+    const norm = (s: string) => s.trim().replace(/\\/g, '/');
+    const target = norm(path);
+    if (!artifactsRef.current.some(a => a.path && norm(a.path) === target)) return;
+    try {
+      const r = await invoke<{ path: string; content: string; size: number; truncated: boolean }>('preview_workspace_file', { path, sessionId });
+      setArtifacts(prev => prev.map(a =>
+        a.path && norm(a.path) === target
+          ? { ...a, code: r.content, rev: (a.rev ?? 0) + 1, note: r.truncated ? 'Showing the first 24 KB of this file.' : undefined }
+          : a,
+      ));
+    } catch { /* keep the stale copy */ }
+  };
+  // Clarifying-question batches waiting on the user (`ask_user` tool).
+  // Source of truth is the loop: re-sync on session switch so a run left
+  // waiting in another session shows its card when you return.
+  const [pendingQuestions, setPendingQuestions] = useState<PendingBatch[]>([]);
+  const [answeringIds, setAnsweringIds] = useState<Record<string, boolean>>({});
+  useEffect(() => {
+    invoke<PendingBatch[]>('get_pending_questions', { sessionId })
+      .then(qs => setPendingQuestions(qs))
+      .catch(() => setPendingQuestions([]));
+  }, [sessionId]);
+  const answerQuestion = async (id: string, answers: string[]) => {
+    setAnsweringIds(prev => ({ ...prev, [id]: true }));
+    try {
+      await invoke('answer_question', { sessionId, questionId: id, answers });
+      setPendingQuestions(prev => prev.filter(q => q.id !== id));
+    } catch {
+      // Stale card (run ended/cancelled) or transient failure: re-sync and
+      // let the user retry if the batch is genuinely still pending.
+      try {
+        const qs = await invoke<PendingBatch[]>('get_pending_questions', { sessionId });
+        setPendingQuestions(qs);
+      } catch {
+        setPendingQuestions(prev => prev.filter(q => q.id !== id));
+      }
+    } finally {
+      setAnsweringIds(prev => {
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      });
+    }
+  };
   const [isStreaming, setIsStreaming] = useState(false);
   const isStreamingRef = useRef(false);
   const streamFrameRef = useRef<number | null>(null);
@@ -358,6 +483,8 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
             : `Failed after ${mm}:${ss}`;
     setStatus(prev => (prev ? { ...prev, finished: true, lastActivityAt: Date.now() } : prev));
     setRunSummary(summary);
+    // A finished run can never be waiting on the user — drop stale cards.
+    setPendingQuestions([]);
     // Only the visible session that owns the run may clear the spinner —
     // a run finishing for another session must not blank its status bar.
     if (runSessionIdRef.current === sessionId) setIsLoading(false);
@@ -419,6 +546,10 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
     // async, and showing session B's messages in session A is a data leak.
     setMessages([]);
     loadSessionMessages(sessionId);
+    // Artifacts belong to the visible session — never carry them across.
+    setArtifacts([]);
+    setActiveArtifactId(null);
+    setArtifactOpen(false);
 
     let disposed = false;
     let unlisten: UnlistenFn | null = null;
@@ -596,17 +727,19 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
       }
 
       case 'ToolCallStarted':
-        toolStartRef.current.push({ name: event.name, at: Date.now() });
+        toolStartRef.current.push({ name: event.name, at: Date.now(), args: event.args });
         touchStatus({ lastTool: event.name });
         setMessages(prev => [...prev, { id: `tool-${Date.now()}-${Math.random()}`, role: 'tool', content: event.name, toolCalls: [{ id: `call-${Date.now()}`, name: event.name, arguments: event.args }], timestamp: new Date() }]);
         break;
       case 'ToolCallCompleted': {
         const at = Date.now();
         let durationMs: number | undefined;
+        let startedArgs: string | undefined;
         const starts = toolStartRef.current;
         for (let i = starts.length - 1; i >= 0; i--) {
           if (starts[i].name === event.name) {
             durationMs = at - starts[i].at;
+            startedArgs = starts[i].args;
             starts.splice(i, 1);
             break;
           }
@@ -622,6 +755,23 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
           }
           return upd;
         });
+        // Live artifact refresh: a successful rewrite of a tracked file
+        // reloads its preview so an open drawer never goes stale.
+        if (WRITE_TOOL_NAMES.includes(event.name) && event.output.startsWith('Successfully wrote ')) {
+          let p: string | null = null;
+          if (startedArgs) {
+            try {
+              const a = JSON.parse(startedArgs);
+              const cand = a.path ?? a.file_path ?? a.target_file ?? a.filename;
+              if (typeof cand === 'string' && cand.trim()) p = cand.trim();
+            } catch { /* fall through to result parse */ }
+          }
+          if (!p) {
+            const m = event.output.match(/Successfully wrote \d+ bytes to (.+?)\s*$/);
+            if (m) p = m[1].trim();
+          }
+          if (p) refreshFileArtifacts(p);
+        }
         touchStatus({ lastTool: event.name });
         break;
       }
@@ -676,6 +826,11 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
       case 'Error':
         setMessages(prev => [...prev, { id: `error-${Date.now()}`, role: 'assistant', content: `Error: ${event.message}`, timestamp: new Date() }]);
         finishRun('error', event.message);
+        break;
+      case 'QuestionAsked':
+        setPendingQuestions(prev => prev.some(q => q.id === event.id)
+          ? prev
+          : [...prev, { id: event.id, questions: event.questions }]);
         break;
       default:
         break;
@@ -837,7 +992,13 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
         <div style={{width:'100%', maxWidth:'768px', margin:'0 auto', flex:1, display:'flex', flexDirection:'column', padding:'24px 20px 0', gap:'0', minHeight:'100%'}}>
           <div style={{display:'flex', flexDirection:'column', gap:'0', paddingBottom:'24px'}}>
             {(ui.show_tool_calls ? messages : messages.filter(m => m.role !== 'tool')).map(msg => (
-              <MessageBubble key={msg.id} message={msg} compact={ui.compact_mode} />
+              <MessageBubble
+                key={msg.id}
+                message={msg}
+                compact={ui.compact_mode}
+                onOpenArtifact={a => openArtifact(a)}
+                onPreviewFile={p => openFileArtifact(p)}
+              />
             ))}
             <div ref={messagesEndRef} />
           </div>
@@ -891,6 +1052,28 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
               }}
             >
               {runBanner.text}
+            </div>
+          )}
+          {runHere && pendingQuestions.length > 0 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {pendingQuestions.map(b => (
+                <QuestionCard
+                  key={b.id}
+                  batch={b}
+                  answering={!!answeringIds[b.id]}
+                  onAnswer={answerQuestion}
+                />
+              ))}
+            </div>
+          )}
+          {memStats && memoryEnabled && (memStats.global_bullets + memStats.workspace_bullets) > 0 && (
+            <div
+              className="mono"
+              style={{fontSize:'11px', color:'var(--muted)', display:'flex', alignItems:'center', gap:'6px', padding:'0 4px'}}
+              title={`Cross-chat memory active — ${memStats.global_bullets} global · ${memStats.workspace_bullets} workspace (${memStats.workspace_name}). Manage in Settings → Memory.`}
+            >
+              <span style={{width:'6px', height:'6px', borderRadius:'50%', background:'var(--ok-text)', display:'inline-block'}} />
+              {memStats.global_bullets + memStats.workspace_bullets} {memStats.global_bullets + memStats.workspace_bullets === 1 ? 'memory' : 'memories'} · {memStats.workspace_name}
             </div>
           )}
           {/* Composer — PromptBar owns the field, model picker, and effort slider */}
@@ -952,12 +1135,15 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
             extraCanSend={attachments.length > 0}
             leftSlot={
               <ComposerPlusMenu
+                sessionId={sessionId}
                 onAttach={a => setAttachments(prev => {
                   if (prev.length >= 6) { alert('Attachment limit is 6 files per message'); return prev; }
                   return [...prev, a];
                 })}
                 onInsertSkill={insertSkill}
                 onAddMcp={() => setShowMcpDialog(true)}
+                memoryEnabled={memoryEnabled}
+                onToggleMemory={toggleMemory}
               />
             }
             sources={[]}
@@ -973,6 +1159,14 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
           />
         </div>
       </div>
+      {artifactOpen && (
+        <ArtifactDrawer
+          artifacts={artifacts}
+          activeId={activeArtifactId}
+          onSelect={setActiveArtifactId}
+          onClose={() => setArtifactOpen(false)}
+        />
+      )}
       {showMcpDialog && (
         <div style={{position:'fixed', inset:0, background:'rgba(0,0,0,0.55)', backdropFilter:'blur(10px)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:100, padding:'16px'}}>
           <div className="panel" style={{width:'100%', maxWidth:'520px', padding:'22px', borderRadius:'20px', border:'1px solid var(--line)'}}>
@@ -999,7 +1193,12 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
   );
 }
 
-function MessageBubble({ message, compact = false }: { message: Message; compact?: boolean }) {
+function MessageBubble({ message, compact = false, onOpenArtifact, onPreviewFile }: {
+  message: Message;
+  compact?: boolean;
+  onOpenArtifact?: (a: { language: string; code: string; title: string }) => void;
+  onPreviewFile?: (path: string) => void;
+}) {
   const [copied, setCopied] = useState(false);
   const [open, setOpen] = useState(false);
   const isUser = message.role === 'user';
@@ -1042,6 +1241,13 @@ function MessageBubble({ message, compact = false }: { message: Message; compact
       if (!chipArg) chipArg = args.length > 60 ? `${args.slice(0, 57)}…` : args;
     }
     const chipStatus = isRunning ? 'running' : output?.startsWith('Error') ? 'error' : 'done';
+    // Artifact viewer: successful write-family calls targeting a previewable
+    // path get a Preview-file button (live args or the result line).
+    const writePath =
+      !isRunning && WRITE_TOOL_NAMES.includes(toolName) && output?.startsWith('Successfully wrote ')
+        ? extractWritePath(message)
+        : null;
+    const writePreviewLang = writePath ? artifactLanguageForPath(writePath) : null;
 
     return (
       <div style={{ margin: compact ? '4px 0' : '6px 0', width: '100%' }}>
@@ -1133,7 +1339,19 @@ function MessageBubble({ message, compact = false }: { message: Message; compact
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 12px', background: 'var(--code-head)' }}>
                     <span className="mono" style={{ fontSize: '11px', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Output</span>
-                    <CopySnippet text={output} />
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                      {writePreviewLang && writePath && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); onPreviewFile?.(writePath); }}
+                          className="btn-ghost"
+                          style={{ padding: '3px 8px', fontSize: '11px', borderRadius: '6px', color: 'var(--muted)', cursor: 'pointer' }}
+                          title={`Open ${writePath} in artifact viewer`}
+                        >
+                          Preview file
+                        </button>
+                      )}
+                      <CopySnippet text={output} />
+                    </span>
                   </div>
                   <pre className="mono" style={{ margin: 0, padding: '10px 12px', overflowX: 'auto', maxHeight: '240px', color: 'var(--code-fg)', lineHeight: 1.5, fontSize: '11.5px', whiteSpace: 'pre-wrap' }}>
                     <code>{output}</code>
@@ -1205,7 +1423,7 @@ function MessageBubble({ message, compact = false }: { message: Message; compact
               <div style={{ whiteSpace: 'pre-wrap', color: 'var(--error)', fontSize: '14px' }}>{message.content}</div>
             ) : (
               <div style={{ position: 'relative' }}>
-                <MarkdownRenderer content={message.content} />
+                <MarkdownRenderer content={message.content} onOpenArtifact={onOpenArtifact} />
                 {message.isStreaming && <span className="streaming-caret" />}
               </div>
             )}

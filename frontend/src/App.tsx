@@ -4,6 +4,7 @@ import { listen } from '@tauri-apps/api/event';
 import Chat from './components/Chat';
 import SessionSidebar from './components/SessionSidebar';
 import ModelPresetBadge from './components/ModelPresetBadge';
+import WorkspaceChip from './components/WorkspaceChip';
 import Settings from './components/Settings';
 import ApertureLogo from './components/ApertureLogo';
 import { PanelIcon, SettingsIcon, PlusIcon } from './components/icons';
@@ -92,7 +93,10 @@ export default function App() {
     const fallback = setTimeout(() => { setInitError(prev => prev || 'Initialization timed out — showing UI'); setIsInitialized(true); }, 10000);
     try {
       setInitStep('Connecting');
-      listen('agent-event', (e: any) => console.log('agent-event', e.payload)).catch(()=>{});
+      // Debug tap: full event payloads in dev only — never in prod builds.
+      if (import.meta.env.DEV) {
+        listen('agent-event', (e: any) => console.log('agent-event', e.payload)).catch(()=>{});
+      }
       loadUiConfig();
       setInitStep('Loading sessions');
       let target = sessionId;
@@ -367,6 +371,7 @@ export default function App() {
               onSavePreset={() => setPresetDialog({ open: true, name: '' })}
               onOpenSettings={()=>setShowSettings(true)}
             />
+            <WorkspaceChip sessionId={sessionId} />
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -457,6 +462,7 @@ export default function App() {
       <Settings
         isOpen={showSettings}
         onClose={()=>setShowSettings(false)}
+        sessionId={sessionId}
         providers={visibleProviders.length?visibleProviders:providers}
         currentProvider={selectedProvider}
         onProviderChange={handleProviderChange}

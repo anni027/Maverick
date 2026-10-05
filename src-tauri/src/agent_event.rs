@@ -84,6 +84,38 @@ pub enum AgentEvent {
     Error {
         message: String,
     },
+    /// The loop is asking the user clarifying questions (`ask_user` tool,
+    /// one batched call). The frontend steps through them; the answers arrive
+    /// via the `answer_question` command and re-enter as the tool result.
+    QuestionAsked {
+        id: String,
+        questions: Vec<PendingQuestion>,
+    },
+}
+
+/// One selectable answer to an `ask_user` question.
+#[derive(Debug, Clone, Serialize)]
+pub struct QuestionOption {
+    pub label: String,
+    pub description: String,
+}
+
+/// A question awaiting a user answer: the `QuestionAsked` payload and the
+/// `get_pending_questions` row shape.
+#[derive(Debug, Clone, Serialize)]
+pub struct PendingQuestion {
+    pub id: String,
+    pub question: String,
+    pub options: Vec<QuestionOption>,
+    pub allow_custom: bool,
+}
+
+/// One batched `ask_user` call awaiting answers: `get_pending_questions`
+/// row shape (the run waits on the whole batch at once).
+#[derive(Debug, Clone, Serialize)]
+pub struct PendingBatch {
+    pub id: String,
+    pub questions: Vec<PendingQuestion>,
 }
 
 /// Anything that can receive [`AgentEvent`]s. Implemented by the demo printer,
@@ -139,6 +171,16 @@ impl AgentEventSink for PrintSink {
                 "[spend-cap] ${spent_usd:.4} used (cap ${cap_usd:.4}); stopping gracefully"
             ),
             AgentEvent::Error { message } => println!("error: {message}"),
+            AgentEvent::QuestionAsked { id, questions } => {
+                let first = questions
+                    .first()
+                    .map(|q| q.question.as_str())
+                    .unwrap_or("?");
+                println!(
+                    "[question {id}] {} question(s), first: {first}",
+                    questions.len()
+                );
+            }
         }
     }
 }

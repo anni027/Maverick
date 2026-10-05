@@ -25,9 +25,14 @@ interface SkillRow {
 }
 
 interface ComposerPlusMenuProps {
+  /** Visible session — scopes file browsing to its workspace. */
+  sessionId: string;
   onAttach: (a: Attachment) => void;
   onInsertSkill: (name: string) => void;
   onAddMcp: () => void;
+  /** Cross-chat memory kill-switch for this session. */
+  memoryEnabled: boolean;
+  onToggleMemory: () => void;
 }
 
 const OS_FILE_CAP = 12 * 1024;
@@ -53,7 +58,7 @@ const panelStyle: React.CSSProperties = {
   zIndex: 60,
 };
 
-export default function ComposerPlusMenu({ onAttach, onInsertSkill, onAddMcp }: ComposerPlusMenuProps) {
+export default function ComposerPlusMenu({ sessionId, onAttach, onInsertSkill, onAddMcp, memoryEnabled, onToggleMemory }: ComposerPlusMenuProps) {
   const [open, setOpen] = useState(false);
   const [view, setView] = useState<'root' | 'files' | 'skills'>('root');
   const [wsPath, setWsPath] = useState('');
@@ -87,7 +92,7 @@ export default function ComposerPlusMenu({ onAttach, onInsertSkill, onAddMcp }: 
     setErr(null);
     setLoading(true);
     try {
-      setEntries(await invoke<WorkspaceEntry[]>('list_workspace_files', { path }));
+      setEntries(await invoke<WorkspaceEntry[]>('list_workspace_files', { path, sessionId }));
     } catch (e) {
       setEntries([]);
       setErr(String(e));
@@ -141,7 +146,7 @@ export default function ComposerPlusMenu({ onAttach, onInsertSkill, onAddMcp }: 
     try {
       const r = await invoke<{ path: string; content: string; size: number; truncated: boolean }>(
         'read_workspace_file',
-        { path: entry.path },
+        { path: entry.path, sessionId },
       );
       const content = r.truncated ? `${r.content}\n…[truncated at 24 KB]` : r.content;
       onAttach({ id: mkId(), name: r.path, size: r.size, content });
@@ -233,6 +238,33 @@ export default function ComposerPlusMenu({ onAttach, onInsertSkill, onAddMcp }: 
                   </span>
                 </button>
               ))}
+              <button
+                key="memory"
+                className="pm-item"
+                onClick={onToggleMemory}
+                title={memoryEnabled ? 'Turn memory off for this chat' : 'Turn memory on for this chat'}
+              >
+                <span style={{ display: 'flex', color: 'var(--muted)' }}>
+                  <BrainIcon size={15} />
+                </span>
+                <span style={{ flex: 1, minWidth: 0 }}>
+                  <div>Memory</div>
+                  <div className="mono" style={{ fontSize: 10.5, color: 'var(--faint)', marginTop: 1 }}>
+                    {memoryEnabled ? 'on · remembers across chats' : 'off · this chat only'}
+                  </div>
+                </span>
+                <span
+                  className="mono"
+                  style={{
+                    fontSize: 10, padding: '2px 8px', borderRadius: 999, border: '1px solid',
+                    ...(memoryEnabled
+                      ? { color: 'var(--ok-text)', borderColor: 'var(--ok-border)' }
+                      : { color: 'var(--faint)', borderColor: 'var(--line)' }),
+                  }}
+                >
+                  {memoryEnabled ? 'On' : 'Off'}
+                </span>
+              </button>
             </>
           )}
 
