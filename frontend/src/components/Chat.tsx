@@ -374,7 +374,7 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
             activeAny = true;
             const remaining = data.target.slice(data.current.length);
             const nextSpace = remaining.indexOf(' ');
-            // Natural token pacing (nanobot-inspired stream)
+            // Natural token pacing (word-chunk stream)
             const stepSize = nextSpace > 0 && nextSpace <= 8 ? nextSpace + 1 : Math.min(remaining.length, 5);
             data.current += remaining.slice(0, stepSize);
 
@@ -405,7 +405,7 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
     streamFrameRef.current = requestAnimationFrame(pumpLoop);
   };
 
-  // Nanobot inspiration: flush streaming text on window regain focus
+  // Flush streaming text on window regain focus
   useEffect(() => {
     const onVisibility = () => {
       if (document.visibilityState === 'visible' && isStreamingRef.current) {
@@ -1213,7 +1213,7 @@ function MessageBubble({ message, compact = false, onOpenArtifact, onPreviewFile
     } catch {}
   };
 
-  // 1. Tool Call Capsule (nanobot + ChatGPT hybrid)
+  // 1. Tool Call Capsule (hybrid collapsible card)
   if (isTool) {
     const hasResult = !!message.toolResult;
     const isRunning = !hasResult;
@@ -1304,7 +1304,7 @@ function MessageBubble({ message, compact = false, onOpenArtifact, onPreviewFile
           </span>
         </button>
 
-        {/* Smooth CSS Grid Drawer (nanobot style) */}
+        {/* Smooth CSS Grid Drawer */}
         <div
           style={{
             display: 'grid',

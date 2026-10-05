@@ -1,6 +1,6 @@
 //! `maverick-backend` — the agent runtime for the Maverick chat-first automation app.
 //!
-//! This crate is the slice of `xai-grok` we reuse: a provider-agnostic
+//! This crate is the slice of the vendored agent runtime we reuse: a provider-agnostic
 //! [`AgentLoop`] that composes the vendored, ACP-free core crates
 //! (`xai-chat-state` for the conversation, `xai-grok-tools` for the tool
 //! runtime, `xai-grok-sampling-types` for the wire format) with a pluggable

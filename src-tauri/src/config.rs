@@ -342,7 +342,7 @@ pub struct ModelPreset {
     pub name: String,
     /// Provider the preset points at (e.g. `kilo`).
     pub provider_id: String,
-    /// Model key for that provider (e.g. `grok-code-fast` or namespaced).
+    /// Model key for that provider (e.g. `swift-code` or namespaced).
     pub model: String,
     /// Reasoning effort label; `None` = provider/model default.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -918,7 +918,7 @@ theme = "dark"
                 id: "p1".into(),
                 name: "Fast coder".into(),
                 provider_id: "kilo".into(),
-                model: "grok-code-fast".into(),
+                model: "swift-code".into(),
                 effort: Some("high".into()),
             },
             ModelPreset {
@@ -956,7 +956,7 @@ theme = "dark"
 id = "p3"
 name = "No effort key"
 provider_id = "kilo"
-model = "grok-code-fast"
+model = "swift-code"
 "#;
         let preset: ModelPreset = toml::from_str(toml).expect("parses without effort");
         assert_eq!(preset.effort, None);

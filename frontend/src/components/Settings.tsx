@@ -21,7 +21,7 @@ interface SettingsProps {
 }
 
 const KNOWN_PROVIDERS: Array<{id:string; name:string; hint:string}> = [
-  {id:'xai', name:'xAI', hint:'grok-4 • api.x.ai/v1'},
+  {id:'xai', name:'xAI', hint:'xAI • api.x.ai/v1'},
   {id:'openai', name:'OpenAI', hint:'gpt-4o • api.openai.com/v1'},
   {id:'anthropic', name:'Anthropic', hint:'claude-3.5 • api.anthropic.com/v1'},
 ];
@@ -1108,7 +1108,7 @@ export default function Settings({ isOpen, onClose, sessionId, providers, curren
                     </div>
                     <div className="mono" style={{marginTop:'10px', fontSize:'11px', color:'var(--muted)'}}>
                       The extraction model runs against the active provider's credentials with its model swapped —
-                      pick a cheap slug your provider serves (e.g. gpt-4o-mini, grok-4-fast, or a local Ollama model).
+                      pick a cheap slug your provider serves (e.g. gpt-4o-mini or a local Ollama model).
                     </div>
                   </div>
 

@@ -311,7 +311,7 @@ select{appearance:none;padding-right:32px}
   .aperture-spin,.aperture-breathe{animation:none}
 }
 
-/* ── Ported from nanobot globals.css ───────────────────────────────────── */
+/* ── Ported chat-theme keyframes ─────────────────────────────────────────── */
 
 @keyframes composer-status-strip-enter {
   0% { max-height: 0; opacity: 0; transform: translateY(10px) scale(0.985); }
@@ -323,7 +323,7 @@ select{appearance:none;padding-right:32px}
   100% { max-height: 0; opacity: 0; transform: translateY(8px) scale(0.99); }
 }
 
-/* Ported nanobot classes (globals.css). Intentionally UNLAYERED: the JIT
+/* Ported utility classes. Intentionally UNLAYERED: the JIT
    build purges class rules inside @layer components/utilities that no
    scanned source file references yet. Unlayered also outranks Tailwind
    utilities for shared properties, so don't stack conflicting utilities
