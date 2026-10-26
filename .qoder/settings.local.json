@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd /d/grok && git log --oneline -20 2>/dev/null; echo \"---\"; cat .gitignore 2>/dev/null)",
+      "Bash(cd /d/grok/nexus && git status --short | head -60)",
+      "Bash(cd \"D:/grok/nexus\" && git status --short && echo \"---DIFF STAT---\" && git diff --stat)",
+      "Bash(cd /d/grok/nexus/src-tauri && find src -type f -name \"*.rs\" | sort && echo \"--- CAPS ---\" && ls -la capabilities/)",
+      "Bash(find \"D:/grok/nexus/frontend\" -type f \\\\\\( -name \"*.ts\" -o -name \"*.tsx\" -o -name \"*.css\" -o -name \"*.html\" -o -name \"*.json\" -o -name \"*.js\" -o -name \"*.cjs\" -o -name \"*.mjs\" \\\\\\) -not -path \"*/node_modules/*\" -not -path \"*/dist/*\" -not -path \"*/.git/*\" | sort)",
+      "Bash(cd \"D:/grok/nexus/frontend/src\" && grep -rhoE \"invoke\\(\\\\.<[a-zA-Z_ :,&<>]*>\\)?\\\\\\(\\\\s*['\\\\\"][a-z0-9_]+['\\\\\"]\" . | grep -oE \"['\\\\\"][a-z0-9_]+['\\\\\"]\" | tr -d \"\\\\\"'\" | sort -u)",
+      "Bash(cd /d/grok/nexus/src-tauri/src && sed -n \"$\\(grep -n 'pub struct ConfigSnapshot' config.rs | cut -d: -f1\\),+30p\" config.rs)",
+      "Bash(cd /d/grok/nexus && git status --porcelain | head -60 && echo \"---\" && git diff --stat | tail -5)",
+      "Bash(cd /d/grok/nexus/src-tauri/src && grep -n \"break\\\\|return Ok\\(\\(\\)\\)\\\\|loop {\\\\|max_turns\\\\|auto_continue\\\\|segment\\\\|is_tool_call\\\\|tool_calls.is_empty\\\\|stop_reason\\\\|FinishReason\" agent_loop.rs | head -60)"
+    ]
+  }
+}

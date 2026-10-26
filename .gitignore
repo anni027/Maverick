@@ -14,8 +14,9 @@ dist/
 workspace/
 **/workspace/
 *.log
-nexus_test.txt
+maverick_test.txt
 
 # OS files
 .DS_Store
 Thumbs.db
+

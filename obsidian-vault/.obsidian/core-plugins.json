@@ -1,0 +1,17 @@
+{
+  "core-plugins": [
+    "file-explorer",
+    "global-search",
+    "switcher",
+    "graph",
+    "backlink",
+    "page-preview",
+    "star",
+    "outline",
+    "tag-pane",
+    "file-recovery",
+    "templates",
+    "command-palette"
+  ],
+  "internal-plugins": []
+}

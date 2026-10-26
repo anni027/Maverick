@@ -38,7 +38,7 @@ Undecided: pricing, auth, cloud sync.
 
 ## Brand Commitments
 
-Name Nexus. Voice: precise, technical, inspired by Ferrari — not playful, not retro. No mock data in UI (remove Mock as default display, no fake sessions/tools). No generic icons (no 🤖, no Phosphor generic set, no power-status ● LIVE badge). Ferrari inspiration is for *ChatGPT-like familiarity powered by Ferrari* — ChatGPT's recognizable sidebar + center chat + bottom input, but with Ferrari's material language (Rosso Corsa, Nero, Giallo is banned for this build — Ferrari Rosso only, sharp angular cuts, condensed type, carbon subtle). Do not clone Lamborghini/Ferrari trademarks.
+Name Nexus. Voice: precise, technical — not playful, not retro. No mock data in UI (remove Mock as default display, no fake sessions/tools). No generic icons (no 🤖, no Phosphor generic set, no power-status ● LIVE badge). Do not clone any automotive trademarks.
 
 ## Evidence on Hand
 
@@ -51,7 +51,7 @@ Paths: `frontend/src/App.tsx`, `frontend/src/components/*`, `src-tauri/src/*`, `
 1. Chat is the product — everything else is chrome that must get out of the way after first viewport.
 2. Tool calls are first-class content, not logs — show intent, args, and result with scanability.
 3. No fabrication — empty means empty, with a clear next action; never invent sessions, tools, or provider data.
-4. Ferrari precision — sharp geometry, tight tracking, single Rosso accent, material honesty over decoration.
+4. Precision — sharp geometry, tight tracking, single accent, material honesty over decoration.
 5. Operate, not persuade — density for work, not marketing.
 
 ## Accessibility & Inclusion
