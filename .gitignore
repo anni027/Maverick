@@ -1,4 +1,5 @@
 # Rust / Cargo
+<<<<<<< HEAD
 target/
 **/target/
 
@@ -20,3 +21,20 @@ maverick_test.txt
 .DS_Store
 Thumbs.db
 
+=======
+/target
+**/target
+
+# Node / frontend
+node_modules
+dist
+.svelte-kit
+
+# Build artifacts we don't vendor in git
+*.zip
+protoc_dist/
+
+# Local app data
+*.log
+.DS_Store
+>>>>>>> 117c40dd1a8dd522105165e843dc400ec3f34dc3

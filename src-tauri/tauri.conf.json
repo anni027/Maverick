@@ -1,0 +1,24 @@
+{
+  "identifier": "com.maverick.app",
+  "productName": "Maverick",
+  "version": "0.1.0",
+  "build": {
+    "beforeDevCommand": "powershell -Command \"if (Test-Path package.json) { npm run dev } elseif (Test-Path frontend/package.json) { npm run dev --prefix frontend } elseif (Test-Path ../frontend/package.json) { npm run dev --prefix ../frontend } elseif (Test-Path D:/grok/nexus/frontend/package.json) { npm run dev --prefix D:/grok/nexus/frontend } else { npm run dev }\"",
+    "beforeBuildCommand": "powershell -Command \"if (Test-Path package.json) { npm run build } elseif (Test-Path frontend/package.json) { npm run build --prefix frontend } elseif (Test-Path ../frontend/package.json) { npm run build --prefix ../frontend } elseif (Test-Path D:/grok/nexus/frontend/package.json) { npm run build --prefix D:/grok/nexus/frontend } else { npm run build }\"",
+    "frontendDist": "../frontend/dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Maverick",
+        "width": 1200,
+        "height": 800,
+        "minWidth": 800,
+        "minHeight": 600
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  }
+}
