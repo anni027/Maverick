@@ -1,4 +1,11 @@
 //! Tauri commands — the bridge between the React UI and the Rust backend.
+//!
+//! IPC CONTRACT (load-bearing): the frontend speaks snake_case argument keys
+//! (`session_id`, `provider_id`, …). Tauri's `#[command]` macro converts
+//! parameter names to lowerCamelCase on the wire **by default**, so every
+//! command below MUST carry `rename_all = "snake_case"` — without it the UI's
+//! `session_id` arrives as a missing `sessionId` and the invoke is rejected
+//! before any handler runs. Do not add a bare `#[command]` here.
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -8,7 +15,8 @@ use tauri::{AppHandle, State, command};
 use crate::{
     agent_event::TauriSink,
     agent_loop::AgentLoop,
-    config::ConfigManager,
+    config::{ConfigManager, EmailSettingsPatch, EmailStatus},
+    email,
     providers::{ProviderInfoDto, ProviderRegistry},
     session_store::SessionManager,
     tools::{PermissionGuard, build_chat_handle},
@@ -73,7 +81,12 @@ impl AppState {
             }
         }
 
-        let permission_guard = PermissionGuard::new(true); // auto-approve for now
+        // Consulted (and audited) at every tool dispatch, but no allow/deny lists
+    // are configurable yet, so nothing is actually blocked. The log path is
+    // fixed once here so the audit never re-resolves the workspace dir
+    // (env read + create_dir_all) on the hot path.
+    let permission_guard =
+        PermissionGuard::new(true).with_log_path(app_data_dir.join("tool-decisions.log"));
         let tool_bridge = Arc::new(
             crate::tools::build_tool_bridge_with_app_data(Some(app_data_dir.clone())).await?,
         );
@@ -95,16 +108,13 @@ impl AppState {
                                 let n = name.clone();
                                 let a = srv.args.clone();
                                 let label = name.clone();
-                                let joined = tokio::task::spawn_blocking(move || {
-                                    let rt = tokio::runtime::Builder::new_current_thread()
-                                        .enable_all()
-                                        .build()
-                                        .expect("mcp rt");
-                                    rt.block_on(crate::mcp::add_mcp_server_real(
-                                        &tb, &n, &cmd, a,
-                                    ))
-                                })
-                                .await;
+                                let joined =
+                                    crate::mcp::on_mcp_thread(move || {
+                                        Box::pin(async move {
+                                            crate::mcp::add_mcp_server_real(&tb, &n, &cmd, a).await
+                                        })
+                                    })
+                                    .await;
                                 log_restore_result(&label, joined);
                             }
                         }
@@ -113,16 +123,14 @@ impl AppState {
                                 let tb = bridge_clone.clone();
                                 let n = name.clone();
                                 let label = name.clone();
-                                let joined = tokio::task::spawn_blocking(move || {
-                                    let rt = tokio::runtime::Builder::new_current_thread()
-                                        .enable_all()
-                                        .build()
-                                        .expect("mcp rt");
-                                    rt.block_on(crate::mcp::add_mcp_server_http_real(
-                                        &tb, &n, &url,
-                                    ))
-                                })
-                                .await;
+                                let joined =
+                                    crate::mcp::on_mcp_thread(move || {
+                                        Box::pin(async move {
+                                            crate::mcp::add_mcp_server_http_real(&tb, &n, &url)
+                                                .await
+                                        })
+                                    })
+                                    .await;
                                 log_restore_result(&label, joined);
                             }
                         }
@@ -177,12 +185,12 @@ async fn hot_swap_provider(state: &AppState, provider_id: &str) {
 /// as `Error` status with nothing in the logs explaining why.
 fn log_restore_result(
     name: &str,
-    joined: Result<Result<Vec<String>, anyhow::Error>, tokio::task::JoinError>,
+    joined: Result<Result<Vec<String>, anyhow::Error>, String>,
 ) {
     match joined {
         Ok(Ok(tools)) => tracing::info!(server = name, tools = tools.len(), "MCP server restored"),
         Ok(Err(e)) => tracing::warn!(server = name, error = %e, "MCP restore handshake failed"),
-        Err(e) => tracing::warn!(server = name, error = %e, "MCP restore task panicked"),
+        Err(e) => tracing::warn!(server = name, error = %e, "MCP restore task failed"),
     }
 }
 
@@ -246,7 +254,7 @@ async fn reconcile_loops_after_unregister(state: &AppState, provider_id: &str) {
 /// Workspace dir override for session-scoped commands: the session mapping
 /// (or stored default) when set, else the global resolver. Never trusts raw
 /// paths — only the validated mapping store.
-fn session_workspace_dir(
+pub(crate) fn session_workspace_dir(
     state: &AppState,
     session_id: Option<&str>,
 ) -> Option<std::path::PathBuf> {
@@ -262,7 +270,7 @@ fn session_workspace_dir(
 }
 
 /// Global workspace dir honoring the stored default (env → stored → `./workspace`).
-fn global_workspace_dir(state: &AppState) -> std::path::PathBuf {
+pub(crate) fn global_workspace_dir(state: &AppState) -> std::path::PathBuf {
     crate::workspaces::WorkspaceStore::new(&state.app_data_dir).global_dir()
 }
 
@@ -277,7 +285,7 @@ async fn missing_loop_error(state: &AppState, session_id: &str) -> String {
 
 /// Initialize the agent loop for a session.
 /// `provider_id` is optional — if omitted uses the configured default.
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn init_session(
     session_id: String,
     provider_id: Option<String>,
@@ -305,15 +313,16 @@ pub async fn init_session(
     };
     if let Some(agent) = existing {
         agent.set_provider(provider).await;
-        if let Some(pid) = provider_id {
-            agent.set_provider_id(&pid);
-        }
+        agent.set_provider_id(&wanted);
         agent.sync_context_window().await;
         return Ok(());
     }
 
     let chat = build_chat_handle(&session_id, Some(state.app_data_dir.clone()))
         .map_err(|e| e.to_string())?;
+    // Warm the session-manager cache so `get_session_messages` peeks hit
+    // instead of opening a new handle per read.
+    let _ = state.session_manager.get_or_create(&session_id);
     // Align the session window with the active provider (§5.6-E) so
     // compaction thresholds track the real model, not the 128k default.
     crate::tools::sync_chat_context_window(&chat, provider.context_window()).await;
@@ -327,7 +336,8 @@ pub async fn init_session(
             ))
             .with_workspace_store(crate::workspaces::WorkspaceStore::new(
                 &state.app_data_dir,
-            )),
+            ))
+            .with_permission_guard(state.permission_guard.clone()),
     );
     agent.set_provider_id(&wanted);
     // Session workspace mapping (falls back to the global default).
@@ -339,9 +349,163 @@ pub async fn init_session(
     Ok(())
 }
 
+/// Align a session's system head with the generative-UI (OpenUI) component
+/// language. `instructions` is the `library.prompt()` block generated by the
+/// frontend (it owns the component definitions, so prompt and renderer can
+/// never drift apart); `None` strips the block back to the base addendum
+/// (feature toggled off). Rebuilt from the known const every time, so the
+/// call is idempotent and needs no read-modify-write.
+#[command(rename_all = "snake_case")]
+pub async fn set_generative_ui_prompt(
+    session_id: String,
+    instructions: Option<String>,
+    state: State<'_, AppState>,
+) -> Result<bool, String> {
+    crate::session_store::validate_session_id(&session_id).map_err(|e| e.to_string())?;
+    let agent = {
+        let loops = state.agent_loops.read().await;
+        loops.get(&session_id).cloned()
+    };
+    let Some(agent) = agent else {
+        return Err(missing_loop_error(&state, &session_id).await);
+    };
+    let mut head = crate::prompts::AUTOMATION_SYSTEM_ADDENDUM.to_string();
+    if let Some(extra) = instructions.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+        head.push_str("\n\n");
+        head.push_str(extra);
+    }
+    agent
+        .chat_handle()
+        .replace_system_head(&head)
+        .await
+        .ok_or_else(|| format!("session actor unavailable: {session_id}"))
+}
+
+/// Gmail connection state for Settings (secrets never cross the boundary).
+#[command(rename_all = "snake_case")]
+pub async fn get_email_config(state: State<'_, AppState>) -> Result<EmailStatus, String> {
+    Ok(state.config_manager.email_status().await)
+}
+
+/// Update Gmail settings. `None` fields keep their stored values, so the UI
+/// can flip the switch without re-sending (or ever seeing) secrets.
+#[command(rename_all = "snake_case")]
+pub async fn set_email_config(
+    patch: EmailSettingsPatch,
+    state: State<'_, AppState>,
+) -> Result<EmailStatus, String> {
+    let mut email = state.config_manager.email_config().await;
+    if let Some(enabled) = patch.enabled {
+        email.enabled = enabled;
+    }
+    if let Some(client_id) = patch.client_id {
+        email.client_id = client_id.trim().to_string();
+    }
+    if let Some(client_secret) = patch.client_secret {
+        email.client_secret = client_secret.trim().to_string();
+    }
+    state
+        .config_manager
+        .set_email_config(email)
+        .await
+        .map_err(|e| e.to_string())?;
+    Ok(state.config_manager.email_status().await)
+}
+
+/// Run the Gmail OAuth connect flow: opens the browser, waits for consent
+/// (up to 3 minutes), exchanges the code, and persists the tokens. Returns
+/// the connected account address.
+#[command(rename_all = "snake_case")]
+pub async fn email_connect(state: State<'_, AppState>) -> Result<String, String> {
+    let cfg = state.config_manager.email_config().await;
+    if cfg.client_id.trim().is_empty() || cfg.client_secret.trim().is_empty() {
+        return Err("paste your Google OAuth client id and secret first (see the setup link in Settings → Email)".to_string());
+    }
+    let (refresh_token, access_token, expires_at, account) =
+        email::run_connect_flow(&cfg.client_id, &cfg.client_secret).await?;
+    let mut updated = cfg;
+    updated.refresh_token = refresh_token;
+    updated.access_token = access_token;
+    updated.expires_at = expires_at;
+    updated.account_email = account.clone();
+    state
+        .config_manager
+        .set_email_config(updated)
+        .await
+        .map_err(|e| format!("connected, but could not persist the tokens: {e}"))?;
+    Ok(account)
+}
+
+/// Disconnect Gmail: drops tokens + account, keeps the client credentials so
+/// reconnecting is one click.
+#[command(rename_all = "snake_case")]
+pub async fn email_disconnect(state: State<'_, AppState>) -> Result<EmailStatus, String> {
+    let mut email = state.config_manager.email_config().await;
+    email.refresh_token.clear();
+    email.access_token.clear();
+    email.expires_at = 0;
+    email.account_email.clear();
+    state
+        .config_manager
+        .set_email_config(email)
+        .await
+        .map_err(|e| e.to_string())?;
+    Ok(state.config_manager.email_status().await)
+}
+
+fn check_email_recipient(to: &str) -> Result<String, String> {
+    let to = to.trim().to_string();
+    if to.is_empty() || !to.contains('@') {
+        return Err("a valid recipient address is required".to_string());
+    }
+    Ok(to)
+}
+
+/// Programmatic send (Settings test button, draft-send actions). Returns the
+/// Gmail message id. The agent's `send_email` tool shares this path.
+pub async fn email_send_inner(
+    manager: &ConfigManager,
+    to: &str,
+    subject: &str,
+    body_text: &str,
+    body_html: Option<&str>,
+    cc: &[String],
+    bcc: &[String],
+) -> Result<String, String> {
+    let to = check_email_recipient(to)?;
+    if body_text.trim().is_empty() && body_html.map(str::trim).unwrap_or_default().is_empty() {
+        return Err("an email needs a text or HTML body".to_string());
+    }
+    let (access_token, account) = email::valid_access_token(manager).await?;
+    let mime = email::build_mime(&account, &to, cc, bcc, subject, body_text, body_html);
+    email::send_raw(&access_token, &email::base64url(mime.as_bytes())).await
+}
+
+#[command(rename_all = "snake_case")]
+pub async fn email_send(
+    to: String,
+    subject: String,
+    body_text: String,
+    body_html: Option<String>,
+    cc: Option<Vec<String>>,
+    bcc: Option<Vec<String>>,
+    state: State<'_, AppState>,
+) -> Result<String, String> {
+    email_send_inner(
+        &state.config_manager,
+        &to,
+        &subject,
+        &body_text,
+        body_html.as_deref(),
+        &cc.unwrap_or_default(),
+        &bcc.unwrap_or_default(),
+    )
+    .await
+}
+
 /// Send a user message to the agent. `effort` is an optional reasoning-effort
 /// tier picked in the composer (`null` = keep the provider default).
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn send_message(
     app: AppHandle,
     session_id: String,
@@ -380,7 +544,11 @@ pub async fn send_message(
         };
         // Applied before the send so the ordered command queue sees the new
         // sampling config first; unsupported providers clear instead.
-        agent.set_reasoning_effort(effective.as_deref()).await?;
+        // Degrade to no-effort on a bad tier: a stale preset must never drop
+        // the user's message.
+        if agent.set_reasoning_effort(effective.as_deref()).await.is_err() {
+            agent.set_reasoning_effort(None).await.ok();
+        }
         let sink = TauriSink::new(app, session_id.clone());
         agent
             .send_user_message_auto(&text, Arc::new(sink))
@@ -403,7 +571,7 @@ pub async fn send_message(
 /// Cancel the in-flight run for a session (§5.6-C). Idempotent: with no
 /// active run it is a no-op. The loop emits `Cancelled` and `send_message`
 /// resolves with a "run cancelled by user" error.
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn cancel_message(session_id: String, state: State<'_, AppState>) -> Result<(), String> {
     let agent = {
         let loops = state.agent_loops.read().await;
@@ -417,32 +585,17 @@ pub async fn cancel_message(session_id: String, state: State<'_, AppState>) -> R
     }
 }
 
-/// Snapshot the per-task token/cost ledger for a session (§5.6-B).
-#[command]
-pub async fn get_usage(
-    session_id: String,
-    state: State<'_, AppState>,
-) -> Result<crate::usage::UsageSnapshot, String> {
-    let agent = {
-        let loops = state.agent_loops.read().await;
-        loops.get(&session_id).cloned()
-    };
-    if let Some(agent) = agent {
-        Ok(agent.usage_snapshot().await)
-    } else {
-        Err(format!("session not initialized: {session_id}"))
-    }
-}
-
 /// Get the list of sessions.
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn list_sessions(state: State<'_, AppState>) -> Result<Vec<String>, String> {
     Ok(state.session_manager.list_sessions())
 }
 
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn delete_session(session_id: String, state: State<'_, AppState>) -> Result<(), String> {
-    state.agent_loops.write().await.remove(&session_id);
+    if let Some(agent) = state.agent_loops.write().await.remove(&session_id) {
+        agent.cancel_current_run();
+    }
     state
         .session_manager
         .delete_session(&session_id)
@@ -453,7 +606,7 @@ pub async fn delete_session(session_id: String, state: State<'_, AppState>) -> R
     Ok(())
 }
 
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn rename_session(
     old_id: String,
     new_id: String,
@@ -467,38 +620,69 @@ pub async fn rename_session(
     // directory. Drop the loop first: a live handle can block the directory
     // rename on Windows and would otherwise keep writing to the old path.
     let removed = state.agent_loops.write().await.remove(&old_id);
-    let old_provider = match &removed {
-        Some(agent) => Some(agent.provider().await),
-        None => None,
+    let (old_provider, old_provider_id) = match &removed {
+        Some(agent) => (Some(agent.provider().await), agent.provider_id_label()),
+        None => (None, String::new()),
     };
     drop(removed);
     // Let the chat-state actor observe the closed command channel and release
-    // its file handle before the directory moves.
-    tokio::time::sleep(std::time::Duration::from_millis(25)).await;
-
-    state
-        .session_manager
-        .rename_session(&old_id, &new_id)
-        .map_err(|e| e.to_string())?;
+    // its file handle before the directory moves. Retry on Windows sharing
+    // violations instead of failing on the first attempt.
+    let mut rename_err = String::new();
+    for attempt in 0..5 {
+        if attempt > 0 {
+            tokio::time::sleep(std::time::Duration::from_millis(25 * attempt as u64)).await;
+        } else {
+            tokio::time::sleep(std::time::Duration::from_millis(25)).await;
+        }
+        match state.session_manager.rename_session(&old_id, &new_id) {
+            Ok(()) => {
+                rename_err.clear();
+                break;
+            }
+            Err(e) => rename_err = e.to_string(),
+        }
+    }
+    if !rename_err.is_empty() {
+        return Err(rename_err);
+    }
 
     if let Some(provider) = old_provider {
         // Rebuild over the renamed directory — history is re-read from disk,
         // so the conversation carries over while writes land in the new path.
+        // Mirror `init_session` exactly: a partial rebuild used to drop the
+        // memory store, workspace store, provider id, and session workspace.
         let chat = build_chat_handle(&new_id, Some(state.app_data_dir.clone()))
             .map_err(|e| e.to_string())?;
+        let _ = state.session_manager.get_or_create(&new_id);
         crate::tools::sync_chat_context_window(&chat, provider.context_window()).await;
         let tools = (*state.tool_bridge).clone();
         let config_manager: Arc<ConfigManager> = Arc::clone(&state.config_manager);
         let agent = Arc::new(
-            AgentLoop::new(chat, tools, provider).with_config_manager(config_manager),
+            AgentLoop::new(chat, tools, provider)
+                .with_config_manager(config_manager)
+                .with_memory_store(crate::memory::MemoryStore::new(
+                    state.app_data_dir.clone(),
+                ))
+                .with_workspace_store(crate::workspaces::WorkspaceStore::new(
+                    &state.app_data_dir,
+                ))
+                .with_permission_guard(state.permission_guard.clone()),
         );
+        if !old_provider_id.is_empty() {
+            agent.set_provider_id(&old_provider_id);
+        }
+        let ws_store = crate::workspaces::WorkspaceStore::new(&state.app_data_dir);
+        agent
+            .set_session_workspace(ws_store.effective_session_dir(&new_id))
+            .await;
         state.agent_loops.write().await.insert(new_id, agent);
     }
     Ok(())
 }
 
 /// Get the message history for a session.
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn get_session_messages(
     session_id: String,
     state: State<'_, AppState>,
@@ -517,22 +701,23 @@ pub async fn get_session_messages(
         return Ok(Vec::new());
     }
 
-    let persistence =
-        crate::session_store::JsonlChatPersistence::new(session_id, state.app_data_dir.clone())
-            .map_err(|e| e.to_string())?;
+    // Prefer the handle a live session already owns: constructing a second
+    // one opens another append handle on the same history file.
+    let persistence = match state.session_manager.peek(&session_id) {
+        Some(p) => p,
+        None => state
+            .session_manager
+            .get_or_create(&session_id)
+            .map_err(|e| e.to_string())?,
+    };
 
-    let items = persistence.history();
+    let items = persistence.history_with_timestamps();
     let mut messages = Vec::new();
-
-    let now_ts = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .map(|d| d.as_millis() as i64)
-        .unwrap_or(0);
 
     let mut tool_names: std::collections::HashMap<String, String> =
         std::collections::HashMap::new();
 
-    for (i, item) in items.into_iter().enumerate() {
+    for (i, (ts, item)) in items.into_iter().enumerate() {
         match item {
             ConversationItem::User(u) => {
                 let text = u
@@ -548,7 +733,7 @@ pub async fn get_session_messages(
                     "id": format!("msg-{i}"),
                     "role": "user",
                     "content": text,
-                    "timestamp": now_ts,
+                    "timestamp": ts,
                 }));
             }
             ConversationItem::Assistant(a) => {
@@ -570,7 +755,7 @@ pub async fn get_session_messages(
                     "id": format!("msg-{i}"),
                     "role": "assistant",
                     "content": a.content.as_ref(),
-                    "timestamp": now_ts,
+                    "timestamp": ts,
                 });
                 if !tool_calls.is_empty() {
                     val["toolCalls"] = serde_json::Value::Array(tool_calls);
@@ -592,7 +777,7 @@ pub async fn get_session_messages(
                         "toolCallId": tr.tool_call_id.to_string(),
                         "content": tr.content,
                     },
-                    "timestamp": now_ts,
+                    "timestamp": ts,
                 }));
             }
             _ => {}
@@ -603,7 +788,7 @@ pub async fn get_session_messages(
 }
 
 /// Get the list of available providers (serializable DTO).
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn list_providers(state: State<'_, AppState>) -> Result<Vec<ProviderInfoDto>, String> {
     let reg = state.provider_registry.read().await;
     Ok(reg
@@ -614,7 +799,7 @@ pub async fn list_providers(state: State<'_, AppState>) -> Result<Vec<ProviderIn
 }
 
 /// Add an MCP server — tries real handshake, falls back to placeholder.
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn add_mcp(
     name: String,
     command: String,
@@ -635,28 +820,24 @@ pub async fn add_mcp(
         .await
         .map_err(|e| e.to_string())?;
 
-    // Real handshake is !Send (contains *mut), so run it on a dedicated
-    // current_thread runtime inside spawn_blocking to keep the Tauri future Send.
+    // The handshake future is `!Send` (contains `*mut`), so it runs on the
+    // dedicated persistent MCP thread — the transport's service loop is
+    // spawned there and must outlive registration.
     let tool_bridge = state.tool_bridge.clone();
     let name_c = name.clone();
     let command_c = command.clone();
     let args_c = args.clone();
-    let join = tokio::task::spawn_blocking(move || {
-        let rt = tokio::runtime::Builder::new_current_thread()
-            .enable_all()
-            .build()
-            .expect("mcp rt");
-        rt.block_on(async {
+    crate::mcp::on_mcp_thread(move || {
+        Box::pin(async move {
             crate::mcp::add_mcp_server_real(&tool_bridge, &name_c, &command_c, args_c).await
         })
-    });
-    join.await
-        .map_err(|e| e.to_string())?
-        .map_err(|e| e.to_string())
+    })
+    .await?
+    .map_err(|e| e.to_string())
 }
 
 /// Remove an MCP server.
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn remove_mcp(name: String, state: State<'_, AppState>) -> Result<(), String> {
     // Remove from tool bridge
     state
@@ -672,14 +853,14 @@ pub async fn remove_mcp(name: String, state: State<'_, AppState>) -> Result<(), 
 }
 
 /// List available tools.
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn list_tools(state: State<'_, AppState>) -> Result<Vec<String>, String> {
     let defs = state.tool_bridge.tool_definitions().await;
     Ok(defs.iter().map(|d| d.function.name.clone()).collect())
 }
 
 /// Get current config snapshot.
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn get_config(
     state: State<'_, AppState>,
 ) -> Result<crate::config::ConfigSnapshot, String> {
@@ -687,7 +868,7 @@ pub async fn get_config(
 }
 
 /// Set API key for a provider — persists and hot-registers the provider.
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn set_api_key(
     provider_id: String,
     api_key: String,
@@ -719,7 +900,7 @@ pub async fn set_api_key(
 }
 
 /// Remove API key for a provider — persists and unregisters it.
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn remove_api_key(provider_id: String, state: State<'_, AppState>) -> Result<(), String> {
     state
         .config_manager
@@ -737,7 +918,7 @@ pub async fn remove_api_key(provider_id: String, state: State<'_, AppState>) -> 
 /// Examples: `openai` with `base_url: http://localhost:11434/v1` + `model: llama3` for Ollama,
 /// `anthropic` with custom base, or custom id `my-ollama` with `kind: openai`/`anthropic`.
 /// Calling with all `None`/empty clears the override and restores defaults.
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn set_provider_settings(
     provider_id: String,
     base_url: Option<String>,
@@ -795,7 +976,7 @@ pub async fn set_provider_settings(
 }
 
 /// Get base URL / model overrides for a provider.
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn get_provider_settings(
     provider_id: String,
     state: State<'_, AppState>,
@@ -803,16 +984,8 @@ pub async fn get_provider_settings(
     Ok(state.config_manager.provider_settings(&provider_id).await)
 }
 
-/// List all provider settings (for UI bulk load).
-#[command]
-pub async fn list_provider_settings(
-    state: State<'_, AppState>,
-) -> Result<std::collections::HashMap<String, crate::config::ProviderSettings>, String> {
-    Ok(state.config_manager.read().await.provider_settings.clone())
-}
-
 /// Set default provider.
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn set_default_provider(
     provider_id: Option<String>,
     state: State<'_, AppState>,
@@ -825,7 +998,7 @@ pub async fn set_default_provider(
 }
 
 /// Get default provider.
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn get_default_provider(state: State<'_, AppState>) -> Result<Option<String>, String> {
     Ok(state.config_manager.default_provider().await)
 }
@@ -873,7 +1046,7 @@ fn validate_presets(
 }
 
 /// List saved model presets.
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn list_model_presets(
     state: State<'_, AppState>,
 ) -> Result<Vec<crate::config::ModelPreset>, String> {
@@ -881,7 +1054,7 @@ pub async fn list_model_presets(
 }
 
 /// Replace the saved model preset list (add, edit, delete all go through this).
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn save_model_presets(
     presets: Vec<crate::config::ModelPreset>,
     state: State<'_, AppState>,
@@ -896,7 +1069,7 @@ pub async fn save_model_presets(
 }
 
 /// Add an MCP server with full config — persists + real handshake.
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn add_mcp_server_full(
     name: String,
     transport: String,
@@ -917,61 +1090,251 @@ pub async fn add_mcp_server_full(
         .add_mcp_server(name.clone(), mcp_config)
         .await
         .map_err(|e| e.to_string())?;
-    // Try real handshake (spawn_blocking for !Send)
+    register_mcp_handshake(&state, name, transport, command, args, url).await
+}
+
+/// Run the real MCP `tools/list` handshake for a server already written to
+/// config, on the dedicated persistent MCP thread (`!Send`). Shared by the
+/// generic add command and the Computer panel so both get identical behavior.
+async fn register_mcp_handshake(
+    state: &AppState,
+    name: String,
+    transport: String,
+    command: Option<String>,
+    args: Vec<String>,
+    url: Option<String>,
+) -> Result<(), String> {
     let tool_bridge = state.tool_bridge.clone();
-    let name_c = name.clone();
-    let transport_c = transport.clone();
-    let command_c = command.clone();
-    let args_c = args.clone();
-    let url_c = url.clone();
-    let join = tokio::task::spawn_blocking(move || {
-        let rt = tokio::runtime::Builder::new_current_thread()
-            .enable_all()
-            .build()
-            .expect("mcp rt");
-        rt.block_on(async move {
-            match transport_c.as_str() {
+    crate::mcp::on_mcp_thread(move || {
+        Box::pin(async move {
+            match transport.as_str() {
                 "stdio" => {
-                    let cmd = command_c.ok_or_else(|| {
-                        anyhow::anyhow!("stdio MCP server '{name_c}' has no command")
-                    })?;
-                    crate::mcp::add_mcp_server_real(&tool_bridge, &name_c, &cmd, args_c).await?;
+                    let cmd = command
+                        .ok_or_else(|| anyhow::anyhow!("stdio MCP server '{name}' has no command"))?;
+                    crate::mcp::add_mcp_server_real(&tool_bridge, &name, &cmd, args).await?;
                 }
                 "http" => {
-                    let u = url_c
-                        .ok_or_else(|| anyhow::anyhow!("http MCP server '{name_c}' has no url"))?;
-                    crate::mcp::add_mcp_server_http_real(&tool_bridge, &name_c, &u).await?;
+                    let u = url.ok_or_else(|| anyhow::anyhow!("http MCP server '{name}' has no url"))?;
+                    crate::mcp::add_mcp_server_http_real(&tool_bridge, &name, &u).await?;
                 }
                 other => anyhow::bail!("unsupported MCP transport '{other}'"),
             }
             Ok::<(), anyhow::Error>(())
         })
-    });
-    join.await
-        .map_err(|e| e.to_string())?
-        .map_err(|e| e.to_string())
+    })
+    .await?
+    .map_err(|e| e.to_string())
 }
 
-#[command]
+/* ------------------------------------------------------------------ */
+/* Computer: the agent's browser (Playwright MCP, headed so you watch) */
+/* ------------------------------------------------------------------ */
+
+/// Config name of the computer's browser server. Deliberately a plain MCP
+/// entry so the generic MCP tab, status list and remove path all keep working
+/// without special-casing.
+const COMPUTER_SERVER_NAME: &str = "browser";
+
+/// Default flags for the browser MCP server: a real installed Chrome (not
+/// bundled Chromium — same fingerprint class as a normal browser), vision so
+/// screenshots come back to the model, and a persistent profile so logins
+/// survive stop/start. `--headless` is opt-in; headed is the default, which
+/// means the user literally watches the agent work.
+fn computer_profile_dir(app_data_dir: &std::path::Path) -> std::path::PathBuf {
+    app_data_dir.join("browser-profile")
+}
+
+fn computer_args(app_data_dir: &std::path::Path, headless: bool, persistent: bool) -> Vec<String> {
+    let mut args = vec![
+        "-y".to_string(),
+        "@playwright/mcp@latest".to_string(),
+        "--browser".to_string(),
+        "chrome".to_string(),
+        "--caps".to_string(),
+        "vision".to_string(),
+    ];
+    if persistent {
+        args.push("--user-data-dir".to_string());
+        args.push(computer_profile_dir(app_data_dir).to_string_lossy().into_owned());
+    }
+    if headless {
+        args.push("--headless".to_string());
+    }
+    args
+}
+
+/// Read the persisted options back out of the stored args, so the panel
+/// survives an app restart without a second config section.
+fn computer_options_from_args(args: &[String]) -> (bool, bool) {
+    let has = |flag: &str| args.iter().any(|a| a == flag);
+    (has("--headless"), has("--user-data-dir"))
+}
+
+/// Best-effort check for an installed Chrome/Edge. Playwright resolves the
+/// channel itself, so a miss here is a warning, never a hard failure.
+fn installed_browser_present() -> bool {
+    [
+        "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+        "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+        "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+        "C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe",
+        "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+        "/usr/bin/google-chrome",
+        "/usr/bin/chromium",
+    ]
+    .iter()
+    .any(|p| std::path::Path::new(p).exists())
+}
+
+/// Panel state: enabled?, options, profile dir, and the live MCP status.
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct ComputerStatus {
+    pub enabled: bool,
+    pub headless: bool,
+    pub persistent: bool,
+    pub profile_dir: String,
+    pub tool_count: usize,
+    /// `Ready` | `Placeholder` | `Error` | `Disabled`.
+    pub status: String,
+    pub tools: Vec<String>,
+    /// No installed browser on a known path — surfaced as a warning.
+    pub browser_found: bool,
+}
+
+#[command(rename_all = "snake_case")]
+pub async fn computer_status(state: State<'_, AppState>) -> Result<ComputerStatus, String> {
+    let cfg = state.config_manager.read().await;
+    let server = cfg.mcp_servers.get(COMPUTER_SERVER_NAME).cloned();
+    let enabled = server.as_ref().is_some_and(|s| s.enabled);
+    let (headless, persistent) = server
+        .as_ref()
+        .map(|s| computer_options_from_args(&s.args))
+        .unwrap_or((false, true));
+    drop(cfg);
+
+    // One status fetch — derives both the tool count and the tool list.
+    let live = if enabled {
+        crate::mcp::get_mcp_status(&state.tool_bridge, &state.config_manager)
+            .await
+            .into_iter()
+            .find(|s| s.name == COMPUTER_SERVER_NAME)
+    } else {
+        None
+    };
+    let tool_count = live.as_ref().map(|s| s.tool_count).unwrap_or(0);
+
+    // Same status vocabulary the MCP tab uses, plus an explicit Disabled state.
+    let status = if !enabled {
+        "Disabled".to_string()
+    } else if tool_count == 0 {
+        "Error".to_string()
+    } else {
+        "Ready".to_string()
+    };
+    let tools = live.map(|s| s.tools).unwrap_or_default();
+
+    Ok(ComputerStatus {
+        enabled,
+        headless,
+        persistent,
+        profile_dir: computer_profile_dir(&state.app_data_dir)
+            .to_string_lossy()
+            .into_owned(),
+        tool_count,
+        status,
+        tools,
+        browser_found: installed_browser_present(),
+    })
+}
+
+/// Connect (or reconnect) the computer's browser: write config, then run the
+/// real handshake so the tools reach the model on this very turn.
+#[command(rename_all = "snake_case")]
+pub async fn computer_enable(
+    headless: bool,
+    persistent: bool,
+    state: State<'_, AppState>,
+) -> Result<ComputerStatus, String> {
+    if !installed_browser_present() {
+        // Don't block — Playwright may still find the channel — but say so
+        // instead of letting the model hit an opaque launch error later.
+        tracing::warn!("no Chrome/Edge on a known path; Playwright channel 'chrome' may fail to launch");
+    }
+    let args = computer_args(&state.app_data_dir, headless, persistent);
+    let already = state
+        .config_manager
+        .read()
+        .await
+        .mcp_servers
+        .contains_key(COMPUTER_SERVER_NAME);
+    if already {
+        // Reconnect: unregister first so the old process's tools don't linger
+        // alongside the new ones under the same prefix.
+        state
+            .tool_bridge
+            .unregister_tools_by_prefix(&format!("{}__", COMPUTER_SERVER_NAME));
+    }
+    state
+        .config_manager
+        .add_mcp_server(
+            COMPUTER_SERVER_NAME.to_string(),
+            crate::config::McpServerConfig {
+                transport: "stdio".to_string(),
+                command: Some("npx".to_string()),
+                args: args.clone(),
+                url: None,
+                enabled: true,
+            },
+        )
+        .await
+        .map_err(|e| e.to_string())?;
+    register_mcp_handshake(
+        &state,
+        COMPUTER_SERVER_NAME.to_string(),
+        "stdio".to_string(),
+        Some("npx".to_string()),
+        args,
+        None,
+    )
+    .await?;
+    computer_status(state).await
+}
+
+/// Disconnect the browser: unregister its tools and drop the config entry.
+/// The profile directory is left on disk so logins survive a reconnect.
+#[command(rename_all = "snake_case")]
+pub async fn computer_disable(state: State<'_, AppState>) -> Result<ComputerStatus, String> {
+    state
+        .tool_bridge
+        .unregister_tools_by_prefix(&format!("{}__", COMPUTER_SERVER_NAME));
+    state
+        .config_manager
+        .remove_mcp_server(COMPUTER_SERVER_NAME)
+        .await
+        .map_err(|e| e.to_string())?;
+    computer_status(state).await
+}
+
+#[command(rename_all = "snake_case")]
 pub async fn list_mcp_status(
     state: State<'_, AppState>,
 ) -> Result<Vec<crate::mcp::McpStatus>, String> {
     Ok(crate::mcp::get_mcp_status(&state.tool_bridge, &state.config_manager).await)
 }
 
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn scan_marketplace() -> Result<Vec<crate::mcp::MarketplaceEntry>, String> {
     Ok(crate::mcp::scan_marketplace())
 }
 
 /// Get UI config.
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn get_ui_config(state: State<'_, AppState>) -> Result<crate::config::UiConfig, String> {
     Ok(state.config_manager.ui_config().await)
 }
 
 /// Set UI config.
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn set_ui_config(
     ui: crate::config::UiConfig,
     state: State<'_, AppState>,
@@ -983,16 +1346,8 @@ pub async fn set_ui_config(
         .map_err(|e| e.to_string())
 }
 
-/// Get context-management policy (Phase 3: auto-compact + per-tool budgets).
-#[command]
-pub async fn get_context_config(
-    state: State<'_, AppState>,
-) -> Result<crate::config::ContextConfig, String> {
-    Ok(state.config_manager.context_config().await)
-}
-
 /// Set context-management policy.
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn set_context_config(
     context: crate::config::ContextConfig,
     state: State<'_, AppState>,
@@ -1005,7 +1360,7 @@ pub async fn set_context_config(
 }
 
 /// Get turn/segment budgets + spend guardrails (§5.6-B/F).
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn get_budget_config(
     state: State<'_, AppState>,
 ) -> Result<crate::config::BudgetConfig, String> {
@@ -1013,7 +1368,7 @@ pub async fn get_budget_config(
 }
 
 /// Set turn/segment budgets + spend guardrails.
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn set_budget_config(
     budget: crate::config::BudgetConfig,
     state: State<'_, AppState>,
@@ -1025,16 +1380,8 @@ pub async fn set_budget_config(
         .map_err(|e| e.to_string())
 }
 
-/// Get unified cross-chat memory config.
-#[command]
-pub async fn get_memory_config(
-    state: State<'_, AppState>,
-) -> Result<crate::config::MemoryConfig, String> {
-    Ok(state.config_manager.memory_config().await)
-}
-
 /// Set unified cross-chat memory config.
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn set_memory_config(
     memory: crate::config::MemoryConfig,
     state: State<'_, AppState>,
@@ -1046,16 +1393,8 @@ pub async fn set_memory_config(
         .map_err(|e| e.to_string())
 }
 
-/// Get clarifying-question policy (`ask_user` tool).
-#[command]
-pub async fn get_interaction_config(
-    state: State<'_, AppState>,
-) -> Result<crate::config::InteractionConfig, String> {
-    Ok(state.config_manager.interaction_config().await)
-}
-
 /// Set clarifying-question policy.
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn set_interaction_config(
     interaction: crate::config::InteractionConfig,
     state: State<'_, AppState>,
@@ -1070,7 +1409,7 @@ pub async fn set_interaction_config(
 /// Read one memory file verbatim for the Settings editor.
 /// `scope`: "global" (default) or "workspace". `session_id` selects whose
 /// workspace file (absent = global default workspace).
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn get_memory_text(
     scope: String,
     session_id: Option<String>,
@@ -1088,7 +1427,7 @@ pub async fn get_memory_text(
 
 /// Overwrite one memory file verbatim (Settings editor).
 /// `scope`: "global" (default) or "workspace".
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn save_memory_text(
     scope: String,
     text: String,
@@ -1111,7 +1450,7 @@ pub async fn save_memory_text(
 }
 
 /// Delete memory file(s). `scope`: "global", "workspace", or "both".
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn clear_memory(
     scope: String,
     session_id: Option<String>,
@@ -1134,7 +1473,7 @@ pub async fn clear_memory(
 }
 
 /// Memory stats for the composer indicator + Settings header.
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn get_memory_stats(
     session_id: Option<String>,
     state: State<'_, AppState>,
@@ -1148,7 +1487,7 @@ pub async fn get_memory_stats(
 /// Per-session memory kill-switch for the composer's Memory toggle.
 /// Loop-local (resets when the session is re-initialized); the global
 /// default stays in `MemoryConfig.enabled`.
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn set_session_memory_enabled(
     session_id: String,
     enabled: bool,
@@ -1173,7 +1512,7 @@ pub struct SessionWorkspaceInfo {
 
 /// Effective workspace for a session + whether it is the default.
 /// `path` is always concrete (mapping → env → stored default → `./workspace`).
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn get_session_workspace(
     session_id: String,
     state: State<'_, AppState>,
@@ -1194,7 +1533,7 @@ pub async fn get_session_workspace(
 /// Set (or clear with null) a session's workspace. Validates the folder
 /// exists; a live loop picks it up for the next dispatch (immediate).
 /// Returns the canonical path.
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn set_session_workspace(
     session_id: String,
     path: Option<String>,
@@ -1211,7 +1550,7 @@ pub async fn set_session_workspace(
 }
 
 /// Stored default workspace (canonical path or null).
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn get_default_workspace(
     state: State<'_, AppState>,
 ) -> Result<Option<String>, String> {
@@ -1219,7 +1558,7 @@ pub async fn get_default_workspace(
 }
 
 /// Set (or clear with null) the default workspace.
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn set_default_workspace(
     path: Option<String>,
     state: State<'_, AppState>,
@@ -1229,7 +1568,7 @@ pub async fn set_default_workspace(
 }
 
 /// Recent workspaces (folders that still exist, most-recent first).
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn list_recent_workspaces(
     state: State<'_, AppState>,
 ) -> Result<Vec<String>, String> {
@@ -1239,7 +1578,7 @@ pub async fn list_recent_workspaces(
 /// Answer a pending `ask_user` question batch. `answers` aligns with the
 /// batch's questions by index (empty string = that one skipped).
 /// Unknown/gone ids error — e.g. the run was cancelled or already answered.
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn answer_question(
     session_id: String,
     question_id: String,
@@ -1266,7 +1605,7 @@ pub async fn answer_question(
 
 /// Pending `ask_user` question batches for a session (re-sync after
 /// switching back to a session whose run is waiting on the user).
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn get_pending_questions(
     session_id: String,
     state: State<'_, AppState>,
@@ -1448,7 +1787,7 @@ async fn send_kilo_models_request(
     request.send().await.map_err(|e| e.to_string())
 }
 
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn list_kilo_models(
     provider_id: Option<String>,
     base_url: Option<String>,
@@ -1732,7 +2071,7 @@ pub async fn reasoning_profile(
 
 /// Reasoning profile for the composer: reads the provider's model (or an
 /// explicit `model` override) and reports the effort tiers it accepts.
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn get_model_reasoning(
     provider_id: Option<String>,
     model: Option<String>,
@@ -1745,7 +2084,7 @@ pub async fn get_model_reasoning(
 }
 
 /// List discovered skills (local + hub)
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn list_skills(
     state: State<'_, AppState>,
 ) -> Result<Vec<crate::skills::SkillDto>, String> {
@@ -1755,7 +2094,7 @@ pub async fn list_skills(
 }
 
 /// Install a skill from raw SKILL.md content
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn install_skill(
     name: String,
     content: String,
@@ -1769,7 +2108,7 @@ pub async fn install_skill(
 }
 
 /// Remove a skill by name
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn remove_skill(name: String, state: State<'_, AppState>) -> Result<(), String> {
     crate::skills::remove_skill(&state.app_data_dir, &name).map_err(|e| e.to_string())?;
     refresh_skills_internal(&state).await?;
@@ -1777,7 +2116,7 @@ pub async fn remove_skill(name: String, state: State<'_, AppState>) -> Result<()
 }
 
 /// Fetch a skill from hub (agentskills.io or raw URL)
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn fetch_hub_skill(
     hub_url: String,
     owner: String,
@@ -1792,23 +2131,6 @@ pub async fn fetch_hub_skill(
     Ok(dto)
 }
 
-#[command]
-pub async fn list_hub_skills(
-    state: State<'_, AppState>,
-) -> Result<crate::skills::HubIndex, String> {
-    Ok(crate::skills::list_hub_index(&state.app_data_dir))
-}
-
-#[command]
-pub async fn refresh_skills(
-    state: State<'_, AppState>,
-) -> Result<Vec<crate::skills::SkillDto>, String> {
-    refresh_skills_internal(&state).await?;
-    let ws = global_workspace_dir(&state);
-    let skills = crate::skills::discover_skills(&state.app_data_dir, &ws);
-    Ok(skills.iter().map(crate::skills::SkillDto::from).collect())
-}
-
 async fn refresh_skills_internal(state: &State<'_, AppState>) -> Result<(), String> {
     let ws = global_workspace_dir(&state);
     let skills = crate::skills::discover_skills(&state.app_data_dir, &ws);
@@ -1821,47 +2143,10 @@ async fn refresh_skills_internal(state: &State<'_, AppState>) -> Result<(), Stri
     Ok(())
 }
 
-/// Search skills by query (name/description filter, case-insensitive)
-#[command]
-pub async fn search_skills(
-    query: String,
-    state: State<'_, AppState>,
-) -> Result<Vec<crate::skills::SkillDto>, String> {
-    let ws = global_workspace_dir(&state);
-    let skills = crate::skills::discover_skills(&state.app_data_dir, &ws);
-    let q = query.to_lowercase();
-    let filtered: Vec<_> = skills
-        .iter()
-        .filter(|s| {
-            s.name.to_lowercase().contains(&q)
-                || s.description.to_lowercase().contains(&q)
-                || s.when_to_use
-                    .as_deref()
-                    .unwrap_or("")
-                    .to_lowercase()
-                    .contains(&q)
-        })
-        .map(crate::skills::SkillDto::from)
-        .collect();
-    Ok(filtered)
-}
-
-/// Get raw SKILL.md content by skill name
-#[command]
-pub async fn get_skill_content(name: String, state: State<'_, AppState>) -> Result<String, String> {
-    let ws = global_workspace_dir(&state);
-    let skills = crate::skills::discover_skills(&state.app_data_dir, &ws);
-    let skill = skills
-        .iter()
-        .find(|s| s.name == name)
-        .ok_or_else(|| format!("Skill '{name}' not found"))?;
-    std::fs::read_to_string(&skill.path).map_err(|e| e.to_string())
-}
-
 // ── Skills marketplace (GitHub-backed catalog) ────────────────────────────
 
 /// List configured marketplace sources (built-in default seeded at startup).
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn list_marketplace_sources(
     state: State<'_, AppState>,
 ) -> Result<Vec<crate::config::MarketplaceSource>, String> {
@@ -1870,7 +2155,7 @@ pub async fn list_marketplace_sources(
 
 /// Add (or replace by id) a marketplace source. Fields are validated
 /// before anything is stored or used in a request URL.
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn add_marketplace_source(
     id: String,
     display_name: String,
@@ -1898,7 +2183,7 @@ pub async fn add_marketplace_source(
 }
 
 /// Remove a marketplace source by id.
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn remove_marketplace_source(
     id: String,
     state: State<'_, AppState>,
@@ -1967,7 +2252,7 @@ fn mark_marketplace_installed(
 
 /// Browse a source catalog. Serves the disk cache unless `refresh` is set,
 /// which re-enumerates the repo (costs GitHub API requests).
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn list_marketplace_skills(
     source_id: String,
     refresh: Option<bool>,
@@ -2001,7 +2286,7 @@ pub async fn list_marketplace_skills(
 }
 
 /// Search a source catalog by name/description (case-insensitive, cache).
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn search_marketplace_skills(
     source_id: String,
     query: String,
@@ -2033,7 +2318,7 @@ pub async fn search_marketplace_skills(
 }
 
 /// Install a marketplace skill by repo-relative dir, then refresh the bridge.
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn install_marketplace_skill(
     source_id: String,
     dir: String,
@@ -2073,13 +2358,17 @@ pub struct WorkspaceFileRead {
 const WS_LIST_MAX_DEPTH: usize = 3;
 const WS_LIST_MAX_ENTRIES: usize = 500;
 const WS_READ_MAX_BYTES: usize = 24 * 1024;
+/// Artifact-viewer reads use a far larger cap than attachments: a generated
+/// page with inline CSS/JS is routinely 30-80 KB, and cutting one off
+/// mid-tag leaves the preview rendering nothing at all.
+const PREVIEW_MAX_BYTES: usize = 4 * 1024 * 1024;
 /// Non-hidden noise dirs; hidden dirs (`.git`, `.venv`, …) are skipped too.
 const WS_SKIP_DIRS: &[&str] = &["node_modules", "target", "dist", "__pycache__"];
 
 /// Resolve a workspace-relative path to a canonical absolute path.
 /// Denies by default: absolute paths, `..`, and anything (symlinks
 /// included) that canonicalizes outside the workspace root. Empty = root.
-fn ws_resolve(root: &std::path::Path, rel: &str) -> Result<std::path::PathBuf, String> {
+pub(crate) fn ws_resolve(root: &std::path::Path, rel: &str) -> Result<std::path::PathBuf, String> {
     let root_c = root.canonicalize().map_err(|e| format!("workspace unavailable: {e}"))?;
     let rel = rel.trim().replace('\\', "/");
     let candidate = if rel.is_empty() { root_c.clone() } else { root_c.join(&rel) };
@@ -2153,6 +2442,18 @@ fn ws_list(root: &std::path::Path, rel: &str) -> Result<Vec<WorkspaceEntry>, Str
 /// Read a workspace text file for attachment. Caps at 24 KB, rejects
 /// binary content (NUL sniff), and never escapes the workspace root.
 fn ws_read(root: &std::path::Path, rel: &str) -> Result<WorkspaceFileRead, String> {
+    ws_read_capped(root, rel, WS_READ_MAX_BYTES)
+}
+
+/// [`ws_read`] with an explicit byte cap. Attachments stay at 24 KB so a huge
+/// file can't bloat the conversation; the artifact viewer passes
+/// [`PREVIEW_MAX_BYTES`] because a preview truncated mid-tag renders as
+/// nothing, which is worse than reading a little more of the file.
+fn ws_read_capped(
+    root: &std::path::Path,
+    rel: &str,
+    max_bytes: usize,
+) -> Result<WorkspaceFileRead, String> {
     if rel.trim().is_empty() {
         return Err("path required".to_string());
     }
@@ -2163,13 +2464,13 @@ fn ws_read(root: &std::path::Path, rel: &str) -> Result<WorkspaceFileRead, Strin
     let size = std::fs::metadata(&p).map_err(|e| e.to_string())?.len();
     use std::io::Read;
     let file = std::fs::File::open(&p).map_err(|e| e.to_string())?;
-    let mut buf = Vec::with_capacity(WS_READ_MAX_BYTES + 1);
-    file.take((WS_READ_MAX_BYTES + 1) as u64)
+    let mut buf = Vec::with_capacity(max_bytes + 1);
+    file.take((max_bytes + 1) as u64)
         .read_to_end(&mut buf)
         .map_err(|e| e.to_string())?;
-    let truncated = buf.len() > WS_READ_MAX_BYTES;
+    let truncated = buf.len() > max_bytes;
     if truncated {
-        buf.truncate(WS_READ_MAX_BYTES);
+        buf.truncate(max_bytes);
     }
     if buf.iter().take(8192).any(|&b| b == 0) {
         return Err("binary file — attach text files only".to_string());
@@ -2190,7 +2491,7 @@ fn ws_read(root: &std::path::Path, rel: &str) -> Result<WorkspaceFileRead, Strin
 /// List workspace files/dirs for the composer `+` menu. `path` is
 /// workspace-relative; empty lists the workspace root. `session_id` selects
 /// whose workspace (absent = global default).
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn list_workspace_files(
     path: String,
     session_id: Option<String>,
@@ -2202,7 +2503,7 @@ pub async fn list_workspace_files(
 }
 
 /// Read a workspace text file for attaching (24 KB cap, binary rejected).
-#[command]
+#[command(rename_all = "snake_case")]
 pub async fn read_workspace_file(
     path: String,
     session_id: Option<String>,
@@ -2217,19 +2518,16 @@ pub async fn read_workspace_file(
 const PREVIEWABLE_EXTENSIONS: [&str; 4] = ["html", "htm", "svg", "md"];
 
 /// Read a file for the artifact viewer. Accepts workspace-relative paths
-/// like `read_workspace_file`, plus absolute paths that resolve strictly
-/// inside the workspace (the `write_to_file` result echoes the joined
-/// absolute path). Anything outside the workspace, binary, missing, or a
-/// non-previewable extension is refused.
-#[command]
+/// like `read_workspace_file`, plus the absolute paths tools echo back. The
+/// file must exist and have a previewable extension; binary is refused.
+#[command(rename_all = "snake_case")]
 pub async fn preview_workspace_file(
     path: String,
     session_id: Option<String>,
     state: State<'_, AppState>,
 ) -> Result<WorkspaceFileRead, String> {
-    let root = session_workspace_dir(&state, session_id.as_deref())
-        .unwrap_or_else(|| global_workspace_dir(&state));
-    let rel = workspace_relative(&root, &path)?;
+    let roots = preview_roots(&state, session_id.as_deref());
+    let (serving_root, rel) = preview_target(&roots, &path)?;
     let ext = std::path::Path::new(&rel)
         .extension()
         .and_then(|e| e.to_str())
@@ -2238,33 +2536,150 @@ pub async fn preview_workspace_file(
     if !PREVIEWABLE_EXTENSIONS.contains(&ext.as_str()) {
         return Err(format!("not previewable (only .html, .svg, .md): {rel}"));
     }
-    ws_read(&root, &rel)
+    ws_read_capped(&serving_root, &rel, PREVIEW_MAX_BYTES)
 }
 
-/// Express `path` relative to the workspace root: workspace-relative input
-/// passes through; an absolute path strictly inside the root is stripped.
-/// `ws_read` re-validates regardless, so this is a convenience, not the
-/// trust boundary.
-fn workspace_relative(root: &std::path::Path, path: &str) -> Result<String, String> {
-    let trimmed = path.trim().replace('\\', "/");
+/// Roots an artifact path may be resolved against, in order: the session
+/// workspace the UI shows, then the directory the tools actually write into.
+/// The two can differ — a tool resolves a relative path against its own
+/// workspace, which is not always the folder the UI stored — so a bare
+/// `index.html` has to be looked for in both.
+fn preview_roots(state: &AppState, session_id: Option<&str>) -> Vec<std::path::PathBuf> {
+    let session = session_workspace_dir(state, session_id)
+        .unwrap_or_else(|| global_workspace_dir(state));
+    let mut roots = vec![session];
+    let tool_root = crate::tools::resolve_workspace_dir();
+    let known = roots.iter().any(|r| match (r.canonicalize(), tool_root.canonicalize()) {
+        (Ok(a), Ok(b)) => a == b,
+        _ => false,
+    });
+    if !known {
+        roots.push(tool_root);
+    }
+    roots
+}
+
+/// Resolve an artifact to `(serving root, path relative to that root)`.
+///
+/// The workspace that contains the file is the serving root, so its sibling
+/// CSS/JS resolve. A file the agent wrote outside every known workspace (an
+/// absolute path, or a one-off cwd) is served from its own directory instead
+/// of 404ing against a root that never held it.
+///
+/// Relative input may not climb out with `..` or a symlink; an absolute path
+/// is the one a tool itself reported, so it is taken as-is.
+fn preview_target(
+    roots: &[std::path::PathBuf],
+    path: &str,
+) -> Result<(std::path::PathBuf, String), String> {
+    let trimmed = path.trim();
+    if trimmed.is_empty() {
+        return Err("path required".to_string());
+    }
+    let raw = std::path::PathBuf::from(trimmed);
     // Rooted but prefix-less (`/etc/hostname`): absolute on Unix, and on
     // Windows it would join onto the workspace drive — reject up front.
-    if trimmed.starts_with('/') {
+    if trimmed.starts_with('/') && !raw.is_absolute() {
         return Err("absolute paths outside the workspace are rejected".to_string());
     }
-    if !std::path::Path::new(&trimmed).is_absolute() {
-        return Ok(trimmed);
+    if !raw.is_absolute()
+        && raw
+            .components()
+            .any(|c| matches!(c, std::path::Component::ParentDir))
+    {
+        return Err("path escapes the workspace".to_string());
     }
-    let root_c = root
-        .canonicalize()
-        .map_err(|e| format!("workspace unavailable: {e}"))?;
-    let canon = std::path::Path::new(&trimmed)
-        .canonicalize()
-        .map_err(|_| format!("not found: {trimmed}"))?;
-    let rel = canon
-        .strip_prefix(&root_c)
-        .map_err(|_| "path escapes the workspace".to_string())?;
-    Ok(rel.to_string_lossy().replace('\\', "/"))
+
+    if raw.is_absolute() {
+        let canon = raw
+            .canonicalize()
+            .map_err(|_| format!("not found: {}", trimmed.trim_matches('/')))?;
+        if !canon.is_file() {
+            return Err("not a file".to_string());
+        }
+        for root in roots {
+            let Ok(root_c) = root.canonicalize() else { continue };
+            let Ok(rel) = canon.strip_prefix(&root_c) else { continue };
+            return Ok((root_c, rel.to_string_lossy().replace('\\', "/")));
+        }
+        return Ok(file_dir(&canon));
+    }
+
+    // Relative: the first root that actually holds the file wins.
+    for root in roots {
+        let Ok(root_c) = root.canonicalize() else { continue };
+        let Ok(canon) = root_c.join(&raw).canonicalize() else { continue };
+        if !canon.is_file() {
+            continue;
+        }
+        // Relative input that canonicalized outside the root (a symlink out)
+        // is still an escape, not a stray agent write.
+        let Ok(rel) = canon.strip_prefix(&root_c) else {
+            return Err("path escapes the workspace".to_string());
+        };
+        return Ok((root_c, rel.to_string_lossy().replace('\\', "/")));
+    }
+    Err(format!("not found: {}", trimmed.trim_matches('/')))
+}
+
+/// A file served from its own directory — the only way its siblings resolve
+/// when it lives outside every known workspace.
+fn file_dir(canon: &std::path::Path) -> (std::path::PathBuf, String) {
+    let parent = canon
+        .parent()
+        .map(|d| d.to_path_buf())
+        .unwrap_or_else(|| canon.to_path_buf());
+    let name = canon
+        .file_name()
+        .map(|n| n.to_string_lossy().into_owned())
+        .unwrap_or_default();
+    (parent, name)
+}
+
+/// Base URL of the loopback preview server for one artifact, starting it on
+/// first use.
+///
+/// `path` decides the root: see [`preview_target`], the same resolver
+/// `preview_workspace_file` uses, so the URL always points at the file that
+/// was actually read. With no `path`, the session workspace root is returned.
+///
+/// Returns the full URL for `path`.
+#[command(rename_all = "snake_case")]
+pub async fn preview_server_start(
+    path: Option<String>,
+    session_id: Option<String>,
+    state: State<'_, AppState>,
+) -> Result<String, String> {
+    let session_root = session_workspace_dir(&state, session_id.as_deref())
+        .unwrap_or_else(|| global_workspace_dir(&state));
+
+    let Some(p) = path.filter(|p| !p.trim().is_empty()) else {
+        return crate::preview_server::ensure_url(session_root).await;
+    };
+
+    let (root, rel) = preview_target(&preview_roots(&state, session_id.as_deref()), &p)?;
+    let base = crate::preview_server::ensure_url(root).await?;
+    Ok(format!(
+        "{}/{}",
+        base.trim_end_matches('/'),
+        url_path_encode(&rel)
+    ))
+}
+
+/// Percent-encode one URL path: unreserved characters and `/` pass through,
+/// everything else (spaces, `#`, `?`, non-ASCII) is escaped byte-wise. Enough
+/// for a loopback URL handed straight to an iframe.
+fn url_path_encode(s: &str) -> String {
+    let mut out = String::with_capacity(s.len());
+    for &b in s.as_bytes() {
+        match b {
+            b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'_' | b'.' | b'~' | b'/' => {
+                out.push(b as char)
+            }
+            _ => out.push_str(&format!("%{b:02X}")),
+        }
+    }
+    out
 }
 
 #[cfg(test)]
@@ -2362,26 +2777,56 @@ mod workspace_browser_tests {
     }
 
     #[test]
-    fn workspace_relative_accepts_inside_absolute_only() {
-        let root = tmp_root("rel");
-        std::fs::write(root.join("page.html"), "<h1>hi</h1>").unwrap();
-        // Workspace-relative passes through.
+    fn preview_target_finds_files_in_either_root_and_serves_strays_locally() {
+        let ui = tmp_root("pt-ui");
+        let tool = tmp_root("pt-tool");
+        let stray = std::env::temp_dir().join("maverick-ws-browser-pt-stray");
+        let _ = std::fs::remove_dir_all(&stray);
+        std::fs::create_dir_all(&stray).unwrap();
+        std::fs::write(ui.join("ui.html"), "<h1>ui</h1>").unwrap();
+        std::fs::write(tool.join("index.html"), "<h1>hi</h1>").unwrap();
+        std::fs::create_dir_all(tool.join("site")).unwrap();
+        std::fs::write(tool.join("site").join("index.html"), "<p>s</p>").unwrap();
+        std::fs::write(stray.join("standalone.html"), "<p>stray</p>").unwrap();
+
+        let roots = vec![ui.clone(), tool.clone()];
+        let ui_c = ui.canonicalize().unwrap();
+        let tool_c = tool.canonicalize().unwrap();
+
+        // The real case: the agent wrote into the tool workspace while the UI
+        // stores a different one, so a bare `index.html` misses root #1.
+        let (serving, rel) = preview_target(&roots, "index.html").unwrap();
+        assert_eq!(serving, tool_c);
+        assert_eq!(rel, "index.html");
         assert_eq!(
-            workspace_relative(&root, "page.html").unwrap(),
-            "page.html"
+            preview_target(&roots, "site/index.html").unwrap().1,
+            "site/index.html"
         );
-        // Absolute strictly inside the root strips to relative.
-        let abs = root.join("page.html").to_string_lossy().replace('\\', "/");
-        assert_eq!(workspace_relative(&root, &abs).unwrap(), "page.html");
-        // Outside absolutes refuse here; `..` escapes pass through and are
-        // rejected by `ws_read` (which accepts benign `inner/../inner`).
-        assert!(workspace_relative(&root, "/etc/hostname").is_err());
+
+        // Root order decides when both hold the name.
+        std::fs::write(ui.join("index.html"), "<h1>ui</h1>").unwrap();
+        assert_eq!(preview_target(&roots, "index.html").unwrap().0, ui_c);
+
+        // Absolute paths root at whichever workspace contains them.
+        let abs_ui = ui.join("ui.html");
         assert_eq!(
-            workspace_relative(&root, "../outside.html").unwrap(),
-            "../outside.html"
+            preview_target(&roots, &abs_ui.to_string_lossy()).unwrap().0,
+            ui_c
         );
-        assert!(ws_read(&root, "../outside.html").is_err());
-        let _ = std::fs::remove_dir_all(&root);
+        // Outside every root: its own directory serves it, so siblings resolve.
+        let (serving, rel) = preview_target(&roots, &stray.join("standalone.html").to_string_lossy())
+            .unwrap();
+        assert_eq!(serving, stray.canonicalize().unwrap());
+        assert_eq!(rel, "standalone.html");
+
+        // Escapes and misses stay refused.
+        assert!(preview_target(&roots, "../escape.html").is_err());
+        assert!(preview_target(&roots, "missing.html").is_err());
+        assert!(preview_target(&roots, "").is_err());
+
+        let _ = std::fs::remove_dir_all(&ui);
+        let _ = std::fs::remove_dir_all(&tool);
+        let _ = std::fs::remove_dir_all(&stray);
     }
 }
 

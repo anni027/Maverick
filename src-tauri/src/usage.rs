@@ -17,8 +17,8 @@ use serde::{Deserialize, Serialize};
 /// Ticks per USD (matches `ConversationResponse::cost_usd_ticks`).
 pub const USD_TICKS_PER_USD: f64 = 1e10;
 
-/// A serializable point-in-time view of a [`UsageLedger`], served to the UI
-/// via the `get_usage` command.
+/// A serializable point-in-time view of a [`UsageLedger`], which is what the
+/// `UsageUpdated` events report as running totals.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 pub struct UsageSnapshot {
     pub prompt_tokens: u64,
@@ -84,7 +84,7 @@ impl UsageLedger {
     }
 
     /// Fold a child (subagent) ledger into the parent so subagent spend
-    /// counts toward the parent's cap and `get_usage` snapshot. Token and
+    /// counts toward the parent's cap and spend warning. Token and
     /// cost counters sum; `segments` takes the max so a child's segment 1
     /// never clobbers the parent's count; the one-shot spend warning latches.
     pub fn merge(&mut self, other: &UsageLedger) {
@@ -122,7 +122,7 @@ impl UsageLedger {
         if self.spend_warned || budget_tokens == 0 || budget_tokens == u64::MAX {
             return None;
         }
-        let threshold = budget_tokens / 10 * 8;
+        let threshold = budget_tokens.saturating_mul(8) / 10;
         if self.total_tokens >= threshold {
             self.spend_warned = true;
             let percent = (self.total_tokens.min(budget_tokens) * 100 / budget_tokens) as u32;

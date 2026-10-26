@@ -20,11 +20,11 @@ function fmtElapsed(ms: number): string {
   return `${String(m).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
 }
 
-function fmtTokens(n: number): string {
+export function fmtTokens(n: number): string {
   return n >= 1000 ? `${(n / 1000).toFixed(1)}k` : `${n}`;
 }
 
-function fmtUsd(n: number): string {
+export function fmtUsd(n: number): string {
   return `$${n.toFixed(n < 1 ? 3 : 2)}`;
 }
 

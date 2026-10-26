@@ -1,22 +1,20 @@
 //! Unified provider-plugin system.
 //!
-//! Every backend — a native LLM (OpenAI / Anthropic) or an external
-//! agent runtime (Kilo Code / OpenCode invoked as a subprocess or over MCP) —
-//! implements [`Provider`]. The agent loop only depends on this trait, so
-//! backends are fully interchangeable.
+//! Every backend implements [`Provider`] and the agent loop depends only on
+//! that trait, so backends are interchangeable.
 //!
 //! The wire format is the `xai-grok-sampling-types` vocabulary:
 //! `ConversationRequest` in, `ConversationResponse` (assistant text +
-//! [`ToolCall`](xai_grok_sampling_types::ToolCall)) out. That vocabulary is
-//! deliberately backend-agnostic, so a subprocess provider that parses a CLI's
-//! stdout and a native HTTP provider that streams SSE both satisfy the same
-//! contract.
+//! [`ToolCall`](xai_grok_sampling_types::ToolCall)) out.
 
-use std::sync::Arc;
+use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
 
 use anyhow::Result;
 use async_trait::async_trait;
 use serde::Serialize;
+use tokio::sync::mpsc;
+use xai_grok_sampler::{SamplingChannel, SamplingEvent};
 use xai_grok_sampling_types::{ConversationRequest, ConversationResponse};
 
 /// Stable identity of a backend.
@@ -24,25 +22,9 @@ use xai_grok_sampling_types::{ConversationRequest, ConversationResponse};
 pub enum ProviderKind {
     OpenAi,
     Anthropic,
-    /// External agent runtimes (Kilo Code, OpenCode, …) invoked as subprocesses.
-    Subprocess,
-    /// External agent runtimes exposing tools via MCP.
-    Mcp,
 }
 
-impl ProviderKind {
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            ProviderKind::OpenAi => "openai",
-            ProviderKind::Anthropic => "anthropic",
-            ProviderKind::Subprocess => "subprocess",
-            ProviderKind::Mcp => "mcp",
-        }
-    }
-}
-
-/// How a provider is configured. Phase 2 supports native HTTP providers and
-/// external agent runtimes spawned as subprocesses.
+/// How a provider is configured.
 #[derive(Clone, Debug, Serialize)]
 #[serde(tag = "type", rename_all = "camelCase")]
 pub enum ProviderConfig {
@@ -51,11 +33,6 @@ pub enum ProviderConfig {
         base_url: String,
         #[serde(rename = "apiKey", skip_serializing)]
         api_key: Option<String>,
-    },
-    Subprocess {
-        command: String,
-        args: Vec<String>,
-        env: Vec<(String, String)>,
     },
 }
 
@@ -84,6 +61,93 @@ pub trait Provider: Send + Sync {
         128_000
     }
     async fn complete(&self, request: ConversationRequest) -> Result<ConversationResponse>;
+
+    /// Like [`complete`](Self::complete), but forwards assistant text deltas
+    /// to `delta_tx` as they arrive. The default discards them and falls back
+    /// to `complete` — background callers (compaction, extraction) are fine
+    /// without streaming; the main turn loop uses this for live token output.
+    async fn complete_streaming(
+        &self,
+        request: ConversationRequest,
+        delta_tx: mpsc::UnboundedSender<String>,
+    ) -> Result<ConversationResponse> {
+        drop(delta_tx);
+        self.complete(request).await
+    }
+}
+
+/// Poison-tolerant lock: a panic in an unrelated task must not disable
+/// streaming for every request that comes after it.
+fn lock<T>(m: &Mutex<T>) -> std::sync::MutexGuard<'_, T> {
+    m.lock().unwrap_or_else(|poisoned| poisoned.into_inner())
+}
+
+/// Forwards assistant-text deltas from a sampler's event rail to the
+/// per-request receivers registered by the streaming providers.
+pub(crate) struct DeltaPump {
+    sinks: Arc<Mutex<HashMap<String, mpsc::UnboundedSender<String>>>>,
+}
+
+impl DeltaPump {
+    /// Consume `rx` on a spawned task. Without a current tokio runtime (a
+    /// provider built in a plain `#[test]`) the receiver is dropped instead:
+    /// the sampler's `let _ =` sends then fail like the discard rail they
+    /// replaced, costing only streaming in contexts that could not drive it.
+    pub(crate) fn attach(mut rx: mpsc::UnboundedReceiver<SamplingEvent>) -> Self {
+        let sinks: Arc<Mutex<HashMap<String, mpsc::UnboundedSender<String>>>> =
+            Arc::new(Mutex::new(HashMap::new()));
+        if tokio::runtime::Handle::try_current().is_ok() {
+            let task_sinks = sinks.clone();
+            tokio::spawn(async move {
+                while let Some(event) = rx.recv().await {
+                    if let SamplingEvent::ChannelToken {
+                        request_id,
+                        channel: SamplingChannel::Text,
+                        text,
+                        ..
+                    } = event
+                    {
+                        let _ = lock(&task_sinks)
+                            .get(request_id.as_str())
+                            .map(|tx| tx.send(text));
+                    }
+                }
+            });
+        }
+        Self { sinks }
+    }
+
+    pub(crate) fn register(&self, request_id: &str, tx: mpsc::UnboundedSender<String>) {
+        lock(&self.sinks).insert(request_id.to_string(), tx);
+    }
+
+    pub(crate) fn unregister(&self, request_id: &str) {
+        lock(&self.sinks).remove(request_id);
+    }
+}
+
+/// RAII guard: unregisters a pump sink when `run_collect` returns *or* when
+/// its future is dropped (user cancel drops the provider future mid-await,
+/// which used to skip the manual `unregister` and leak the entry forever).
+pub(crate) struct PumpGuard<'a> {
+    pump: &'a DeltaPump,
+    request_id: String,
+}
+
+impl<'a> PumpGuard<'a> {
+    pub(crate) fn register(pump: &'a DeltaPump, request_id: &str, tx: mpsc::UnboundedSender<String>) -> Self {
+        pump.register(request_id, tx);
+        Self {
+            pump,
+            request_id: request_id.to_string(),
+        }
+    }
+}
+
+impl Drop for PumpGuard<'_> {
+    fn drop(&mut self) {
+        self.pump.unregister(&self.request_id);
+    }
 }
 
 /// A registered provider plus its config + display info.

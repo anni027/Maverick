@@ -54,6 +54,18 @@ pub struct MemoryStore {
     app_data_dir: PathBuf,
 }
 
+/// Serializes read-modify-write on the memory files. The background
+/// extractor, the `memory_save` / `memory_forget` tools and the Settings
+/// editor all rewrite the same Markdown; an unsynchronized read-then-write
+/// silently drops whichever bullet the other writer had just added.
+static MEMORY_WRITE_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
+fn memory_write_guard() -> std::sync::MutexGuard<'static, ()> {
+    MEMORY_WRITE_LOCK
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner())
+}
+
 impl MemoryStore {
     pub fn new(app_data_dir: PathBuf) -> Self {
         Self { app_data_dir }
@@ -129,6 +141,7 @@ impl MemoryStore {
         section: &str,
         bullets: &[String],
     ) -> Result<usize> {
+        let _guard = memory_write_guard();
         let path = match file_scope {
             MemoryFileScope::Global => self.global_path(),
             MemoryFileScope::Workspace => match workspace_dir {
@@ -195,6 +208,7 @@ impl MemoryStore {
         workspace_dir: Option<&Path>,
         pattern: &str,
     ) -> Result<usize> {
+        let _guard = memory_write_guard();
         let needle = pattern.trim().to_lowercase();
         if needle.is_empty() {
             return Ok(0);
@@ -215,14 +229,16 @@ impl MemoryStore {
                 continue;
             }
             let mut kept = Vec::new();
+            let mut file_removed = 0usize;
             for line in text.lines() {
                 if bullet_text(line).is_some_and(|b| b.to_lowercase().contains(&needle)) {
-                    removed += 1;
+                    file_removed += 1;
                 } else {
                     kept.push(line.to_string());
                 }
             }
-            if removed > 0 {
+            if file_removed > 0 {
+                removed += file_removed;
                 let mut out = kept.join("\n");
                 out.push('\n');
                 Self::write_text(&path, &out)?;
@@ -238,6 +254,7 @@ impl MemoryStore {
         workspace_dir: Option<&Path>,
         text: &str,
     ) -> Result<()> {
+        let _guard = memory_write_guard();
         let path = match file_scope {
             MemoryFileScope::Global => self.global_path(),
             MemoryFileScope::Workspace => match workspace_dir {
@@ -255,6 +272,7 @@ impl MemoryStore {
         only_workspace: bool,
         workspace_dir: Option<&Path>,
     ) -> Result<()> {
+        let _guard = memory_write_guard();
         if !only_workspace {
             let _ = std::fs::remove_file(self.global_path());
         }
@@ -779,6 +797,40 @@ mod tests {
         let text = MemoryStore::read_text(&store.global_path());
         assert!(!text.to_lowercase().contains("typescript"));
         assert!(text.contains("User loves Rust"));
+    }
+
+    #[test]
+    fn concurrent_appends_all_land() {
+        // Regression: the read-modify-write in `append_bullets` used to race,
+        // so parallel writers (extraction + tools + Settings) overwrote each
+        // other's bullets.
+        let store = test_store("concurrent");
+        let handles: Vec<_> = (0..4)
+            .map(|i| {
+                let store = store.clone();
+                std::thread::spawn(move || {
+                    store
+                        .append_bullets(
+                            MemoryFileScope::Global,
+                            None,
+                            "Facts",
+                            &[format!("fact from thread {i}")],
+                        )
+                        .unwrap()
+                })
+            })
+            .collect();
+        for h in handles {
+            h.join().unwrap();
+        }
+        let text = MemoryStore::read_text(&store.global_path());
+        for i in 0..4 {
+            assert!(
+                text.contains(&format!("fact from thread {i}")),
+                "lost a bullet:\n{text}"
+            );
+        }
+        assert_eq!(count_bullets(&text), 4);
     }
 
     #[test]

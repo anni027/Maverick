@@ -92,7 +92,7 @@ export default function ComposerPlusMenu({ sessionId, onAttach, onInsertSkill, o
     setErr(null);
     setLoading(true);
     try {
-      setEntries(await invoke<WorkspaceEntry[]>('list_workspace_files', { path, sessionId }));
+      setEntries(await invoke<WorkspaceEntry[]>('list_workspace_files', { path, session_id: sessionId }));
     } catch (e) {
       setEntries([]);
       setErr(String(e));
@@ -146,7 +146,7 @@ export default function ComposerPlusMenu({ sessionId, onAttach, onInsertSkill, o
     try {
       const r = await invoke<{ path: string; content: string; size: number; truncated: boolean }>(
         'read_workspace_file',
-        { path: entry.path, sessionId },
+        { path: entry.path, session_id: sessionId },
       );
       const content = r.truncated ? `${r.content}\n…[truncated at 24 KB]` : r.content;
       onAttach({ id: mkId(), name: r.path, size: r.size, content });

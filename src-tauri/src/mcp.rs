@@ -8,8 +8,10 @@
 //! papered over with a placeholder tool.
 
 use std::sync::Arc;
+use std::sync::OnceLock;
 
 use anyhow::Result;
+use tokio::sync::mpsc;
 use tokio::sync::Mutex as TokioMutex;
 use xai_grok_mcp::servers::{McpSpawnCtx, McpState, start_mcp_server};
 use xai_grok_session_events::EventWriter;
@@ -22,6 +24,66 @@ pub struct McpHandshake {
     pub server_name: String,
     pub mcp_state: Arc<TokioMutex<McpState>>,
     pub tools: Vec<String>,
+}
+
+/// A `'static` future run on the MCP thread. May be `!Send` — the rmcp
+/// handshake transport contains raw pointers.
+pub(crate) type McpLocalFuture<T> =
+    std::pin::Pin<Box<dyn std::future::Future<Output = T> + 'static>>;
+type McpJob = Box<dyn FnOnce() -> McpLocalFuture<()> + Send>;
+
+static MCP_TX: OnceLock<mpsc::UnboundedSender<McpJob>> = OnceLock::new();
+
+fn mcp_tx() -> &'static mpsc::UnboundedSender<McpJob> {
+    MCP_TX.get_or_init(|| {
+        let (tx, mut rx) = mpsc::unbounded_channel::<McpJob>();
+        std::thread::Builder::new()
+            .name("mcp-runtime".to_string())
+            .spawn(move || {
+                let rt = tokio::runtime::Builder::new_current_thread()
+                    .enable_all()
+                    .build()
+                    .expect("MCP runtime build");
+                let local = tokio::task::LocalSet::new();
+                local.spawn_local(async move {
+                    while let Some(job) = rx.recv().await {
+                        tokio::task::spawn_local(job());
+                    }
+                });
+                rt.block_on(local);
+            })
+            .expect("spawn MCP runtime thread");
+        tx
+    })
+}
+
+/// Run `make()`'s future on the dedicated, process-lifetime MCP thread and
+/// await its result.
+///
+/// rmcp's `serve()` spawns the transport's service loop on the *current*
+/// runtime. Handshakes that ran on a throwaway `current_thread` runtime left
+/// the loop orphaned the moment that runtime was dropped, so every registered
+/// tool later hit a closed transport. This thread outlives registration, so
+/// the loop survives.
+pub(crate) async fn on_mcp_thread<T, F>(make: F) -> Result<T, String>
+where
+    T: Send + 'static,
+    F: FnOnce() -> McpLocalFuture<T> + Send + 'static,
+{
+    let (reply_tx, reply_rx) = tokio::sync::oneshot::channel();
+    let job: McpJob = Box::new(move || {
+        let fut = make();
+        Box::pin(async move {
+            let out = fut.await;
+            let _ = reply_tx.send(out);
+        })
+    });
+    mcp_tx()
+        .send(job)
+        .map_err(|_| "MCP runtime thread is gone".to_string())?;
+    reply_rx
+        .await
+        .map_err(|_| "MCP runtime dropped the reply".to_string())
 }
 
 /// Run a real handshake for a stdio server and register everything it exposes.
@@ -201,7 +263,10 @@ pub async fn get_mcp_status(
         .collect()
 }
 
-/// Marketplace scaffold — lists popular MCP servers + hub skills as marketplace entries
+/// Curated starter list of well-known MCP servers. This is *not* a live
+/// marketplace: the entries are hand-written, so nothing here reports
+/// popularity, versions or availability. Install adds the config shown, which
+/// the user can then edit (paths, tokens) in the MCP section.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct MarketplaceEntry {
     pub name: String,
@@ -211,76 +276,53 @@ pub struct MarketplaceEntry {
     pub args: Vec<String>,
     pub url: Option<String>,
     pub category: String,
-    pub install_count: Option<u32>,
 }
 
 pub fn scan_marketplace() -> Vec<MarketplaceEntry> {
-    vec![
-        MarketplaceEntry {
-            name: "filesystem".to_string(),
-            description: "Secure file operations within allowed directories".to_string(),
+    let npx = |pkg: &str, extra: Vec<String>| -> (Option<String>, Vec<String>) {
+        let mut args = vec!["-y".to_string(), pkg.to_string()];
+        args.extend(extra);
+        (Some("npx".to_string()), args)
+    };
+    let entries: Vec<(&str, &str, &str, (Option<String>, Vec<String>))> = vec![
+        (
+            "filesystem",
+            "File operations, scoped to the directory listed in the args (edit it after install)",
+            "Storage",
+            npx(
+                "@modelcontextprotocol/server-filesystem",
+                vec![std::env::temp_dir().to_string_lossy().into_owned()],
+            ),
+        ),
+        (
+            "github",
+            "GitHub repository, issues, and PR management (needs GITHUB_TOKEN in the server env)",
+            "Development",
+            npx("@modelcontextprotocol/server-github", vec![]),
+        ),
+        (
+            "brave-search",
+            "Web search via Brave API (needs BRAVE_API_KEY in the server env)",
+            "Search",
+            npx("@modelcontextprotocol/server-brave-search", vec![]),
+        ),
+        (
+            "memory",
+            "Knowledge-graph persistent memory",
+            "Memory",
+            npx("@modelcontextprotocol/server-memory", vec![]),
+        ),
+    ];
+    entries
+        .into_iter()
+        .map(|(name, description, category, (command, args))| MarketplaceEntry {
+            name: name.to_string(),
+            description: description.to_string(),
             transport: "stdio".to_string(),
-            command: Some("npx".to_string()),
-            args: vec![
-                "-y".to_string(),
-                "@modelcontextprotocol/server-filesystem".to_string(),
-                "/tmp".to_string(),
-            ],
+            command,
+            args,
             url: None,
-            category: "Storage".to_string(),
-            install_count: Some(15234),
-        },
-        MarketplaceEntry {
-            name: "github".to_string(),
-            description: "GitHub repository, issues, and PR management".to_string(),
-            transport: "stdio".to_string(),
-            command: Some("npx".to_string()),
-            args: vec![
-                "-y".to_string(),
-                "@modelcontextprotocol/server-github".to_string(),
-            ],
-            url: None,
-            category: "Development".to_string(),
-            install_count: Some(8934),
-        },
-        MarketplaceEntry {
-            name: "brave-search".to_string(),
-            description: "Web search via Brave API".to_string(),
-            transport: "stdio".to_string(),
-            command: Some("npx".to_string()),
-            args: vec![
-                "-y".to_string(),
-                "@modelcontextprotocol/server-brave-search".to_string(),
-            ],
-            url: None,
-            category: "Search".to_string(),
-            install_count: Some(5211),
-        },
-        MarketplaceEntry {
-            name: "memory".to_string(),
-            description: "Knowledge graph-based persistent memory".to_string(),
-            transport: "stdio".to_string(),
-            command: Some("npx".to_string()),
-            args: vec![
-                "-y".to_string(),
-                "@modelcontextprotocol/server-memory".to_string(),
-            ],
-            url: None,
-            category: "Memory".to_string(),
-            install_count: Some(3421),
-        },
-        MarketplaceEntry {
-            name: "fetch".to_string(),
-            description: "Fetch and convert web content".to_string(),
-            transport: "stdio".to_string(),
-            command: Some("npx".to_string()),
-            args: vec![
-                "-y".to_string(),
-                "@modelcontextprotocol/server-fetch".to_string(),
-            ],
-            url: None,
-            category: "Web".to_string(),
-            install_count: Some(7210),
-        },
-    ]
+            category: category.to_string(),
+        })
+        .collect()
 }

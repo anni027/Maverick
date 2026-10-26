@@ -1,0 +1,25 @@
+# Pin working-tree line endings to LF so the checked-out bytes are identical to
+# the stored bytes. The repo is configured with `core.autocrlf=true`; without a
+# pinned attribute git reports a `stat()` size for a modified file that differs
+# from the file actually on disk (it will normalize to CRLF "next time it
+# touches" the file). That mismatch trips byte-for-byte tooling that stats a
+# file before and after reading it — most visibly the secret-scan snapshot in
+# autoreview, which aborts on "file changed while reading".
+#
+# The stored blobs are already LF, so this changes no content; it only makes
+# the working copy byte-identical to the blob from the start.
+* text=auto eol=lf
+
+# Binary assets must never be line-ending-converted.
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.pdf  binary
+*.zip  binary
+*.gz   binary
+*.woff  binary
+*.woff2 binary
+*.ttf  binary
+*.eot  binary

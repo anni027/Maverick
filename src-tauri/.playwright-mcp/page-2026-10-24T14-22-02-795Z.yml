@@ -1,0 +1,49 @@
+- generic [ref=f1372e2]:
+  - generic [ref=f1372e3]:
+    - generic [ref=f1372e4]:
+      - generic [ref=f1372e5]:
+        - button "About" [ref=f1372e6] [cursor=pointer]
+        - button "Report a bug" [ref=f1372e7] [cursor=pointer]
+        - button "Learn" [ref=f1372e8] [cursor=pointer]
+        - button "Blog" [ref=f1372e9] [cursor=pointer]
+        - button "API" [ref=f1372e10] [cursor=pointer]
+        - button [ref=f1372e11] [cursor=pointer]
+        - button [ref=f1372e14] [cursor=pointer]
+        - button [ref=f1372e17] [cursor=pointer]
+      - generic [ref=f1372e21]:
+        - generic [ref=f1372e22]:
+          - button "File" [ref=f1372e23]
+          - button "Edit" [ref=f1372e24]
+          - button "Image" [ref=f1372e25]
+          - button "Layer" [ref=f1372e26]
+          - button "Select" [ref=f1372e27]
+          - button "Filter" [ref=f1372e28]
+          - button "View" [ref=f1372e29]
+          - button "Window" [ref=f1372e30]
+          - button "More" [ref=f1372e31]
+        - generic [ref=f1372e32]:
+          - button "Account" [ref=f1372e33]
+          - button "Find" [ref=f1372e34]
+          - button "Fullscreen" [ref=f1372e35]
+    - generic [ref=f1372e46]:
+      - generic [ref=f1372e47]:
+        - generic [ref=f1372e48] [cursor=pointer]: Home
+        - generic [ref=f1372e50] [cursor=pointer]: This Device
+        - generic [ref=f1372e52] [cursor=pointer]: PeaDrive
+        - generic [ref=f1372e54] [cursor=pointer]: Dropbox
+        - generic [ref=f1372e56] [cursor=pointer]: OneDrive
+        - generic [ref=f1372e58] [cursor=pointer]: Google Drive
+        - generic [ref=f1372e60] [cursor=pointer]: Pick any File
+        - generic [ref=f1372e62] [cursor=pointer]: PeaGames
+        - generic [ref=f1372e64] [cursor=pointer]: Photopea
+        - generic [ref=f1372e66] [cursor=pointer]: Vectorpea
+        - generic [ref=f1372e68] [cursor=pointer]: Jampea
+      - generic [ref=f1372e72]:
+        - generic [ref=f1372e75]:
+          - generic [ref=f1372e76] [cursor=pointer]: New Project
+          - generic [ref=f1372e78] [cursor=pointer]: Open From Computer
+          - generic [ref=f1372e80] [cursor=pointer]: Templates
+          - generic [ref=f1372e82] [cursor=pointer]: Generate
+          - generic [ref=f1372e84] [cursor=pointer]: Video?
+        - generic [ref=f1372e86]: Drop any files here
+  - button [ref=f1372e172]

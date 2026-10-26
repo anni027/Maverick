@@ -1,10 +1,10 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   darkMode: ['class'],
-  // Preflight stays OFF: nexus's element-level CSS (button/input/scrollbar)
-  // predates Tailwind and must not be reset underneath the legacy UI. New
-  // components opt into utilities explicitly.
-  core: { preflight: false },
+  // Preflight is left ON. An earlier `core: { preflight: false }` here was a
+  // no-op (`core` is not a Tailwind 3 key; `corePlugins` is), so the UI has
+  // always rendered with the base reset — turning it off now would be a
+  // visual change, not a fix.
   content: [
     './index.html',
     './src/**/*.{ts,tsx}',

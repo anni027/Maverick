@@ -1,0 +1,180 @@
+- generic [ref=f1372e2]:
+  - generic [ref=f1372e3]:
+    - generic [ref=f1372e4]:
+      - generic [ref=f1372e5]:
+        - button "About" [ref=f1372e6] [cursor=pointer]
+        - button "Report a bug" [ref=f1372e7] [cursor=pointer]
+        - button "Learn" [ref=f1372e8] [cursor=pointer]
+        - button "Blog" [ref=f1372e9] [cursor=pointer]
+        - button "API" [ref=f1372e10] [cursor=pointer]
+        - button [ref=f1372e11] [cursor=pointer]
+        - button [ref=f1372e14] [cursor=pointer]
+        - button [ref=f1372e17] [cursor=pointer]
+      - generic [ref=f1372e20]:
+        - generic [ref=f1372e21]:
+          - generic [ref=f1372e22]:
+            - button "File" [ref=f1372e23]
+            - button "Edit" [ref=f1372e24]
+            - button "Image" [ref=f1372e25]
+            - button "Layer" [ref=f1372e26]
+            - button "Select" [ref=f1372e27]
+            - button "Filter" [ref=f1372e28]
+            - button "View" [ref=f1372e29]
+            - button "Window" [ref=f1372e30]
+            - button "More" [ref=f1372e31]
+          - generic [ref=f1372e32]:
+            - button "Account" [ref=f1372e33]
+            - button "Find" [ref=f1372e34]
+            - button "Fullscreen" [ref=f1372e35]
+        - generic [ref=f1372e192]:
+          - generic [ref=f1372e193]:
+            - checkbox "Auto-Select" [checked] [ref=f1372e194]
+            - text: Auto-Select
+          - combobox [ref=f1372e196]:
+            - option "Folder"
+            - option "Layer" [selected]
+          - generic [ref=f1372e197]:
+            - checkbox "Transform controls" [ref=f1372e198]
+            - text: Transform controls
+          - generic [ref=f1372e199]:
+            - checkbox "Distances" [ref=f1372e200]
+            - text: Distances
+          - button "Save selected layers" [ref=f1372e201]
+          - generic [ref=f1372e204]:
+            - generic [ref=f1372e205]:
+              - button "Align Left Edges" [ref=f1372e206]
+              - button "Center Horizontally" [ref=f1372e207]
+              - button "Align Right Edges" [ref=f1372e208]
+              - button "Equal Gaps" [ref=f1372e209]
+            - generic [ref=f1372e210]:
+              - button "Align Top Edges" [ref=f1372e211]
+              - button "Center Vertically" [ref=f1372e212]
+              - button "Align Bottom Edges" [ref=f1372e213]
+              - button "Equal Gaps" [ref=f1372e214]
+            - button "..." [ref=f1372e215]
+            - button "Align to a Grid" [ref=f1372e216]
+    - generic [ref=f1372e41]:
+      - generic [ref=f1372e218]:
+        - button "Move Tool (V)" [ref=f1372e219]
+        - button "Rectangle Select (M)" [ref=f1372e221]
+        - button "Magic Wand (W)" [ref=f1372e223]
+        - button "Crop Tool (C)" [ref=f1372e225]
+        - button "Eyedropper (I)" [ref=f1372e227]
+        - button "Spot Healing Brush Tool (J)" [ref=f1372e229]
+        - button "Brush Tool (B)" [ref=f1372e231]
+        - button "Clone Tool (S)" [ref=f1372e233]
+        - button "Eraser Tool (E)" [ref=f1372e234]
+        - button "Gradient Tool (G)" [ref=f1372e236]
+        - button "Blur Tool" [ref=f1372e238]
+        - button "Dodge Tool (O)" [ref=f1372e240]
+        - button "Type Tool (T)" [ref=f1372e242]
+        - button "Pen (P)" [ref=f1372e244]
+        - button "Path Select (A)" [ref=f1372e246]
+        - button "Rectangle (U)" [ref=f1372e248]
+        - button "Hand Tool (H)" [ref=f1372e250]
+        - button "Zoom Tool (Z)" [ref=f1372e252]
+        - generic [ref=f1372e253] [cursor=pointer]
+        - button "Virtual Keys" [ref=f1372e254]
+      - generic "75c77132-eef0-442e-9f98-76d04b295e89.png" [ref=f1372e390]:
+        - generic: 75c77132-eef0-442 *
+        - generic [ref=f1372e257] [cursor=pointer]
+      - generic [ref=f1372e260]:
+        - generic [ref=f1372e261]:
+          - generic [ref=f1372e262] [cursor=pointer]: < >
+          - generic [ref=f1372e263]:
+            - generic [ref=f1372e265]:
+              - button "Info" [ref=f1372e266]
+              - button "Properties" [ref=f1372e268]
+            - button "Brush" [ref=f1372e272]
+            - generic [ref=f1372e275]:
+              - button "Character" [ref=f1372e276]
+              - button "Paragraph" [ref=f1372e278]
+            - generic [ref=f1372e281]:
+              - button "CSS" [ref=f1372e282]
+              - button "Gallery" [ref=f1372e284]
+        - generic [ref=f1372e286]:
+          - generic [ref=f1372e287] [cursor=pointer]: "> <"
+          - generic [ref=f1372e288]:
+            - generic [ref=f1372e290]:
+              - generic [ref=f1372e291]:
+                - generic "History" [ref=f1372e292]
+                - generic "Swatches" [ref=f1372e293]
+                - button "≡" [ref=f1372e294]
+              - generic [ref=f1372e297]:
+                - generic [ref=f1372e396] [cursor=pointer]: Open
+                - generic [ref=f1372e397] [cursor=pointer]: Canvas Size
+                - generic [ref=f1372e398] [cursor=pointer]: New Layer
+            - generic [ref=f1372e300]:
+              - generic [ref=f1372e301]:
+                - generic "Layers" [ref=f1372e302]
+                - generic "Channels" [ref=f1372e303]
+                - generic "Paths" [ref=f1372e304]
+                - button "≡" [ref=f1372e305]
+              - generic [ref=f1372e307]:
+                - generic [ref=f1372e308]:
+                  - combobox [ref=f1372e310]:
+                    - option "Normal" [selected]
+                    - option "Dissolve"
+                    - option [disabled]
+                    - option "Darken"
+                    - option "Multiply"
+                    - option "Color Burn"
+                    - option "Linear Burn"
+                    - option "Darker Color"
+                    - option [disabled]
+                    - option "Lighten"
+                    - option "Screen"
+                    - option "Color Dodge"
+                    - option "Linear Dodge"
+                    - option "Lighter Color"
+                    - option [disabled]
+                    - option "Overlay"
+                    - option "Soft Light"
+                    - option "Hard Light"
+                    - option "Vivid Light"
+                    - option "Linear Light"
+                    - option "Pin Light"
+                    - option "Hard Mix"
+                    - option [disabled]
+                    - option "Difference"
+                    - option "Exclusion"
+                    - option "Subtract"
+                    - option "Divide"
+                    - option [disabled]
+                    - option "Hue"
+                    - option "Saturation"
+                    - option "Color"
+                    - option "Luminosity"
+                  - generic [ref=f1372e311]:
+                    - text: "Opacity:"
+                    - textbox "Opacity:" [ref=f1372e312]: 100%
+                    - button "▼" [ref=f1372e313]
+                  - generic [ref=f1372e314]:
+                    - text: "Lock:"
+                    - button "Lock:" [ref=f1372e315]
+                    - button "Pixels" [ref=f1372e317]
+                    - button "Position" [ref=f1372e319]
+                    - button "All" [ref=f1372e321]
+                  - generic [ref=f1372e323]:
+                    - text: "Fill:"
+                    - textbox "Fill:" [ref=f1372e324]: 100%
+                    - button "▼" [ref=f1372e325]
+                - generic [ref=f1372e326]:
+                  - generic [ref=f1372e399] [cursor=pointer]: Layer 1
+                  - generic [ref=f1372e405] [cursor=pointer]: Background
+                - generic [ref=f1372e333]:
+                  - button "Link Layers" [ref=f1372e334]
+                  - button "Layer Style" [ref=f1372e335]
+                  - button "Add Raster Mask" [ref=f1372e338]
+                  - button "New Adjustment Layer" [ref=f1372e339]
+                  - button "New Folder" [ref=f1372e342]
+                  - button "New Layer" [ref=f1372e343]
+                  - button "Delete" [ref=f1372e344]
+  - generic [ref=f1372e87]:
+    - generic [ref=f1372e411]:
+      - iframe
+    - generic [ref=f1372e412]:
+      - iframe
+    - generic [ref=f1372e413]:
+      - iframe
+    - button [ref=f1372e172]

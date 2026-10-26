@@ -1,0 +1,893 @@
+- generic [active] [ref=f2e1]:
+  - generic:
+    - generic:
+      - link "Skip to main content" [ref=f2e2] [cursor=pointer]
+      - link "Accessibility help" [ref=f2e3] [cursor=pointer]:
+        - /url: https://support.google.com/websearch/answer/181196?hl=en-IN
+  - generic [ref=f2e8]:
+    - search [ref=f2e9]:
+      - generic [ref=f2e11]:
+        - link "Go to Google Home" [ref=f2e13] [cursor=pointer]:
+          - /url: https://www.google.com/webhp?hl=en&sa=X&ved=2ahUKEwii79Km5tKXAxW3PDQIHZLvPKMQPHoECAYQBA
+        - generic [ref=f2e22]:
+          - combobox "Search" [ref=f2e24]: best phones under 40000 india 2024 best phones under 40000 india 2024
+          - generic [ref=f2e25]:
+            - button "Clear" [ref=f2e29] [cursor=pointer]
+            - generic [ref=f2e34]:
+              - button "Search by voice" [ref=f2e37] [cursor=pointer]
+              - button "Search by image" [ref=f2e42] [cursor=pointer]
+    - generic [ref=f2e45]:
+      - button "Settings" [ref=f2e47] [cursor=pointer]
+      - button "Share" [ref=f2e52] [cursor=pointer]
+      - generic [ref=f2e58]:
+        - button "Google apps" [ref=f2e60] [cursor=pointer]
+        - link "Sign in" [ref=f2e65] [cursor=pointer]:
+          - /url: https://accounts.google.com/ServiceLogin?hl=en&passive=true&continue=https://www.google.com/search%3Fq%3Dbest%2Bphones%2Bunder%2B40000%2Bindia%2B2024%26sei%3D4Lfcaq2LOrig0PEPgLvV4A0&ec=futura_srp_og_si_72236_p
+  - generic [ref=f2e67]:
+    - navigation [ref=f2e73]:
+      - generic [ref=f2e79]:
+        - list [ref=f2e80]:
+          - listitem [ref=f2e81]:
+            - link "AI Mode" [ref=f2e84] [cursor=pointer]:
+              - /url: /search?q=best+phones+under+40000+india+2024&sca_esv=2a5db33bad1934b5&sxsrf=APpeQnswLOtH_RzrVNJjLq0Oah07tjRoaQ:1792849890049&udm=50&fbs=ABfTbFVyMZGZf1hfvX9uKjN_-G8cqCQj_06QnZs315LoFmPf5biSOxE8oEpeIrm3MXx-GrVbhsHZuZQcwju7cC5aYiuve2NpuQVaPk50KTOyFAsJD1E9s0neSLh4HswEKpXBrVuCBQg1Cpa-vDNZIxcquG80iLi5_gxS_5ZHqoe9i_6i3r_-enpKaCnL11dJENJqEWABFQDTPp0zSI4EJiVHJgyTE7mQnA&vsint=&aep=1&ntc=1&cs=0&sa=X&ved=2ahUKEwii79Km5tKXAxW3PDQIHZLvPKMQ2J8OegQIERAD
+          - listitem [ref=f2e88]:
+            - link "All" [disabled] [ref=f2e89]
+          - listitem [ref=f2e92]:
+            - link "Shopping" [ref=f2e93] [cursor=pointer]:
+              - /url: /search?sca_esv=2a5db33bad1934b5&sxsrf=APpeQnswLOtH_RzrVNJjLq0Oah07tjRoaQ:1792849890049&udm=28&fbs=ABfTbFVyMZGZf1hfvX9uKjN_-G8cqCQj_06QnZs315LoFmPf5biSOxE8oEpeIrm3MXx-GrVbhsHZuZQcwju7cC5aYiuve2NpuQVaPk50KTOyFAsJD1E9s0neSLh4HswEKpXBrVuCBQg1Cpa-vDNZIxcquG80iLi5_gxS_5ZHqoe9i_6i3r_-enpKaCnL11dJENJqEWABFQDTPp0zSI4EJiVHJgyTE7mQnA&q=best+phones+under+40000+india+2024&ved=1t:220175&ictx=111
+          - listitem [ref=f2e96]:
+            - link "Short videos" [ref=f2e97] [cursor=pointer]:
+              - /url: /search?sca_esv=2a5db33bad1934b5&sxsrf=APpeQnswLOtH_RzrVNJjLq0Oah07tjRoaQ:1792849890049&udm=short_vids&fbs=ABfTbFVyMZGZf1hfvX9uKjN_-G8cqCQj_06QnZs315LoFmPf5biSOxE8oEpeIrm3MXx-GrVbhsHZuZQcwju7cC5aYiuve2NpuQVaPk50KTOyFAsJD1E9s0neSLh4HswEKpXBrVuCBQg1Cpa-vDNZIxcquG80iLi5_gxS_5ZHqoe9i_6i3r_-enpKaCnL11dJENJqEWABFQDTPp0zSI4EJiVHJgyTE7mQnA&q=best+phones+under+40000+india+2024&sa=X&ved=2ahUKEwii79Km5tKXAxW3PDQIHZLvPKMQs6gLegQIHhAB
+          - listitem [ref=f2e100]:
+            - link "Images" [ref=f2e101] [cursor=pointer]:
+              - /url: /search?sca_esv=2a5db33bad1934b5&sxsrf=APpeQnswLOtH_RzrVNJjLq0Oah07tjRoaQ:1792849890049&udm=2&fbs=ABfTbFVyMZGZf1hfvX9uKjN_-G8cqCQj_06QnZs315LoFmPf5biSOxE8oEpeIrm3MXx-GrVbhsHZuZQcwju7cC5aYiuve2NpuQVaPk50KTOyFAsJD1E9s0neSLh4HswEKpXBrVuCBQg1Cpa-vDNZIxcquG80iLi5_gxS_5ZHqoe9i_6i3r_-enpKaCnL11dJENJqEWABFQDTPp0zSI4EJiVHJgyTE7mQnA&q=best+phones+under+40000+india+2024&sa=X&ved=2ahUKEwii79Km5tKXAxW3PDQIHZLvPKMQtKgLegQIIRAB
+          - listitem [ref=f2e104]:
+            - link "Videos" [ref=f2e105] [cursor=pointer]:
+              - /url: /search?sca_esv=2a5db33bad1934b5&sxsrf=APpeQnswLOtH_RzrVNJjLq0Oah07tjRoaQ:1792849890049&udm=vids&fbs=ABfTbFVyMZGZf1hfvX9uKjN_-G8cqCQj_06QnZs315LoFmPf5biSOxE8oEpeIrm3MXx-GrVbhsHZuZQcwju7cC5aYiuve2NpuQVaPk50KTOyFAsJD1E9s0neSLh4HswEKpXBrVuCBQg1Cpa-vDNZIxcquG80iLi5_gxS_5ZHqoe9i_6i3r_-enpKaCnL11dJENJqEWABFQDTPp0zSI4EJiVHJgyTE7mQnA&q=best+phones+under+40000+india+2024&sa=X&ved=2ahUKEwii79Km5tKXAxW3PDQIHZLvPKMQtKgLegQIJBAB
+          - listitem [ref=f2e108]:
+            - link "Forums" [ref=f2e109] [cursor=pointer]:
+              - /url: /search?sca_esv=2a5db33bad1934b5&sxsrf=APpeQnswLOtH_RzrVNJjLq0Oah07tjRoaQ:1792849890049&udm=forums&fbs=ABfTbFVyMZGZf1hfvX9uKjN_-G8cqCQj_06QnZs315LoFmPf5biSOxE8oEpeIrm3MXx-GrVbhsHZuZQcwju7cC5aYiuve2NpuQVaPk50KTOyFAsJD1E9s0neSLh4HswEKpXBrVuCBQg1Cpa-vDNZIxcquG80iLi5_gxS_5ZHqoe9i_6i3r_-enpKaCnL11dJENJqEWABFQDTPp0zSI4EJiVHJgyTE7mQnA&q=best+phones+under+40000+india+2024&sa=X&ved=2ahUKEwii79Km5tKXAxW3PDQIHZLvPKMQs6gLegQIIxAB
+          - listitem [ref=f2e112]:
+            - button [ref=f2e113] [cursor=pointer]:
+              - generic "More filters" [ref=f2e114]: More
+        - button "Tools" [ref=f2e121] [cursor=pointer]
+    - heading "Search Results" [level=1] [ref=f2e128]
+    - navigation "Refinement" [ref=f2e136]:
+      - generic [ref=f2e138]:
+        - list [ref=f2e140]:
+          - list [ref=f2e141]:
+            - button "All filters." [ref=f2e142] [cursor=pointer]
+            - listitem [ref=f2e146] [cursor=pointer]:
+              - link "Samsung filter. Not selected." [ref=f2e147]:
+                - /url: /search?q=samsung+best+phones+under+40000+india+2024&shoprs=GAEqImJlc3QgcGhvbmVzIHVuZGVyIDQwMDAwIGluZGlhIDIwMjQyFwgBEgdTYW1zdW5nOgoIg_M8EO7mPTABWImqIGAB&sa=X&ved=2ahUKEwii79Km5tKXAxW3PDQIHZLvPKMQip4GKAF6BQgrEIUB
+                - generic [aria-hidden] [ref=f2e149]: Samsung
+            - listitem [ref=f2e150] [cursor=pointer]:
+              - link "5G filter. Not selected." [ref=f2e151]:
+                - /url: /search?q=5g+best+phones+under+40000+india+2024&shoprs=GAEqImJlc3QgcGhvbmVzIHVuZGVyIDQwMDAwIGluZGlhIDIwMjQyFAgBEgI1RzoMCLej8AEQuqPwATAAWImqIGAB&sa=X&ved=2ahUKEwii79Km5tKXAxW3PDQIHZLvPKMQip4GKAJ6BQgrEIYB
+                - generic [aria-hidden] [ref=f2e153]: 5G
+            - listitem [ref=f2e154] [cursor=pointer]:
+              - link "OnePlus filter. Not selected." [ref=f2e155]:
+                - /url: /search?q=oneplus+best+phones+under+40000+india+2024&shoprs=GAEqImJlc3QgcGhvbmVzIHVuZGVyIDQwMDAwIGluZGlhIDIwMjQyFwgBEgdPbmVQbHVzOgoIg_M8ENLUPjABWImqIGAB&sa=X&ved=2ahUKEwii79Km5tKXAxW3PDQIHZLvPKMQip4GKAN6BQgrEIcB
+                - generic [aria-hidden] [ref=f2e157]: OnePlus
+            - listitem [ref=f2e158] [cursor=pointer]:
+              - link "Under ₹20,000 filter. Not selected." [ref=f2e159]:
+                - /url: /search?q=best+phones+under+40000+india+2024+under+20000&shoprs=Eg0SCxEAAAAAX6ASQhgBGAUqImJlc3QgcGhvbmVzIHVuZGVyIDQwMDAwIGluZGlhIDIwMjQyKAgFEg9VbmRlciDigrkyMCwwMDAYAiINEgsRAAAAAF-gEkIYASoCGAFYiaogYAE&sa=X&ved=2ahUKEwii79Km5tKXAxW3PDQIHZLvPKMQip4GKAR6BQgrEIgB
+                - generic [aria-hidden] [ref=f2e161]: Under ₹20,000
+            - listitem [ref=f2e162] [cursor=pointer]:
+              - link "Price filter. Not selected." [ref=f2e163]:
+                - /url: /search?q=price+best+phones+under+40000+india+2024&shoprs=GBIqImJlc3QgcGhvbmVzIHVuZGVyIDQwMDAwIGluZGlhIDIwMjQyCQgSEgVQcmljZWAB&sa=X&ved=2ahUKEwii79Km5tKXAxW3PDQIHZLvPKMQip4GKAV6BQgrEIkB
+                - generic [aria-hidden] [ref=f2e165]: Price
+            - listitem [ref=f2e166] [cursor=pointer]:
+              - link "Motorola filter. Not selected." [ref=f2e167]:
+                - /url: /search?q=motorola+best+phones+under+40000+india+2024&shoprs=GAEqImJlc3QgcGhvbmVzIHVuZGVyIDQwMDAwIGluZGlhIDIwMjQyGAgBEghNb3Rvcm9sYToKCIPzPBDX3z0wAViJqiBgAQ&sa=X&ved=2ahUKEwii79Km5tKXAxW3PDQIHZLvPKMQip4GKAZ6BQgrEIoB
+                - generic [aria-hidden] [ref=f2e169]: Motorola
+            - listitem [ref=f2e170] [cursor=pointer]:
+              - link "Xiaomi filter. Not selected." [ref=f2e171]:
+                - /url: /search?q=xiaomi+best+phones+under+40000+india+2024&shoprs=GAEqImJlc3QgcGhvbmVzIHVuZGVyIDQwMDAwIGluZGlhIDIwMjQyFggBEgZYaWFvbWk6CgiD8zwQttQ-MAFYiaogYAE&sa=X&ved=2ahUKEwii79Km5tKXAxW3PDQIHZLvPKMQip4GKAd6BQgrEIsB
+                - generic [aria-hidden] [ref=f2e173]: Xiaomi
+            - listitem [ref=f2e174] [cursor=pointer]:
+              - link "4G filter. Not selected." [ref=f2e175]:
+                - /url: /search?q=4g+best+phones+under+40000+india+2024&shoprs=GAEqImJlc3QgcGhvbmVzIHVuZGVyIDQwMDAwIGluZGlhIDIwMjQyFAgBEgI0RzoMCLej8AEQuaPwATAAWImqIGAB&sa=X&ved=2ahUKEwii79Km5tKXAxW3PDQIHZLvPKMQip4GKAh6BQgrEIwB
+                - generic [aria-hidden] [ref=f2e177]: 4G
+            - listitem [ref=f2e178] [cursor=pointer]:
+              - link "Fingerprint Scanner filter. Not selected." [ref=f2e179]:
+                - /url: /search?q=fingerprint+scanner+best+phones+under+40000+india+2024&shoprs=GAEqImJlc3QgcGhvbmVzIHVuZGVyIDQwMDAwIGluZGlhIDIwMjQyIwgBEhNGaW5nZXJwcmludCBTY2FubmVyOgoIuP1pELv9aTAAWImqIGAB&sa=X&ved=2ahUKEwii79Km5tKXAxW3PDQIHZLvPKMQip4GKAl6BQgrEI0B
+                - generic [aria-hidden] [ref=f2e181]: Fingerprint Scanner
+            - listitem [ref=f2e182] [cursor=pointer]:
+              - link "With Fast Charging filter. Not selected." [ref=f2e183]:
+                - /url: /search?q=best+phones+under+40000+india+2024+with+fast+charging&shoprs=GAEqImJlc3QgcGhvbmVzIHVuZGVyIDQwMDAwIGluZGlhIDIwMjQyJggBEhJXaXRoIEZhc3QgQ2hhcmdpbmcYAjoMCO6u6gEQ767qATADWImqIGAB&sa=X&ved=2ahUKEwii79Km5tKXAxW3PDQIHZLvPKMQip4GKAp6BQgrEI4B
+                - generic [aria-hidden] [ref=f2e185]: With Fast Charging
+            - listitem [ref=f2e186] [cursor=pointer]:
+              - link "18 GB filter. Not selected." [ref=f2e187]:
+                - /url: /search?q=18+gb+best+phones+under+40000+india+2024&shoprs=EhoqGAirhD0SEgkAAAAAAAAyQBEAAAAAAAAyQBgBKiJiZXN0IHBob25lcyB1bmRlciA0MDAwMCBpbmRpYSAyMDI0MjMIARIFMTggR0IiGioYCKuEPRISCQAAAAAAADJAEQAAAAAAADJAKgIYAToICKuEPRAAMAZYiaogYAE&sa=X&ved=2ahUKEwii79Km5tKXAxW3PDQIHZLvPKMQip4GKAt6BQgrEI8B
+                - generic [aria-hidden] [ref=f2e189]: 18 GB
+            - listitem [ref=f2e190] [cursor=pointer]:
+              - link "64 GB filter. Not selected." [ref=f2e191]:
+                - /url: /search?q=64+gb+best+phones+under+40000+india+2024&shoprs=EhoqGAirhD0SEgkAAAAAAABQQBEAAAAAAABQQBgBKiJiZXN0IHBob25lcyB1bmRlciA0MDAwMCBpbmRpYSAyMDI0MjMIARIFNjQgR0IiGioYCKuEPRISCQAAAAAAAFBAEQAAAAAAAFBAKgIYAToICKuEPRAAMAZYiaogYAE&sa=X&ved=2ahUKEwii79Km5tKXAxW3PDQIHZLvPKMQip4GKAx6BQgrEJAB
+                - generic [aria-hidden] [ref=f2e193]: 64 GB
+            - listitem [ref=f2e194] [cursor=pointer]:
+              - link "128 GB filter. Not selected." [ref=f2e195]:
+                - /url: /search?q=128+gb+best+phones+under+40000+india+2024&shoprs=EhoqGAirhD0SEgkAAAAAAABgQBEAAAAAAABgQBgBKiJiZXN0IHBob25lcyB1bmRlciA0MDAwMCBpbmRpYSAyMDI0MjQIARIGMTI4IEdCIhoqGAirhD0SEgkAAAAAAABgQBEAAAAAAABgQCoCGAE6CAirhD0QADAGWImqIGAB&sa=X&ved=2ahUKEwii79Km5tKXAxW3PDQIHZLvPKMQip4GKA16BQgrEJEB
+                - generic [aria-hidden] [ref=f2e197]: 128 GB
+            - listitem [ref=f2e198] [cursor=pointer]:
+              - link "256 GB filter. Not selected." [ref=f2e199]:
+                - /url: /search?q=256+gb+best+phones+under+40000+india+2024&shoprs=EhoqGAirhD0SEgkAAAAAAABwQBEAAAAAAABwQBgBKiJiZXN0IHBob25lcyB1bmRlciA0MDAwMCBpbmRpYSAyMDI0MjQIARIGMjU2IEdCIhoqGAirhD0SEgkAAAAAAABwQBEAAAAAAABwQCoCGAE6CAirhD0QADAGWImqIGAB&sa=X&ved=2ahUKEwii79Km5tKXAxW3PDQIHZLvPKMQip4GKA56BQgrEJIB
+                - generic [aria-hidden] [ref=f2e201]: 256 GB
+            - listitem [ref=f2e202] [cursor=pointer]:
+              - link "512 GB filter. Not selected." [ref=f2e203]:
+                - /url: /search?q=512+gb+best+phones+under+40000+india+2024&shoprs=EhoqGAirhD0SEgkAAAAAAACAQBEAAAAAAACAQBgBKiJiZXN0IHBob25lcyB1bmRlciA0MDAwMCBpbmRpYSAyMDI0MjQIARIGNTEyIEdCIhoqGAirhD0SEgkAAAAAAACAQBEAAAAAAACAQCoCGAE6CAirhD0QADAGWImqIGAB&sa=X&ved=2ahUKEwii79Km5tKXAxW3PDQIHZLvPKMQip4GKA96BQgrEJMB
+                - generic [aria-hidden] [ref=f2e205]: 512 GB
+            - listitem [ref=f2e206] [cursor=pointer]:
+              - link "Apple filter. Not selected." [ref=f2e207]:
+                - /url: /search?q=apple+best+phones+under+40000+india+2024&shoprs=GAEqImJlc3QgcGhvbmVzIHVuZGVyIDQwMDAwIGluZGlhIDIwMjQyFQgBEgVBcHBsZToKCIPzPBCZ3j0wAViJqiBgAQ&sa=X&ved=2ahUKEwii79Km5tKXAxW3PDQIHZLvPKMQip4GKBB6BQgrEJQB
+                - generic [aria-hidden] [ref=f2e209]: Apple
+            - listitem [ref=f2e210] [cursor=pointer]:
+              - link "Dual SIM filter. Not selected." [ref=f2e211]:
+                - /url: /search?q=dual+sim+best+phones+under+40000+india+2024&shoprs=GAEqImJlc3QgcGhvbmVzIHVuZGVyIDQwMDAwIGluZGlhIDIwMjQyGAgBEghEdWFsIFNJTToKCLTKOxC2yjswAFiJqiBgAQ&sa=X&ved=2ahUKEwii79Km5tKXAxW3PDQIHZLvPKMQip4GKBF6BQgrEJUB
+                - generic [aria-hidden] [ref=f2e213]: Dual SIM
+            - listitem [ref=f2e214] [cursor=pointer]:
+              - link "Brand filter. Not selected." [ref=f2e215]:
+                - /url: /search?q=brand+best+phones+under+40000+india+2024&shoprs=GBIqImJlc3QgcGhvbmVzIHVuZGVyIDQwMDAwIGluZGlhIDIwMjQyCQgSEgVCcmFuZGAB&sa=X&ved=2ahUKEwii79Km5tKXAxW3PDQIHZLvPKMQip4GKBJ6BQgrEJYB
+                - generic [aria-hidden] [ref=f2e217]: Brand
+            - listitem [ref=f2e218] [cursor=pointer]:
+              - link "Unlocked filter. Not selected." [ref=f2e219]:
+                - /url: /search?q=unlocked+best+phones+under+40000+india+2024&shoprs=GAEqImJlc3QgcGhvbmVzIHVuZGVyIDQwMDAwIGluZGlhIDIwMjQyGQgBEghVbmxvY2tlZDoLCJWPKxDpuJgCMABYiaogYAE&sa=X&ved=2ahUKEwii79Km5tKXAxW3PDQIHZLvPKMQip4GKBN6BQgrEJcB
+                - generic [aria-hidden] [ref=f2e221]: Unlocked
+            - listitem [ref=f2e222] [cursor=pointer]:
+              - link "Wireless Charging filter. Not selected." [ref=f2e223]:
+                - /url: /search?q=wireless+charging+best+phones+under+40000+india+2024&shoprs=GAEqImJlc3QgcGhvbmVzIHVuZGVyIDQwMDAwIGluZGlhIDIwMjQyIQgBEhFXaXJlbGVzcyBDaGFyZ2luZzoKCL39aRC-_WkwA1iJqiBgAQ&sa=X&ved=2ahUKEwii79Km5tKXAxW3PDQIHZLvPKMQip4GKBR6BQgrEJgB
+                - generic [aria-hidden] [ref=f2e225]: Wireless Charging
+            - listitem [ref=f2e226] [cursor=pointer]:
+              - link "On sale filter. Not selected." [ref=f2e227]:
+                - /url: /search?q=best+phones+under+40000+india+2024+sale&shoprs=EgRKAggBGAYqImJlc3QgcGhvbmVzIHVuZGVyIDQwMDAwIGluZGlhIDIwMjQyEwgGEgdPbiBzYWxlGAIiBEoCCAFYiaogYAE&sa=X&ved=2ahUKEwii79Km5tKXAxW3PDQIHZLvPKMQip4GKBV6BQgrEJkB
+                - generic [aria-hidden] [ref=f2e229]: On sale
+            - listitem [ref=f2e230] [cursor=pointer]:
+              - link "Headphone Jack filter. Not selected." [ref=f2e231]:
+                - /url: /search?q=headphone+jack+best+phones+under+40000+india+2024&shoprs=GAEqImJlc3QgcGhvbmVzIHVuZGVyIDQwMDAwIGluZGlhIDIwMjQyHggBEg5IZWFkcGhvbmUgSmFjazoKCN65PRDiuT0wAFiJqiBgAQ&sa=X&ved=2ahUKEwii79Km5tKXAxW3PDQIHZLvPKMQip4GKBZ6BQgrEJoB
+                - generic [aria-hidden] [ref=f2e233]: Headphone Jack
+            - listitem [ref=f2e234] [cursor=pointer]:
+              - link "Flip filter. Not selected." [ref=f2e235]:
+                - /url: /search?q=flip+best+phones+under+40000+india+2024&shoprs=GAEqImJlc3QgcGhvbmVzIHVuZGVyIDQwMDAwIGluZGlhIDIwMjQyFggBEgRGbGlwOgwIgpDqARCDkOoBMABYiaogYAE&sa=X&ved=2ahUKEwii79Km5tKXAxW3PDQIHZLvPKMQip4GKBd6BQgrEJsB
+                - generic [aria-hidden] [ref=f2e237]: Flip
+            - listitem [ref=f2e238] [cursor=pointer]:
+              - link "Black filter. Not selected." [ref=f2e239]:
+                - /url: /search?q=black+best+phones+under+40000+india+2024&shoprs=GAEqImJlc3QgcGhvbmVzIHVuZGVyIDQwMDAwIGluZGlhIDIwMjQyFQgBEgVCbGFjazoKCIWwURCHsFEwAFiJqiBgAQ&sa=X&ved=2ahUKEwii79Km5tKXAxW3PDQIHZLvPKMQip4GKBh6BQgrEJwB
+                - generic [aria-hidden] [ref=f2e244]: Black
+            - listitem [ref=f2e245] [cursor=pointer]:
+              - link "Cashify filter. Not selected." [ref=f2e246]:
+                - /url: /search?q=cashify+best+phones+under+40000+india+2024&shoprs=GAIqImJlc3QgcGhvbmVzIHVuZGVyIDQwMDAwIGluZGlhIDIwMjQyCwgCEgdDYXNoaWZ5WImqIGAB&sa=X&ved=2ahUKEwii79Km5tKXAxW3PDQIHZLvPKMQip4GKBl6BQgrEJ0B
+                - generic [aria-hidden] [ref=f2e248]: Cashify
+            - listitem [ref=f2e249] [cursor=pointer]:
+              - link "Free delivery filter. Not selected." [ref=f2e250]:
+                - /url: /search?q=best+phones+under+40000+india+2024+free+delivery&shoprs=EgRSAhABGBkqImJlc3QgcGhvbmVzIHVuZGVyIDQwMDAwIGluZGlhIDIwMjQyFwgZEg1GcmVlIGRlbGl2ZXJ5IgRSAhABYAE&sa=X&ved=2ahUKEwii79Km5tKXAxW3PDQIHZLvPKMQip4GKBp6BQgrEJ4B
+                - generic [aria-hidden] [ref=f2e252]: Free delivery
+            - listitem [ref=f2e253] [cursor=pointer]:
+              - link "Amazon.in filter. Not selected." [ref=f2e254]:
+                - /url: /search?q=amazon.in+best+phones+under+40000+india+2024&shoprs=GAIqImJlc3QgcGhvbmVzIHVuZGVyIDQwMDAwIGluZGlhIDIwMjQyDQgCEglBbWF6b24uaW5YiaogYAE&sa=X&ved=2ahUKEwii79Km5tKXAxW3PDQIHZLvPKMQip4GKBt6BQgrEJ8B
+                - generic [aria-hidden] [ref=f2e256]: Amazon.in
+            - listitem [ref=f2e257] [cursor=pointer]:
+              - link "desertcart.in filter. Not selected." [ref=f2e258]:
+                - /url: /search?q=desertcart.in+best+phones+under+40000+india+2024&shoprs=GAIqImJlc3QgcGhvbmVzIHVuZGVyIDQwMDAwIGluZGlhIDIwMjQyEQgCEg1kZXNlcnRjYXJ0LmluWImqIGAB&sa=X&ved=2ahUKEwii79Km5tKXAxW3PDQIHZLvPKMQip4GKBx6BQgrEKAB
+                - generic [aria-hidden] [ref=f2e260]: desertcart.in
+        - button [aria-hidden] [ref=f2e261] [cursor=pointer]
+    - generic [ref=f2e268]:
+      - generic [ref=f2e287]:
+        - generic [ref=f2e290]:
+          - generic [ref=f2e292]:
+            - heading "AI Overview" [level=2] [ref=f2e296]
+            - button "Listen" [ref=f2e300]:
+              - generic [ref=f2e304] [cursor=pointer]
+          - generic [ref=f2e332]:
+            - generic [ref=f2e333]:
+              - text: The best smartphones under ₹40,000 in India feature
+              - mark [ref=f2e334]: flagship-tier processors, large high-capacity batteries, and reliable multi-camera systems
+              - text: ":"
+              - button "Related results" [ref=f2e339] [cursor=pointer]
+            - list [ref=f2e345]:
+              - listitem [ref=f2e346]:
+                - generic [ref=f2e348]:
+                  - link "Realme GT 7" [ref=f2e351] [cursor=pointer]:
+                    - /url: /search?kgmid=FAILED_OR_SKIPPED&q=Realme%20GT%207
+                  - list [ref=f2e356]:
+                    - listitem [ref=f2e357]:
+                      - generic [ref=f2e358]:
+                        - strong [ref=f2e359]: "Price:"
+                        - text: Around ₹39,998 / ₹39,999
+                    - listitem [ref=f2e360]:
+                      - generic [ref=f2e361]:
+                        - strong [ref=f2e362]: "Key Specs:"
+                        - text: MediaTek Dimensity 9400e processor, 7,000mAh battery with 120W fast charging, and an AI 4K 120FPS travel camera.
+                    - listitem [ref=f2e363]:
+                      - generic [ref=f2e364]:
+                        - strong [ref=f2e365]: "Why choose it:"
+                        - text: Best for top-tier raw performance and fast charging speeds.
+                      - button "Related results" [ref=f2e370] [cursor=pointer]
+              - listitem [ref=f2e375]:
+                - generic [ref=f2e377]:
+                  - button "Samsung Galaxy A56 5G ₹39,490.00. amazon.in& more · Rated 4.8 out of 5, 45.4K reviews." [ref=f2e382] [cursor=pointer]:
+                    - generic [ref=f2e387]:
+                      - img "Samsung Galaxy A56 5G" [ref=f2e390]
+                      - generic [ref=f2e392]:
+                        - generic [ref=f2e393]:
+                          - generic [ref=f2e395]: Samsung Galaxy A56 5G
+                          - generic "₹39,490.00." [ref=f2e397]: ₹39,490.00
+                        - generic [ref=f2e398]: amazon.in& more
+                        - generic [ref=f2e400]:
+                          - text: ·
+                          - generic [ref=f2e401]:
+                            - generic [aria-hidden] [ref=f2e402]: "4.8"
+                            - img "Rated 4.8 out of 5, 45.4K reviews." [ref=f2e403]
+                            - generic [aria-hidden] [ref=f2e404]: (45.4K)
+                  - list [ref=f2e405]:
+                    - listitem [ref=f2e406]:
+                      - generic [ref=f2e407]:
+                        - strong [ref=f2e408]: "Price:"
+                        - text: Around ₹39,490 on
+                        - link "Amazon India" [ref=f2e412] [cursor=pointer]:
+                          - /url: /goto?url=CAESggEB6zswFeut5B-aVUYPep8UB2NiKvYc5PBm6bruGkyKfMj1tOqnstr2XzUV0cMcKgD_x0tUhw9eUDmKMPf7HFEAxmpFHFbZCiJWOuybLFjB2Jzu7lOIXPSw_uOL63Q-_WvoqiioGyf2rHY2It_mYKwYM8Xa5M-MEcHk9e240NayVhtS
+                    - listitem [ref=f2e413]:
+                      - generic [ref=f2e414]:
+                        - strong [ref=f2e415]: "Key Specs:"
+                        - text: Triple-camera system, lightweight build, vibrant high-definition display, and long battery life (averaging 4.8/5 stars with user praise for its sleek finish and screen quality).
+                    - listitem [ref=f2e416]:
+                      - generic [ref=f2e417]:
+                        - strong [ref=f2e418]: "Why choose it:"
+                        - text: Best for a balanced, durable daily driver with strong software support.
+                      - button "Related results" [ref=f2e423] [cursor=pointer]
+        - button "Show more AI Overview" [ref=f2e439]:
+          - generic [ref=f2e440] [cursor=pointer]: Show more
+      - main [ref=f2e447]:
+        - generic [ref=f2e451]:
+          - generic [ref=f2e454]:
+            - heading "Web results" [level=2] [ref=f2e455]
+            - generic [ref=f2e456]:
+              - generic [ref=f2e459]:
+                - link "Best Mobile Phones Under ₹40,000 in India (2025) buyersbuddy.in https://buyersbuddy.in › ... › Mobiles Phones" [ref=f2e461] [cursor=pointer]:
+                  - /url: /goto?url=CAESiAEB6zswFaXvuSoOCfzszZIvkDiCKj3sitDTkgmXiH8yX2kSBb7s2hkKRasqhPyV9acwm6mNoI_6lZJT4vVRXTuooipc64JLgxmVGPMLrSkSz6tr92FmXFE4-Rb00BpOryM_D5EIQoF7bVJCvc445dQPJQCtzAvaXKIXj4h9GDrcSjsjIQVE2uWB
+                  - heading "Best Mobile Phones Under ₹40,000 in India (2025)" [level=3] [ref=f2e462]
+                  - generic [ref=f2e468]:
+                    - generic [ref=f2e469]: buyersbuddy.in
+                    - generic [ref=f2e471]: https://buyersbuddy.in › ... › Mobiles Phones
+                - button "About this result" [ref=f2e477] [cursor=pointer]
+              - generic [ref=f2e483]:
+                - generic [ref=f2e484]: 30 Jul 2025 —
+                - generic [ref=f2e485]:
+                  - emphasis [ref=f2e486]: OnePlus 13R, ₹39,255
+                  - text: ", Snapdragon 8 Gen 3 ; Realme GT 7, ₹39,998, Dimensity 9400e ; Samsung Galaxy S24 FE, ₹35,991, Exynos 2400e ; Vivo V50, ₹ ..."
+                - link "Read more" [ref=f2e487] [cursor=pointer]:
+                  - /url: /goto?url=CAESsQIB6zswFexbpnV5AjwqCE5uJOcG0-zXIbZDanNfJyVIv9QkYN1YSwHvnV3mT2bEEhnaGk6v8D5Q8cpha-_wiZM_IQgFk3S1iA3QNWH_X2uKEslITRbv35nysivMVdDBNT3NYOqNBPdzq0SuV5LJw9vMBcfQVU4gn8_7GOsr3Js8oEuJSVde06CL3xP-wtu0LhjtG4InDlofChX5t4oi3UtC_bLdbbcnGtsS2EkVGLl2YPemhoeFMs9o0qx3gIrYkBSi-M5TVzQNWjSRhrxT13RQLXalr9psw2BRftTLxfVfTNnoLZamuLBRmLmLqN4IJnt3JufSrubHq8dot3dIeKe2ovuKcSlt8nQQASZFvA2biPYAspEpbNeP_tGi3gmfx3M-YKSALfGHhY2HVGg46V8UbQ
+          - generic [ref=f2e491]:
+            - generic [ref=f2e494]:
+              - link "Looking for Best Phones Under Rs 40000? Here are Top ... Techlusive https://www.techlusive.in › Photos" [ref=f2e496] [cursor=pointer]:
+                - /url: /goto?url=CAES-AEB6zswFVPvOC3H7uxOPFlu3K1OC-KwvPBvL6MLZyMgdrrvTFxIheObonLZ7kO-bpCb-f-ZZNX1S6heJEUmhMj2a7X1VCM3xDxP0CCNRO98wxh1ZkdLwWms08ocEaq5_Cn7RZHwz_M4Wv_vHX_6osqyRCKDA2A7VvM__5gcL_Zl65EtwUjwnhjzrGsutSGoQgYlZZ0mnH73NrrfMaxfCmyLSfP0xrWrZEyadxspaNGck6hwQ5CCbbDaRDr7i41w76Gzrw1-KYDClt7R6rHRxFCW4UBPeDr4josrbkAv-_bX9mSWtWsWL7JewLNJ1FXIEl12QY-cQyC1VQ
+                - heading "Looking for Best Phones Under Rs 40000? Here are Top ..." [level=3] [ref=f2e497]
+                - generic [ref=f2e503]:
+                  - generic [ref=f2e504]: Techlusive
+                  - generic [ref=f2e506]: https://www.techlusive.in › Photos
+              - button "About this result" [ref=f2e512] [cursor=pointer]
+            - generic [ref=f2e518]:
+              - generic [ref=f2e519]: 8 Apr 2025 —
+              - generic [ref=f2e520]:
+                - text: Here are Top Options To Consider From Samsung, OnePlus, Vivo, and More.
+                - emphasis [ref=f2e521]: Samsung Galaxy A36 5G
+                - text: … available at Rs 30,999. Rs 39,999
+          - generic [ref=f2e526]:
+            - heading "People also ask" [level=2] [ref=f2e528]
+            - generic [ref=f2e529]:
+              - button "What is the best selling smartphone in 2024?" [ref=f2e535] [cursor=pointer]
+              - button "Which is the best phone under 40k in India?" [ref=f2e549] [cursor=pointer]
+              - button "Which phone is best selling in India in 2026?" [ref=f2e563] [cursor=pointer]
+              - button "Which is the best flagship phone?" [ref=f2e577] [cursor=pointer]
+          - generic [ref=f2e587]:
+            - heading "Web results" [level=2] [ref=f2e588]
+            - generic [ref=f2e589]:
+              - generic [ref=f2e592]:
+                - link "Top 10 Mobile Phones Under 40000 pharmaguides.in https://pharmaguides.in › top-10-mobile-phones-under-..." [ref=f2e594] [cursor=pointer]:
+                  - /url: /goto?url=CAESdAHrOzAVP3zgO72X5Ut6uOM_PNR5oGuSTdOJaT8_r1WU9EarHTeq1zJDBa099XA8CGhel4FZ9f6jU3Nntys7aWS6VPcrT-RTEegphZIwmTiA1jFoJfrZuyTwVO3T82udDwTxxZv6G8r9xrC_WWnWSCIepJnO
+                  - heading "Top 10 Mobile Phones Under 40000" [level=3] [ref=f2e595]
+                  - generic [ref=f2e601]:
+                    - generic [ref=f2e602]: pharmaguides.in
+                    - generic [ref=f2e604]: https://pharmaguides.in › top-10-mobile-phones-under-...
+                - button "About this result" [ref=f2e610] [cursor=pointer]
+              - generic [ref=f2e616]:
+                - generic [ref=f2e617]: 17 Dec 2023 —
+                - generic [ref=f2e618]:
+                  - text: Top 10 Mobile Phones Under 40000,
+                  - emphasis [ref=f2e619]: OnePlus 11R
+                  - text: ", Oppo Reno 10 Pro 5G, Vivo V27 Pro. as of December 2023. OnePlus 11R: Oppo Reno 8 Pro: Vivo V29 ..."
+          - generic [ref=f2e623]:
+            - generic [ref=f2e626]:
+              - link "256GB Supreme Mobiles https://suprememobiles.in › collections › best-mobile-ph..." [ref=f2e628] [cursor=pointer]:
+                - /url: /goto?url=CAES0gEB6zswFfra975xO-bsRqR62jnKFAaZFjEyx3ReRvfp_2Tpvjm1oMLvVbSBJih8GSdrQN4CDOVEO-1j9cSWqzr-8NpdrKKRAD4zoW1E-Un3zhDZYLQ5L6ZuGbi_ljHViRLPkhwERlwIVeKpPFqeIdgZbf-m-nwqgYXkV_9SWXM484A_18xmNJuPNUKtpmIbfLm4cxfJ0Hh1caLwyUTb2iEPUD-cJzyI_c_QEX9Qjoq7OOn2NTECR5RSbO17VUV4GQcaG-SoRyoGg0yUDmfoKT0bw5w
+                - heading "256GB" [level=3] [ref=f2e629]
+                - generic [ref=f2e638]:
+                  - generic [ref=f2e639]: Supreme Mobiles
+                  - generic [ref=f2e641]: https://suprememobiles.in › collections › best-mobile-ph...
+              - button "About this result" [ref=f2e647] [cursor=pointer]
+            - generic [ref=f2e652]:
+              - generic [ref=f2e653]: No information is available for this page.
+              - link "Learn why" [ref=f2e655] [cursor=pointer]:
+                - /url: https://support.google.com/webmasters/answer/7489871?hl=en
+          - generic [ref=f2e659]:
+            - generic [ref=f2e662]:
+              - link "Best Smartphone Under Rs 40000 Gadgets 360 https://www.gadgets360.com › Tags" [ref=f2e664] [cursor=pointer]:
+                - /url: /goto?url=CAESeQHrOzAVgTkoLTwfYEtstXKRJTklhwhAolallHGoiyE_MlYbdDY47lSukOIP3tomvqgsWuowYIRObaj75R2qyM3HyJ0fXZINsDkd_-b3VUo3kkMJgyi2NSJQIxXeqAu6e0mnN0NDNMWevAyUGz5stcKvcuq-pWaOvX8
+                - heading "Best Smartphone Under Rs 40000" [level=3] [ref=f2e665]
+                - generic [ref=f2e671]:
+                  - generic [ref=f2e672]: Gadgets 360
+                  - generic [ref=f2e674]: https://www.gadgets360.com › Tags
+              - button "About this result" [ref=f2e680] [cursor=pointer]
+            - generic [ref=f2e687]:
+              - text: "40,000 in India: From"
+              - emphasis [ref=f2e688]: Redmi Turbo
+              - text: 5, to OnePlus Nord CE 6 and More Best Mobile Phones Under Rs. Starts from ₹30,999
+          - generic [ref=f2e692]:
+            - generic [ref=f2e695]:
+              - link "https://www.digit.in/top-products/best-phone-under... digit.in https://www.digit.in › best-phone-under-40000-329" [ref=f2e697] [cursor=pointer]:
+                - /url: /goto?url=CAESjwEB6zswFcEeXbRXA4Xv-_Po5AqRHdY8Ee-hKJWIT3DmLhly3wqjZqzRLU2wPjGokWvyV13A0BGhXZQTo_hY6bexuOV9hiddr69qZvzElWHNvN7q0443cW04W-b7fCIJa5N6xRr5TfLn13bIm9VJ6DJt0WP4_gJFCNnrFnykRldVVVlFS4iu1jpkRUteRunhzA
+                - heading "https://www.digit.in/top-products/best-phone-under..." [level=3] [ref=f2e698]
+                - generic [ref=f2e704]:
+                  - generic [ref=f2e705]: digit.in
+                  - generic [ref=f2e707]: https://www.digit.in › best-phone-under-40000-329
+              - button "About this result" [ref=f2e713] [cursor=pointer]
+            - generic [ref=f2e718]:
+              - generic [ref=f2e719]: No information is available for this page.
+              - link "Learn why" [ref=f2e721] [cursor=pointer]:
+                - /url: https://support.google.com/webmasters/answer/7489871?hl=en
+          - generic [ref=f2e728]:
+            - generic [ref=f2e731]:
+              - link "4 Best Smartphones Under ₹40K! BBD Review YouTube · Bhartiya Tech Party 1.3K+ views · 2 weeks ago" [ref=f2e733] [cursor=pointer]:
+                - /url: /goto?url=CAESZQHrOzAVpAKEH5jsBlPHqrm-qigkIfRYpvkZJcUXFcoDFXpuhv39aRDrGwkQlOjVrIDKgghDLRdLZ6rlCP2NzjTZk5qxYp_AK_LgvfqzINMgUzHn6GD8OqsVm7g9FYyidMwSo6y2
+                - heading "4 Best Smartphones Under ₹40K! BBD Review" [level=3] [ref=f2e734]
+                - generic [ref=f2e740]:
+                  - generic [ref=f2e741]: YouTube · Bhartiya Tech Party
+                  - generic [ref=f2e743]: 1.3K+ views · 2 weeks ago
+              - button "About this result" [ref=f2e749] [cursor=pointer]
+            - generic [ref=f2e754]:
+              - button "4 Best Smartphones Under ₹40K! BBD Review by Bhartiya Tech Party on YouTube. Play on Google. 0:49" [ref=f2e755] [cursor=pointer]:
+                - generic [ref=f2e756]: 0:49
+              - generic [ref=f2e772]: ₹40K ke andar 10 phones mat dekho, sirf ye 4 best smartphone deals check karo! Redmi, Vivo aur Realme ke ye phones is baar BBD sale mein ...
+          - generic [ref=f2e777]:
+            - generic [ref=f2e780]:
+              - link "12 Best Mobile Phones Under ₹40,000 in India [2026] gadgetveda.com https://gadgetveda.com › Mobiles & Tablets" [ref=f2e782] [cursor=pointer]:
+                - /url: /goto?url=CAEScQHrOzAVVtojz36Ol6OE1XrkzEjjIlPvxa9VazHt6eIfKI-6RH5_TpqaTo8SqoWf5D2EAsoSgszsbolAv5Rb0AjvN1T3-tJWYqnNuL8S4FXe4Gg3sguqc3Sl9VK_wDIXUkkgRrSGF0uSDVkMU_QGM86u
+                - heading "12 Best Mobile Phones Under ₹40,000 in India [2026]" [level=3] [ref=f2e783]
+                - generic [ref=f2e789]:
+                  - generic [ref=f2e790]: gadgetveda.com
+                  - generic [ref=f2e792]: https://gadgetveda.com › Mobiles & Tablets
+              - button "About this result" [ref=f2e798] [cursor=pointer]
+            - generic [ref=f2e804]:
+              - generic [ref=f2e805]: 20 Sept 2026 —
+              - text: Motorola Edge 60 Pro Latest Price ₹36,999. Samsung Galaxy A56 5G. Motorola Edge 60 Pro 6.7-inch. Samsung Galaxy A56 5G … 4 OnePlus Nord CE6 6. ...
+          - generic [ref=f2e814]:
+            - generic [ref=f2e822]:
+              - generic [ref=f2e824]:
+                - heading "Popular products" [level=2] [ref=f2e825]
+                - button "About this result" [ref=f2e830] [cursor=pointer]
+              - generic [ref=f2e838]:
+                - list [ref=f2e842]:
+                  - listitem [ref=f2e843]:
+                    - 'button "OnePlus Nord CE6 | 8GB+128GB | लूनर पर्ल | स्नैपड्रैगन 7s Gen 4 | सेगमेंट का सबसे तेज़ टच रिस्पांस | 8000mAh बैटरी | 144Hz 1.5K AMOLED डिस्प्ले | 50MP. Current price: ₹35,999. amazon.in. Rated 4.1 out of 5. 28 reviews. Go to product viewer for this item." [ref=f2e847]':
+                      - generic [ref=f2e857] [cursor=pointer]:
+                        - generic [ref=f2e863]: OnePlus Nord CE6 | 8GB+128GB | लूनर पर्ल | स्नैपड्रैगन 7s Gen 4 | सेगमेंट का सबसे तेज़ टच रिस्पांस | 8000mAh बैटरी | 144Hz 1.5K AMOLED डिस्प्ले | 50MP
+                        - 'group "Current price: ₹35,999." [ref=f2e864]':
+                          - generic [ref=f2e866]: ₹35,999
+                        - generic [ref=f2e869]:
+                          - img "amazon.in" [ref=f2e875]
+                          - generic [ref=f2e876]: amazon.in
+                        - img "Rated 4.1 out of 5. 28 reviews." [ref=f2e877]:
+                          - img "Rated 4.1 out of 5, 28 user reviews" [ref=f2e878]: (28)
+                  - listitem [ref=f2e882]:
+                    - 'button "Redmi Note 17 5G. Nearby, 10 km. Current price: ₹30,999. 31% off maximum retail price: ₹44,999. Croma & more. Rated 4.5 out of 5. 19 reviews. Go to product viewer for this item." [ref=f2e886]':
+                      - generic [ref=f2e896] [cursor=pointer]:
+                        - generic [ref=f2e897]: Nearby, 10 km
+                        - generic [ref=f2e910]: Redmi Note 17 5G
+                        - 'group "Current price: ₹30,999. 31% off maximum retail price: ₹44,999." [ref=f2e911]':
+                          - generic [ref=f2e913]:
+                            - generic [ref=f2e914]: ₹30,999
+                            - generic [ref=f2e915]: 31% off₹44,999
+                        - generic [ref=f2e916]:
+                          - generic [ref=f2e917]:
+                            - img "Croma" [ref=f2e923]
+                            - generic [ref=f2e924]: Croma
+                          - generic [ref=f2e925]: "& more"
+                        - img "Rated 4.5 out of 5. 19 reviews." [ref=f2e926]:
+                          - img "Rated 4.5 out of 5, 19 user reviews" [ref=f2e927]: (19)
+                  - listitem [ref=f2e931]:
+                    - 'button "Samsung Galaxy A56 5G (Awesome Olive, 8GB, 128GB) | सेगमेंट मोस्ट कम्प्लीट ट्रिपल कैमरा | AI एडिटिंग | 4nm प्रोसेसर | sAMOLED डिस्प्ले | गोरिल्ला . Current price: ₹32,999. amazon.in. Rated 4.8 out of 5. 45K reviews. Go to product viewer for this item." [ref=f2e935]':
+                      - generic [ref=f2e945] [cursor=pointer]:
+                        - generic [ref=f2e951]: Samsung Galaxy A56 5G (Awesome Olive, 8GB, 128GB) | सेगमेंट मोस्ट कम्प्लीट ट्रिपल कैमरा | AI एडिटिंग | 4nm प्रोसेसर | sAMOLED डिस्प्ले | गोरिल्ला
+                        - 'group "Current price: ₹32,999." [ref=f2e952]':
+                          - generic [ref=f2e954]: ₹32,999
+                        - generic [ref=f2e957]:
+                          - img "amazon.in" [ref=f2e963]
+                          - generic [ref=f2e964]: amazon.in
+                        - img "Rated 4.8 out of 5. 45K reviews." [ref=f2e965]:
+                          - img "Rated 4.8 out of 5, 45K user reviews" [ref=f2e966]: (45K)
+                  - listitem [ref=f2e970]:
+                    - 'button "Realme X50 Pro. Nearby, 30 km. Current price: ₹41,999. H20 System And Solution-Bajaj Finserv MARKETS Store & more. Rated 4.7 out of 5. 110 reviews. Go to product viewer for this item." [ref=f2e974]':
+                      - generic [ref=f2e984] [cursor=pointer]:
+                        - generic [ref=f2e985]: Nearby, 30 km
+                        - generic [ref=f2e998]: Realme X50 Pro
+                        - 'group "Current price: ₹41,999." [ref=f2e999]':
+                          - generic [ref=f2e1001]: ₹41,999
+                        - generic [ref=f2e1003]:
+                          - generic [ref=f2e1004]:
+                            - img "H20 System And Solution-Bajaj Finserv MARKETS Store" [ref=f2e1010]
+                            - generic [ref=f2e1011]: H20 System And Solution-Bajaj Finserv MARKETS Store
+                          - generic [ref=f2e1012]: "& more"
+                        - img "Rated 4.7 out of 5. 110 reviews." [ref=f2e1013]:
+                          - img "Rated 4.7 out of 5, 110 user reviews" [ref=f2e1014]: (110)
+                  - listitem [ref=f2e1018]:
+                    - 'button "Oneplus Nord Ce6. Current price: ₹35,999. Amazon.in & more. Free delivery. Rated 4.1 out of 5. 28 reviews. Go to product viewer for this item." [ref=f2e1022]':
+                      - generic [ref=f2e1032] [cursor=pointer]:
+                        - generic [ref=f2e1038]: Oneplus Nord Ce6
+                        - 'group "Current price: ₹35,999." [ref=f2e1039]':
+                          - generic [ref=f2e1041]: ₹35,999
+                        - generic [ref=f2e1043]:
+                          - generic [ref=f2e1044]:
+                            - img "Amazon.in" [ref=f2e1050]
+                            - generic [ref=f2e1051]: Amazon.in
+                          - generic [ref=f2e1052]: "& more"
+                        - img "Rated 4.1 out of 5. 28 reviews." [ref=f2e1053]:
+                          - img "Rated 4.1 out of 5, 28 user reviews" [ref=f2e1054]: (28)
+                  - listitem [ref=f2e1058]:
+                    - 'button "Buy Now vivo V60e India''s First 200MP Camera & Advance AI Features. Nearby, 17 km. Current price: ₹34,999. Miracle Mobile Gallery (Mi Preferred Partner) Mi Store. Go to product viewer for this item." [ref=f2e1062]':
+                      - generic [ref=f2e1072] [cursor=pointer]:
+                        - generic [ref=f2e1073]: Nearby, 17 km
+                        - generic [ref=f2e1086]: Buy Now vivo V60e India's First 200MP Camera & Advance AI Features
+                        - 'group "Current price: ₹34,999." [ref=f2e1087]':
+                          - generic [ref=f2e1089]: ₹34,999
+                        - generic [ref=f2e1091]:
+                          - generic [ref=f2e1092]:
+                            - img "Miracle Mobile Gallery (Mi Preferred Partner) Mi Store" [ref=f2e1098]
+                            - generic [ref=f2e1099]: Miracle Mobile Gallery (Mi Preferred Partner) Mi Store
+                          - generic [ref=f2e1100]: "& more"
+                  - listitem [ref=f2e1101]:
+                    - 'button "Nothing Phone Lite. Current price: ₹27,580. Amazon.in & more. Free delivery. Rated 4.6 out of 5. 366 reviews. Go to product viewer for this item." [ref=f2e1105]':
+                      - generic [ref=f2e1115] [cursor=pointer]:
+                        - generic [ref=f2e1121]: Nothing Phone Lite
+                        - 'group "Current price: ₹27,580." [ref=f2e1122]':
+                          - generic [ref=f2e1124]: ₹27,580
+                        - generic [ref=f2e1126]:
+                          - generic [ref=f2e1127]:
+                            - img "Amazon.in" [ref=f2e1133]
+                            - generic [ref=f2e1134]: Amazon.in
+                          - generic [ref=f2e1135]: "& more"
+                        - img "Rated 4.6 out of 5. 366 reviews." [ref=f2e1136]:
+                          - img "Rated 4.6 out of 5, 366 user reviews" [ref=f2e1137]: (366)
+                  - listitem [ref=f2e1141]:
+                    - 'button "Tecno Pova 8 5G. Current price: ₹29,999. Shivaay Mobiles & More & more. Free delivery by Wed. Rated 4.9 out of 5. 238 reviews. Go to product viewer for this item." [ref=f2e1145]':
+                      - generic [ref=f2e1155] [cursor=pointer]:
+                        - generic [ref=f2e1161]: Tecno Pova 8 5G
+                        - 'group "Current price: ₹29,999." [ref=f2e1162]':
+                          - generic [ref=f2e1164]: ₹29,999
+                        - generic [ref=f2e1166]:
+                          - generic [ref=f2e1167]:
+                            - img "Shivaay Mobiles & More" [ref=f2e1173]
+                            - generic [ref=f2e1174]: Shivaay Mobiles & More
+                          - generic [ref=f2e1175]: "& more"
+                        - img "Rated 4.9 out of 5. 238 reviews." [ref=f2e1176]:
+                          - img "Rated 4.9 out of 5, 238 user reviews" [ref=f2e1177]: (238)
+                  - listitem [ref=f2e1181]:
+                    - 'button "Redmi K20 Pro. Nearby, 30 km. Current price: ₹19,999. TB company. Rated 4.8 out of 5. 149 reviews. Go to product viewer for this item." [ref=f2e1185]':
+                      - generic [ref=f2e1195] [cursor=pointer]:
+                        - generic [ref=f2e1196]: Nearby, 30 km
+                        - generic [ref=f2e1209]: Redmi K20 Pro
+                        - 'group "Current price: ₹19,999." [ref=f2e1210]':
+                          - generic [ref=f2e1212]: ₹19,999
+                        - generic [ref=f2e1215]:
+                          - img "TB company" [ref=f2e1221]
+                          - generic [ref=f2e1222]: TB company
+                        - img "Rated 4.8 out of 5. 149 reviews." [ref=f2e1223]:
+                          - img "Rated 4.8 out of 5, 149 user reviews" [ref=f2e1224]: (149)
+                  - listitem [ref=f2e1228]:
+                    - 'button "Samsung Galaxy A56 5G (Awesome वायलेट ग्लो, 8GB, 128GB) | सेगमेंट मोस्ट कम्प्लीट ट्रिपल कैमरा | AI एडिटिंग | 4nm प्रोसेसर | sAMOLED डिस्प्ले | . Current price: ₹32,999. amazon.in. Rated 4.8 out of 5. 45K reviews. Go to product viewer for this item." [ref=f2e1232]':
+                      - generic [ref=f2e1242] [cursor=pointer]:
+                        - generic [ref=f2e1248]: Samsung Galaxy A56 5G (Awesome वायलेट ग्लो, 8GB, 128GB) | सेगमेंट मोस्ट कम्प्लीट ट्रिपल कैमरा | AI एडिटिंग | 4nm प्रोसेसर | sAMOLED डिस्प्ले |
+                        - 'group "Current price: ₹32,999." [ref=f2e1249]':
+                          - generic [ref=f2e1251]: ₹32,999
+                        - generic [ref=f2e1254]:
+                          - img "amazon.in" [ref=f2e1260]
+                          - generic [ref=f2e1261]: amazon.in
+                        - img "Rated 4.8 out of 5. 45K reviews." [ref=f2e1262]:
+                          - img "Rated 4.8 out of 5, 45K user reviews" [ref=f2e1263]: (45K)
+                - button [aria-hidden] [ref=f2e1268] [cursor=pointer]
+            - generic [ref=f2e1283]:
+              - heading [level=3] [ref=f2e1284]:
+                - button "Under ₹20,000 ." [expanded] [ref=f2e1285] [cursor=pointer]:
+                  - generic [ref=f2e1290]:
+                    - generic [ref=f2e1291]: Under ₹20,000
+                    - generic: .
+              - generic [ref=f2e1303]:
+                - generic [ref=f2e1306]:
+                  - list "Under ₹20,000" [ref=f2e1307]:
+                    - listitem [ref=f2e1308]:
+                      - 'button "Redmi K20 Pro. Nearby, 30 km. Current price: ₹19,999. TB company. Rated 4.8 out of 5. 149 reviews. Go to product viewer for this item." [ref=f2e1312]':
+                        - generic [ref=f2e1322] [cursor=pointer]:
+                          - generic [ref=f2e1323]: Nearby, 30 km
+                          - generic [ref=f2e1336]: Redmi K20 Pro
+                          - 'group "Current price: ₹19,999." [ref=f2e1337]':
+                            - generic [ref=f2e1339]: ₹19,999
+                          - generic [ref=f2e1342]:
+                            - img "TB company" [ref=f2e1348]
+                            - generic [ref=f2e1349]: TB company
+                          - img "Rated 4.8 out of 5. 149 reviews." [ref=f2e1350]:
+                            - img "Rated 4.8 out of 5, 149 user reviews" [ref=f2e1351]: (149)
+                    - listitem [ref=f2e1355]:
+                      - 'button "Motorola G37 | 4 GB RAM | 64 GB Storage | PANTONE Impenetrable. Current price: ₹14,790. Amazon.in & more. Free delivery. Go to product viewer for this item." [ref=f2e1359]':
+                        - generic [ref=f2e1369] [cursor=pointer]:
+                          - generic [ref=f2e1375]: Motorola G37 | 4 GB RAM | 64 GB Storage | PANTONE Impenetrable
+                          - 'group "Current price: ₹14,790." [ref=f2e1376]':
+                            - generic [ref=f2e1378]: ₹14,790
+                          - generic [ref=f2e1380]:
+                            - generic [ref=f2e1381]:
+                              - img "Amazon.in" [ref=f2e1387]
+                              - generic [ref=f2e1388]: Amazon.in
+                            - generic [ref=f2e1389]: "& more"
+                    - listitem [ref=f2e1390]:
+                      - 'button "Redmi 15C 5G. Low price. Current price: ₹17,999. Usually ₹19,499. Amazon.in & more. Free delivery. Go to product viewer for this item." [ref=f2e1394]':
+                        - generic [ref=f2e1404] [cursor=pointer]:
+                          - img "Low price." [ref=f2e1407]:
+                            - generic [ref=f2e1408]: LOW PRICE
+                          - generic [ref=f2e1413]: Redmi 15C 5G
+                          - 'group "Current price: ₹17,999. Usually ₹19,499." [ref=f2e1414]':
+                            - generic [ref=f2e1416]:
+                              - generic [ref=f2e1417]: ₹17,999
+                              - generic [ref=f2e1418]: Usually ₹19,499
+                          - generic [ref=f2e1419]:
+                            - generic [ref=f2e1420]:
+                              - img "Amazon.in" [ref=f2e1426]
+                              - generic [ref=f2e1427]: Amazon.in
+                            - generic [ref=f2e1428]: "& more"
+                    - listitem [ref=f2e1429]:
+                      - 'button "Vivo Y53s. Nearby, 49 km. Current price: ₹18,490. vivo Experience Center - The Capital Mall & more. Rated 5.0 out of 5. 9 reviews. Go to product viewer for this item." [ref=f2e1433]':
+                        - generic [ref=f2e1443] [cursor=pointer]:
+                          - generic [ref=f2e1444]: Nearby, 49 km
+                          - generic [ref=f2e1457]: Vivo Y53s
+                          - 'group "Current price: ₹18,490." [ref=f2e1458]':
+                            - generic [ref=f2e1460]: ₹18,490
+                          - generic [ref=f2e1462]:
+                            - generic [ref=f2e1463]:
+                              - img "vivo Experience Center - The Capital Mall" [ref=f2e1469]
+                              - generic [ref=f2e1470]: vivo Experience Center - The Capital Mall
+                            - generic [ref=f2e1471]: "& more"
+                          - img "Rated 5.0 out of 5. 9 reviews." [ref=f2e1472]:
+                            - img "Rated 5.0 out of 5, 9 user reviews" [ref=f2e1473]: (9)
+                    - listitem [ref=f2e1477]:
+                      - 'button "Vivo Y51A. Nearby, 9 km. Current price: ₹17,990. On Top The Mobile Shop. Rated 5.0 out of 5. 3 reviews. Go to product viewer for this item." [ref=f2e1481]':
+                        - generic [ref=f2e1491] [cursor=pointer]:
+                          - generic [ref=f2e1492]: Nearby, 9 km
+                          - generic [ref=f2e1505]: Vivo Y51A
+                          - 'group "Current price: ₹17,990." [ref=f2e1506]':
+                            - generic [ref=f2e1508]: ₹17,990
+                          - generic [ref=f2e1511]:
+                            - img "On Top The Mobile Shop" [ref=f2e1517]
+                            - generic [ref=f2e1518]: On Top The Mobile Shop
+                          - img "Rated 5.0 out of 5. 3 reviews." [ref=f2e1519]:
+                            - img "Rated 5.0 out of 5, 3 user reviews" [ref=f2e1520]: (3)
+                  - link "See more" [ref=f2e1525] [cursor=pointer]:
+                    - /url: /search?sca_esv=2a5db33bad1934b5&sxsrf=APpeQnswLOtH_RzrVNJjLq0Oah07tjRoaQ:1792849890049&q=best+phones+under+40000+india+2024+under+%E2%82%B920,000&shoprs=CAESDRILEQAAAABfoBJCGAEYBSoiYmVzdCBwaG9uZXMgdW5kZXIgNDAwMDAgaW5kaWEgMjAyNGADgAEB&sa=X&ved=2ahUKEwii79Km5tKXAxW3PDQIHZLvPKMQkOQKKAF6BAh4EAk
+                - button [aria-hidden] [ref=f2e1533] [cursor=pointer]
+            - heading [level=3] [ref=f2e1549]:
+              - button "₹20,000–₹25,000 ." [ref=f2e1550] [cursor=pointer]:
+                - generic [ref=f2e1556]:
+                  - generic [ref=f2e1557]: ₹20,000–₹25,000
+                  - generic: .
+            - heading [level=3] [ref=f2e1575]:
+              - button "₹25,000–₹40,000 ." [ref=f2e1576] [cursor=pointer]:
+                - generic [ref=f2e1582]:
+                  - generic [ref=f2e1583]: ₹25,000–₹40,000
+                  - generic: .
+            - heading [level=3] [ref=f2e1601]:
+              - button "Over ₹40,000 ." [ref=f2e1602] [cursor=pointer]:
+                - generic [ref=f2e1608]:
+                  - generic [ref=f2e1609]: Over ₹40,000
+                  - generic: .
+          - generic [ref=f2e1629]:
+            - generic [ref=f2e1631]:
+              - heading "In shops nearby" [level=2] [ref=f2e1632]
+              - button "About this result" [ref=f2e1637] [cursor=pointer]
+            - generic [ref=f2e1645]:
+              - generic [ref=f2e1648]:
+                - list [ref=f2e1649]:
+                  - listitem [ref=f2e1650]:
+                    - 'button "Redmi Note 17 5G. Nearby, 10 km. Current price: ₹30,999. 31% off maximum retail price: ₹44,999. Croma & more. Rated 4.5 out of 5. 19 reviews. Go to product viewer for this item." [ref=f2e1654]':
+                      - generic [ref=f2e1664] [cursor=pointer]:
+                        - generic [ref=f2e1665]: Nearby, 10 km
+                        - generic [ref=f2e1678]: Redmi Note 17 5G
+                        - 'group "Current price: ₹30,999. 31% off maximum retail price: ₹44,999." [ref=f2e1679]':
+                          - generic [ref=f2e1681]:
+                            - generic [ref=f2e1682]: ₹30,999
+                            - generic [ref=f2e1683]: 31% off₹44,999
+                        - generic [ref=f2e1684]:
+                          - generic [ref=f2e1685]:
+                            - img "Croma" [ref=f2e1691]
+                            - generic [ref=f2e1692]: Croma
+                          - generic [ref=f2e1693]: "& more"
+                        - img "Rated 4.5 out of 5. 19 reviews." [ref=f2e1694]:
+                          - img "Rated 4.5 out of 5, 19 user reviews" [ref=f2e1695]: 4.5(19)
+                  - listitem [ref=f2e1699]:
+                    - 'button "Buy Now vivo V60e India''s First 200MP Camera & Advance AI Features. Nearby, 17 km. Current price: ₹34,999. Miracle Mobile Gallery (Mi Preferred Partner) Mi Store. Go to product viewer for this item." [ref=f2e1703]':
+                      - generic [ref=f2e1713] [cursor=pointer]:
+                        - generic [ref=f2e1714]: Nearby, 17 km
+                        - generic [ref=f2e1727]: Buy Now vivo V60e India's First 200MP Camera & Advance AI Features
+                        - 'group "Current price: ₹34,999." [ref=f2e1728]':
+                          - generic [ref=f2e1730]: ₹34,999
+                        - generic [ref=f2e1732]:
+                          - generic [ref=f2e1733]:
+                            - img "Miracle Mobile Gallery (Mi Preferred Partner) Mi Store" [ref=f2e1739]
+                            - generic [ref=f2e1740]: Miracle Mobile Gallery (Mi Preferred Partner) Mi Store
+                          - generic [ref=f2e1741]: "& more"
+                  - listitem [ref=f2e1742]:
+                    - 'button "Redmi 12 5g. Nearby, 10 km. Current price: ₹11,400. infiswap & more. Rated 4.3 out of 5. 260 reviews. Go to product viewer for this item." [ref=f2e1746]':
+                      - generic [ref=f2e1756] [cursor=pointer]:
+                        - generic [ref=f2e1757]: Nearby, 10 km
+                        - generic [ref=f2e1770]: Redmi 12 5g
+                        - 'group "Current price: ₹11,400." [ref=f2e1771]':
+                          - generic [ref=f2e1773]: ₹11,400
+                        - generic [ref=f2e1775]:
+                          - generic [ref=f2e1776]:
+                            - img "infiswap" [ref=f2e1782]
+                            - generic [ref=f2e1783]: infiswap
+                          - generic [ref=f2e1784]: "& more"
+                        - img "Rated 4.3 out of 5. 260 reviews." [ref=f2e1785]:
+                          - img "Rated 4.3 out of 5, 260 user reviews" [ref=f2e1786]: 4.3(260)
+                  - listitem [ref=f2e1790]:
+                    - 'button "Nothing Phone (3a Lite). Nearby, 17 km. Current price: ₹22,999. Miracle Mobile Gallery (Mi Preferred Partner) Mi Store. Go to product viewer for this item." [ref=f2e1794]':
+                      - generic [ref=f2e1804] [cursor=pointer]:
+                        - generic [ref=f2e1805]: Nearby, 17 km
+                        - generic [ref=f2e1818]: Nothing Phone (3a Lite)
+                        - 'group "Current price: ₹22,999." [ref=f2e1819]':
+                          - generic [ref=f2e1821]: ₹22,999
+                        - generic [ref=f2e1824]:
+                          - img "Miracle Mobile Gallery (Mi Preferred Partner) Mi Store" [ref=f2e1830]
+                          - generic [ref=f2e1831]: Miracle Mobile Gallery (Mi Preferred Partner) Mi Store
+                  - listitem [ref=f2e1832]:
+                    - 'button "Redmi 12 (4GB RAM, 128GB, Jade Black). Nearby, 10 km. Current price: ₹11,999. infiswap & more. Go to product viewer for this item." [ref=f2e1836]':
+                      - generic [ref=f2e1846] [cursor=pointer]:
+                        - generic [ref=f2e1847]: Nearby, 10 km
+                        - generic [ref=f2e1860]: Redmi 12 (4GB RAM, 128GB, Jade Black)
+                        - 'group "Current price: ₹11,999." [ref=f2e1861]':
+                          - generic [ref=f2e1863]: ₹11,999
+                        - generic [ref=f2e1865]:
+                          - generic [ref=f2e1866]:
+                            - img "infiswap" [ref=f2e1872]
+                            - generic [ref=f2e1873]: infiswap
+                          - generic [ref=f2e1874]: "& more"
+                  - listitem [ref=f2e1875]:
+                    - 'button "Realme X50 Pro. Nearby, 22 km. Current price: ₹41,999. Vighnesh Collection-Bajaj Finserv MARKETS Store & more. Rated 4.7 out of 5. 110 reviews. Go to product viewer for this item." [ref=f2e1879]':
+                      - generic [ref=f2e1889] [cursor=pointer]:
+                        - generic [ref=f2e1890]: Nearby, 22 km
+                        - generic [ref=f2e1903]: Realme X50 Pro
+                        - 'group "Current price: ₹41,999." [ref=f2e1904]':
+                          - generic [ref=f2e1906]: ₹41,999
+                        - generic [ref=f2e1908]:
+                          - generic [ref=f2e1909]:
+                            - img "Vighnesh Collection-Bajaj Finserv MARKETS Store" [ref=f2e1915]
+                            - generic [ref=f2e1916]: Vighnesh Collection-Bajaj Finserv MARKETS Store
+                          - generic [ref=f2e1917]: "& more"
+                        - img "Rated 4.7 out of 5. 110 reviews." [ref=f2e1918]:
+                          - img "Rated 4.7 out of 5, 110 user reviews" [ref=f2e1919]: 4.7(110)
+                  - listitem [ref=f2e1923]:
+                    - 'button "Vivo Y51A. Nearby, 9 km. Current price: ₹17,990. On Top The Mobile Shop. Rated 5.0 out of 5. 3 reviews. Go to product viewer for this item." [ref=f2e1927]':
+                      - generic [ref=f2e1937] [cursor=pointer]:
+                        - generic [ref=f2e1938]: Nearby, 9 km
+                        - generic [ref=f2e1951]: Vivo Y51A
+                        - 'group "Current price: ₹17,990." [ref=f2e1952]':
+                          - generic [ref=f2e1954]: ₹17,990
+                        - generic [ref=f2e1957]:
+                          - img "On Top The Mobile Shop" [ref=f2e1963]
+                          - generic [ref=f2e1964]: On Top The Mobile Shop
+                        - img "Rated 5.0 out of 5. 3 reviews." [ref=f2e1965]:
+                          - img "Rated 5.0 out of 5, 3 user reviews" [ref=f2e1966]: 5.0(3)
+                  - listitem [ref=f2e1970]:
+                    - 'button "Redmi Note 14 Pro 5g. Nearby, 17 km. Current price: ₹28,999. Miracle Mobile Gallery (Mi Preferred Partner) Mi Store & more. Rated 4.6 out of 5. 91 reviews. Go to product viewer for this item." [ref=f2e1974]':
+                      - generic [ref=f2e1984] [cursor=pointer]:
+                        - generic [ref=f2e1985]: Nearby, 17 km
+                        - generic [ref=f2e1998]: Redmi Note 14 Pro 5g
+                        - 'group "Current price: ₹28,999." [ref=f2e1999]':
+                          - generic [ref=f2e2001]: ₹28,999
+                        - generic [ref=f2e2003]:
+                          - generic [ref=f2e2004]:
+                            - img "Miracle Mobile Gallery (Mi Preferred Partner) Mi Store" [ref=f2e2010]
+                            - generic [ref=f2e2011]: Miracle Mobile Gallery (Mi Preferred Partner) Mi Store
+                          - generic [ref=f2e2012]: "& more"
+                        - img "Rated 4.6 out of 5. 91 reviews." [ref=f2e2013]:
+                          - img "Rated 4.6 out of 5, 91 user reviews" [ref=f2e2014]: 4.6(91)
+                  - listitem [ref=f2e2018]:
+                    - 'button "Redmi K20 Pro. Nearby, 30 km. Current price: ₹19,999. TB company. Rated 4.8 out of 5. 149 reviews. Go to product viewer for this item." [ref=f2e2022]':
+                      - generic [ref=f2e2032] [cursor=pointer]:
+                        - generic [ref=f2e2033]: Nearby, 30 km
+                        - generic [ref=f2e2046]: Redmi K20 Pro
+                        - 'group "Current price: ₹19,999." [ref=f2e2047]':
+                          - generic [ref=f2e2049]: ₹19,999
+                        - generic [ref=f2e2052]:
+                          - img "TB company" [ref=f2e2058]
+                          - generic [ref=f2e2059]: TB company
+                        - img "Rated 4.8 out of 5. 149 reviews." [ref=f2e2060]:
+                          - img "Rated 4.8 out of 5, 149 user reviews" [ref=f2e2061]: 4.8(149)
+                  - listitem [ref=f2e2065]:
+                    - 'button "Realme 15 Pro 5g. Nearby, 17 km. Current price: ₹35,999. Miracle Mobile Gallery (Mi Preferred Partner) Mi Store & more. Rated 4.3 out of 5. 57 reviews. Go to product viewer for this item." [ref=f2e2069]':
+                      - generic [ref=f2e2079] [cursor=pointer]:
+                        - generic [ref=f2e2080]: Nearby, 17 km
+                        - generic [ref=f2e2093]: Realme 15 Pro 5g
+                        - 'group "Current price: ₹35,999." [ref=f2e2094]':
+                          - generic [ref=f2e2096]: ₹35,999
+                        - generic [ref=f2e2098]:
+                          - generic [ref=f2e2099]:
+                            - img "Miracle Mobile Gallery (Mi Preferred Partner) Mi Store" [ref=f2e2105]
+                            - generic [ref=f2e2106]: Miracle Mobile Gallery (Mi Preferred Partner) Mi Store
+                          - generic [ref=f2e2107]: "& more"
+                        - img "Rated 4.3 out of 5. 57 reviews." [ref=f2e2108]:
+                          - img "Rated 4.3 out of 5, 57 user reviews" [ref=f2e2109]: 4.3(57)
+                  - listitem [ref=f2e2113]:
+                    - 'button "Vivo Y400 Pro 5G. Nearby, 17 km. Current price: ₹29,999. Miracle Mobile Gallery (Mi Preferred Partner) Mi Store & more. Rated 4.0 out of 5. 4 reviews. Go to product viewer for this item." [ref=f2e2117]':
+                      - generic [ref=f2e2127] [cursor=pointer]:
+                        - generic [ref=f2e2128]: Nearby, 17 km
+                        - generic [ref=f2e2141]: Vivo Y400 Pro 5G
+                        - 'group "Current price: ₹29,999." [ref=f2e2142]':
+                          - generic [ref=f2e2144]: ₹29,999
+                        - generic [ref=f2e2146]:
+                          - generic [ref=f2e2147]:
+                            - img "Miracle Mobile Gallery (Mi Preferred Partner) Mi Store" [ref=f2e2153]
+                            - generic [ref=f2e2154]: Miracle Mobile Gallery (Mi Preferred Partner) Mi Store
+                          - generic [ref=f2e2155]: "& more"
+                        - img "Rated 4.0 out of 5. 4 reviews." [ref=f2e2156]:
+                          - img "Rated 4.0 out of 5, 4 user reviews" [ref=f2e2157]: 4.0(4)
+                  - listitem [ref=f2e2161]:
+                    - 'button "Vivo Y53s. Nearby, 25 km. Current price: ₹18,490. VIVO Experience Center & more. Rated 5.0 out of 5. 9 reviews. Go to product viewer for this item." [ref=f2e2165]':
+                      - generic [ref=f2e2175] [cursor=pointer]:
+                        - generic [ref=f2e2176]: Nearby, 25 km
+                        - generic [ref=f2e2189]: Vivo Y53s
+                        - 'group "Current price: ₹18,490." [ref=f2e2190]':
+                          - generic [ref=f2e2192]: ₹18,490
+                        - generic [ref=f2e2194]:
+                          - generic [ref=f2e2195]:
+                            - img "VIVO Experience Center" [ref=f2e2201]
+                            - generic [ref=f2e2202]: VIVO Experience Center
+                          - generic [ref=f2e2203]: "& more"
+                        - img "Rated 5.0 out of 5. 9 reviews." [ref=f2e2204]:
+                          - img "Rated 5.0 out of 5, 9 user reviews" [ref=f2e2205]: 5.0(9)
+                  - listitem [ref=f2e2209]:
+                    - 'button "Vivo T4 Pro 5G. Nearby, 17 km. Current price: ₹34,999. Miracle Mobile Gallery (Mi Preferred Partner) Mi Store & more. Go to product viewer for this item." [ref=f2e2213]':
+                      - generic [ref=f2e2223] [cursor=pointer]:
+                        - generic [ref=f2e2224]: Nearby, 17 km
+                        - generic [ref=f2e2237]: Vivo T4 Pro 5G
+                        - 'group "Current price: ₹34,999." [ref=f2e2238]':
+                          - generic [ref=f2e2240]: ₹34,999
+                        - generic [ref=f2e2242]:
+                          - generic [ref=f2e2243]:
+                            - img "Miracle Mobile Gallery (Mi Preferred Partner) Mi Store" [ref=f2e2249]
+                            - generic [ref=f2e2250]: Miracle Mobile Gallery (Mi Preferred Partner) Mi Store
+                          - generic [ref=f2e2251]: "& more"
+                  - listitem [ref=f2e2252]:
+                    - 'button "Realme P1 5g. Nearby, 17 km. Current price: ₹20,999. Miracle Mobile Gallery (Mi Preferred Partner) Mi Store & more. Go to product viewer for this item." [ref=f2e2256]':
+                      - generic [ref=f2e2266] [cursor=pointer]:
+                        - generic [ref=f2e2267]: Nearby, 17 km
+                        - generic [ref=f2e2280]: Realme P1 5g
+                        - 'group "Current price: ₹20,999." [ref=f2e2281]':
+                          - generic [ref=f2e2283]: ₹20,999
+                        - generic [ref=f2e2285]:
+                          - generic [ref=f2e2286]:
+                            - img "Miracle Mobile Gallery (Mi Preferred Partner) Mi Store" [ref=f2e2292]
+                            - generic [ref=f2e2293]: Miracle Mobile Gallery (Mi Preferred Partner) Mi Store
+                          - generic [ref=f2e2294]: "& more"
+                  - listitem [ref=f2e2295]:
+                    - 'button "Realme Narzo 50 5g. Nearby, 30 km. Current price: ₹20,998. TB company. Rated 5.0 out of 5. 5 reviews. Go to product viewer for this item." [ref=f2e2299]':
+                      - generic [ref=f2e2309] [cursor=pointer]:
+                        - generic [ref=f2e2310]: Nearby, 30 km
+                        - generic [ref=f2e2323]: Realme Narzo 50 5g
+                        - 'group "Current price: ₹20,998." [ref=f2e2324]':
+                          - generic [ref=f2e2326]: ₹20,998
+                        - generic [ref=f2e2329]:
+                          - img "TB company" [ref=f2e2335]
+                          - generic [ref=f2e2336]: TB company
+                        - img "Rated 5.0 out of 5. 5 reviews." [ref=f2e2337]:
+                          - img "Rated 5.0 out of 5, 5 user reviews" [ref=f2e2338]: 5.0(5)
+                  - listitem [ref=f2e2342]:
+                    - 'button "Oneplus Nord. Nearby, 38 km. Current price: ₹29,999. TOP ONE. Go to product viewer for this item." [ref=f2e2346]':
+                      - generic [ref=f2e2356] [cursor=pointer]:
+                        - generic [ref=f2e2357]: Nearby, 38 km
+                        - generic [ref=f2e2370]: Oneplus Nord
+                        - 'group "Current price: ₹29,999." [ref=f2e2371]':
+                          - generic [ref=f2e2373]: ₹29,999
+                        - generic [ref=f2e2376]:
+                          - img "TOP ONE" [ref=f2e2382]
+                          - generic [ref=f2e2383]: TOP ONE
+                  - listitem [ref=f2e2384]:
+                    - 'button "Realme N65(6+128GB). Nearby, 38 km. Current price: ₹14,999. Mangal Murti Electronic Sale''s & Service''s. Go to product viewer for this item." [ref=f2e2388]':
+                      - generic [ref=f2e2398] [cursor=pointer]:
+                        - generic [ref=f2e2399]: Nearby, 38 km
+                        - generic [ref=f2e2412]: Realme N65(6+128GB)
+                        - 'group "Current price: ₹14,999." [ref=f2e2413]':
+                          - generic [ref=f2e2415]: ₹14,999
+                        - generic [ref=f2e2418]:
+                          - img "Mangal Murti Electronic Sale's & Service's" [ref=f2e2424]
+                          - generic [ref=f2e2425]: Mangal Murti Electronic Sale's & Service's
+                  - listitem [ref=f2e2426]:
+                    - 'button "Poco M6 Pro 5g. Nearby, 17 km. Current price: ₹16,999. Miracle Mobile Gallery (Mi Preferred Partner) Mi Store & more. Rated 5.0 out of 5. 2 reviews. Go to product viewer for this item." [ref=f2e2430]':
+                      - generic [ref=f2e2440] [cursor=pointer]:
+                        - generic [ref=f2e2441]: Nearby, 17 km
+                        - generic [ref=f2e2454]: Poco M6 Pro 5g
+                        - 'group "Current price: ₹16,999." [ref=f2e2455]':
+                          - generic [ref=f2e2457]: ₹16,999
+                        - generic [ref=f2e2459]:
+                          - generic [ref=f2e2460]:
+                            - img "Miracle Mobile Gallery (Mi Preferred Partner) Mi Store" [ref=f2e2466]
+                            - generic [ref=f2e2467]: Miracle Mobile Gallery (Mi Preferred Partner) Mi Store
+                          - generic [ref=f2e2468]: "& more"
+                        - img "Rated 5.0 out of 5. 2 reviews." [ref=f2e2469]:
+                          - img "Rated 5.0 out of 5, 2 user reviews" [ref=f2e2470]: 5.0(2)
+                  - listitem [ref=f2e2474]:
+                    - 'button "BRODOS Samsung Oneplus Nord 8gb/128gb. Nearby, 43 km. Current price: ₹29,999. Jai Ambika Telecom. Rated 4.6 out of 5. 76 reviews. Go to product viewer for this item." [ref=f2e2478]':
+                      - generic [ref=f2e2488] [cursor=pointer]:
+                        - generic [ref=f2e2489]: Nearby, 43 km
+                        - generic [ref=f2e2502]: BRODOS Samsung Oneplus Nord 8gb/128gb
+                        - 'group "Current price: ₹29,999." [ref=f2e2503]':
+                          - generic [ref=f2e2505]: ₹29,999
+                        - generic [ref=f2e2508]:
+                          - img "Jai Ambika Telecom" [ref=f2e2514]
+                          - generic [ref=f2e2515]: Jai Ambika Telecom
+                        - img "Rated 4.6 out of 5. 76 reviews." [ref=f2e2516]:
+                          - img "Rated 4.6 out of 5, 76 user reviews" [ref=f2e2517]: 4.6(76)
+                - link "See more" [ref=f2e2522] [cursor=pointer]:
+                  - /url: /search?sca_esv=2a5db33bad1934b5&sxsrf=APpeQnswLOtH_RzrVNJjLq0Oah07tjRoaQ:1792849890049&q=best+phones+under+40000+india+2024+nearby&shoprs=CAESBaoBAggBGAMqImJlc3QgcGhvbmVzIHVuZGVyIDQwMDAwIGluZGlhIDIwMjQyDQgDIgWqAQIIASoCEAFQAGADgAEB&sa=X&ved=2ahUKEwii79Km5tKXAxW3PDQIHZLvPKMQkOQKKAB6BAhIEAY
+              - button [aria-hidden] [ref=f2e2530] [cursor=pointer]
+          - generic [ref=f2e2537]:
+            - heading "Web results" [level=2] [ref=f2e2538]
+            - generic [ref=f2e2539]:
+              - generic [ref=f2e2542]:
+                - link "4 Best Phones Under 40000 in India (April-May 2026) SparkNherd https://sparknherd.com › Blog › Gadgets" [ref=f2e2544] [cursor=pointer]:
+                  - /url: /goto?url=CAEScgHrOzAVwC1w6IyJIDtlgcAGd0FuldttKA-JZvi41kFppQGHHwiVlu6F-6LfROIwKI-In2F1y9La4fSZx56BkJh5rKCW7CYUqPzjcoKOi29LIYzqnRrkh38L8vi74bNdYfTQoSwKstxQgnUvWlFGDkCU5w
+                  - heading "4 Best Phones Under 40000 in India (April-May 2026)" [level=3] [ref=f2e2545]
+                  - generic [ref=f2e2551]:
+                    - generic [ref=f2e2552]: SparkNherd
+                    - generic [ref=f2e2554]: https://sparknherd.com › Blog › Gadgets
+                - button "About this result" [ref=f2e2560] [cursor=pointer]
+              - generic [ref=f2e2566]:
+                - generic [ref=f2e2567]: 24 Apr 2026 —
+                - generic [ref=f2e2568]:
+                  - text: Discover the best phones under 40000 in India (2026) -- top picks like
+                  - emphasis [ref=f2e2569]: Realme GT 7
+                  - text: and Nothing Phone 4a with 5G, AMOLED displays.
+        - generic [ref=f2e2571]:
+          - generic [ref=f2e2576]:
+            - heading "People also search for" [level=2] [ref=f2e2578]
+            - generic [ref=f2e2580]:
+              - link "Best phones under 40000 india 2024 samsung" [ref=f2e2585] [cursor=pointer]:
+                - /url: /search?sca_esv=2a5db33bad1934b5&sxsrf=APpeQnswLOtH_RzrVNJjLq0Oah07tjRoaQ:1792849890049&q=Best+phones+under+40000+india+2024+samsung&sa=X&ved=2ahUKEwii79Km5tKXAxW3PDQIHZLvPKMQ1QJ6BAhCEAE
+              - link "Best phones under 40000 india 2024 flipkart" [ref=f2e2600] [cursor=pointer]:
+                - /url: /search?sca_esv=2a5db33bad1934b5&sxsrf=APpeQnswLOtH_RzrVNJjLq0Oah07tjRoaQ:1792849890049&q=Best+phones+under+40000+india+2024+flipkart&sa=X&ved=2ahUKEwii79Km5tKXAxW3PDQIHZLvPKMQ1QJ6BAhEEAE
+          - navigation [ref=f2e2611]:
+            - heading "Page navigation" [level=1] [ref=f2e2612]
+            - text: "1"
+            - link "Page 2" [ref=f2e2615] [cursor=pointer]:
+              - /url: /search?q=best+phones+under+40000+india+2024&sca_esv=2a5db33bad1934b5&sxsrf=APpeQnswLOtH_RzrVNJjLq0Oah07tjRoaQ:1792849890049&ei=4rfcaqL2Abf50PEPkt_zmQo&start=10&sa=N&sstk=AS6-VmL1kcvhlqcSsoa5LhP3YyYa6-gjJdqXF41U8wC7pbG3f16ZB0F2cl76vG29f7R_0l4fkMpDEk-yS767tcBX2Us8wqgKIHCATg&ved=2ahUKEwii79Km5tKXAxW3PDQIHZLvPKMQ8tMDegQIPxAE
+              - text: "2"
+            - heading [level=2] [ref=f2e2617]:
+              - link "Next" [ref=f2e2618] [cursor=pointer]:
+                - /url: /search?q=best+phones+under+40000+india+2024&sca_esv=2a5db33bad1934b5&sxsrf=APpeQnswLOtH_RzrVNJjLq0Oah07tjRoaQ:1792849890049&ei=4rfcaqL2Abf50PEPkt_zmQo&start=10&sa=N&sstk=AS6-VmL1kcvhlqcSsoa5LhP3YyYa6-gjJdqXF41U8wC7pbG3f16ZB0F2cl76vG29f7R_0l4fkMpDEk-yS767tcBX2Us8wqgKIHCATg&ved=2ahUKEwii79Km5tKXAxW3PDQIHZLvPKMQ8NMDegQIPxAG
+        - navigation
+    - contentinfo [ref=f2e2621]:
+      - heading "Footer links" [level=1] [ref=f2e2622]
+      - generic [ref=f2e2626]:
+        - generic [ref=f2e2628]:
+          - text: India
+          - generic [ref=f2e2630]:
+            - button "Mumbai City, Mumbai, Maharashtra - From your IP address" [ref=f2e2632] [cursor=pointer]:
+              - generic [ref=f2e2633]: Mumbai City, Mumbai, Maharashtra
+              - generic [ref=f2e2635]:
+                - text: "-"
+                - generic [ref=f2e2636]: From your IP address
+            - text: "-"
+            - button "Update location" [ref=f2e2638] [cursor=pointer]
+        - generic [ref=f2e2641]:
+          - link "Help" [ref=f2e2642] [cursor=pointer]:
+            - /url: https://support.google.com/websearch/?p=ws_results_help&hl=en-IN&fg=1
+          - link "Send feedback" [ref=f2e2643] [cursor=pointer]:
+            - /url: "#"
+          - link "Privacy" [ref=f2e2644] [cursor=pointer]:
+            - /url: https://policies.google.com/privacy?hl=en-IN&fg=1
+          - link "Terms" [ref=f2e2645] [cursor=pointer]:
+            - /url: https://policies.google.com/terms?hl=en-IN&fg=1

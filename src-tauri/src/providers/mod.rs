@@ -1,22 +1,18 @@
 //! Unified provider-plugin system.
 //!
-//! Every backend — a native LLM (OpenAI / Anthropic) or an external
-//! agent runtime (Kilo Code / OpenCode invoked as a subprocess or over MCP) —
-//! implements [`Provider`]. The agent loop only depends on this trait, so
-//! backends are fully interchangeable.
+//! Every backend implements [`Provider`] and the agent loop depends only on
+//! that trait, so backends are interchangeable. The built-in backends are the
+//! two native HTTP families (OpenAI-compatible and Anthropic-compatible);
+//! [`ProviderRegistry`] takes any `Arc<dyn Provider>`.
 //!
 //! The wire format is the `xai-grok-sampling-types` vocabulary:
 //! `ConversationRequest` in, `ConversationResponse` (assistant text +
-//! [`ToolCall`](xai_grok_sampling_types::ToolCall)) out. That vocabulary is
-//! deliberately backend-agnostic, so a subprocess provider that parses a CLI's
-//! stdout and a native HTTP provider that streams SSE both satisfy the same
-//! contract.
+//! [`ToolCall`](xai_grok_sampling_types::ToolCall)) out.
 
 pub mod anthropic;
 pub mod openai;
 pub mod provider;
 pub mod registry;
-pub mod subprocess;
 
 pub use anthropic::AnthropicProvider;
 pub use openai::OpenAiProvider;
@@ -24,7 +20,6 @@ pub use provider::{
     Provider, ProviderCapabilities, ProviderConfig, ProviderInfo, ProviderInfoDto, ProviderKind,
 };
 pub use registry::ProviderRegistry;
-pub use subprocess::SubprocessProvider;
 
 use std::sync::Arc;
 
@@ -97,6 +92,12 @@ pub fn create_provider(
     // The xAI provider was removed: a stale "xai" id must fail loudly
     // (None) rather than fall through and misbuild as OpenAI-compatible.
     if id == "xai" {
+        return None;
+    }
+    // The subprocess/MCP provider runtimes were removed with them: a stored
+    // `kind` of "subprocess"/"mcp" must fail loudly instead of silently
+    // misbuilding as OpenAI-compatible against a meaningless base URL.
+    if matches!(kind.as_deref(), Some("subprocess") | Some("mcp")) {
         return None;
     }
     match id {

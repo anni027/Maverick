@@ -1,8 +1,7 @@
 //! Provider registry: maps provider ids to [`Provider`]s.
 //!
-//! Phase 2 seeds the registry with the native HTTP providers and lets the
-//! UI register external agent providers (Kilo Code / OpenCode subprocesses,
-//! MCP servers) at runtime.
+//! Seeded at startup with the native HTTP providers, and lets the UI
+//! register or replace a provider at runtime when its settings change.
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -48,10 +47,6 @@ impl ProviderRegistry {
 
     pub fn config(&self, id: &str) -> Option<&ProviderConfig> {
         self.providers.get(id).map(|i| &i.config)
-    }
-
-    pub fn default_id(&self) -> Option<&str> {
-        self.order.first().map(String::as_str)
     }
 
     pub fn remove(&mut self, id: &str) -> Option<ProviderInfo> {

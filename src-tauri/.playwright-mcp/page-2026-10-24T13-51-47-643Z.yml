@@ -1,0 +1,529 @@
+- generic [active] [ref=f8e1]:
+  - generic [ref=f8e3]:
+    - insertion [ref=f8e5]:
+      - iframe [ref=f8e7]
+    - insertion [ref=f8e9]:
+      - iframe [ref=f8e11]
+  - generic [ref=f8e12]:
+    - banner [ref=f8e13]:
+      - generic [ref=f8e14]:
+        - text: 
+        - generic [ref=f8e19]:
+          - button "Menu" [ref=f8e20] [cursor=pointer]
+          - link "SparkNherd":
+            - /url: https://sparknherd.com
+            - img "SparkNherd" [ref=f8e23] [cursor=pointer]
+          - button "Search" [ref=f8e25] [cursor=pointer]:
+            - generic [ref=f8e26]: 
+    - generic [ref=f8e28]:
+      - generic [ref=f8e30]:
+        - article [ref=f8e31]:
+          - generic [ref=f8e33]:
+            - generic [ref=f8e35]:
+              - link "Home" [ref=f8e37] [cursor=pointer]:
+                - /url: https://sparknherd.com/
+              - text: »
+              - link "Blog" [ref=f8e39] [cursor=pointer]:
+                - /url: https://sparknherd.com/blog/
+              - text: »
+              - link "Gadgets" [ref=f8e41] [cursor=pointer]:
+                - /url: https://sparknherd.com/category/gadgets/
+              - text: »
+              - strong [ref=f8e43]: 4 Best Phones Under 40,000 in India (April-May 2026)
+            - link "Gadgets" [ref=f8e45] [cursor=pointer]:
+              - /url: https://sparknherd.com/category/gadgets/
+            - heading "4 Best Phones Under 40,000 in India (April-May 2026)" [level=1] [ref=f8e46]
+            - generic [ref=f8e47]:
+              - generic [ref=f8e49]:
+                - link "Nidhi Gupta" [ref=f8e50] [cursor=pointer]:
+                  - /url: https://sparknherd.com/author/nidhi-gupta/
+                - generic [ref=f8e51]: April 24, 2026
+              - text: 
+            - text:   Facebook  XTwitter  
+          - figure [ref=f8e52]:
+            - img "4 Best Phones Under 40,000 in India" [ref=f8e53]
+          - paragraph [ref=f8e54]:
+            - text: If you have been following the
+            - link "smartphone" [ref=f8e55] [cursor=pointer]:
+              - /url: "#"
+            - text: scene in India, you must know that the sub-INR 40,000 price segment delivers flagship-grade displays, powerful performance, 5G connectivity, and pro-level
+            - link "cameras" [ref=f8e58] [cursor=pointer]:
+              - /url: "#"
+            - text: without the lakh-plus price tag.
+          - paragraph [ref=f8e61]:
+            - text: So if you are looking for the best
+            - link "phones" [ref=f8e62] [cursor=pointer]:
+              - /url: "#"
+            - text: under 40,000 in India in 2026, you are in the right place.
+            - link "Upgrade Phones" [ref=f8e65] [cursor=pointer]
+          - heading "Vivo T4 Ultra" [level=2] [ref=f8e69]
+          - paragraph [ref=f8e70]:
+            - text: The Vivo T4 Ultra may not boast standout specifications beyond its impressive 3x optical zoom, but it comes across as a well-rounded option within its price segment. It delivers competitive performance, a vibrant and fluid viewing experience, and
+            - link "dependable battery life" [ref=f8e71] [cursor=pointer]:
+              - /url: https://sparknherd.com/explainer/why-smartphone-batteries-are-getting-bigger/
+            - text: .
+          - figure [ref=f8e72]:
+            - img "Best Phones Under 40,000 in India – Vivo T4 Ultra" [ref=f8e73]
+          - paragraph [ref=f8e74]:
+            - text: While the Vivo T4 Ultra’s cameras are reliable, the smartphone would have benefited from a larger battery, a more robust IP rating, and
+            - link "faster UFS 4.0 storage" [ref=f8e75] [cursor=pointer]:
+              - /url: https://sparknherd.com/how-to/ufs-5-0-storage-speed-features-benefits/
+            - text: .
+          - figure [ref=f8e76]:
+            - table [ref=f8e77]:
+              - rowgroup [ref=f8e78]:
+                - row [ref=f8e79]:
+                  - columnheader [ref=f8e80]:
+                    - strong [ref=f8e81]: Specification
+                  - columnheader [ref=f8e82]:
+                    - strong [ref=f8e83]: Details
+              - rowgroup [ref=f8e84]:
+                - row [ref=f8e85]:
+                  - cell [ref=f8e86]:
+                    - strong [ref=f8e87]: Processor
+                  - cell "MediaTek Dimensity 9300+ (4nm)" [ref=f8e88]
+                - row [ref=f8e89]:
+                  - cell [ref=f8e90]:
+                    - strong [ref=f8e91]: RAM & Storage
+                  - cell "12GB LPDDR5X RAM + 256GB UFS 3.1" [ref=f8e92]
+                - row [ref=f8e93]:
+                  - cell [ref=f8e94]:
+                    - strong [ref=f8e95]: Display
+                  - cell "6.67-inch 1.5K 10-bit AMOLED, 120Hz, 5000 nits peak brightness" [ref=f8e96]
+                - row [ref=f8e97]:
+                  - cell [ref=f8e98]:
+                    - strong [ref=f8e99]: HDR Support
+                  - cell "HDR10+" [ref=f8e100]
+                - row [ref=f8e101]:
+                  - cell [ref=f8e102]:
+                    - strong [ref=f8e103]: Rear Camera
+                  - cell "50MP, 50MP (3x Periscope) and 8MP (120° Ultra-Wide)" [ref=f8e104]
+                - row [ref=f8e105]:
+                  - cell [ref=f8e106]:
+                    - strong [ref=f8e107]: Front Camera
+                  - cell "32MP (f/2.5, 4K 60FPS)" [ref=f8e108]
+                - row [ref=f8e109]:
+                  - cell [ref=f8e110]:
+                    - strong [ref=f8e111]: Software Support
+                  - cell "4 Years OS Updates + 6 Years Security Updates" [ref=f8e112]
+                - row [ref=f8e113]:
+                  - cell [ref=f8e114]:
+                    - strong [ref=f8e115]: Battery
+                  - cell "5500mAh, 90W Fast Charging" [ref=f8e116]
+          - generic:
+            - insertion:
+              - generic:
+                - iframe
+          - generic [ref=f8e117]:
+            - generic [ref=f8e119]:
+              - generic [ref=f8e120]: Pros
+              - list [ref=f8e121]:
+                - listitem [ref=f8e122]: Powerful and strong performance.
+                - listitem [ref=f8e123]: One of the better camera contenders in this segment
+                - listitem [ref=f8e124]: Bright AMOLED display
+            - generic [ref=f8e126]:
+              - generic [ref=f8e127]: Cons
+              - list [ref=f8e128]:
+                - listitem [ref=f8e129]: Slow storage
+                - listitem [ref=f8e130]: Small battery capacity
+                - listitem [ref=f8e131]: Plastic frame
+          - link [ref=f8e133] [cursor=pointer]:
+            - /url: https://www.amazon.in/dp/B0FF29BYHF?linkCode=sl2&tag=sparknherd-21&th=1
+            - strong [ref=f8e137]: Buy Vivo T4 Ultra
+          - heading "OnePlus Nord 6" [level=2] [ref=f8e138]
+          - paragraph [ref=f8e139]: The combination of the Snapdragon 8s Gen 4 and a 9000mAh battery makes the OnePlus Nord 6 a strong performance-focused all-rounder.
+          - figure [ref=f8e140]:
+            - img "Best Phones Under 40,000 in India – oneplus Nord 6" [ref=f8e141]
+          - paragraph [ref=f8e142]: "Gaming performance is solid, with the Nord 6 delivering smooth gameplay at Ultra settings in BGMI. Call of Duty: Mobile can push up to 165Hz, while BGMI runs at up to 120 FPS."
+          - figure [ref=f8e143]:
+            - table [ref=f8e144]:
+              - rowgroup [ref=f8e145]:
+                - row [ref=f8e146]:
+                  - columnheader [ref=f8e147]:
+                    - strong [ref=f8e148]: Specification
+                  - columnheader [ref=f8e149]:
+                    - strong [ref=f8e150]: Details
+              - rowgroup [ref=f8e151]:
+                - row [ref=f8e152]:
+                  - cell [ref=f8e153]:
+                    - strong [ref=f8e154]: Processor
+                  - cell "Qualcomm Snapdragon 8s Gen 4 (4nm)" [ref=f8e155]
+                - row [ref=f8e156]:
+                  - cell [ref=f8e157]:
+                    - strong [ref=f8e158]: RAM & Storage
+                  - cell "8GB LPDDR5X RAM + 256GB UFS 4.1" [ref=f8e159]
+                - row [ref=f8e160]:
+                  - cell [ref=f8e161]:
+                    - strong [ref=f8e162]: Display
+                  - cell "6.78-inch 1.5K 10-bit Sunburst Flex AMOLED. 165Hz, 3600 nits peak brightness" [ref=f8e163]
+                - row [ref=f8e164]:
+                  - cell [ref=f8e165]:
+                    - strong [ref=f8e166]: Rear Camera
+                  - cell "50MP (Sony LYTIA-600, f/1.8, 26mm, OIS), 8MP (Ultra-Wide, 4K 60FPS)" [ref=f8e167]
+                - row [ref=f8e168]:
+                  - cell [ref=f8e169]:
+                    - strong [ref=f8e170]: Front Camera
+                  - cell "32MP (f/2.0, 21mm, 90°, 4K 30FPS)" [ref=f8e171]
+                - row [ref=f8e172]:
+                  - cell [ref=f8e173]:
+                    - strong [ref=f8e174]: Battery
+                  - cell "9000mAh, 80W Fast Charging + 13.5W PD Charging" [ref=f8e175]
+          - generic [ref=f8e176]:
+            - generic [ref=f8e178]:
+              - generic [ref=f8e179]: Pros
+              - list [ref=f8e180]:
+                - listitem [ref=f8e181]: Pretty sturdy build
+                - listitem [ref=f8e182]: Gaming performance is great and GPU performs well
+                - listitem [ref=f8e183]: Bright AMOLED display
+                - listitem [ref=f8e184]: Huge battery
+            - generic [ref=f8e186]:
+              - generic [ref=f8e187]: Cons
+              - list [ref=f8e188]:
+                - listitem [ref=f8e189]: Average camera performance with white-balance issues
+                - listitem [ref=f8e190]: Front camera is a straight downgrade from Nord 5
+          - link [ref=f8e192] [cursor=pointer]:
+            - /url: https://www.amazon.in/dp/B0GRBHNCTZ?linkCode=sl2&tag=sparknherd-21&th=1
+            - strong [ref=f8e196]: Buy OnePlus Nord 6
+          - generic [ref=f8e197]:
+            - paragraph [ref=f8e198]:
+              - img "🔖" [ref=f8e199]
+              - text: Related Reading
+            - list [ref=f8e200]:
+              - listitem [ref=f8e201]:
+                - link "Here Are the Best Smartphones With Long-Lasting Battery Life in 2025" [ref=f8e202] [cursor=pointer]:
+                  - /url: https://sparknherd.com/news/best-smartphones-with-long-lasting-battery-life/
+              - listitem [ref=f8e203]:
+                - link "Best Smartphones Under 30,000 in India (2026)" [ref=f8e204] [cursor=pointer]:
+                  - /url: https://sparknherd.com/gadgets/best-phones-under-30k-india/
+          - heading "Nothing Phone 4a Pro" [level=2] [ref=f8e205]
+          - paragraph [ref=f8e206]: The Nothing Phone 4a Pro is the best choice if you are looking for a reliable camera experience, a unique UI, a refreshing design, and long-term usage in this price segment.
+          - figure [ref=f8e207]:
+            - img "Best Phones Under 40,000 in India- nothing Phone 4a Pro" [ref=f8e208]
+          - paragraph [ref=f8e209]: That said, if gaming or raw performance is your priority, this may not be the right choice.
+          - figure [ref=f8e210]:
+            - table [ref=f8e211]:
+              - rowgroup [ref=f8e212]:
+                - row [ref=f8e213]:
+                  - columnheader [ref=f8e214]:
+                    - strong [ref=f8e215]: Specification
+                  - columnheader [ref=f8e216]:
+                    - strong [ref=f8e217]: Details
+              - rowgroup [ref=f8e218]:
+                - row [ref=f8e219]:
+                  - cell [ref=f8e220]:
+                    - strong [ref=f8e221]: Processor
+                  - cell "Qualcomm Snapdragon 7 Gen 4 (4nm)" [ref=f8e222]
+                - row [ref=f8e223]:
+                  - cell [ref=f8e224]:
+                    - strong [ref=f8e225]: RAM & Storage
+                  - cell "LPDDR5X RAM + UFS 3.1" [ref=f8e226]
+                - row [ref=f8e227]:
+                  - cell [ref=f8e228]:
+                    - strong [ref=f8e229]: Display
+                  - cell "6.83-inch 1.5K 10-bit AMOLED, 144Hz, 5000 nits peak brightness" [ref=f8e230]
+                - row [ref=f8e231]:
+                  - cell [ref=f8e232]:
+                    - strong [ref=f8e233]: HDR Support
+                  - cell "HDR10+" [ref=f8e234]
+                - row [ref=f8e235]:
+                  - cell [ref=f8e236]:
+                    - strong [ref=f8e237]: Rear Camera
+                  - cell "50MP, 50MP (Periscope Telephoto), 8MP (Ultra-Wide)" [ref=f8e238]
+                - row [ref=f8e239]:
+                  - cell [ref=f8e240]:
+                    - strong [ref=f8e241]: Front Camera
+                  - cell "32MP (f/2.2, 22mm)" [ref=f8e242]
+                - row [ref=f8e243]:
+                  - cell [ref=f8e244]:
+                    - strong [ref=f8e245]: Battery
+                  - cell "5400mAh, 50W Fast Charging" [ref=f8e246]
+          - generic [ref=f8e247]:
+            - generic [ref=f8e249]:
+              - generic [ref=f8e250]: Pros
+              - list [ref=f8e251]:
+                - listitem [ref=f8e252]: Clean Nothing OS with useful AI features
+                - listitem [ref=f8e253]: Good main camera shots
+                - listitem [ref=f8e254]: Decent telephoto performance in daylight
+                - listitem [ref=f8e255]: Premium aluminum unibody
+                - listitem [ref=f8e256]: Premium 144Hz AMOLED display with HDR support
+                - listitem [ref=f8e257]: Long software support with timely updates
+            - generic [ref=f8e259]:
+              - generic [ref=f8e260]: Cons
+              - list [ref=f8e261]:
+                - listitem [ref=f8e262]: Video recording quality and features lag behind rivals
+                - listitem [ref=f8e263]: Smaller battery capacity
+                - listitem [ref=f8e264]: Heats slightly under heavy load
+          - link [ref=f8e266] [cursor=pointer]:
+            - /url: https://www.amazon.in/dp/B0GRFZ99L5?linkCode=sl2&tag=sparknherd-21&th=1
+            - strong [ref=f8e270]: Buy Nothing Phone 4a Pro
+          - heading "POCO X8 Pro" [level=2] [ref=f8e271]
+          - paragraph [ref=f8e272]: The Poco X8 Pro is easily one of the simplest recommendations of 2026 so far. It delivers where it matters most, from pricing and display quality to strong performance. Add a durable build, capable cameras, and excellent battery life, and it stands out as a well-rounded package.
+          - figure [ref=f8e273]:
+            - img "Best Phones Under 40,000 in India POCO X8 Pro" [ref=f8e274]
+          - paragraph [ref=f8e275]: When it comes to gaming performance, it is one of the fastest phones in the sub-INR 40,000 price bracket and clearly outperforms most mid-range devices. Note that an additional telephoto camera would have made this phone unbeatable.
+          - figure [ref=f8e276]:
+            - table [ref=f8e277]:
+              - rowgroup [ref=f8e278]:
+                - row [ref=f8e279]:
+                  - columnheader [ref=f8e280]:
+                    - strong [ref=f8e281]: Specification
+                  - columnheader [ref=f8e282]:
+                    - strong [ref=f8e283]: Details
+              - rowgroup [ref=f8e284]:
+                - row [ref=f8e285]:
+                  - cell [ref=f8e286]:
+                    - strong [ref=f8e287]: Processor
+                  - cell "MediaTek Dimensity 8500 Ultra (4nm)" [ref=f8e288]
+                - row [ref=f8e289]:
+                  - cell [ref=f8e290]:
+                    - strong [ref=f8e291]: RAM & Storage
+                  - cell "12GB LPDDR5X RAM + 256GB UFS 4.1" [ref=f8e292]
+                - row [ref=f8e293]:
+                  - cell [ref=f8e294]:
+                    - strong [ref=f8e295]: Display
+                  - cell "6.6-inch 1.5K 12-bit AMOLED, 120Hz, 3500 nits peak brightness" [ref=f8e296]
+                - row [ref=f8e297]:
+                  - cell [ref=f8e298]:
+                    - strong [ref=f8e299]: Rear Camera
+                  - cell "50MP, 8MP (Ultra-Wide)" [ref=f8e300]
+                - row [ref=f8e301]:
+                  - cell [ref=f8e302]:
+                    - strong [ref=f8e303]:
+                      - text: Front
+                      - link "Camera" [ref=f8e304] [cursor=pointer]:
+                        - /url: "#"
+                  - cell "20MP (f/2.2)" [ref=f8e307]
+                - row [ref=f8e308]:
+                  - cell [ref=f8e309]:
+                    - strong [ref=f8e310]: Battery
+                  - cell "6500mAh, 100W Wired Charging + PD 3.0" [ref=f8e311]
+          - generic [ref=f8e312]:
+            - generic [ref=f8e314]:
+              - generic [ref=f8e315]: Pros
+              - list [ref=f8e316]:
+                - listitem [ref=f8e317]: Great sustained performance in most of the games and overall usage.
+                - listitem [ref=f8e318]: Good Hybrid stereo speaker setup
+                - listitem [ref=f8e319]: Excellent OLED display with HDR10+ and Dolby Vision
+                - listitem [ref=f8e320]: Good software support with timely updates
+            - generic [ref=f8e322]:
+              - generic [ref=f8e323]: Cons
+              - list [ref=f8e324]:
+                - listitem [ref=f8e325]:
+                  - text: The 20MP selfie
+                  - link "camera" [ref=f8e326] [cursor=pointer]:
+                    - /url: "#"
+                  - text: performance could be better
+                - listitem [ref=f8e329]: No 4K selfie videos
+                - listitem [ref=f8e330]: HyperOS has bloatware and can be improved
+          - link [ref=f8e332] [cursor=pointer]:
+            - /url: https://www.flipkart.com/poco-x8-pro-black-256-gb/p/itmfbd9f2b2c7db9
+            - strong [ref=f8e336]: Buy POCO X8 Pro
+          - heading "Realme GT7" [level=2] [ref=f8e337]
+          - list
+          - paragraph [ref=f8e338]: While the Realme GT7 is a tad older device, we have kept it in our list for its excellent build, a bright and crisp OLED display, awesome battery life, and a solid stereo speaker system.
+          - figure [ref=f8e339]:
+            - img "Best Phones Under 40,000 in India – realme Gt7" [ref=f8e340]
+          - paragraph [ref=f8e341]: It’s powered by the MediaTek Dimensity 9400e, a capable chip, and can be compared to last year’s Snapdragon 8 Gen 3.
+          - figure [ref=f8e342]:
+            - table [ref=f8e343]:
+              - rowgroup [ref=f8e344]:
+                - row [ref=f8e345]:
+                  - columnheader [ref=f8e346]:
+                    - strong [ref=f8e347]: Specification
+                  - columnheader [ref=f8e348]:
+                    - strong [ref=f8e349]: Details
+              - rowgroup [ref=f8e350]:
+                - row [ref=f8e351]:
+                  - cell [ref=f8e352]:
+                    - strong [ref=f8e353]: Processor
+                  - cell "MediaTek Dimensity 9400e (4nm)" [ref=f8e354]
+                - row [ref=f8e355]:
+                  - cell [ref=f8e356]:
+                    - strong [ref=f8e357]: RAM & Storage
+                  - cell "LPDDR5X RAM + UFS 4.0" [ref=f8e358]
+                - row [ref=f8e359]:
+                  - cell [ref=f8e360]:
+                    - strong [ref=f8e361]: Display
+                  - cell "6.78-inch 1.5K 10-bit AMOLED, 144Hz, 4500 nits peak brightness" [ref=f8e362]
+                - row [ref=f8e363]:
+                  - cell [ref=f8e364]:
+                    - strong [ref=f8e365]: Rear Camera
+                  - cell "50MP, 50MP (2x Telephoto), 8MP (Ultra-Wide)" [ref=f8e366]
+                - row [ref=f8e367]:
+                  - cell [ref=f8e368]:
+                    - strong [ref=f8e369]: Front Camera
+                  - cell "32MP (f/2.5, 21mm)" [ref=f8e370]
+                - row [ref=f8e371]:
+                  - cell [ref=f8e372]:
+                    - strong [ref=f8e373]: Battery
+                  - cell "7000mAh, 120W Fast Charging" [ref=f8e374]
+          - generic [ref=f8e375]:
+            - generic [ref=f8e377]:
+              - generic [ref=f8e378]: Pros
+              - list [ref=f8e379]:
+                - listitem [ref=f8e380]: Superior performance in its class
+                - listitem [ref=f8e381]: Large battery with fast wired charging
+                - listitem [ref=f8e382]: Great stereo speaker setup
+                - listitem [ref=f8e383]: Bright LTPO Flat AMOLED display
+                - listitem [ref=f8e384]: Excellent build quality
+            - generic [ref=f8e386]:
+              - generic [ref=f8e387]: Cons
+              - list [ref=f8e388]:
+                - listitem [ref=f8e389]: 3x telephoto camera would be a better addition at this price point
+                - listitem [ref=f8e390]: Ultrawide camera doesn’t support 4K video or Auto Focus
+                - listitem [ref=f8e391]: Underwhelming Selfies
+                - listitem [ref=f8e392]: Can heat during heavy gaming
+          - link [ref=f8e394] [cursor=pointer]:
+            - /url: https://www.amazon.in/dp/B0F6YPX2X5?linkCode=sl2&tag=sparknherd-21&th=1
+            - strong [ref=f8e398]: Buy Realme GT7
+          - heading "The Best Phones Under INR 40,000 in India" [level=2] [ref=f8e399]
+          - paragraph [ref=f8e400]:
+            - text: The under-INR 40,000
+            - link "smartphone" [ref=f8e401] [cursor=pointer]:
+              - /url: "#"
+            - text: segment in India has never been more competitive. Today, this price bracket is no longer about compromise. Instead, it’s about choosing which flagship experience you want to prioritize – raw performance, gaming, or camera.
+          - generic [ref=f8e404]:
+            - heading "FAQs" [level=3] [ref=f8e405]
+            - group [ref=f8e406]:
+              - generic "What features should I look for in a phone under INR 40,000 in India?" [ref=f8e407]
+            - group [ref=f8e411]:
+              - generic "Which is the best phone under INR 40,000 in India" [ref=f8e412]
+            - group [ref=f8e416]:
+              - generic "Which is the best camera phone under INR 40,000 in India?" [ref=f8e417]
+            - group [ref=f8e421]:
+              - generic "Is the Nothing Phone 4a worth buying under INR 40,000?" [ref=f8e422]
+          - insertion [ref=f8e427]
+          - generic [ref=f8e431]:
+            - button "Share on Facebook" [ref=f8e432] [cursor=pointer]
+            - button "Share on X (Twitter)" [ref=f8e436] [cursor=pointer]
+            - button "Share on Whatsapp" [ref=f8e440] [cursor=pointer]
+            - button "Share on Linkedin" [ref=f8e444] [cursor=pointer]
+            - button "Copy Link" [ref=f8e448] [cursor=pointer]
+            - button "Share on Email" [ref=f8e452] [cursor=pointer]
+        - text:   Facebook  XTwitter  
+        - generic:
+          - generic [ref=f8e457]:
+            - text: 
+            - generic [ref=f8e458]:
+              - img "4 Best Phones Under 40,000 in India (April-May 2026)" [ref=f8e460]
+              - generic [ref=f8e461]:
+                - generic [ref=f8e462]: Previous
+                - heading [level=4] [ref=f8e463]:
+                  - 'link "Vivo X300 Ultra Set For Release: 200MP Camera and 6600mAh Battery" [ref=f8e464] [cursor=pointer]':
+                    - /url: https://sparknherd.com/news/vivo-x300-ultra-specs-price-india/
+          - generic [ref=f8e466]:
+            - text: 
+            - generic [ref=f8e467]:
+              - img "4 Best Phones Under 40,000 in India (April-May 2026)" [ref=f8e469]
+              - generic [ref=f8e470]:
+                - generic [ref=f8e471]: Next
+                - heading [level=4] [ref=f8e472]:
+                  - 'link "JBL’s MK2 Soundbar Series Released in India: See Specs and Price" [ref=f8e473] [cursor=pointer]':
+                    - /url: https://sparknherd.com/news/jbl-mk2-soundbar-india-price-specs-features/
+        - paragraph [ref=f8e475]:
+          - generic [ref=f8e476]: "Tags:"
+          - link "smartphones" [ref=f8e477] [cursor=pointer]:
+            - /url: https://sparknherd.com/tag/smartphones/
+        - generic [ref=f8e478]:
+          - img "Nidhi Gupta" [ref=f8e479]
+          - generic [ref=f8e480]:
+            - strong [ref=f8e481]:
+              - link "Nidhi Gupta" [ref=f8e482] [cursor=pointer]:
+                - /url: https://sparknherd.com/author/nidhi-gupta/
+            - paragraph [ref=f8e484]: Nidhi Gupta is a dedicated tech enthusiast who enjoys exploring emerging technology and discovering unusual apps that offer something different. Her curiosity extends beyond gadgets into film and storytelling, where she finds connections between creativity and modern tech experiences. By testing devices in real-world scenarios and breaking down what truly matters, Nidhi helps readers make informed buying decisions.
+            - paragraph
+        - generic [ref=f8e485]:
+          - insertion [ref=f8e487]
+          - generic [ref=f8e489]: Related Articles
+          - generic [ref=f8e490]:
+            - article [ref=f8e491]:
+              - generic [ref=f8e492]: 
+              - figure [ref=f8e497]:
+                - link "4 Best Smart TVs Under INR 30,000 to Buy This Diwali" [ref=f8e498] [cursor=pointer]:
+                  - /url: https://sparknherd.com/gadgets/best-smart-tvs-under-30000/
+              - heading [level=2] [ref=f8e500]:
+                - link "4 Best Smart TVs Under INR 30,000 to Buy This Diwali" [ref=f8e501] [cursor=pointer]:
+                  - /url: https://sparknherd.com/gadgets/best-smart-tvs-under-30000/
+            - article [ref=f8e502]:
+              - generic [ref=f8e503]: 
+              - figure [ref=f8e508]:
+                - 'link "Diwali Gifts for Employees: 6 Useful Alternatives to the Usual Hamper" [ref=f8e509] [cursor=pointer]':
+                  - /url: https://sparknherd.com/gadgets/diwali-gifts-for-employees-hamper-alternatives/
+              - heading [level=2] [ref=f8e511]:
+                - 'link "Diwali Gifts for Employees: 6 Useful Alternatives to the Usual Hamper" [ref=f8e512] [cursor=pointer]':
+                  - /url: https://sparknherd.com/gadgets/diwali-gifts-for-employees-hamper-alternatives/
+            - article [ref=f8e513]:
+              - generic [ref=f8e514]: 
+              - figure [ref=f8e519]:
+                - link "Best Cameras and Phones for Diwali Photography 2026" [ref=f8e520] [cursor=pointer]:
+                  - /url: https://sparknherd.com/gadgets/best-cameras-and-phones-for-diwali-photography-2026/
+              - heading [level=2] [ref=f8e522]:
+                - link "Best Cameras and Phones for Diwali Photography 2026" [ref=f8e523] [cursor=pointer]:
+                  - /url: https://sparknherd.com/gadgets/best-cameras-and-phones-for-diwali-photography-2026/
+            - article [ref=f8e524]:
+              - generic [ref=f8e525]: 
+              - figure [ref=f8e530]:
+                - 'link "Amazon Great Indian Festival 2026: 6 Jaw-Dropping Deals You Shouldn’t Ignore" [ref=f8e531] [cursor=pointer]':
+                  - /url: https://sparknherd.com/gadgets/amazon-great-indian-festival-2026-best-deals/
+              - heading [level=2] [ref=f8e533]:
+                - 'link "Amazon Great Indian Festival 2026: 6 Jaw-Dropping Deals You Shouldn’t Ignore" [ref=f8e534] [cursor=pointer]':
+                  - /url: https://sparknherd.com/gadgets/amazon-great-indian-festival-2026-best-deals/
+        - generic [ref=f8e535]:
+          - generic:
+            - generic:
+              - list
+            - list
+      - text:      
+    - insertion [ref=f8e539]
+    - generic [ref=f8e543]:
+      - generic [ref=f8e545]:
+        - generic [ref=f8e546]: Connect With Us
+        - generic [ref=f8e547]:
+          - list [ref=f8e548]:
+            - listitem [ref=f8e549]:
+              - link [ref=f8e550] [cursor=pointer]:
+                - /url: https://x.com/SparkNherd
+                - img "SparkNherd Twitter" [ref=f8e551]
+            - listitem [ref=f8e552]:
+              - link [ref=f8e553] [cursor=pointer]:
+                - /url: https://www.instagram.com/sparknherd/
+                - img "SparkNherd Instagram" [ref=f8e554]
+            - listitem [ref=f8e555]:
+              - link [ref=f8e556] [cursor=pointer]:
+                - /url: https://www.facebook.com/people/SparkNherd/61575899435152/
+                - img "SparkNherd Facebook" [ref=f8e557]
+            - listitem [ref=f8e558]:
+              - link [ref=f8e559] [cursor=pointer]:
+                - /url: https://www.youtube.com/@SparkNherd
+                - img "SparkNherd Youtube" [ref=f8e560]
+          - paragraph [ref=f8e561]: SparkNherd is supported by its audience, and we may earn a commission through our affiliate partners when you purchase through our links.
+      - generic [ref=f8e563]:
+        - generic [ref=f8e564]: Quick Links
+        - list [ref=f8e566]:
+          - listitem [ref=f8e567]:
+            - text: .
+            - link "About Us" [ref=f8e568] [cursor=pointer]:
+              - /url: https://sparknherd.com/about-us/
+          - listitem [ref=f8e569]:
+            - text: .
+            - link "Contact Us" [ref=f8e570] [cursor=pointer]:
+              - /url: https://sparknherd.com/contact-us/
+          - listitem [ref=f8e571]:
+            - text: .
+            - link "Terms & Conditions" [ref=f8e572] [cursor=pointer]:
+              - /url: /terms-and-conditions/
+          - listitem [ref=f8e573]:
+            - text: .
+            - link "Advertise With Us" [ref=f8e574] [cursor=pointer]:
+              - /url: https://sparknherd.com/
+          - listitem [ref=f8e575]:
+            - text: .
+            - link "Privacy Policy" [ref=f8e576] [cursor=pointer]:
+              - /url: https://sparknherd.com/privacy-policy/
+    - contentinfo [ref=f8e578]:
+      - generic [ref=f8e579]: © 2026 SparkNherd. All rights reserved.
+  - text: 
+  - button "Open chat" [ref=f8e583] [cursor=pointer]
+  - generic: 
+  - text:  
+  - insertion [ref=f8e588]

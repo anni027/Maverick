@@ -8,11 +8,12 @@ use tokio::sync::mpsc;
 use xai_grok_sampler::{RetryPolicy, SamplerActor, SamplerConfig, SamplerHandle, SamplingEvent};
 use xai_grok_sampling_types::{ConversationRequest, ConversationResponse};
 
-use super::provider::{Provider, ProviderCapabilities, ProviderConfig, ProviderKind};
+use super::provider::{DeltaPump, Provider, ProviderCapabilities, ProviderKind};
 
 pub struct AnthropicProvider {
     handle: SamplerHandle,
     model: String,
+    pump: DeltaPump,
 }
 
 impl AnthropicProvider {
@@ -27,20 +28,34 @@ impl AnthropicProvider {
             force_http1: false,
             ..Default::default()
         };
-        let (event_tx, _event_rx) = mpsc::unbounded_channel::<SamplingEvent>();
+        let (event_tx, event_rx) = mpsc::unbounded_channel::<SamplingEvent>();
         let handle = SamplerActor::spawn(config, RetryPolicy::default(), event_tx);
-        Self { handle, model }
+        Self {
+            handle,
+            model,
+            pump: DeltaPump::attach(event_rx),
+        }
     }
 
-    pub fn from_config(config: &ProviderConfig, model: String) -> Self {
-        match config {
-            ProviderConfig::Http { base_url, api_key } => {
-                Self::new(api_key.clone(), base_url.clone(), model)
-            }
-            ProviderConfig::Subprocess { .. } => {
-                Self::new(None, "https://api.anthropic.com/v1".to_string(), model)
-            }
-        }
+    async fn run_collect(
+        &self,
+        mut request: ConversationRequest,
+        delta_tx: Option<mpsc::UnboundedSender<String>>,
+    ) -> Result<ConversationResponse> {
+        request.model = Some(self.model.clone());
+        let request_id = xai_grok_sampler::types::RequestId::random();
+        // Drop guard: unregisters on return AND on cancel-drop of this future.
+        let _pump_guard = delta_tx.as_ref().map(|tx| {
+            super::provider::PumpGuard::register(&self.pump, request_id.as_str(), tx.clone())
+        });
+        let collected = self
+            .handle
+            .submit_and_collect_with_metadata(request_id.clone(), request)
+            .await;
+        let (response, _stats) = collected
+            .result
+            .map_err(|e| anyhow::anyhow!("anthropic sampling failed: {e}"))?;
+        Ok(response)
     }
 }
 
@@ -75,16 +90,15 @@ impl Provider for AnthropicProvider {
         }
     }
 
-    async fn complete(&self, mut request: ConversationRequest) -> Result<ConversationResponse> {
-        request.model = Some(self.model.clone());
-        let request_id = xai_grok_sampler::types::RequestId::random();
-        let collected = self
-            .handle
-            .submit_and_collect_with_metadata(request_id, request)
-            .await;
-        let (response, _stats) = collected
-            .result
-            .map_err(|e| anyhow::anyhow!("anthropic sampling failed: {e}"))?;
-        Ok(response)
+    async fn complete(&self, request: ConversationRequest) -> Result<ConversationResponse> {
+        self.run_collect(request, None).await
+    }
+
+    async fn complete_streaming(
+        &self,
+        request: ConversationRequest,
+        delta_tx: mpsc::UnboundedSender<String>,
+    ) -> Result<ConversationResponse> {
+        self.run_collect(request, Some(delta_tx)).await
     }
 }

@@ -54,7 +54,7 @@ pub enum AgentEvent {
         max_segments: u32,
     },
     /// Per-turn token telemetry (§5.6-B): emitted after every provider turn
-    /// that reports usage. Cumulative totals live in the `get_usage` snapshot.
+    /// that reports usage. Cumulative totals live in the usage snapshot.
     UsageUpdated {
         segment: u32,
         turn: u32,

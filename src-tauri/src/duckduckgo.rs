@@ -16,6 +16,7 @@ use xai_tool_types::ToolDescription;
 const DDG_HTML: &str = "https://html.duckduckgo.com/html/";
 const DDG_LITE: &str = "https://lite.duckduckgo.com/lite/";
 const TIMEOUT_SECS: u64 = 12;
+const MAX_RESPONSE_BYTES: usize = 2_000_000; // 2 MB cap
 
 // ---------- Input / Output ----------
 
@@ -206,7 +207,12 @@ fn truncate_content(s: &str, n: usize) -> String {
     // Keep first n*500 chars roughly
     let max = n * 600;
     if s.len() > max {
-        format!("{}…", &s[..max])
+        // Byte-slicing mid-character panics; back off to a char boundary.
+        let mut cut = max;
+        while cut > 0 && !s.is_char_boundary(cut) {
+            cut -= 1;
+        }
+        format!("{}…", &s[..cut])
     } else {
         s.to_string()
     }

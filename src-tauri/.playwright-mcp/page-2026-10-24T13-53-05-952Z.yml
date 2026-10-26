@@ -1,0 +1,1809 @@
+- generic [ref=f22e2]:
+  - navigation "Shortcuts menu" [ref=f22e3]:
+    - heading "Skip to" [level=2] [ref=f22e4]
+    - list "Skip to" [ref=f22e5]:
+      - listitem [ref=f22e6]:
+        - link "main content" [ref=f22e7] [cursor=pointer]:
+          - /url: "#skippedLink"
+          - text: Main content
+      - listitem [ref=f22e8]:
+        - link "About this item" [ref=f22e9] [cursor=pointer]:
+          - /url: "#featurebullets_feature_div"
+      - listitem [ref=f22e10]:
+        - link "Skip to buying options" [ref=f22e11] [cursor=pointer]:
+          - /url: "#buybox"
+          - text: Buying options
+      - listitem [ref=f22e12]:
+        - link "Reviews" [ref=f22e13] [cursor=pointer]:
+          - /url: "#customerReviews"
+    - separator [aria-hidden] [ref=f22e14]
+    - heading "Keyboard shortcuts" [level=2] [ref=f22e15]
+    - list "Keyboard shortcuts" [ref=f22e16]:
+      - listitem [ref=f22e17]:
+        - link "Search, alt, forward slash" [ref=f22e18] [cursor=pointer]:
+          - /url: javascript:void(0)
+          - generic [aria-hidden] [ref=f22e19]:
+            - generic [ref=f22e20]: Search
+            - generic [ref=f22e21]:
+              - generic [ref=f22e22]: alt
+              - generic [ref=f22e23]: +
+              - generic [ref=f22e24]: /
+      - listitem [ref=f22e25]:
+        - link "Cart, shift, alt, c" [ref=f22e26] [cursor=pointer]:
+          - /url: javascript:void(0)
+          - generic [aria-hidden] [ref=f22e27]:
+            - generic [ref=f22e28]: Cart
+            - generic [ref=f22e29]:
+              - generic [ref=f22e30]: shift
+              - generic [ref=f22e31]: +
+              - generic [ref=f22e32]: alt
+              - generic [ref=f22e33]: +
+              - generic [ref=f22e34]: C
+      - listitem [ref=f22e35]:
+        - link "Home, shift, alt, h" [ref=f22e36] [cursor=pointer]:
+          - /url: javascript:void(0)
+          - generic [aria-hidden] [ref=f22e37]:
+            - generic [ref=f22e38]: Home
+            - generic [ref=f22e39]:
+              - generic [ref=f22e40]: shift
+              - generic [ref=f22e41]: +
+              - generic [ref=f22e42]: alt
+              - generic [ref=f22e43]: +
+              - generic [ref=f22e44]: H
+      - listitem [ref=f22e45]:
+        - link "Your orders, shift, alt, o" [ref=f22e46] [cursor=pointer]:
+          - /url: javascript:void(0)
+          - generic [aria-hidden] [ref=f22e47]:
+            - generic [ref=f22e48]: Orders
+            - generic [ref=f22e49]:
+              - generic [ref=f22e50]: shift
+              - generic [ref=f22e51]: +
+              - generic [ref=f22e52]: alt
+              - generic [ref=f22e53]: +
+              - generic [ref=f22e54]: O
+      - listitem [ref=f22e55]:
+        - button "Product summary, shift, alt, d" [ref=f22e56] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f22e57]:
+            - generic [ref=f22e58]: Product summary
+            - generic [ref=f22e59]:
+              - generic [ref=f22e60]: shift
+              - generic [ref=f22e61]: +
+              - generic [ref=f22e62]: alt
+              - generic [ref=f22e63]: +
+              - generic [ref=f22e64]: D
+      - listitem [ref=f22e65]:
+        - button "Show/hide shortcuts, shift, alt, z" [ref=f22e66] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f22e67]:
+            - generic [ref=f22e68]: Show/Hide shortcuts
+            - generic [ref=f22e69]:
+              - generic [ref=f22e70]: shift
+              - generic [ref=f22e71]: +
+              - generic [ref=f22e72]: alt
+              - generic [ref=f22e73]: +
+              - generic [ref=f22e74]: Z
+    - generic [ref=f22e77]:
+      - generic [ref=f22e78] [cursor=pointer]
+      - generic [ref=f22e80]: To move between items, use your keyboard's up or down arrows.
+  - banner [ref=f22e81]:
+    - navigation "Primary" [ref=f22e82]:
+      - generic [ref=f22e83]:
+        - generic [ref=f22e84]:
+          - link "Amazon.in" [ref=f22e86] [cursor=pointer]:
+            - /url: /ref=nav_logo
+            - generic: .in
+          - button "Delivering to Thāne 400060 Update location" [ref=f22e89] [cursor=pointer]:
+            - generic [ref=f22e91]:
+              - generic [ref=f22e92]: Delivering to Thāne 400060
+              - generic [ref=f22e93]: Update location
+        - search [ref=f22e96]:
+          - generic [ref=f22e99]:
+            - generic [ref=f22e100]: Electronics
+            - combobox "Select the department you want to search in" [ref=f22e103] [cursor=pointer]:
+              - option "All Categories"
+              - option "Alexa Skills"
+              - option "Amazon Devices"
+              - option "Amazon Fashion"
+              - option "Amazon Fresh Meat"
+              - option "Amazon Pharmacy"
+              - option "Appliances"
+              - option "Apps & Games"
+              - option "Audible Audiobooks"
+              - option "Baby"
+              - option "Beauty"
+              - option "Books"
+              - option "Car & Motorbike"
+              - option "Clothing & Accessories"
+              - option "Collectibles"
+              - option "Computers & Accessories"
+              - option "Deals"
+              - option "Electronics" [selected]
+              - option "Furniture"
+              - option "Garden & Outdoors"
+              - option "Gift Cards"
+              - option "Grocery & Gourmet Foods"
+              - option "Health & Personal Care"
+              - option "Home & Kitchen"
+              - option "Industrial & Scientific"
+              - option "Jewellery"
+              - option "Kindle Store"
+              - option "Luggage & Bags"
+              - option "Luxury Beauty"
+              - option "Movies & TV Shows"
+              - option "MP3 Music"
+              - option "Music"
+              - option "Musical Instruments"
+              - option "Office Products"
+              - option "Pet Supplies"
+              - option "Prime Video"
+              - option "Shoes & Handbags"
+              - option "Software"
+              - option "Sports, Fitness & Outdoors"
+              - option "Subscribe & Save"
+              - option "Tools & Home Improvement"
+              - option "Toys & Games"
+              - option "Under ₹500"
+              - option "Video Games"
+              - option "Watches"
+          - searchbox "Search Amazon.in" [ref=f22e106]
+          - generic "Go" [ref=f22e109] [cursor=pointer]:
+            - button "Go" [ref=f22e110]
+        - generic [ref=f22e112]:
+          - generic [ref=f22e113]:
+            - link "Choose a language for shopping in Amazon India. The current selection is English (EN)." [ref=f22e114] [cursor=pointer]:
+              - /url: /customer-preferences/edit?ie=UTF8&preferencesReturnUrl=%2F&ref_=topnav_lang
+              - generic [ref=f22e117]:
+                - img "India" [ref=f22e118]
+                - generic [ref=f22e119]: EN
+            - button "Expand to Change Language or Country" [ref=f22e120] [cursor=pointer]
+          - generic [ref=f22e121]:
+            - link "Hello, sign in Account & Lists" [ref=f22e122] [cursor=pointer]:
+              - /url: https://www.amazon.in/ap/signin?openid.return_to=https%3A%2F%2Fwww.amazon.in%2Fdp%2FB0F6YPX2X5%3FlinkCode%3Dsl2%26tag%3Dsparknherd-21%26th%3D1%26ref_%3Dnav_ya_signin&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=inflex&openid.mode=checkid_setup&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0
+              - generic [ref=f22e123]: Hello, sign in
+              - generic [ref=f22e125]: Account & Lists
+            - button "Expand Account and Lists" [ref=f22e126] [cursor=pointer]
+          - link "Returns & Orders" [ref=f22e127] [cursor=pointer]:
+            - /url: /gp/css/order-history?ref_=nav_orders_first
+            - generic [ref=f22e128]: Returns
+            - generic [ref=f22e129]: "& Orders"
+          - link "0 items in cart" [ref=f22e130] [cursor=pointer]:
+            - /url: /gp/cart/view.html?ref_=nav_cart
+            - generic [aria-hidden] [ref=f22e132]: "0"
+      - generic [ref=f22e134]:
+        - button "Open All Categories Menu" [ref=f22e136] [cursor=pointer]:
+          - generic [ref=f22e138]: All
+        - list [ref=f22e142]:
+          - listitem [ref=f22e143]:
+            - link "Fresh Meat" [ref=f22e145] [cursor=pointer]:
+              - /url: /freshmeat?ref_=nav_cs_fm
+          - listitem [ref=f22e146]:
+            - link "Amazon Pay" [ref=f22e148] [cursor=pointer]:
+              - /url: /gp/sva/dashboard?ref_=nav_cs_apay
+          - listitem [ref=f22e149]:
+            - link "Mobiles" [ref=f22e151] [cursor=pointer]:
+              - /url: /mobile-phones/b/?ie=UTF8&node=1389401031&ref_=nav_cs_mobiles
+          - listitem [ref=f22e152]:
+            - link "Today's Deals" [ref=f22e154] [cursor=pointer]:
+              - /url: /deals?ref_=nav_cs_gb
+          - listitem [ref=f22e155]:
+            - link "Coupons" [ref=f22e157] [cursor=pointer]:
+              - /url: /coupons?ref_=nav_cs_coupons
+          - listitem [ref=f22e158]:
+            - link "Flights" [ref=f22e160] [cursor=pointer]:
+              - /url: /flights?ref_=nav_cs_apay_desktop_topnav_flights
+          - listitem [ref=f22e161]:
+            - link "Electronics" [ref=f22e163] [cursor=pointer]:
+              - /url: /electronics/b/?ie=UTF8&node=976419031&ref_=nav_cs_electronics
+          - listitem [ref=f22e164]:
+            - link "New Releases" [ref=f22e166] [cursor=pointer]:
+              - /url: /gp/new-releases/?ref_=nav_cs_newreleases
+          - listitem [ref=f22e167]:
+            - link "Bestsellers" [ref=f22e169] [cursor=pointer]:
+              - /url: /gp/bestsellers/?ref_=nav_cs_bestsellers
+          - listitem [ref=f22e170]:
+            - link "Fashion" [ref=f22e172] [cursor=pointer]:
+              - /url: /gp/browse.html?node=6648217031&ref_=nav_cs_fashion
+          - listitem [ref=f22e173]:
+            - link "Computers" [ref=f22e175] [cursor=pointer]:
+              - /url: /computers-and-accessories/b/?ie=UTF8&node=976392031&ref_=nav_cs_pc
+          - listitem [ref=f22e176]:
+            - link "Home & Kitchen" [ref=f22e178] [cursor=pointer]:
+              - /url: /Home-Kitchen/b/?ie=UTF8&node=976442031&ref_=nav_cs_home
+          - listitem [ref=f22e179]:
+            - link "Pet Supplies" [ref=f22e181] [cursor=pointer]:
+              - /url: /Pet-Supplies/b/?ie=UTF8&node=2454181031&ref_=nav_cs_pets
+          - listitem [ref=f22e182]:
+            - link "Sports, Fitness & Outdoors" [ref=f22e184] [cursor=pointer]:
+              - /url: /Sports/b/?ie=UTF8&node=1984443031&ref_=nav_cs_sports
+          - listitem [ref=f22e185]:
+            - link "Custom Products" [ref=f22e187] [cursor=pointer]:
+              - /url: /Amazon-Custom/b/?ie=UTF8&node=32615889031&ref_=nav_cs_custom
+          - listitem [ref=f22e188]:
+            - link "Baby" [ref=f22e190] [cursor=pointer]:
+              - /url: /Baby/b/?ie=UTF8&node=1571274031&ref_=nav_cs_baby
+          - listitem [ref=f22e191]:
+            - link "Video Games" [ref=f22e193] [cursor=pointer]:
+              - /url: /video-games/b/?ie=UTF8&node=976460031&ref_=nav_cs_video_games
+          - listitem [ref=f22e194]:
+            - link "Books" [ref=f22e196] [cursor=pointer]:
+              - /url: /Books/b/?ie=UTF8&node=976389031&ref_=nav_cs_books
+          - listitem [ref=f22e197]:
+            - link "Kindle eBooks" [ref=f22e199] [cursor=pointer]:
+              - /url: /Kindle-eBooks/b/?ie=UTF8&node=1634753031&ref_=nav_cs_kindle_books
+          - listitem [ref=f22e200]:
+            - link "Grocery & Gourmet Foods" [ref=f22e202] [cursor=pointer]:
+              - /url: /Gourmet-Specialty-Foods/b/?ie=UTF8&node=2454178031&ref_=nav_cs_grocery
+          - listitem [ref=f22e203]:
+            - link "Toys & Games" [ref=f22e205] [cursor=pointer]:
+              - /url: /Toys-Games/b/?ie=UTF8&node=1350380031&ref_=nav_cs_toys
+          - listitem [ref=f22e206]:
+            - link "Car & Motorbike" [ref=f22e208] [cursor=pointer]:
+              - /url: /Car-Motorbike-Store/b/?ie=UTF8&node=4772060031&ref_=nav_cs_automotive
+          - listitem [ref=f22e209]:
+            - link "Customer Service" [ref=f22e211] [cursor=pointer]:
+              - /url: /gp/help/customer/display.html?nodeId=200507590&ref_=nav_cs_help
+          - listitem [ref=f22e212]:
+            - link "Home Improvement" [ref=f22e214] [cursor=pointer]:
+              - /url: /Home-Improvement/b/?ie=UTF8&node=4286640031&ref_=nav_cs_hi
+          - listitem [ref=f22e215]:
+            - link "Gift Cards" [ref=f22e217] [cursor=pointer]:
+              - /url: /gift-card-store/b/?ie=UTF8&node=3704982031&ref_=nav_cs_gc
+          - listitem [ref=f22e218]:
+            - link "Beauty & Personal Care" [ref=f22e220] [cursor=pointer]:
+              - /url: /beauty/b/?ie=UTF8&node=1355016031&ref_=nav_cs_beauty
+          - listitem [ref=f22e221]:
+            - generic [ref=f22e222]:
+              - link "Prime" [ref=f22e223] [cursor=pointer]:
+                - /url: /prime?ref_=nav_cs_primelink_nonmember
+              - button "Prime Details" [ref=f22e224] [cursor=pointer]
+          - listitem [ref=f22e225]:
+            - link "Audible" [ref=f22e227] [cursor=pointer]:
+              - /url: /Audible-Books-and-Originals/b/?ie=UTF8&node=17941593031&ref_=nav_cs_audible
+          - listitem [ref=f22e228]:
+            - link "AmazonBasics" [ref=f22e230] [cursor=pointer]:
+              - /url: /b/?node=6637738031&ref_=nav_cs_amazonbasics
+          - listitem [ref=f22e231]:
+            - link "Subscribe & Save" [ref=f22e233] [cursor=pointer]:
+              - /url: /auto-deliveries/landing?ref_=nav_cs_sns
+        - link "Jan26_Event" [ref=f22e237] [cursor=pointer]:
+          - /url: /events/greatindianfestival/?_encoding=UTF8&ref_=nav_swm_event&pf_rd_p=913c2c21-782e-4de5-909f-10ab3b6494e9&pf_rd_s=nav-sitewide-msg&pf_rd_t=4201&pf_rd_i=navbar-4201&pf_rd_m=A21TJRUUN4KGV&pf_rd_r=4XCQMS49JTDY1ZZW3QZ8
+          - img "Jan26_Event" [ref=f22e238]
+      - list [ref=f22e241]:
+        - listitem [ref=f22e242]:
+          - link [ref=f22e244] [cursor=pointer]:
+            - /url: /electronics/b/?ie=UTF8&node=976419031&ref_=topnav_storetab_top_elec_mega
+            - img "Electronics" [ref=f22e246]
+        - listitem [ref=f22e247]:
+          - generic [ref=f22e248]:
+            - link "Mobiles & Accessories" [ref=f22e249] [cursor=pointer]:
+              - /url: /b/?_encoding=UTF8&node=1389401031&ref_=sv_top_elec_mega_1
+            - button "Mobiles & Accessories, You are currently on a drop-down. To open this drop-down, Press Enter." [ref=f22e250] [cursor=pointer]
+        - listitem [ref=f22e251]:
+          - generic [ref=f22e252]:
+            - link "Laptops & Accessories" [ref=f22e253] [cursor=pointer]:
+              - /url: /b/?_encoding=UTF8&node=976392031&ref_=sv_top_elec_mega_2
+            - button "Laptops & Accessories, You are currently on a drop-down. To open this drop-down, Press Enter." [ref=f22e254] [cursor=pointer]
+        - listitem [ref=f22e255]:
+          - generic [ref=f22e256]:
+            - link "TV & Home Entertainment" [ref=f22e257] [cursor=pointer]:
+              - /url: /b/?_encoding=UTF8&node=1389375031&ref_=sv_top_elec_mega_3
+            - button "TV & Home Entertainment, You are currently on a drop-down. To open this drop-down, Press Enter." [ref=f22e258] [cursor=pointer]
+        - listitem [ref=f22e259]:
+          - generic [ref=f22e260]:
+            - link "Audio" [ref=f22e261] [cursor=pointer]:
+              - /url: /b/?_encoding=UTF8&node=1389335031&ref_=sv_top_elec_mega_4
+            - button "Audio, You are currently on a drop-down. To open this drop-down, Press Enter." [ref=f22e262] [cursor=pointer]
+        - listitem [ref=f22e263]:
+          - generic [ref=f22e264]:
+            - link "Cameras" [ref=f22e265] [cursor=pointer]:
+              - /url: /b/?_encoding=UTF8&node=1388977031&ref_=sv_top_elec_mega_5
+            - button "Cameras, You are currently on a drop-down. To open this drop-down, Press Enter." [ref=f22e266] [cursor=pointer]
+        - listitem [ref=f22e267]:
+          - generic [ref=f22e268]:
+            - link "Computer Peripherals" [ref=f22e269] [cursor=pointer]:
+              - /url: /b/?_encoding=UTF8&node=1375248031&ref_=sv_top_elec_mega_6
+            - button "Computer Peripherals, You are currently on a drop-down. To open this drop-down, Press Enter." [ref=f22e270] [cursor=pointer]
+        - listitem [ref=f22e271]:
+          - generic [ref=f22e272]:
+            - link "Smart Technology" [ref=f22e273] [cursor=pointer]:
+              - /url: /b/?_encoding=UTF8&node=13773797031&ref_=sv_top_elec_mega_7
+            - button "Smart Technology, You are currently on a drop-down. To open this drop-down, Press Enter." [ref=f22e274] [cursor=pointer]
+        - listitem [ref=f22e275]:
+          - generic [ref=f22e276]:
+            - link "Musical Instruments" [ref=f22e277] [cursor=pointer]:
+              - /url: /b/?_encoding=UTF8&node=3677697031&ref_=sv_top_elec_mega_8
+            - button "Musical Instruments, You are currently on a drop-down. To open this drop-down, Press Enter." [ref=f22e278] [cursor=pointer]
+        - listitem [ref=f22e279]:
+          - generic [ref=f22e280]:
+            - link "Office & Stationery" [ref=f22e281] [cursor=pointer]:
+              - /url: /b/?_encoding=UTF8&node=2454172031&ref_=sv_top_elec_mega_9
+            - button "Office & Stationery, You are currently on a drop-down. To open this drop-down, Press Enter." [ref=f22e282] [cursor=pointer]
+      - dialog [ref=f22e283]
+  - generic [ref=f22e285]:
+    - heading "Product summary presents key product information Keyboard shortcut shift + alt + D" [level=1] [ref=f22e287]:
+      - button "Product summary presents key product information" [ref=f22e289] [cursor=pointer]
+      - separator [aria-hidden] [ref=f22e292]
+      - generic [ref=f22e293]:
+        - text: Keyboard shortcut
+        - generic [ref=f22e294]: shift + alt + D
+    - main [ref=f22e295]:
+      - list [ref=f22e301]:
+        - listitem [ref=f22e302]:
+          - link "Electronics" [ref=f22e304] [cursor=pointer]:
+            - /url: /electronics/b/ref=dp_bc_1?ie=UTF8&node=976419031
+        - listitem [aria-hidden] [ref=f22e305]: ›
+        - listitem [ref=f22e306]:
+          - link "Mobiles & Accessories" [ref=f22e308] [cursor=pointer]:
+            - /url: /mobile-phones/b/ref=dp_bc_2?ie=UTF8&node=1389401031
+        - listitem [aria-hidden] [ref=f22e309]: ›
+        - listitem [ref=f22e310]:
+          - link "Smartphones & Basic Mobiles" [ref=f22e312] [cursor=pointer]:
+            - /url: /smartphones-basic-mobiles/b/ref=dp_bc_3?ie=UTF8&node=1389432031
+        - listitem [aria-hidden] [ref=f22e313]: ›
+        - listitem [ref=f22e314]:
+          - link "Smartphones" [ref=f22e316] [cursor=pointer]:
+            - /url: /Smartphones/b/ref=dp_bc_4?ie=UTF8&node=1805560031
+      - generic [ref=f22e317]:
+        - generic [ref=f22e318]:
+          - generic [ref=f22e322]:
+            - img "Amazon Prime Logo" [ref=f22e324]
+            - generic [ref=f22e326]:
+              - text: Enjoy
+              - strong [ref=f22e327]: Unlimited FREE Same day/1-day delivery
+              - text: ", Prime offers everyday and more"
+            - button [ref=f22e329] [cursor=pointer]:
+              - strong [ref=f22e330]: Join Prime >>
+          - generic [ref=f22e334]:
+            - group [ref=f22e337]:
+              - button [ref=f22e340] [cursor=pointer]:
+                - heading "With Exchange Up to 37,600.00 off" [level=5] [ref=f22e342]:
+                  - generic [ref=f22e343]: With Exchange
+                  - generic [ref=f22e345]: Up to 37,600.00 off
+              - generic [ref=f22e350]:
+                - button [expanded] [ref=f22e351]:
+                  - heading "Without Exchange 47,999.00 49,999.00" [level=5] [ref=f22e353]:
+                    - generic [ref=f22e354]: Without Exchange
+                    - generic [ref=f22e358]:
+                      - generic [ref=f22e359]: 47,999.00
+                      - generic [ref=f22e361]: 49,999.00
+                - generic [ref=f22e367]:
+                  - generic [ref=f22e369]:
+                    - generic [ref=f22e372]:
+                      - generic [ref=f22e374]:
+                        - text: FREE delivery Thursday, 29 October.
+                        - link "Details about delivery costs and shipping methods" [ref=f22e375] [cursor=pointer]:
+                          - /url: /gp/help/customer/display.html/?nodeId=200534000
+                          - text: Details
+                      - generic [ref=f22e377]:
+                        - text: Or fastest delivery Tuesday, 27 October. Order within 13 hrs 36 mins.
+                        - link "Details about delivery costs and shipping methods" [ref=f22e378] [cursor=pointer]:
+                          - /url: /gp/help/customer/display.html/?nodeId=200534000
+                          - text: Details
+                      - generic [ref=f22e379]: Arrives 12 days before Diwali
+                    - button "Delivering to Thāne 400060 - Update location" [ref=f22e383] [cursor=pointer]:
+                      - generic [ref=f22e385]: Delivering to Thāne 400060 - Update location
+                  - generic [ref=f22e390]: Only 1 left in stock.
+                  - generic [ref=f22e397] [cursor=pointer]:
+                    - button "Add to cart" [ref=f22e398]
+                    - generic [aria-hidden] [ref=f22e399]: Add to cart
+                  - generic [ref=f22e404] [cursor=pointer]:
+                    - button "Buy Now" [ref=f22e405]
+                    - generic [aria-hidden] [ref=f22e406]: Buy Now
+                  - group "Seller, shipping, and buying option details" [ref=f22e411]:
+                    - generic [ref=f22e412]:
+                      - heading "Ships from" [level=4] [ref=f22e413]
+                      - generic [ref=f22e415]: Amazon
+                    - generic [ref=f22e418]:
+                      - heading "Sold by" [level=4] [ref=f22e419]
+                      - link "Prmobilesblr" [ref=f22e424] [cursor=pointer]:
+                        - /url: /gp/help/seller/at-a-glance.html/ref=dp_merchant_link?ie=UTF8&seller=A3DQ51XQYY4Z6Y&asin=B0F6YPX2X5&ref_=dp_merchant_link&isAmazonFulfilled=1
+                    - generic [ref=f22e426]:
+                      - generic [ref=f22e427]:
+                        - heading "Payment" [level=4] [ref=f22e428]
+                        - button "Secure transaction" [ref=f22e432] [cursor=pointer]
+                      - generic [ref=f22e434]:
+                        - heading "Gift options" [level=4] [ref=f22e435]
+                        - button "Available at checkout" [ref=f22e439] [cursor=pointer]
+                  - group "Include" [ref=f22e444]:
+                    - heading "Add a Protection Plan:" [ref=f22e446]
+                    - generic [ref=f22e447]:
+                      - generic [ref=f22e450]:
+                        - checkbox "1 Year Screen protection by Acko for ₹1,999.00" [ref=f22e451]
+                        - generic [ref=f22e452]:
+                          - link "1 Year Screen protection by Acko" [ref=f22e453] [cursor=pointer]:
+                            - /url: "#"
+                          - text: for ₹1,999.00
+                      - generic [ref=f22e456]:
+                        - checkbox "1 Year Extended warranty by Acko for ₹1,599.00" [ref=f22e457]
+                        - generic [ref=f22e458]:
+                          - link "1 Year Extended warranty by Acko" [ref=f22e459] [cursor=pointer]:
+                            - /url: "#"
+                          - text: for ₹1,599.00
+                      - generic [ref=f22e462]:
+                        - checkbox "1 Year Total Protection by Acko for ₹2,749.00" [ref=f22e463]
+                        - generic [ref=f22e464]:
+                          - link "1 Year Total Protection by Acko" [ref=f22e465] [cursor=pointer]:
+                            - /url: "#"
+                          - text: for ₹2,749.00
+                      - generic [ref=f22e468]:
+                        - checkbox "1 Year Accidental Damage Protection Plan by Xtracover for ₹2,299.00" [ref=f22e469]
+                        - generic [ref=f22e470]:
+                          - link "1 Year Accidental Damage Protection Plan by Xtracover" [ref=f22e471] [cursor=pointer]:
+                            - /url: "#"
+                          - text: for ₹2,299.00
+            - generic [ref=f22e475]:
+              - separator [aria-hidden] [ref=f22e476]
+              - link "Add to Wish List" [ref=f22e481] [cursor=pointer]:
+                - /url: https://www.amazon.in/ap/signin?openid.return_to=https%3A%2F%2Fwww.amazon.in%2Fgp%2Faw%2Fd%2FB0F6YPX2X5&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=inamazon&openid.mode=checkid_setup&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0&
+          - generic [ref=f22e485]:
+            - generic [ref=f22e486]: Other sellers on Amazon
+            - separator [aria-hidden] [ref=f22e487]
+            - button "New (2) from ₹47,999.00 Fulfilled Fulfilled FREE Delivery." [ref=f22e490] [cursor=pointer]:
+              - text: New (2) from
+              - generic [ref=f22e491]:
+                - generic [ref=f22e492]: ₹47,999.00
+                - generic [aria-hidden] [ref=f22e493]:
+                  - text: ₹
+                  - generic [ref=f22e494]:
+                    - text: 47,999
+                    - generic [ref=f22e495]: .
+                  - text: "00"
+              - generic [ref=f22e496]:
+                - generic [ref=f22e497]:
+                  - img "Fulfilled" [ref=f22e498]
+                  - text: Fulfilled
+                - strong [ref=f22e499]: FREE Delivery
+                - text: .
+        - generic [ref=f22e500]:
+          - generic [ref=f22e502]:
+            - button [ref=f22e503]:
+              - button "Share" [ref=f22e504] [cursor=pointer]
+            - generic [ref=f22e507]:
+              - radiogroup "Image thumbnails" [ref=f22e509]:
+                - listitem [ref=f22e510]:
+                  - radio [ref=f22e515] [cursor=pointer]
+                - listitem [ref=f22e517]:
+                  - generic [ref=f22e519]:
+                    - radio [ref=f22e522] [cursor=pointer]
+                    - generic [ref=f22e524]: 2 VIDEOS
+                - listitem [ref=f22e525]:
+                  - radio [ref=f22e530] [cursor=pointer]
+                - listitem [ref=f22e532]:
+                  - radio [ref=f22e537] [cursor=pointer]
+                - listitem [ref=f22e539]:
+                  - radio [ref=f22e544] [cursor=pointer]
+                - listitem [ref=f22e546]:
+                  - radio [ref=f22e551] [cursor=pointer]
+                - listitem [ref=f22e553]:
+                  - generic [ref=f22e557] [cursor=pointer]:
+                    - radio "8+" [ref=f22e558]
+                    - generic [ref=f22e560]: 8+
+              - generic [ref=f22e561]:
+                - generic [ref=f22e563]:
+                  - list
+                  - list [ref=f22e564]:
+                    - listitem [ref=f22e565] [cursor=pointer]:
+                      - button [ref=f22e568]:
+                        - img "realme GT 7 (IceSense Blue,8GB+256GB) | India&#39;s 1st MediaTek Dimensity 9400e Chipset | Strongest Battery Combo 7000mAh + 120W | AI 4K 120FPS Travel Camera | 360° Cooling IceSense Design with Graphene" [ref=f22e569]
+                    - text:           
+                - link "Click to see full view" [ref=f22e573] [cursor=pointer]:
+                  - /url: "#"
+            - text:           
+          - generic [ref=f22e575]:
+            - generic:
+              - button
+        - generic [ref=f22e576]:
+          - generic [ref=f22e577]:
+            - heading "realme GT 7 (IceSense Blue,8GB+256GB) | India's 1st MediaTek Dimensity 9400e Chipset | Strongest Battery Combo 7000mAh + 120W | AI 4K 120FPS Travel Camera | 360° Cooling IceSense Design with Graphene" [level=1] [ref=f22e580]
+            - link "Visit the realme Store" [ref=f22e583] [cursor=pointer]:
+              - /url: /stores/realme/page/B4941E53-E6AE-4319-8632-4E26C2BD25C7?lp_asin=B0F6YPX2X5&ref_=ast_bln&store_ref=bl_ast_dp_brandlogo_sto
+            - generic [ref=f22e585]:
+              - generic "4.2 out of 5 stars" [ref=f22e587]:
+                - button "4.2 out of 5 stars" [ref=f22e589] [cursor=pointer]: "4.2"
+              - link "464 Reviews" [ref=f22e594] [cursor=pointer]:
+                - /url: "#averageCustomerReviewsAnchor"
+                - text: (464)
+            - generic [ref=f22e595]: Amazon's Choice
+            - separator [ref=f22e600]
+          - generic [ref=f22e603]:
+            - generic [ref=f22e606]:
+              - generic [ref=f22e607]:
+                - generic [ref=f22e608]: ₹47,999.00 with 4 percent savings
+                - generic [ref=f22e609]: "-4%"
+                - generic [aria-hidden] [ref=f22e611]: ₹47,999
+              - generic [ref=f22e615]:
+                - generic [ref=f22e616]: "M.R.P.: ₹49,999.00"
+                - generic [aria-hidden] [ref=f22e617]:
+                  - text: "M.R.P.:"
+                  - generic [ref=f22e618]:
+                    - generic [ref=f22e619]: ₹49,999
+                    - text: ₹49,999
+            - generic [ref=f22e621]: Inclusive of all taxes
+            - generic [ref=f22e622]:
+              - generic [ref=f22e623]: EMI starts at ₹1,688. No Cost EMI available
+              - button "EMI options" [ref=f22e625] [cursor=pointer]
+            - generic:
+              - table
+          - generic [ref=f22e633]:
+            - heading "Offers" [level=5] [ref=f22e637]
+            - region [ref=f22e639]:
+              - generic [ref=f22e641]:
+                - list [ref=f22e645]:
+                  - listitem [ref=f22e646] [cursor=pointer]:
+                    - generic [ref=f22e648]:
+                      - heading "Cashback" [level=6] [ref=f22e649]
+                      - generic [ref=f22e651]:
+                        - generic [ref=f22e652]: Upto ₹1,439.00 cashback as Amazon Pay Balance when you pay with Amazon Pay ICICI Bank Credit Cards
+                        - generic [aria-hidden] [ref=f22e653]: Upto ₹1,439.00 cashback as Amazon Pay Balance when…
+                      - link "1 offer" [ref=f22e654]:
+                        - /url: "#"
+                  - listitem [ref=f22e655] [cursor=pointer]:
+                    - generic [ref=f22e657]:
+                      - heading "No Cost EMI" [level=6] [ref=f22e658]
+                      - generic [ref=f22e660]:
+                        - generic [ref=f22e661]: Upto ₹1,251.31 EMI interest savings on Amazon Pay ICICI Bank Credit Cards
+                        - generic [aria-hidden] [ref=f22e662]: Upto ₹1,251.31 EMI interest savings on Amazon Pay ICICI…
+                      - link "1 offer" [ref=f22e663]:
+                        - /url: "#"
+                - button "Next page" [ref=f22e665] [cursor=pointer]
+          - region [ref=f22e671]:
+            - list [ref=f22e676]:
+              - listitem [ref=f22e677] [cursor=pointer]:
+                - button "10 days Service Centre Replacement" [ref=f22e682]
+              - listitem [ref=f22e683] [cursor=pointer]:
+                - button "Free Delivery" [ref=f22e687]
+              - listitem [ref=f22e688] [cursor=pointer]:
+                - button "1 Year Warranty" [ref=f22e692]
+              - listitem [ref=f22e693] [cursor=pointer]:
+                - button "Pay on Delivery" [ref=f22e697]
+              - listitem [ref=f22e698] [cursor=pointer]:
+                - button "Top Brand" [ref=f22e702]
+              - listitem [ref=f22e703] [cursor=pointer]:
+                - button "Amazon Delivered" [ref=f22e707]
+              - listitem [ref=f22e708] [cursor=pointer]:
+                - button "Secure transaction" [ref=f22e712]
+          - generic [ref=f22e717]:
+            - generic [ref=f22e718]:
+              - generic "Selected Size is 8GB+256GB. Tap to collapse." [ref=f22e719] [cursor=pointer]: "Size: 8GB+256GB"
+              - generic "There are 2 options." [ref=f22e722]:
+                - group "Make a Size selection" [ref=f22e724]:
+                  - radiogroup [ref=f22e725]:
+                    - listitem [ref=f22e726]:
+                      - generic [ref=f22e729] [cursor=pointer]:
+                        - radio "8GB+256GB" [checked] [ref=f22e730]
+                        - generic [ref=f22e732]: 8GB+256GB
+                    - listitem [ref=f22e735]:
+                      - generic [ref=f22e738] [cursor=pointer]:
+                        - radio "12GB+256GB" [ref=f22e739]
+                        - generic [ref=f22e741]: 12GB+256GB
+            - generic [ref=f22e744]:
+              - generic "Selected Colour is IceSense Blue. Tap to collapse." [ref=f22e745] [cursor=pointer]: "Colour: IceSense Blue"
+              - generic "There are 2 options." [ref=f22e748]:
+                - group "Make a Colour selection" [ref=f22e750]:
+                  - radiogroup [ref=f22e751]:
+                    - listitem [ref=f22e752]:
+                      - generic [ref=f22e755] [cursor=pointer]:
+                        - radio "IceSense Blue ₹47,999.00 with 4 percent savings ₹47,999.00 ₹49,999.00 ₹49,999.00 Only 1 left in stock." [checked] [ref=f22e756]
+                        - generic [aria-hidden] [ref=f22e757]:
+                          - separator [aria-hidden] [ref=f22e761]
+                          - generic [ref=f22e767]:
+                            - generic [ref=f22e768]:
+                              - generic [ref=f22e769]: ₹47,999.00 with 4 percent savings
+                              - generic [ref=f22e770]: ₹47,999.00
+                            - generic [ref=f22e773]:
+                              - generic [ref=f22e774]: ₹49,999.00
+                              - text: ₹49,999.00
+                    - listitem [ref=f22e775]:
+                      - generic [ref=f22e778] [cursor=pointer]:
+                        - radio "IceSense Black ₹48,999.00 with 30 percent savings ₹48,999.00 ₹69,999.00 ₹69,999.00 In stock" [ref=f22e779]
+                        - generic [aria-hidden] [ref=f22e780]:
+                          - separator [aria-hidden] [ref=f22e784]
+                          - generic [ref=f22e790]:
+                            - generic [ref=f22e791]:
+                              - generic [ref=f22e792]: ₹48,999.00 with 30 percent savings
+                              - generic [ref=f22e793]: ₹48,999.00
+                            - generic [ref=f22e796]:
+                              - generic [ref=f22e797]: ₹69,999.00
+                              - text: ₹69,999.00
+                  - navigation
+          - list [ref=f22e801]:
+            - rowgroup [ref=f22e802]:
+              - listitem [ref=f22e803]: Brand realme
+              - listitem [ref=f22e804]: Operating System Android 15
+              - listitem [ref=f22e805]: RAM Memory Installed Size 8 GB
+              - listitem [ref=f22e806]: CPU Model Mediatek Dimensity 9400
+              - listitem [ref=f22e807]: CPU Speed 3.4 GHz
+          - generic [ref=f22e809]:
+            - separator [aria-hidden] [ref=f22e810]
+            - heading "About this item" [level=1] [ref=f22e811]
+            - list [ref=f22e812]:
+              - listitem [ref=f22e813]: "India’s First with MediaTek Dimensity 9400e: Experience next-gen performance with the country’s first device powered by the flagship Dimensity 9400e, co-tested with KRAFTON for 6-hour stable 120FPS on BGMI with AnTuTu Score of 2.45Mn+"
+              - listitem [ref=f22e814]: "Strongest Battery Duo – 7000mAh + 120W: Massive 7000mAh battery backed by ultra-fast 120W charging for unstoppable power all day long."
+              - listitem [ref=f22e815]: "AI 4K 120FPS Travel Camera: Capture every journey in cinematic clarity with AI-enhanced 4K video at a buttery-smooth 120FPS."
+              - listitem [ref=f22e816]: "360° IceSense Cooling with Graphene: Stay cool under pressure with full-body graphene cooling and 360° IceSense thermal design."
+              - listitem [ref=f22e817]: "Smarter Days with AI Planner: Organize your life effortlessly with an intelligent planner that adapts to your routine."
+              - listitem [ref=f22e818]: "4 Major OS Updates: Stay updated with the latest features and improvements."
+              - listitem [ref=f22e819]: "6-Year System Maintenance: Enjoy long-term stability, security, and performance."
+            - generic [ref=f22e820]:
+              - text: ›
+              - link "See more product details" [ref=f22e821] [cursor=pointer]:
+                - /url: "#productDetails"
+          - link "Report an issue with this product" [ref=f22e827] [cursor=pointer]:
+            - /url: javascript:void(0)
+      - generic [ref=f22e832]:
+        - separator [aria-hidden] [ref=f22e833]
+        - heading "Frequently bought together" [level=2] [ref=f22e834]
+        - generic [ref=f22e835]:
+          - group "Frequently bought together" [ref=f22e836]:
+            - generic [ref=f22e837]:
+              - generic [ref=f22e838]:
+                - 'checkbox "This item: realme GT 7 (IceSense Blue,8GB+256GB) | India''s 1st MediaTek Dimensity 9400e Chipset | Strongest Battery Combo 7000mAh + 120W | AI 4K 120FPS Travel Camera | 360° Cooling IceSense Design with Graphene" [checked] [ref=f22e844]'
+                - generic [ref=f22e849]:
+                  - generic [ref=f22e850]: "This item: realme GT 7 (IceSense Blue,8GB+256GB) | India's 1st MediaTek Dimensity 9400e Chipset | Strongest Battery Combo 7000mAh + 120W | AI 4K 120FPS Travel Camera | 360° Cooling IceSense Design with Graphene"
+                  - generic [ref=f22e858]:
+                    - generic [ref=f22e859]: ₹47,999.00
+                    - generic [aria-hidden] [ref=f22e860]:
+                      - text: ₹
+                      - generic [ref=f22e861]:
+                        - text: 47,999
+                        - generic [ref=f22e862]: .
+                      - text: "00"
+              - generic [ref=f22e863]:
+                - generic [ref=f22e864]:
+                  - generic [ref=f22e865]: +
+                  - checkbox "TheGiftKart Crystal Clear Back Cover Case for Realme GT 7 5G / GT 7T 5G / GT 7 Dream Edition | Shock Proof 360° Protection | Hard Clear Back Cover Case (PC & TPU, Transparent Bumper)" [checked] [ref=f22e869]
+                  - link [ref=f22e873] [cursor=pointer]:
+                    - /url: /TheGiftKart-Crystal-Realme-Protection-Transparent/dp/B0F88HS7RC/ref=pd_bxgy_thbs_d_sccl_1/524-3814505-8663119?pd_rd_w=ocDYh&content-id=amzn1.sym.142c0d31-3594-485b-b879-def9251f61c0&pf_rd_p=142c0d31-3594-485b-b879-def9251f61c0&pf_rd_r=4XCQMS49JTDY1ZZW3QZ8&pd_rd_wg=VqPVh&pd_rd_r=b7e40830-e93a-476f-8eed-29882bb32c17&pd_rd_i=B0F88HS7RC&psc=1
+                    - img "TheGiftKart Crystal Clear Back Cover Case for Realme GT 7 5G / GT 7T 5G / GT 7 Dream Edition | Shock Proof 360° Protection |" [ref=f22e874]
+                - generic [ref=f22e875]:
+                  - link "TheGiftKart Crystal Clear Back Cover Case for Realme GT 7 5G / GT 7T 5G / GT 7 Dream Edition | Shock Proof 360° Protection | Hard Clear Back Cover Case (PC & TPU, Transparent Bumper)" [ref=f22e877] [cursor=pointer]:
+                    - /url: /TheGiftKart-Crystal-Realme-Protection-Transparent/dp/B0F88HS7RC/ref=pd_bxgy_d_sccl_1/524-3814505-8663119?pd_rd_w=ocDYh&content-id=amzn1.sym.142c0d31-3594-485b-b879-def9251f61c0&pf_rd_p=142c0d31-3594-485b-b879-def9251f61c0&pf_rd_r=4XCQMS49JTDY1ZZW3QZ8&pd_rd_wg=VqPVh&pd_rd_r=b7e40830-e93a-476f-8eed-29882bb32c17&pd_rd_i=B0F88HS7RC&psc=1
+                  - generic [ref=f22e885]:
+                    - generic [ref=f22e886]: ₹284.00
+                    - generic [aria-hidden] [ref=f22e887]:
+                      - text: ₹
+                      - generic [ref=f22e888]:
+                        - text: "284"
+                        - generic [ref=f22e889]: .
+                      - text: "00"
+              - generic [ref=f22e890]:
+                - generic [ref=f22e891]:
+                  - generic [ref=f22e892]: +
+                  - checkbox "SPAZY CASE® Realme GT 7 Premium Adavnced Tempered Glass | HD Clarity Full Screen Protector for Realme GT 7 5G Transparent" [checked] [ref=f22e896]
+                  - link [ref=f22e900] [cursor=pointer]:
+                    - /url: /SPAZY-Premium-Adavnced-Tempered-Protector/dp/B0F6CB41C4/ref=pd_bxgy_thbs_d_sccl_2/524-3814505-8663119?pd_rd_w=ocDYh&content-id=amzn1.sym.142c0d31-3594-485b-b879-def9251f61c0&pf_rd_p=142c0d31-3594-485b-b879-def9251f61c0&pf_rd_r=4XCQMS49JTDY1ZZW3QZ8&pd_rd_wg=VqPVh&pd_rd_r=b7e40830-e93a-476f-8eed-29882bb32c17&pd_rd_i=B0F6CB41C4&psc=1
+                    - img "SPAZY CASE® Realme GT 7 Premium Adavnced Tempered Glass | HD Clarity Full Screen Protector for Realme GT 7 5G Transparent" [ref=f22e901]
+                - generic [ref=f22e902]:
+                  - link "SPAZY CASE® Realme GT 7 Premium Adavnced Tempered Glass | HD Clarity Full Screen Protector for Realme GT 7 5G Transparent" [ref=f22e904] [cursor=pointer]:
+                    - /url: /SPAZY-Premium-Adavnced-Tempered-Protector/dp/B0F6CB41C4/ref=pd_bxgy_d_sccl_2/524-3814505-8663119?pd_rd_w=ocDYh&content-id=amzn1.sym.142c0d31-3594-485b-b879-def9251f61c0&pf_rd_p=142c0d31-3594-485b-b879-def9251f61c0&pf_rd_r=4XCQMS49JTDY1ZZW3QZ8&pd_rd_wg=VqPVh&pd_rd_r=b7e40830-e93a-476f-8eed-29882bb32c17&pd_rd_i=B0F6CB41C4&psc=1
+                  - generic [ref=f22e912]:
+                    - generic [ref=f22e913]: ₹199.00
+                    - generic [aria-hidden] [ref=f22e914]:
+                      - text: ₹
+                      - generic [ref=f22e915]:
+                        - text: "199"
+                        - generic [ref=f22e916]: .
+                      - text: "00"
+          - generic [ref=f22e917]:
+            - generic [ref=f22e918]:
+              - generic [ref=f22e920]:
+                - text: "Total price:"
+                - generic [ref=f22e921]:
+                  - generic [ref=f22e922]: ₹48,482.00
+                  - generic [aria-hidden] [ref=f22e923]:
+                    - text: ₹
+                    - generic [ref=f22e924]: 48,482.
+                    - text: "00"
+              - generic [ref=f22e930] [cursor=pointer]:
+                - button "Add all 3 to Cart, realme GT 7 (IceSense Blue,8GB+256GB) | India's 1st MediaTek Dimensity 9400e Chipset | Strongest Battery Combo 7000mAh + 120W | AI 4K 120FPS Travel Camera | 360° Cooling IceSense Design with Graphene" [ref=f22e931]
+                - generic [aria-hidden] [ref=f22e932]: Add all 3 to Cart
+            - generic [ref=f22e933]:
+              - generic [ref=f22e934]: Some of these items are dispatched sooner than the others.
+              - link "Show details for Frequently bought together,After enabling, redirect focus to product information to get details," [ref=f22e939] [cursor=pointer]:
+                - /url: javascript:void(0)
+                - text: Show details
+      - generic [ref=f22e942]:
+        - separator [aria-hidden] [ref=f22e943]
+        - group [ref=f22e946]:
+          - heading "Customers who viewed this item also viewed" [level=2] [ref=f22e951]
+          - group [ref=f22e956]:
+            - list [ref=f22e957]:
+              - listitem [ref=f22e958]:
+                - generic [ref=f22e960]:
+                  - link [aria-hidden] [ref=f22e962] [cursor=pointer]:
+                    - /url: /realme-IceSense-MediaTek-Strongest-Graphene/dp/B0F6YWDMXF/ref=pd_sbs_d_sccl_1_1/524-3814505-8663119?pd_rd_w=djobJ&content-id=amzn1.sym.d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_p=d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_r=4XCQMS49JTDY1ZZW3QZ8&pd_rd_wg=VqPVh&pd_rd_r=b7e40830-e93a-476f-8eed-29882bb32c17&pd_rd_i=B0F6YWDMXF&psc=1
+                  - generic [ref=f22e965]:
+                    - link "realme GT 7T (IceSense Blue,12GB+256GB)| MediaTek D8400 MAX | Strongest Battery Combo 7000mAh + 120W | AI 4K 60FPS Travel Camera | 360° Cooling IceSense Design with Graphene | 6000 nits Display" [ref=f22e966] [cursor=pointer]:
+                      - /url: /realme-IceSense-MediaTek-Strongest-Graphene/dp/B0F6YWDMXF/ref=pd_sbs_d_sccl_1_1/524-3814505-8663119?pd_rd_w=djobJ&content-id=amzn1.sym.d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_p=d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_r=4XCQMS49JTDY1ZZW3QZ8&pd_rd_wg=VqPVh&pd_rd_r=b7e40830-e93a-476f-8eed-29882bb32c17&pd_rd_i=B0F6YWDMXF&psc=1
+                    - link "4.3 out of 5 stars, 869 ratings" [ref=f22e971] [cursor=pointer]:
+                      - /url: /product-reviews/B0F6YWDMXF/ref=pd_sbs_d_sccl_1_1_cr/524-3814505-8663119?pd_rd_w=djobJ&content-id=amzn1.sym.d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_p=d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_r=4XCQMS49JTDY1ZZW3QZ8&pd_rd_wg=VqPVh&pd_rd_r=b7e40830-e93a-476f-8eed-29882bb32c17&pd_rd_i=B0F6YWDMXF
+                      - generic [ref=f22e973]: 4.3 out of 5 stars
+                      - text: "869"
+                    - generic [ref=f22e974]:
+                      - generic [ref=f22e976]:
+                        - generic [ref=f22e977]:
+                          - link "-3%" [ref=f22e978] [cursor=pointer]:
+                            - /url: /realme-IceSense-MediaTek-Strongest-Graphene/dp/B0F6YWDMXF/ref=pd_sbs_d_sccl_1_1/524-3814505-8663119?pd_rd_w=djobJ&content-id=amzn1.sym.d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_p=d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_r=4XCQMS49JTDY1ZZW3QZ8&pd_rd_wg=VqPVh&pd_rd_r=b7e40830-e93a-476f-8eed-29882bb32c17&pd_rd_i=B0F6YWDMXF&psc=1
+                          - link "₹41,890.00" [ref=f22e979] [cursor=pointer]:
+                            - /url: /realme-IceSense-MediaTek-Strongest-Graphene/dp/B0F6YWDMXF/ref=pd_sbs_d_sccl_1_1/524-3814505-8663119?pd_rd_w=djobJ&content-id=amzn1.sym.d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_p=d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_r=4XCQMS49JTDY1ZZW3QZ8&pd_rd_wg=VqPVh&pd_rd_r=b7e40830-e93a-476f-8eed-29882bb32c17&pd_rd_i=B0F6YWDMXF&psc=1
+                            - generic [ref=f22e980]:
+                              - generic [ref=f22e981]: ₹41,890.00
+                              - generic [aria-hidden] [ref=f22e982]:
+                                - text: ₹
+                                - generic [ref=f22e983]: 41,890.
+                                - text: "00"
+                        - 'link "M.R.P: ₹42,999.00" [ref=f22e985] [cursor=pointer]':
+                          - /url: /realme-IceSense-MediaTek-Strongest-Graphene/dp/B0F6YWDMXF/ref=pd_sbs_d_sccl_1_1/524-3814505-8663119?pd_rd_w=djobJ&content-id=amzn1.sym.d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_p=d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_r=4XCQMS49JTDY1ZZW3QZ8&pd_rd_wg=VqPVh&pd_rd_r=b7e40830-e93a-476f-8eed-29882bb32c17&pd_rd_i=B0F6YWDMXF&psc=1
+                      - generic [ref=f22e988]: Get it by Wednesday, October 28
+                    - text: FREE Delivery by Amazon
+                    - generic [ref=f22e990]: Only 1 left in stock.
+              - listitem [ref=f22e993]:
+                - generic [ref=f22e995]:
+                  - link [aria-hidden] [ref=f22e997] [cursor=pointer]:
+                    - /url: /realme-Snapdragon-Processor-SUPERVOOC-Charging/dp/B0H1J9V8HF/ref=pd_sbs_d_sccl_1_2/524-3814505-8663119?pd_rd_w=djobJ&content-id=amzn1.sym.d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_p=d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_r=4XCQMS49JTDY1ZZW3QZ8&pd_rd_wg=VqPVh&pd_rd_r=b7e40830-e93a-476f-8eed-29882bb32c17&pd_rd_i=B0H1J9V8HF&psc=1
+                  - generic [ref=f22e1000]:
+                    - link "realme GT 7 Pro (Grey, 12GB RAM, 256GB Storage) | Snapdragon 8 Elite Processor | 50MP AI Triple Camera | 6.78\" 1.5K AMOLED 120Hz Display | 5800mAh Battery | 120W SUPERVOOC Charging" [ref=f22e1001] [cursor=pointer]:
+                      - /url: /realme-Snapdragon-Processor-SUPERVOOC-Charging/dp/B0H1J9V8HF/ref=pd_sbs_d_sccl_1_2/524-3814505-8663119?pd_rd_w=djobJ&content-id=amzn1.sym.d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_p=d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_r=4XCQMS49JTDY1ZZW3QZ8&pd_rd_wg=VqPVh&pd_rd_r=b7e40830-e93a-476f-8eed-29882bb32c17&pd_rd_i=B0H1J9V8HF&psc=1
+                    - link "2.0 out of 5 stars, 1 ratings" [ref=f22e1006] [cursor=pointer]:
+                      - /url: /product-reviews/B0H1J9V8HF/ref=pd_sbs_d_sccl_1_2_cr/524-3814505-8663119?pd_rd_w=djobJ&content-id=amzn1.sym.d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_p=d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_r=4XCQMS49JTDY1ZZW3QZ8&pd_rd_wg=VqPVh&pd_rd_r=b7e40830-e93a-476f-8eed-29882bb32c17&pd_rd_i=B0H1J9V8HF
+                      - generic [ref=f22e1008]: 2.0 out of 5 stars
+                      - text: "1"
+                    - generic [ref=f22e1009]:
+                      - generic [ref=f22e1011]:
+                        - generic [ref=f22e1012]:
+                          - link "-17%" [ref=f22e1013] [cursor=pointer]:
+                            - /url: /realme-Snapdragon-Processor-SUPERVOOC-Charging/dp/B0H1J9V8HF/ref=pd_sbs_d_sccl_1_2/524-3814505-8663119?pd_rd_w=djobJ&content-id=amzn1.sym.d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_p=d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_r=4XCQMS49JTDY1ZZW3QZ8&pd_rd_wg=VqPVh&pd_rd_r=b7e40830-e93a-476f-8eed-29882bb32c17&pd_rd_i=B0H1J9V8HF&psc=1
+                          - link "₹57,999.00" [ref=f22e1014] [cursor=pointer]:
+                            - /url: /realme-Snapdragon-Processor-SUPERVOOC-Charging/dp/B0H1J9V8HF/ref=pd_sbs_d_sccl_1_2/524-3814505-8663119?pd_rd_w=djobJ&content-id=amzn1.sym.d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_p=d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_r=4XCQMS49JTDY1ZZW3QZ8&pd_rd_wg=VqPVh&pd_rd_r=b7e40830-e93a-476f-8eed-29882bb32c17&pd_rd_i=B0H1J9V8HF&psc=1
+                            - generic [ref=f22e1015]:
+                              - generic [ref=f22e1016]: ₹57,999.00
+                              - generic [aria-hidden] [ref=f22e1017]:
+                                - text: ₹
+                                - generic [ref=f22e1018]: 57,999.
+                                - text: "00"
+                        - 'link "M.R.P: ₹69,999.00" [ref=f22e1020] [cursor=pointer]':
+                          - /url: /realme-Snapdragon-Processor-SUPERVOOC-Charging/dp/B0H1J9V8HF/ref=pd_sbs_d_sccl_1_2/524-3814505-8663119?pd_rd_w=djobJ&content-id=amzn1.sym.d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_p=d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_r=4XCQMS49JTDY1ZZW3QZ8&pd_rd_wg=VqPVh&pd_rd_r=b7e40830-e93a-476f-8eed-29882bb32c17&pd_rd_i=B0H1J9V8HF&psc=1
+                      - generic [ref=f22e1023]: Get it by Tuesday, October 27
+                    - text: FREE Delivery by Amazon
+                    - generic [ref=f22e1025]: Only 1 left in stock.
+              - listitem [ref=f22e1028]:
+                - generic [ref=f22e1030]:
+                  - link [aria-hidden] [ref=f22e1032] [cursor=pointer]:
+                    - /url: /realme-Snapdragon-Processor-Periscope-RealWorld/dp/B0DMFCPF1W/ref=pd_sbs_d_sccl_1_3/524-3814505-8663119?pd_rd_w=djobJ&content-id=amzn1.sym.d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_p=d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_r=4XCQMS49JTDY1ZZW3QZ8&pd_rd_wg=VqPVh&pd_rd_r=b7e40830-e93a-476f-8eed-29882bb32c17&pd_rd_i=B0DMFCPF1W&psc=1
+                  - generic [ref=f22e1035]:
+                    - link "realme GT 7 Pro (Galaxy Grey,16GB+512GB) | India's First Snapdragon 8 Elite Processor | 3X Periscope Flagship Camera| RealWorld Eco² OLED Plus Display" [ref=f22e1036] [cursor=pointer]:
+                      - /url: /realme-Snapdragon-Processor-Periscope-RealWorld/dp/B0DMFCPF1W/ref=pd_sbs_d_sccl_1_3/524-3814505-8663119?pd_rd_w=djobJ&content-id=amzn1.sym.d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_p=d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_r=4XCQMS49JTDY1ZZW3QZ8&pd_rd_wg=VqPVh&pd_rd_r=b7e40830-e93a-476f-8eed-29882bb32c17&pd_rd_i=B0DMFCPF1W&psc=1
+                    - link "4.2 out of 5 stars, 92 ratings" [ref=f22e1041] [cursor=pointer]:
+                      - /url: /product-reviews/B0DMFCPF1W/ref=pd_sbs_d_sccl_1_3_cr/524-3814505-8663119?pd_rd_w=djobJ&content-id=amzn1.sym.d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_p=d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_r=4XCQMS49JTDY1ZZW3QZ8&pd_rd_wg=VqPVh&pd_rd_r=b7e40830-e93a-476f-8eed-29882bb32c17&pd_rd_i=B0DMFCPF1W
+                      - generic [ref=f22e1043]: 4.2 out of 5 stars
+                      - text: "92"
+                    - generic [ref=f22e1044]:
+                      - generic [ref=f22e1046]:
+                        - generic [ref=f22e1047]:
+                          - link "-13%" [ref=f22e1048] [cursor=pointer]:
+                            - /url: /realme-Snapdragon-Processor-Periscope-RealWorld/dp/B0DMFCPF1W/ref=pd_sbs_d_sccl_1_3/524-3814505-8663119?pd_rd_w=djobJ&content-id=amzn1.sym.d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_p=d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_r=4XCQMS49JTDY1ZZW3QZ8&pd_rd_wg=VqPVh&pd_rd_r=b7e40830-e93a-476f-8eed-29882bb32c17&pd_rd_i=B0DMFCPF1W&psc=1
+                          - link "₹69,999.00" [ref=f22e1049] [cursor=pointer]:
+                            - /url: /realme-Snapdragon-Processor-Periscope-RealWorld/dp/B0DMFCPF1W/ref=pd_sbs_d_sccl_1_3/524-3814505-8663119?pd_rd_w=djobJ&content-id=amzn1.sym.d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_p=d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_r=4XCQMS49JTDY1ZZW3QZ8&pd_rd_wg=VqPVh&pd_rd_r=b7e40830-e93a-476f-8eed-29882bb32c17&pd_rd_i=B0DMFCPF1W&psc=1
+                            - generic [ref=f22e1050]:
+                              - generic [ref=f22e1051]: ₹69,999.00
+                              - generic [aria-hidden] [ref=f22e1052]:
+                                - text: ₹
+                                - generic [ref=f22e1053]: 69,999.
+                                - text: "00"
+                        - 'link "M.R.P: ₹79,999.00" [ref=f22e1055] [cursor=pointer]':
+                          - /url: /realme-Snapdragon-Processor-Periscope-RealWorld/dp/B0DMFCPF1W/ref=pd_sbs_d_sccl_1_3/524-3814505-8663119?pd_rd_w=djobJ&content-id=amzn1.sym.d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_p=d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_r=4XCQMS49JTDY1ZZW3QZ8&pd_rd_wg=VqPVh&pd_rd_r=b7e40830-e93a-476f-8eed-29882bb32c17&pd_rd_i=B0DMFCPF1W&psc=1
+                      - generic [ref=f22e1058]: Get it by Thursday, October 29
+                    - text: FREE Delivery by Amazon
+                    - generic [ref=f22e1060]: Only 2 left in stock.
+              - listitem [ref=f22e1063]:
+                - generic [ref=f22e1065]:
+                  - link [aria-hidden] [ref=f22e1067] [cursor=pointer]:
+                    - /url: /iQOO-Snapdragon%C2%AE-Processor-Slimmest-Smartphone/dp/B0HCB99FYF/ref=pd_sbs_d_sccl_1_4/524-3814505-8663119?pd_rd_w=djobJ&content-id=amzn1.sym.d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_p=d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_r=4XCQMS49JTDY1ZZW3QZ8&pd_rd_wg=VqPVh&pd_rd_r=b7e40830-e93a-476f-8eed-29882bb32c17&pd_rd_i=B0HCB99FYF&psc=1
+                  - generic [ref=f22e1070]:
+                    - link "iQOO 15R (Triumph Silver 2026, 12GB RAM, 256GB Storage) | Snapdragon® 8 Gen 5 Processor | India’s Slimmest Smartphone in 7600mAh Battery* | Segment's Most Stable 144FPS Gaming*" [ref=f22e1071] [cursor=pointer]:
+                      - /url: /iQOO-Snapdragon%C2%AE-Processor-Slimmest-Smartphone/dp/B0HCB99FYF/ref=pd_sbs_d_sccl_1_4/524-3814505-8663119?pd_rd_w=djobJ&content-id=amzn1.sym.d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_p=d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_r=4XCQMS49JTDY1ZZW3QZ8&pd_rd_wg=VqPVh&pd_rd_r=b7e40830-e93a-476f-8eed-29882bb32c17&pd_rd_i=B0HCB99FYF&psc=1
+                    - link "4.5 out of 5 stars, 857 ratings" [ref=f22e1076] [cursor=pointer]:
+                      - /url: /product-reviews/B0HCB99FYF/ref=pd_sbs_d_sccl_1_4_cr/524-3814505-8663119?pd_rd_w=djobJ&content-id=amzn1.sym.d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_p=d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_r=4XCQMS49JTDY1ZZW3QZ8&pd_rd_wg=VqPVh&pd_rd_r=b7e40830-e93a-476f-8eed-29882bb32c17&pd_rd_i=B0HCB99FYF
+                      - generic [ref=f22e1078]: 4.5 out of 5 stars
+                      - text: "857"
+                    - generic [ref=f22e1079]:
+                      - generic [ref=f22e1081]:
+                        - generic [ref=f22e1082]:
+                          - link "-23%" [ref=f22e1083] [cursor=pointer]:
+                            - /url: /iQOO-Snapdragon%C2%AE-Processor-Slimmest-Smartphone/dp/B0HCB99FYF/ref=pd_sbs_d_sccl_1_4/524-3814505-8663119?pd_rd_w=djobJ&content-id=amzn1.sym.d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_p=d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_r=4XCQMS49JTDY1ZZW3QZ8&pd_rd_wg=VqPVh&pd_rd_r=b7e40830-e93a-476f-8eed-29882bb32c17&pd_rd_i=B0HCB99FYF&psc=1
+                          - link "₹59,999.00" [ref=f22e1084] [cursor=pointer]:
+                            - /url: /iQOO-Snapdragon%C2%AE-Processor-Slimmest-Smartphone/dp/B0HCB99FYF/ref=pd_sbs_d_sccl_1_4/524-3814505-8663119?pd_rd_w=djobJ&content-id=amzn1.sym.d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_p=d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_r=4XCQMS49JTDY1ZZW3QZ8&pd_rd_wg=VqPVh&pd_rd_r=b7e40830-e93a-476f-8eed-29882bb32c17&pd_rd_i=B0HCB99FYF&psc=1
+                            - generic [ref=f22e1085]:
+                              - generic [ref=f22e1086]: ₹59,999.00
+                              - generic [aria-hidden] [ref=f22e1087]:
+                                - text: ₹
+                                - generic [ref=f22e1088]: 59,999.
+                                - text: "00"
+                        - 'link "M.R.P: ₹77,999.00" [ref=f22e1090] [cursor=pointer]':
+                          - /url: /iQOO-Snapdragon%C2%AE-Processor-Slimmest-Smartphone/dp/B0HCB99FYF/ref=pd_sbs_d_sccl_1_4/524-3814505-8663119?pd_rd_w=djobJ&content-id=amzn1.sym.d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_p=d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_r=4XCQMS49JTDY1ZZW3QZ8&pd_rd_wg=VqPVh&pd_rd_r=b7e40830-e93a-476f-8eed-29882bb32c17&pd_rd_i=B0HCB99FYF&psc=1
+                      - generic [ref=f22e1093]: Get it by Tuesday, October 27
+                    - text: FREE Delivery by Amazon
+              - listitem [ref=f22e1095]:
+                - generic [ref=f22e1097]:
+                  - link [aria-hidden] [ref=f22e1099] [cursor=pointer]:
+                    - /url: /iQOO-Processor-Snapdragon-Supercomputing-FlashCharge/dp/B0GXZ1VC4J/ref=pd_sbs_d_sccl_1_5/524-3814505-8663119?pd_rd_w=djobJ&content-id=amzn1.sym.d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_p=d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_r=4XCQMS49JTDY1ZZW3QZ8&pd_rd_wg=VqPVh&pd_rd_r=b7e40830-e93a-476f-8eed-29882bb32c17&pd_rd_i=B0GXZ1VC4J&psc=1
+                  - generic [ref=f22e1102]:
+                    - link "iQOO Neo 10 (Alpine White, 8GB RAM, 256GB Storage) | Segment's Fastest Processor* with Snapdragon 8s Gen 4 & Supercomputing chip Q1 | 120W FlashCharge | Segment's Brightest AMOLED Display*" [ref=f22e1103] [cursor=pointer]:
+                      - /url: /iQOO-Processor-Snapdragon-Supercomputing-FlashCharge/dp/B0GXZ1VC4J/ref=pd_sbs_d_sccl_1_5/524-3814505-8663119?pd_rd_w=djobJ&content-id=amzn1.sym.d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_p=d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_r=4XCQMS49JTDY1ZZW3QZ8&pd_rd_wg=VqPVh&pd_rd_r=b7e40830-e93a-476f-8eed-29882bb32c17&pd_rd_i=B0GXZ1VC4J&psc=1
+                    - link "4.4 out of 5 stars, 473 ratings" [ref=f22e1108] [cursor=pointer]:
+                      - /url: /product-reviews/B0GXZ1VC4J/ref=pd_sbs_d_sccl_1_5_cr/524-3814505-8663119?pd_rd_w=djobJ&content-id=amzn1.sym.d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_p=d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_r=4XCQMS49JTDY1ZZW3QZ8&pd_rd_wg=VqPVh&pd_rd_r=b7e40830-e93a-476f-8eed-29882bb32c17&pd_rd_i=B0GXZ1VC4J
+                      - generic [ref=f22e1110]: 4.4 out of 5 stars
+                      - text: "473"
+                    - generic [ref=f22e1111]:
+                      - generic [ref=f22e1113]:
+                        - generic [ref=f22e1114]:
+                          - link "-4%" [ref=f22e1115] [cursor=pointer]:
+                            - /url: /iQOO-Processor-Snapdragon-Supercomputing-FlashCharge/dp/B0GXZ1VC4J/ref=pd_sbs_d_sccl_1_5/524-3814505-8663119?pd_rd_w=djobJ&content-id=amzn1.sym.d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_p=d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_r=4XCQMS49JTDY1ZZW3QZ8&pd_rd_wg=VqPVh&pd_rd_r=b7e40830-e93a-476f-8eed-29882bb32c17&pd_rd_i=B0GXZ1VC4J&psc=1
+                          - link "₹43,999.00" [ref=f22e1116] [cursor=pointer]:
+                            - /url: /iQOO-Processor-Snapdragon-Supercomputing-FlashCharge/dp/B0GXZ1VC4J/ref=pd_sbs_d_sccl_1_5/524-3814505-8663119?pd_rd_w=djobJ&content-id=amzn1.sym.d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_p=d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_r=4XCQMS49JTDY1ZZW3QZ8&pd_rd_wg=VqPVh&pd_rd_r=b7e40830-e93a-476f-8eed-29882bb32c17&pd_rd_i=B0GXZ1VC4J&psc=1
+                            - generic [ref=f22e1117]:
+                              - generic [ref=f22e1118]: ₹43,999.00
+                              - generic [aria-hidden] [ref=f22e1119]:
+                                - text: ₹
+                                - generic [ref=f22e1120]: 43,999.
+                                - text: "00"
+                        - 'link "M.R.P: ₹45,999.00" [ref=f22e1122] [cursor=pointer]':
+                          - /url: /iQOO-Processor-Snapdragon-Supercomputing-FlashCharge/dp/B0GXZ1VC4J/ref=pd_sbs_d_sccl_1_5/524-3814505-8663119?pd_rd_w=djobJ&content-id=amzn1.sym.d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_p=d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_r=4XCQMS49JTDY1ZZW3QZ8&pd_rd_wg=VqPVh&pd_rd_r=b7e40830-e93a-476f-8eed-29882bb32c17&pd_rd_i=B0GXZ1VC4J&psc=1
+                      - generic [ref=f22e1125]: Get it by Tuesday, October 27
+                    - text: FREE Delivery by Amazon
+              - listitem [ref=f22e1127]:
+                - generic [ref=f22e1129]:
+                  - link [aria-hidden] [ref=f22e1131] [cursor=pointer]:
+                    - /url: /iQOO-Alpine-White-256GB-Storage/dp/B0HN2H7P78/ref=pd_sbs_d_sccl_1_6/524-3814505-8663119?pd_rd_w=djobJ&content-id=amzn1.sym.d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_p=d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_r=4XCQMS49JTDY1ZZW3QZ8&pd_rd_wg=VqPVh&pd_rd_r=b7e40830-e93a-476f-8eed-29882bb32c17&pd_rd_i=B0HN2H7P78&psc=1
+                  - generic [ref=f22e1134]:
+                    - link "iQOO Neo 10 (Alpine White, 8GB RAM, 256GB Storage) with Buds" [ref=f22e1135] [cursor=pointer]:
+                      - /url: /iQOO-Alpine-White-256GB-Storage/dp/B0HN2H7P78/ref=pd_sbs_d_sccl_1_6/524-3814505-8663119?pd_rd_w=djobJ&content-id=amzn1.sym.d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_p=d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_r=4XCQMS49JTDY1ZZW3QZ8&pd_rd_wg=VqPVh&pd_rd_r=b7e40830-e93a-476f-8eed-29882bb32c17&pd_rd_i=B0HN2H7P78&psc=1
+                    - generic [ref=f22e1138]:
+                      - generic [ref=f22e1140]:
+                        - generic [ref=f22e1141]:
+                          - link "-8%" [ref=f22e1142] [cursor=pointer]:
+                            - /url: /iQOO-Alpine-White-256GB-Storage/dp/B0HN2H7P78/ref=pd_sbs_d_sccl_1_6/524-3814505-8663119?pd_rd_w=djobJ&content-id=amzn1.sym.d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_p=d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_r=4XCQMS49JTDY1ZZW3QZ8&pd_rd_wg=VqPVh&pd_rd_r=b7e40830-e93a-476f-8eed-29882bb32c17&pd_rd_i=B0HN2H7P78&psc=1
+                          - link "₹45,241.02" [ref=f22e1143] [cursor=pointer]:
+                            - /url: /iQOO-Alpine-White-256GB-Storage/dp/B0HN2H7P78/ref=pd_sbs_d_sccl_1_6/524-3814505-8663119?pd_rd_w=djobJ&content-id=amzn1.sym.d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_p=d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_r=4XCQMS49JTDY1ZZW3QZ8&pd_rd_wg=VqPVh&pd_rd_r=b7e40830-e93a-476f-8eed-29882bb32c17&pd_rd_i=B0HN2H7P78&psc=1
+                            - generic [ref=f22e1144]:
+                              - generic [ref=f22e1145]: ₹45,241.02
+                              - generic [aria-hidden] [ref=f22e1146]:
+                                - text: ₹
+                                - generic [ref=f22e1147]: 45,241.
+                                - text: "02"
+                        - 'link "List: ₹48,989.00" [ref=f22e1149] [cursor=pointer]':
+                          - /url: /iQOO-Alpine-White-256GB-Storage/dp/B0HN2H7P78/ref=pd_sbs_d_sccl_1_6/524-3814505-8663119?pd_rd_w=djobJ&content-id=amzn1.sym.d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_p=d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_r=4XCQMS49JTDY1ZZW3QZ8&pd_rd_wg=VqPVh&pd_rd_r=b7e40830-e93a-476f-8eed-29882bb32c17&pd_rd_i=B0HN2H7P78&psc=1
+                      - generic [ref=f22e1152]: Get it by Tomorrow, October 25
+                    - text: FREE Delivery by Amazon
+      - generic [ref=f22e1159]:
+        - generic [ref=f22e1160]:
+          - separator [aria-hidden] [ref=f22e1161]
+          - generic [ref=f22e1163]:
+            - heading "realme GT 7 Mobile Phone Information" [level=1] [ref=f22e1164]
+            - generic [ref=f22e1168]:
+              - generic [ref=f22e1169]:
+                - generic [ref=f22e1171]:
+                  - button [ref=f22e1174] [cursor=pointer]:
+                    - heading "Additional details" [level=5] [ref=f22e1176]
+                  - button [ref=f22e1179] [cursor=pointer]:
+                    - heading "Camera" [level=5] [ref=f22e1181]
+                  - button [ref=f22e1184] [cursor=pointer]:
+                    - heading "Battery" [level=5] [ref=f22e1186]
+                  - button [ref=f22e1189] [cursor=pointer]:
+                    - heading "Measurements" [level=5] [ref=f22e1191]
+                  - button [ref=f22e1194] [cursor=pointer]:
+                    - heading "Navigation" [level=5] [ref=f22e1196]
+                - generic [ref=f22e1199]:
+                  - heading "Feedback" [level=3] [ref=f22e1200]
+                  - generic [ref=f22e1205]:
+                    - text: Would you like to
+                    - button "tell us about a lower price?" [ref=f22e1207] [cursor=pointer]
+              - generic [ref=f22e1211]:
+                - button [ref=f22e1214] [cursor=pointer]:
+                  - heading "Display" [level=5] [ref=f22e1216]
+                - button [ref=f22e1219] [cursor=pointer]:
+                  - heading "Connectivity" [level=5] [ref=f22e1221]
+                - button [ref=f22e1224] [cursor=pointer]:
+                  - heading "Item details" [level=5] [ref=f22e1226]
+                - button [ref=f22e1229] [cursor=pointer]:
+                  - heading "Video" [level=5] [ref=f22e1231]
+        - generic [ref=f22e1233]:
+          - separator [ref=f22e1234]
+          - heading "From the manufacturer" [level=2] [ref=f22e1235]
+          - generic [ref=f22e1238]:
+            - img "GT 7 Series" [ref=f22e1243]
+            - img "all feature image" [ref=f22e1248]
+            - generic [ref=f22e1252]:
+              - region [ref=f22e1253]:
+                - list [ref=f22e1258]:
+                  - listitem [ref=f22e1259]:
+                    - img "battery" [ref=f22e1261]
+                  - listitem [ref=f22e1262]:
+                    - img "chipset" [ref=f22e1264]
+                  - listitem [ref=f22e1265]:
+                    - img "AI" [ref=f22e1267]
+                  - listitem [ref=f22e1268]:
+                    - img "camera" [ref=f22e1270]
+                  - listitem [ref=f22e1271]:
+                    - img "Ai Edit Genie" [ref=f22e1273]
+              - tablist "tablist section" [ref=f22e1274]:
+                - tab "1 Battery" [ref=f22e1277] [cursor=pointer]:
+                  - generic [ref=f22e1278]: "1"
+                  - text: Battery
+                - tab "2 Chipset" [ref=f22e1281] [cursor=pointer]:
+                  - generic [ref=f22e1282]: "2"
+                  - text: Chipset
+                - tab "3 AI Planner" [ref=f22e1285] [cursor=pointer]:
+                  - generic [ref=f22e1286]: "3"
+                  - text: AI Planner
+                - tab "4 Camera" [ref=f22e1289] [cursor=pointer]:
+                  - generic [ref=f22e1290]: "4"
+                  - text: Camera
+                - tab "5 AI Edit Genie" [ref=f22e1293] [cursor=pointer]:
+                  - generic [ref=f22e1294]: "5"
+                  - text: AI Edit Genie
+            - generic [ref=f22e1298]:
+              - region [ref=f22e1299]:
+                - list [ref=f22e1304]:
+                  - listitem [ref=f22e1305]:
+                    - img "cooling" [ref=f22e1307]
+                  - listitem [ref=f22e1308]:
+                    - img "display" [ref=f22e1310]
+                  - listitem [ref=f22e1311]:
+                    - img "kjhgfd" [ref=f22e1313]
+                  - listitem [ref=f22e1314]:
+                    - img "IP69" [ref=f22e1316]
+                  - listitem [ref=f22e1317]:
+                    - img "CHARGING" [ref=f22e1319]
+              - tablist "tablist section" [ref=f22e1320]:
+                - tab "1 360° Cooling" [ref=f22e1323] [cursor=pointer]:
+                  - generic [ref=f22e1324]: "1"
+                  - text: 360° Cooling
+                - tab "2 Display" [ref=f22e1327] [cursor=pointer]:
+                  - generic [ref=f22e1328]: "2"
+                  - text: Display
+                - tab "3 SignalCatcher Chip" [ref=f22e1331] [cursor=pointer]:
+                  - generic [ref=f22e1332]: "3"
+                  - text: SignalCatcher Chip
+                - tab "4 IP69 & ArmorShell" [ref=f22e1335] [cursor=pointer]:
+                  - generic [ref=f22e1336]: "4"
+                  - text: IP69 & ArmorShell
+                - tab "5 Reverse Charging" [ref=f22e1339] [cursor=pointer]:
+                  - generic [ref=f22e1340]: "5"
+                  - text: Reverse Charging
+            - img "BGMI" [ref=f22e1345]
+            - img "scbshjk" [ref=f22e1350]
+        - generic:
+          - navigation:
+            - navigation "Navigate within the product detail page":
+              - navigation "Back to top jump link":
+                - generic: Top
+              - navigation "About this item widget jump link":
+                - generic: About this item
+              - navigation "Similar widget jump link":
+                - generic: Similar
+              - navigation "Product information widget jump link":
+                - generic: Product information
+              - navigation "From the brand widget jump link":
+                - generic: From the Brand
+              - navigation "Customer reviews widget jump link":
+                - generic: Reviews
+            - navigation "Back to top Image jump link":
+              - img "realme GT 7 (IceSense Blue,8GB+256GB) | India's 1st MediaTek Dimensity 9400e Chipset | Strongest Battery Combo 7000mAh + 120W | AI 4K 120FPS Travel Camera | 360° Cooling IceSense Design with Graphene"
+            - navigation "Back to top title jump link":
+              - generic: realme GT 7 (IceSense Blue,8GB+256GB) | India's 1st MediaTek Dimensity 9400e Chipset | Strongest Battery Combo 7000mAh + 120W | AI 4K 120FPS Travel Camera | 360° Cooling IceSense Design with Graphene
+        - generic [ref=f22e1356]:
+          - heading [level=2] [ref=f22e1357]:
+            - paragraph [ref=f22e1359]: Top Brand
+            - paragraph [ref=f22e1360]: realme
+          - list [ref=f22e1361]:
+            - listitem [ref=f22e1362]:
+              - paragraph [ref=f22e1363]: 89% positive ratings from 100K+ customers
+            - listitem [ref=f22e1364]:
+              - paragraph [ref=f22e1365]: 100K+ recent orders from this brand
+            - listitem [ref=f22e1366]:
+              - paragraph [ref=f22e1367]: 8+ years on Amazon
+      - generic [ref=f22e1369]:
+        - separator [aria-hidden] [ref=f22e1370]
+        - heading "What is in the box?" [level=2] [ref=f22e1371]
+        - generic [ref=f22e1372]:
+          - listitem [ref=f22e1373]: Power Adapter
+          - listitem [ref=f22e1374]: USB Cable
+          - listitem [ref=f22e1375]: SIM Tray Ejector
+          - listitem [ref=f22e1376]: Phone Case
+      - generic [ref=f22e1379]:
+        - separator [aria-hidden] [ref=f22e1380]
+        - region "Related products with free delivery on eligible orders" [ref=f22e1381]:
+          - generic [ref=f22e1383]:
+            - heading "Related products with free delivery on eligible orders" [level=2] [ref=f22e1384]
+            - link "Sponsored" [ref=f22e1388] [cursor=pointer]:
+              - /url: "#sp_detail2-prime_theme_for_non_prime_members_feedbackForm"
+          - list [ref=f22e1398]:
+            - listitem [ref=f22e1399]:
+              - generic [ref=f22e1400]:
+                - link "Meadbery Liver Detox Supplement For Men And Women With 600Mg Of Milk Thistle For Healthy Liver | Helps in Cleanse Liver, Natural Protection Against Fatty Liver (120 Tablets)" [ref=f22e1401] [cursor=pointer]:
+                  - /url: /sspa/click?ie=UTF8&spc=MTo3Nzg3MjU5OTUzMzYzNTA6MTc5Mjg0OTk4MDpzcF9kZXRhaWwyOjMwMTE1MTIxODUxNjAzMjo6Ojo&url=%2Fdp%2FB09NN9CM58%2Fref%3Dsspa_dk_detail_0%3Fpsc%3D1%26pd_rd_i%3DB09NN9CM58%26pd_rd_w%3DvDSI2%26content-id%3Damzn1.sym.9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_p%3D9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_r%3D4XCQMS49JTDY1ZZW3QZ8%26pd_rd_wg%3DVqPVh%26pd_rd_r%3Db7e40830-e93a-476f-8eed-29882bb32c17%26aref%3D22CbR2lUA1%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWwy&aref=22CbR2lUA1&sp_cr=ZAZ
+                  - generic [aria-hidden] [ref=f22e1405]: Meadbery Liver Detox Supplement For Men And Women With 600Mg Of Milk Thistle…
+                - link "4.3 out of 5 stars 13 ratings" [ref=f22e1407] [cursor=pointer]:
+                  - /url: /sspa/click?ie=UTF8&spc=MTo3Nzg3MjU5OTUzMzYzNTA6MTc5Mjg0OTk4MDpzcF9kZXRhaWwyOjMwMTE1MTIxODUxNjAzMjo6Ojo&url=%2Fdp%2FB09NN9CM58%2Fref%3Dsspa_dk_detail_0%3Fpsc%3D1%26pd_rd_i%3DB09NN9CM58%26pd_rd_w%3DvDSI2%26content-id%3Damzn1.sym.9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_p%3D9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_r%3D4XCQMS49JTDY1ZZW3QZ8%26pd_rd_wg%3DVqPVh%26pd_rd_r%3Db7e40830-e93a-476f-8eed-29882bb32c17%26aref%3D22CbR2lUA1%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWwy&aref=22CbR2lUA1&sp_cr=ZAZ#customerReviews
+                  - text: "13"
+                - 'link "-25% ₹2,999.00 ( ₹24.99 / count) M.R.P: ₹3,998.00 M.R.P: null" [ref=f22e1410] [cursor=pointer]':
+                  - /url: /sspa/click?ie=UTF8&spc=MTo3Nzg3MjU5OTUzMzYzNTA6MTc5Mjg0OTk4MDpzcF9kZXRhaWwyOjMwMTE1MTIxODUxNjAzMjo6Ojo&url=%2Fdp%2FB09NN9CM58%2Fref%3Dsspa_dk_detail_0%3Fpsc%3D1%26pd_rd_i%3DB09NN9CM58%26pd_rd_w%3DvDSI2%26content-id%3Damzn1.sym.9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_p%3D9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_r%3D4XCQMS49JTDY1ZZW3QZ8%26pd_rd_wg%3DVqPVh%26pd_rd_r%3Db7e40830-e93a-476f-8eed-29882bb32c17%26aref%3D22CbR2lUA1%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWwy&aref=22CbR2lUA1&sp_cr=ZAZ
+                  - text: "-25%"
+                  - generic [ref=f22e1411]:
+                    - generic [ref=f22e1412]: ₹2,999.00
+                    - generic [aria-hidden] [ref=f22e1413]:
+                      - text: ₹
+                      - generic [ref=f22e1414]:
+                        - text: 2,999
+                        - generic [ref=f22e1415]: .
+                      - text: "00"
+                  - generic [ref=f22e1416]:
+                    - text: (
+                    - generic [ref=f22e1417]:
+                      - generic [ref=f22e1418]: ₹24.99
+                      - text: ₹24.99
+                    - text: / count)
+                  - generic [ref=f22e1419]: "M.R.P: ₹3,998.00"
+                  - generic [ref=f22e1420]:
+                    - text: "M.R.P:"
+                    - generic [ref=f22e1421]:
+                      - generic [ref=f22e1422]: "null"
+                      - text: ₹3,998.00
+                - link "FREE delivery Tue, 27 Oct" [ref=f22e1424] [cursor=pointer]:
+                  - /url: /sspa/click?ie=UTF8&spc=MTo3Nzg3MjU5OTUzMzYzNTA6MTc5Mjg0OTk4MDpzcF9kZXRhaWwyOjMwMTE1MTIxODUxNjAzMjo6Ojo&url=%2Fdp%2FB09NN9CM58%2Fref%3Dsspa_dk_detail_0%3Fpsc%3D1%26pd_rd_i%3DB09NN9CM58%26pd_rd_w%3DvDSI2%26content-id%3Damzn1.sym.9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_p%3D9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_r%3D4XCQMS49JTDY1ZZW3QZ8%26pd_rd_wg%3DVqPVh%26pd_rd_r%3Db7e40830-e93a-476f-8eed-29882bb32c17%26aref%3D22CbR2lUA1%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWwy&aref=22CbR2lUA1&sp_cr=ZAZ
+            - listitem [ref=f22e1428]:
+              - generic [ref=f22e1429]:
+                - link "Maate Baby Body Wash | With Ayurvedic Herbs Beetroot, Manjistha & Neem extracts | Body Wash for Dry & Sensitive Skin | Natural & Vegan | Tear-free & pH Balanced | Soap Free" [ref=f22e1430] [cursor=pointer]:
+                  - /url: /sspa/click?ie=UTF8&spc=MTo3Nzg3MjU5OTUzMzYzNTA6MTc5Mjg0OTk4MDpzcF9kZXRhaWwyOjMwMTAwNjE4Njk1NDUzMjo6Ojo&url=%2Fdp%2FB0B7X7KGGL%2Fref%3Dsspa_dk_detail_1%3Fpsc%3D1%26pd_rd_i%3DB0B7X7KGGL%26pd_rd_w%3DvDSI2%26content-id%3Damzn1.sym.9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_p%3D9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_r%3D4XCQMS49JTDY1ZZW3QZ8%26pd_rd_wg%3DVqPVh%26pd_rd_r%3Db7e40830-e93a-476f-8eed-29882bb32c17%26aref%3DB13YHa04Rn%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWwy&aref=B13YHa04Rn&sp_cr=ZAZ
+                  - generic [aria-hidden] [ref=f22e1434]: Maate Baby Body Wash | With Ayurvedic Herbs Beetroot, Manjistha & Neem extracts | B...
+                - link "4.2 out of 5 stars 80 ratings" [ref=f22e1436] [cursor=pointer]:
+                  - /url: /sspa/click?ie=UTF8&spc=MTo3Nzg3MjU5OTUzMzYzNTA6MTc5Mjg0OTk4MDpzcF9kZXRhaWwyOjMwMTAwNjE4Njk1NDUzMjo6Ojo&url=%2Fdp%2FB0B7X7KGGL%2Fref%3Dsspa_dk_detail_1%3Fpsc%3D1%26pd_rd_i%3DB0B7X7KGGL%26pd_rd_w%3DvDSI2%26content-id%3Damzn1.sym.9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_p%3D9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_r%3D4XCQMS49JTDY1ZZW3QZ8%26pd_rd_wg%3DVqPVh%26pd_rd_r%3Db7e40830-e93a-476f-8eed-29882bb32c17%26aref%3DB13YHa04Rn%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWwy&aref=B13YHa04Rn&sp_cr=ZAZ#customerReviews
+                  - text: "80"
+                - 'link "-10% ₹899.00 ( ₹224.75 / 100 ml) M.R.P: ₹999.00 M.R.P: null" [ref=f22e1439] [cursor=pointer]':
+                  - /url: /sspa/click?ie=UTF8&spc=MTo3Nzg3MjU5OTUzMzYzNTA6MTc5Mjg0OTk4MDpzcF9kZXRhaWwyOjMwMTAwNjE4Njk1NDUzMjo6Ojo&url=%2Fdp%2FB0B7X7KGGL%2Fref%3Dsspa_dk_detail_1%3Fpsc%3D1%26pd_rd_i%3DB0B7X7KGGL%26pd_rd_w%3DvDSI2%26content-id%3Damzn1.sym.9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_p%3D9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_r%3D4XCQMS49JTDY1ZZW3QZ8%26pd_rd_wg%3DVqPVh%26pd_rd_r%3Db7e40830-e93a-476f-8eed-29882bb32c17%26aref%3DB13YHa04Rn%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWwy&aref=B13YHa04Rn&sp_cr=ZAZ
+                  - text: "-10%"
+                  - generic [ref=f22e1440]:
+                    - generic [ref=f22e1441]: ₹899.00
+                    - generic [aria-hidden] [ref=f22e1442]:
+                      - text: ₹
+                      - generic [ref=f22e1443]:
+                        - text: "899"
+                        - generic [ref=f22e1444]: .
+                      - text: "00"
+                  - generic [ref=f22e1445]:
+                    - text: (
+                    - generic [ref=f22e1446]:
+                      - generic [ref=f22e1447]: ₹224.75
+                      - text: ₹224.75
+                    - text: / 100 ml)
+                  - generic [ref=f22e1448]: "M.R.P: ₹999.00"
+                  - generic [ref=f22e1449]:
+                    - text: "M.R.P:"
+                    - generic [ref=f22e1450]:
+                      - generic [ref=f22e1451]: "null"
+                      - text: ₹999.00
+                - link "FREE delivery Tue, 27 Oct" [ref=f22e1453] [cursor=pointer]:
+                  - /url: /sspa/click?ie=UTF8&spc=MTo3Nzg3MjU5OTUzMzYzNTA6MTc5Mjg0OTk4MDpzcF9kZXRhaWwyOjMwMTAwNjE4Njk1NDUzMjo6Ojo&url=%2Fdp%2FB0B7X7KGGL%2Fref%3Dsspa_dk_detail_1%3Fpsc%3D1%26pd_rd_i%3DB0B7X7KGGL%26pd_rd_w%3DvDSI2%26content-id%3Damzn1.sym.9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_p%3D9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_r%3D4XCQMS49JTDY1ZZW3QZ8%26pd_rd_wg%3DVqPVh%26pd_rd_r%3Db7e40830-e93a-476f-8eed-29882bb32c17%26aref%3DB13YHa04Rn%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWwy&aref=B13YHa04Rn&sp_cr=ZAZ
+            - listitem [ref=f22e1457]:
+              - generic [ref=f22e1458]:
+                - link "INALSA Stand Mixer 1200W with Copper Motor|5.3L SS Bowl|Metal Gear for Stability|8 Speed Setting Includes Whisking Cone,Mixing Beater,Dough Hook& Splash Guard|Dough Atta Maker Machine,KratosPlus White" [ref=f22e1459] [cursor=pointer]:
+                  - /url: /sspa/click?ie=UTF8&spc=MTo3Nzg3MjU5OTUzMzYzNTA6MTc5Mjg0OTk4MDpzcF9kZXRhaWwyOjMwMTM5MzYzMzM2MTMzMjo6Ojo&url=%2Fdp%2FB0DB1VY31H%2Fref%3Dsspa_dk_detail_2%3Fpsc%3D1%26pd_rd_i%3DB0DB1VY31H%26pd_rd_w%3DvDSI2%26content-id%3Damzn1.sym.9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_p%3D9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_r%3D4XCQMS49JTDY1ZZW3QZ8%26pd_rd_wg%3DVqPVh%26pd_rd_r%3Db7e40830-e93a-476f-8eed-29882bb32c17%26aref%3DTSDCmKPpfU%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWwy&aref=TSDCmKPpfU&sp_cr=ZAZ
+                  - generic [aria-hidden] [ref=f22e1463]: INALSA Stand Mixer 1200W with Copper Motor|5.3L SS Bowl|Metal Gear for…
+                - link "3.9 out of 5 stars 1,010 ratings" [ref=f22e1465] [cursor=pointer]:
+                  - /url: /sspa/click?ie=UTF8&spc=MTo3Nzg3MjU5OTUzMzYzNTA6MTc5Mjg0OTk4MDpzcF9kZXRhaWwyOjMwMTM5MzYzMzM2MTMzMjo6Ojo&url=%2Fdp%2FB0DB1VY31H%2Fref%3Dsspa_dk_detail_2%3Fpsc%3D1%26pd_rd_i%3DB0DB1VY31H%26pd_rd_w%3DvDSI2%26content-id%3Damzn1.sym.9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_p%3D9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_r%3D4XCQMS49JTDY1ZZW3QZ8%26pd_rd_wg%3DVqPVh%26pd_rd_r%3Db7e40830-e93a-476f-8eed-29882bb32c17%26aref%3DTSDCmKPpfU%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWwy&aref=TSDCmKPpfU&sp_cr=ZAZ#customerReviews
+                  - text: 1,010
+                - 'link "-57% ₹6,389.00 ( ₹6,38,900.00 / 100 g) M.R.P: ₹14,995.00 M.R.P: null" [ref=f22e1468] [cursor=pointer]':
+                  - /url: /sspa/click?ie=UTF8&spc=MTo3Nzg3MjU5OTUzMzYzNTA6MTc5Mjg0OTk4MDpzcF9kZXRhaWwyOjMwMTM5MzYzMzM2MTMzMjo6Ojo&url=%2Fdp%2FB0DB1VY31H%2Fref%3Dsspa_dk_detail_2%3Fpsc%3D1%26pd_rd_i%3DB0DB1VY31H%26pd_rd_w%3DvDSI2%26content-id%3Damzn1.sym.9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_p%3D9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_r%3D4XCQMS49JTDY1ZZW3QZ8%26pd_rd_wg%3DVqPVh%26pd_rd_r%3Db7e40830-e93a-476f-8eed-29882bb32c17%26aref%3DTSDCmKPpfU%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWwy&aref=TSDCmKPpfU&sp_cr=ZAZ
+                  - text: "-57%"
+                  - generic [ref=f22e1469]:
+                    - generic [ref=f22e1470]: ₹6,389.00
+                    - generic [aria-hidden] [ref=f22e1471]:
+                      - text: ₹
+                      - generic [ref=f22e1472]:
+                        - text: 6,389
+                        - generic [ref=f22e1473]: .
+                      - text: "00"
+                  - generic [ref=f22e1474]:
+                    - text: (
+                    - generic [ref=f22e1475]:
+                      - generic [ref=f22e1476]: ₹6,38,900.00
+                      - text: ₹6,38,900.00
+                    - text: / 100 g)
+                  - generic [ref=f22e1477]: "M.R.P: ₹14,995.00"
+                  - generic [ref=f22e1478]:
+                    - text: "M.R.P:"
+                    - generic [ref=f22e1479]:
+                      - generic [ref=f22e1480]: "null"
+                      - text: ₹14,995.00
+                - link "FREE delivery 28 - 31 Oct" [ref=f22e1482] [cursor=pointer]:
+                  - /url: /sspa/click?ie=UTF8&spc=MTo3Nzg3MjU5OTUzMzYzNTA6MTc5Mjg0OTk4MDpzcF9kZXRhaWwyOjMwMTM5MzYzMzM2MTMzMjo6Ojo&url=%2Fdp%2FB0DB1VY31H%2Fref%3Dsspa_dk_detail_2%3Fpsc%3D1%26pd_rd_i%3DB0DB1VY31H%26pd_rd_w%3DvDSI2%26content-id%3Damzn1.sym.9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_p%3D9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_r%3D4XCQMS49JTDY1ZZW3QZ8%26pd_rd_wg%3DVqPVh%26pd_rd_r%3Db7e40830-e93a-476f-8eed-29882bb32c17%26aref%3DTSDCmKPpfU%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWwy&aref=TSDCmKPpfU&sp_cr=ZAZ
+            - listitem [ref=f22e1486]:
+              - generic [ref=f22e1487]:
+                - link "Apis Pure Himalaya Honey, Pack of 2 (1kgx2) Value Pack | Pure and Natural Honey | No Added Sugar | No Adulteration | Rich Taste | Premium Sweetener" [ref=f22e1488] [cursor=pointer]:
+                  - /url: /sspa/click?ie=UTF8&spc=MTo3Nzg3MjU5OTUzMzYzNTA6MTc5Mjg0OTk4MDpzcF9kZXRhaWwyOjMwMTA3NDA1MTczNjczMjo6Ojo&url=%2Fdp%2FB0168I6B32%2Fref%3Dsspa_dk_detail_3%3Fpsc%3D1%26pd_rd_i%3DB0168I6B32%26pd_rd_w%3DvDSI2%26content-id%3Damzn1.sym.9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_p%3D9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_r%3D4XCQMS49JTDY1ZZW3QZ8%26pd_rd_wg%3DVqPVh%26pd_rd_r%3Db7e40830-e93a-476f-8eed-29882bb32c17%26aref%3DeO9hZzu7BT%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWwy&aref=eO9hZzu7BT&sp_cr=ZAZ
+                  - generic [aria-hidden] [ref=f22e1492]: Apis Pure Himalaya Honey, Pack of 2 (1kgx2) Value Pack | Pure and Natural Honey | N...
+                - link "4.0 out of 5 stars 26,344 ratings" [ref=f22e1494] [cursor=pointer]:
+                  - /url: /sspa/click?ie=UTF8&spc=MTo3Nzg3MjU5OTUzMzYzNTA6MTc5Mjg0OTk4MDpzcF9kZXRhaWwyOjMwMTA3NDA1MTczNjczMjo6Ojo&url=%2Fdp%2FB0168I6B32%2Fref%3Dsspa_dk_detail_3%3Fpsc%3D1%26pd_rd_i%3DB0168I6B32%26pd_rd_w%3DvDSI2%26content-id%3Damzn1.sym.9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_p%3D9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_r%3D4XCQMS49JTDY1ZZW3QZ8%26pd_rd_wg%3DVqPVh%26pd_rd_r%3Db7e40830-e93a-476f-8eed-29882bb32c17%26aref%3DeO9hZzu7BT%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWwy&aref=eO9hZzu7BT&sp_cr=ZAZ#customerReviews
+                  - text: 26,344
+                - 'link "-16% ₹419.00 ( ₹20.95 / 100 g) M.R.P: ₹499.00 M.R.P: null" [ref=f22e1497] [cursor=pointer]':
+                  - /url: /sspa/click?ie=UTF8&spc=MTo3Nzg3MjU5OTUzMzYzNTA6MTc5Mjg0OTk4MDpzcF9kZXRhaWwyOjMwMTA3NDA1MTczNjczMjo6Ojo&url=%2Fdp%2FB0168I6B32%2Fref%3Dsspa_dk_detail_3%3Fpsc%3D1%26pd_rd_i%3DB0168I6B32%26pd_rd_w%3DvDSI2%26content-id%3Damzn1.sym.9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_p%3D9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_r%3D4XCQMS49JTDY1ZZW3QZ8%26pd_rd_wg%3DVqPVh%26pd_rd_r%3Db7e40830-e93a-476f-8eed-29882bb32c17%26aref%3DeO9hZzu7BT%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWwy&aref=eO9hZzu7BT&sp_cr=ZAZ
+                  - text: "-16%"
+                  - generic [ref=f22e1498]:
+                    - generic [ref=f22e1499]: ₹419.00
+                    - generic [aria-hidden] [ref=f22e1500]:
+                      - text: ₹
+                      - generic [ref=f22e1501]:
+                        - text: "419"
+                        - generic [ref=f22e1502]: .
+                      - text: "00"
+                  - generic [ref=f22e1503]:
+                    - text: (
+                    - generic [ref=f22e1504]:
+                      - generic [ref=f22e1505]: ₹20.95
+                      - text: ₹20.95
+                    - text: / 100 g)
+                  - generic [ref=f22e1506]: "M.R.P: ₹499.00"
+                  - generic [ref=f22e1507]:
+                    - text: "M.R.P:"
+                    - generic [ref=f22e1508]:
+                      - generic [ref=f22e1509]: "null"
+                      - text: ₹499.00
+                - link "FREE delivery Wed, 28 Oct" [ref=f22e1511] [cursor=pointer]:
+                  - /url: /sspa/click?ie=UTF8&spc=MTo3Nzg3MjU5OTUzMzYzNTA6MTc5Mjg0OTk4MDpzcF9kZXRhaWwyOjMwMTA3NDA1MTczNjczMjo6Ojo&url=%2Fdp%2FB0168I6B32%2Fref%3Dsspa_dk_detail_3%3Fpsc%3D1%26pd_rd_i%3DB0168I6B32%26pd_rd_w%3DvDSI2%26content-id%3Damzn1.sym.9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_p%3D9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_r%3D4XCQMS49JTDY1ZZW3QZ8%26pd_rd_wg%3DVqPVh%26pd_rd_r%3Db7e40830-e93a-476f-8eed-29882bb32c17%26aref%3DeO9hZzu7BT%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWwy&aref=eO9hZzu7BT&sp_cr=ZAZ
+                - link "You pay ₹398.05 with coupon" [ref=f22e1516] [cursor=pointer]:
+                  - /url: /sspa/click?ie=UTF8&spc=MTo3Nzg3MjU5OTUzMzYzNTA6MTc5Mjg0OTk4MDpzcF9kZXRhaWwyOjMwMTA3NDA1MTczNjczMjo6Ojo&url=%2Fdp%2FB0168I6B32%2Fref%3Dsspa_dk_detail_3%3Fpsc%3D1%26pd_rd_i%3DB0168I6B32%26pd_rd_w%3DvDSI2%26content-id%3Damzn1.sym.9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_p%3D9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_r%3D4XCQMS49JTDY1ZZW3QZ8%26pd_rd_wg%3DVqPVh%26pd_rd_r%3Db7e40830-e93a-476f-8eed-29882bb32c17%26aref%3DeO9hZzu7BT%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWwy&aref=eO9hZzu7BT&sp_cr=ZAZ
+                  - generic [ref=f22e1517]:
+                    - generic [ref=f22e1518]: You pay ₹398.05
+                    - text: with coupon
+            - listitem [ref=f22e1519]:
+              - generic [ref=f22e1520]:
+                - link "REDMI Turbo 5 (8GB + 256GB) Turbo White | MediaTek Dimensity 8500 Ultra | Mega 7540mAh Battery | 100W HyperCharge | Compact 16.75cm(6.9) 120Hz Display | 50MP Sony OIS Camera" [ref=f22e1521] [cursor=pointer]:
+                  - /url: /sspa/click?ie=UTF8&spc=MTo3Nzg3MjU5OTUzMzYzNTA6MTc5Mjg0OTk4MDpzcF9kZXRhaWwyOjMwMTE2MDg0MTAzMzIzMjo6Ojo&url=%2Fdp%2FB0H293SFTR%2Fref%3Dsspa_dk_detail_4%3Fpsc%3D1%26pd_rd_i%3DB0H293SFTR%26pd_rd_w%3DvDSI2%26content-id%3Damzn1.sym.9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_p%3D9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_r%3D4XCQMS49JTDY1ZZW3QZ8%26pd_rd_wg%3DVqPVh%26pd_rd_r%3Db7e40830-e93a-476f-8eed-29882bb32c17%26aref%3Db7vWFVmkyP%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWwy&aref=b7vWFVmkyP&sp_cr=ZAZ
+                  - generic [aria-hidden] [ref=f22e1525]: REDMI Turbo 5 (8GB + 256GB) Turbo White | MediaTek Dimensity 8500 Ultra | Mega…
+                - link "4.1 out of 5 stars 873 ratings" [ref=f22e1527] [cursor=pointer]:
+                  - /url: /sspa/click?ie=UTF8&spc=MTo3Nzg3MjU5OTUzMzYzNTA6MTc5Mjg0OTk4MDpzcF9kZXRhaWwyOjMwMTE2MDg0MTAzMzIzMjo6Ojo&url=%2Fdp%2FB0H293SFTR%2Fref%3Dsspa_dk_detail_4%3Fpsc%3D1%26pd_rd_i%3DB0H293SFTR%26pd_rd_w%3DvDSI2%26content-id%3Damzn1.sym.9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_p%3D9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_r%3D4XCQMS49JTDY1ZZW3QZ8%26pd_rd_wg%3DVqPVh%26pd_rd_r%3Db7e40830-e93a-476f-8eed-29882bb32c17%26aref%3Db7vWFVmkyP%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWwy&aref=b7vWFVmkyP&sp_cr=ZAZ#customerReviews
+                  - text: "873"
+                - link "Great Indian Festival" [ref=f22e1529] [cursor=pointer]:
+                  - /url: /sspa/click?ie=UTF8&spc=MTo3Nzg3MjU5OTUzMzYzNTA6MTc5Mjg0OTk4MDpzcF9kZXRhaWwyOjMwMTE2MDg0MTAzMzIzMjo6Ojo&url=%2Fdp%2FB0H293SFTR%2Fref%3Dsspa_dk_detail_4%3Fpsc%3D1%26pd_rd_i%3DB0H293SFTR%26pd_rd_w%3DvDSI2%26content-id%3Damzn1.sym.9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_p%3D9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_r%3D4XCQMS49JTDY1ZZW3QZ8%26pd_rd_wg%3DVqPVh%26pd_rd_r%3Db7e40830-e93a-476f-8eed-29882bb32c17%26aref%3Db7vWFVmkyP%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWwy&aref=b7vWFVmkyP&sp_cr=ZAZ
+                - 'link "-25% ₹40,999.00 M.R.P: ₹54,999.00 M.R.P: null" [ref=f22e1533] [cursor=pointer]':
+                  - /url: /sspa/click?ie=UTF8&spc=MTo3Nzg3MjU5OTUzMzYzNTA6MTc5Mjg0OTk4MDpzcF9kZXRhaWwyOjMwMTE2MDg0MTAzMzIzMjo6Ojo&url=%2Fdp%2FB0H293SFTR%2Fref%3Dsspa_dk_detail_4%3Fpsc%3D1%26pd_rd_i%3DB0H293SFTR%26pd_rd_w%3DvDSI2%26content-id%3Damzn1.sym.9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_p%3D9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_r%3D4XCQMS49JTDY1ZZW3QZ8%26pd_rd_wg%3DVqPVh%26pd_rd_r%3Db7e40830-e93a-476f-8eed-29882bb32c17%26aref%3Db7vWFVmkyP%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWwy&aref=b7vWFVmkyP&sp_cr=ZAZ
+                  - text: "-25%"
+                  - generic [ref=f22e1534]:
+                    - generic [ref=f22e1535]: ₹40,999.00
+                    - generic [aria-hidden] [ref=f22e1536]:
+                      - text: ₹
+                      - generic [ref=f22e1537]:
+                        - text: 40,999
+                        - generic [ref=f22e1538]: .
+                      - text: "00"
+                  - generic [ref=f22e1539]: "M.R.P: ₹54,999.00"
+                  - generic [ref=f22e1540]:
+                    - text: "M.R.P:"
+                    - generic [ref=f22e1541]:
+                      - generic [ref=f22e1542]: "null"
+                      - text: ₹54,999.00
+                - link "FREE delivery Wed, 28 Oct" [ref=f22e1544] [cursor=pointer]:
+                  - /url: /sspa/click?ie=UTF8&spc=MTo3Nzg3MjU5OTUzMzYzNTA6MTc5Mjg0OTk4MDpzcF9kZXRhaWwyOjMwMTE2MDg0MTAzMzIzMjo6Ojo&url=%2Fdp%2FB0H293SFTR%2Fref%3Dsspa_dk_detail_4%3Fpsc%3D1%26pd_rd_i%3DB0H293SFTR%26pd_rd_w%3DvDSI2%26content-id%3Damzn1.sym.9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_p%3D9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_r%3D4XCQMS49JTDY1ZZW3QZ8%26pd_rd_wg%3DVqPVh%26pd_rd_r%3Db7e40830-e93a-476f-8eed-29882bb32c17%26aref%3Db7vWFVmkyP%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWwy&aref=b7vWFVmkyP&sp_cr=ZAZ
+                - link "You pay ₹38,999.00 with coupon" [ref=f22e1549] [cursor=pointer]:
+                  - /url: /sspa/click?ie=UTF8&spc=MTo3Nzg3MjU5OTUzMzYzNTA6MTc5Mjg0OTk4MDpzcF9kZXRhaWwyOjMwMTE2MDg0MTAzMzIzMjo6Ojo&url=%2Fdp%2FB0H293SFTR%2Fref%3Dsspa_dk_detail_4%3Fpsc%3D1%26pd_rd_i%3DB0H293SFTR%26pd_rd_w%3DvDSI2%26content-id%3Damzn1.sym.9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_p%3D9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_r%3D4XCQMS49JTDY1ZZW3QZ8%26pd_rd_wg%3DVqPVh%26pd_rd_r%3Db7e40830-e93a-476f-8eed-29882bb32c17%26aref%3Db7vWFVmkyP%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWwy&aref=b7vWFVmkyP&sp_cr=ZAZ
+                  - generic [ref=f22e1550]:
+                    - generic [ref=f22e1551]: You pay ₹38,999.00
+                    - text: with coupon
+            - listitem [ref=f22e1552]:
+              - generic [ref=f22e1553]:
+                - link "VYOMA Military-Grade Gorilla Tempered Glass for OnePlus 6 (Black) | Edge to Edge Full Screen Coverage | Scratch Resistant | With Easy Installation Kit | Screen Protector for Smartphone | Bubble-Free | Ultra Clear HD Glass | Oleophobic Coating | High Clarity | 9H Hardness | Scratch Resistant | ShatterProof | ScreenGuard | Pack of 1" [ref=f22e1554] [cursor=pointer]:
+                  - /url: /sspa/click?ie=UTF8&spc=MTo3Nzg3MjU5OTUzMzYzNTA6MTc5Mjg0OTk4MDpzcF9kZXRhaWwyOjMwMDk0MTcxNDQ0MjAzMjo6Ojo&url=%2Fdp%2FB08VS9MM9Z%2Fref%3Dsspa_dk_detail_5%3Fpsc%3D1%26pd_rd_i%3DB08VS9MM9Z%26pd_rd_w%3DvDSI2%26content-id%3Damzn1.sym.9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_p%3D9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_r%3D4XCQMS49JTDY1ZZW3QZ8%26pd_rd_wg%3DVqPVh%26pd_rd_r%3Db7e40830-e93a-476f-8eed-29882bb32c17%26aref%3Da17Pyilv8A%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWwy&aref=a17Pyilv8A&sp_cr=ZAZ
+                  - generic [aria-hidden] [ref=f22e1558]: VYOMA Military-Grade Gorilla Tempered Glass for OnePlus 6 (Black) | Edge to Edge Fu...
+                - link "3.4 out of 5 stars 9 ratings" [ref=f22e1560] [cursor=pointer]:
+                  - /url: /sspa/click?ie=UTF8&spc=MTo3Nzg3MjU5OTUzMzYzNTA6MTc5Mjg0OTk4MDpzcF9kZXRhaWwyOjMwMDk0MTcxNDQ0MjAzMjo6Ojo&url=%2Fdp%2FB08VS9MM9Z%2Fref%3Dsspa_dk_detail_5%3Fpsc%3D1%26pd_rd_i%3DB08VS9MM9Z%26pd_rd_w%3DvDSI2%26content-id%3Damzn1.sym.9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_p%3D9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_r%3D4XCQMS49JTDY1ZZW3QZ8%26pd_rd_wg%3DVqPVh%26pd_rd_r%3Db7e40830-e93a-476f-8eed-29882bb32c17%26aref%3Da17Pyilv8A%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWwy&aref=a17Pyilv8A&sp_cr=ZAZ#customerReviews
+                  - text: "9"
+                - 'link "-67% ₹199.00 M.R.P: ₹599.00 M.R.P: null" [ref=f22e1563] [cursor=pointer]':
+                  - /url: /sspa/click?ie=UTF8&spc=MTo3Nzg3MjU5OTUzMzYzNTA6MTc5Mjg0OTk4MDpzcF9kZXRhaWwyOjMwMDk0MTcxNDQ0MjAzMjo6Ojo&url=%2Fdp%2FB08VS9MM9Z%2Fref%3Dsspa_dk_detail_5%3Fpsc%3D1%26pd_rd_i%3DB08VS9MM9Z%26pd_rd_w%3DvDSI2%26content-id%3Damzn1.sym.9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_p%3D9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_r%3D4XCQMS49JTDY1ZZW3QZ8%26pd_rd_wg%3DVqPVh%26pd_rd_r%3Db7e40830-e93a-476f-8eed-29882bb32c17%26aref%3Da17Pyilv8A%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWwy&aref=a17Pyilv8A&sp_cr=ZAZ
+                  - text: "-67%"
+                  - generic [ref=f22e1564]:
+                    - generic [ref=f22e1565]: ₹199.00
+                    - generic [aria-hidden] [ref=f22e1566]:
+                      - text: ₹
+                      - generic [ref=f22e1567]:
+                        - text: "199"
+                        - generic [ref=f22e1568]: .
+                      - text: "00"
+                  - generic [ref=f22e1569]: "M.R.P: ₹599.00"
+                  - generic [ref=f22e1570]:
+                    - text: "M.R.P:"
+                    - generic [ref=f22e1571]:
+                      - generic [ref=f22e1572]: "null"
+                      - text: ₹599.00
+                - link "FREE delivery Sun, 1 Nov" [ref=f22e1574] [cursor=pointer]:
+                  - /url: /sspa/click?ie=UTF8&spc=MTo3Nzg3MjU5OTUzMzYzNTA6MTc5Mjg0OTk4MDpzcF9kZXRhaWwyOjMwMDk0MTcxNDQ0MjAzMjo6Ojo&url=%2Fdp%2FB08VS9MM9Z%2Fref%3Dsspa_dk_detail_5%3Fpsc%3D1%26pd_rd_i%3DB08VS9MM9Z%26pd_rd_w%3DvDSI2%26content-id%3Damzn1.sym.9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_p%3D9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_r%3D4XCQMS49JTDY1ZZW3QZ8%26pd_rd_wg%3DVqPVh%26pd_rd_r%3Db7e40830-e93a-476f-8eed-29882bb32c17%26aref%3Da17Pyilv8A%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWwy&aref=a17Pyilv8A&sp_cr=ZAZ
+            - listitem [ref=f22e1580]:
+              - generic [ref=f22e1581]:
+                - link "realme Buds T500 Pro TWS Earbuds with 12.4mm Drivers, Upto 50dB ANC,3D Spatial Audio, 56H Playtime, AI ENC, IP55 Rating, and 45ms Low Latency BT 6.1 (Orange Mint)" [ref=f22e1582] [cursor=pointer]:
+                  - /url: /sspa/click?ie=UTF8&spc=MTo3Nzg3MjU5OTUzMzYzNTA6MTc5Mjg0OTk4MDpzcF9kZXRhaWwyOjMwMTA1Mzg1NzYyMDgzMjo6Ojo&url=%2Fdp%2FB0GVYZRGDC%2Fref%3Dsspa_dk_detail_6%3Fpsc%3D1%26pd_rd_i%3DB0GVYZRGDC%26pd_rd_w%3DvDSI2%26content-id%3Damzn1.sym.9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_p%3D9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_r%3D4XCQMS49JTDY1ZZW3QZ8%26pd_rd_wg%3DVqPVh%26pd_rd_r%3Db7e40830-e93a-476f-8eed-29882bb32c17%26aref%3D8e2TuqY3Qm%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWwy&aref=8e2TuqY3Qm&sp_cr=ZAZ
+                  - generic [aria-hidden] [ref=f22e1586]: realme Buds T500 Pro TWS Earbuds with 12.4mm Drivers, Upto 50dB ANC,3D Spatial…
+                - link "4.0 out of 5 stars 1,398 ratings" [ref=f22e1588] [cursor=pointer]:
+                  - /url: /sspa/click?ie=UTF8&spc=MTo3Nzg3MjU5OTUzMzYzNTA6MTc5Mjg0OTk4MDpzcF9kZXRhaWwyOjMwMTA1Mzg1NzYyMDgzMjo6Ojo&url=%2Fdp%2FB0GVYZRGDC%2Fref%3Dsspa_dk_detail_6%3Fpsc%3D1%26pd_rd_i%3DB0GVYZRGDC%26pd_rd_w%3DvDSI2%26content-id%3Damzn1.sym.9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_p%3D9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_r%3D4XCQMS49JTDY1ZZW3QZ8%26pd_rd_wg%3DVqPVh%26pd_rd_r%3Db7e40830-e93a-476f-8eed-29882bb32c17%26aref%3D8e2TuqY3Qm%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWwy&aref=8e2TuqY3Qm&sp_cr=ZAZ#customerReviews
+                  - text: 1,398
+                - generic [ref=f22e1590]:
+                  - link "Amazon's Choice":
+                    - /url: /sspa/click?ie=UTF8&spc=MTo3Nzg3MjU5OTUzMzYzNTA6MTc5Mjg0OTk4MDpzcF9kZXRhaWwyOjMwMTA1Mzg1NzYyMDgzMjo6Ojo&url=%2Fdp%2FB0GVYZRGDC%2Fref%3Dsspa_dk_detail_6%3Fpsc%3D1%26pd_rd_i%3DB0GVYZRGDC%26pd_rd_w%3DvDSI2%26content-id%3Damzn1.sym.9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_p%3D9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_r%3D4XCQMS49JTDY1ZZW3QZ8%26pd_rd_wg%3DVqPVh%26pd_rd_r%3Db7e40830-e93a-476f-8eed-29882bb32c17%26aref%3D8e2TuqY3Qm%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWwy&aref=8e2TuqY3Qm&sp_cr=ZAZ
+                - 'link "-26% ₹3,199.00 M.R.P: ₹4,299.00 M.R.P: null" [ref=f22e1594] [cursor=pointer]':
+                  - /url: /sspa/click?ie=UTF8&spc=MTo3Nzg3MjU5OTUzMzYzNTA6MTc5Mjg0OTk4MDpzcF9kZXRhaWwyOjMwMTA1Mzg1NzYyMDgzMjo6Ojo&url=%2Fdp%2FB0GVYZRGDC%2Fref%3Dsspa_dk_detail_6%3Fpsc%3D1%26pd_rd_i%3DB0GVYZRGDC%26pd_rd_w%3DvDSI2%26content-id%3Damzn1.sym.9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_p%3D9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_r%3D4XCQMS49JTDY1ZZW3QZ8%26pd_rd_wg%3DVqPVh%26pd_rd_r%3Db7e40830-e93a-476f-8eed-29882bb32c17%26aref%3D8e2TuqY3Qm%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWwy&aref=8e2TuqY3Qm&sp_cr=ZAZ
+                  - text: "-26%"
+                  - generic [ref=f22e1595]:
+                    - generic [ref=f22e1596]: ₹3,199.00
+                    - generic [aria-hidden] [ref=f22e1597]:
+                      - text: ₹
+                      - generic [ref=f22e1598]:
+                        - text: 3,199
+                        - generic [ref=f22e1599]: .
+                      - text: "00"
+                  - generic [ref=f22e1600]: "M.R.P: ₹4,299.00"
+                  - generic [ref=f22e1601]:
+                    - text: "M.R.P:"
+                    - generic [ref=f22e1602]:
+                      - generic [ref=f22e1603]: "null"
+                      - text: ₹4,299.00
+                - link "FREE delivery Wed, 28 Oct" [ref=f22e1605] [cursor=pointer]:
+                  - /url: /sspa/click?ie=UTF8&spc=MTo3Nzg3MjU5OTUzMzYzNTA6MTc5Mjg0OTk4MDpzcF9kZXRhaWwyOjMwMTA1Mzg1NzYyMDgzMjo6Ojo&url=%2Fdp%2FB0GVYZRGDC%2Fref%3Dsspa_dk_detail_6%3Fpsc%3D1%26pd_rd_i%3DB0GVYZRGDC%26pd_rd_w%3DvDSI2%26content-id%3Damzn1.sym.9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_p%3D9a67d0ba-b3d8-41ee-8e29-a3d839054b56%26pf_rd_r%3D4XCQMS49JTDY1ZZW3QZ8%26pd_rd_wg%3DVqPVh%26pd_rd_r%3Db7e40830-e93a-476f-8eed-29882bb32c17%26aref%3D8e2TuqY3Qm%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9kZXRhaWwy&aref=8e2TuqY3Qm&sp_cr=ZAZ
+      - generic "Top reviews" [ref=f22e1611]:
+        - separator [aria-hidden] [ref=f22e1612]
+        - generic [ref=f22e1614]:
+          - generic [ref=f22e1615]:
+            - generic [ref=f22e1620]:
+              - heading "Customer reviews" [level=2] [ref=f22e1622]
+              - generic [ref=f22e1624]:
+                - generic [ref=f22e1626]:
+                  - generic [ref=f22e1627]: 4.2 out of 5 stars
+                  - generic [aria-hidden] [ref=f22e1632]: 4.2 out of 5
+                - generic [ref=f22e1633]: 464 global ratings
+              - list [ref=f22e1638]:
+                - listitem [ref=f22e1639]:
+                  - link "62 percent of reviews have 5 stars" [ref=f22e1642] [cursor=pointer]:
+                    - /url: /portal/customer-reviews/B0F6YPX2X5/ref=acr_dp_hist_5?ie=UTF8&filterByStar=five_star&reviewerType=all_reviews#reviews-filter-bar
+                    - generic [aria-hidden] [ref=f22e1643]: 5 star
+                    - progressbar [aria-hidden] [ref=f22e1645]
+                    - generic [aria-hidden] [ref=f22e1646]: 62%
+                - listitem [ref=f22e1647]:
+                  - link "19 percent of reviews have 4 stars" [ref=f22e1650] [cursor=pointer]:
+                    - /url: /portal/customer-reviews/B0F6YPX2X5/ref=acr_dp_hist_4?ie=UTF8&filterByStar=four_star&reviewerType=all_reviews#reviews-filter-bar
+                    - generic [aria-hidden] [ref=f22e1651]: 4 star
+                    - progressbar [aria-hidden] [ref=f22e1653]
+                    - generic [aria-hidden] [ref=f22e1654]: 19%
+                - listitem [ref=f22e1655]:
+                  - link "9 percent of reviews have 3 stars" [ref=f22e1658] [cursor=pointer]:
+                    - /url: /portal/customer-reviews/B0F6YPX2X5/ref=acr_dp_hist_3?ie=UTF8&filterByStar=three_star&reviewerType=all_reviews#reviews-filter-bar
+                    - generic [aria-hidden] [ref=f22e1659]: 3 star
+                    - progressbar [aria-hidden] [ref=f22e1661]
+                    - generic [aria-hidden] [ref=f22e1662]: 9%
+                - listitem [ref=f22e1663]:
+                  - link "3 percent of reviews have 2 stars" [ref=f22e1666] [cursor=pointer]:
+                    - /url: /portal/customer-reviews/B0F6YPX2X5/ref=acr_dp_hist_2?ie=UTF8&filterByStar=two_star&reviewerType=all_reviews#reviews-filter-bar
+                    - generic [aria-hidden] [ref=f22e1667]: 2 star
+                    - progressbar [aria-hidden] [ref=f22e1669]
+                    - generic [aria-hidden] [ref=f22e1670]: 3%
+                - listitem [ref=f22e1671]:
+                  - link "7 percent of reviews have 1 stars" [ref=f22e1674] [cursor=pointer]:
+                    - /url: /portal/customer-reviews/B0F6YPX2X5/ref=acr_dp_hist_1?ie=UTF8&filterByStar=one_star&reviewerType=all_reviews#reviews-filter-bar
+                    - generic [aria-hidden] [ref=f22e1675]: 1 star
+                    - progressbar [aria-hidden] [ref=f22e1677]
+                    - generic [aria-hidden] [ref=f22e1678]: 7%
+              - button "How customer reviews and ratings work" [ref=f22e1683] [cursor=pointer]
+            - separator [aria-hidden] [ref=f22e1685]
+          - generic [ref=f22e1689]:
+            - generic [ref=f22e1693]:
+              - heading "Customers say" [level=3] [ref=f22e1694]
+              - generic [ref=f22e1695]: Customers praise the phone's top-notch quality, smooth performance, and super display, with one customer noting it handles everything from daily tasks to heavy gaming without lag. The battery life receives mixed feedback - while some report 10-hour continuous backup, others say it drains quickly. The camera quality and speed also get mixed reviews, with some finding them good while others consider them average, and customers disagree on whether the phone is worth its price. Customers report heating issues with the phone.
+              - generic [ref=f22e1697]:
+                - generic [ref=f22e1698]:
+                  - generic [ref=f22e1699]: AI Generated from the text of customer reviews
+                  - generic [aria-hidden] [ref=f22e1701]: Generated from the text of customer reviews
+                - heading "Select to learn more" [level=4] [ref=f22e1702]
+                - tablist "Select to learn more" [ref=f22e1703]:
+                  - generic [ref=f22e1704]:
+                    - tab "Positive aspect, quality, 102 mentions" [ref=f22e1708]:
+                      - button "Positive aspect, quality, 102 mentions" [ref=f22e1709] [cursor=pointer]:
+                        - generic [ref=f22e1710]: Quality(102)
+                    - tab "Positive aspect, performance, 45 mentions" [ref=f22e1718]:
+                      - button "Positive aspect, performance, 45 mentions" [ref=f22e1719] [cursor=pointer]:
+                        - generic [ref=f22e1720]: Performance(45)
+                    - tab "Positive aspect, display, 17 mentions" [ref=f22e1728]:
+                      - button "Positive aspect, display, 17 mentions" [ref=f22e1729] [cursor=pointer]:
+                        - generic [ref=f22e1730]: Display(17)
+                    - tab "Mixed aspect, battery life, 72 mentions" [ref=f22e1738]:
+                      - button "Mixed aspect, battery life, 72 mentions" [ref=f22e1739] [cursor=pointer]:
+                        - generic [ref=f22e1740]: Battery life(72)
+                    - tab "Mixed aspect, camera quality, 45 mentions" [ref=f22e1748]:
+                      - button "Mixed aspect, camera quality, 45 mentions" [ref=f22e1749] [cursor=pointer]:
+                        - generic [ref=f22e1750]: Camera quality(45)
+                    - tab "Mixed aspect, value for money, 44 mentions" [ref=f22e1758]:
+                      - button "Mixed aspect, value for money, 44 mentions" [ref=f22e1759] [cursor=pointer]:
+                        - generic [ref=f22e1760]: Value for money(44)
+                    - tab "Mixed aspect, speed, 21 mentions" [ref=f22e1768]:
+                      - button "Mixed aspect, speed, 21 mentions" [ref=f22e1769] [cursor=pointer]:
+                        - generic [ref=f22e1770]: Speed(21)
+                    - tab "Negative aspect, heating, 37 mentions" [ref=f22e1778]:
+                      - button "Negative aspect, heating, 37 mentions" [ref=f22e1779] [cursor=pointer]:
+                        - generic [ref=f22e1780]: Heating(37)
+            - generic [ref=f22e1786]:
+              - group [ref=f22e1789]:
+                - generic [ref=f22e1790]:
+                  - heading "Reviews with images" [level=3] [ref=f22e1792]
+                  - link "See all photos" [ref=f22e1795] [cursor=pointer]:
+                    - /url: javascript:void(0)
+                - group [ref=f22e1799]:
+                  - list [ref=f22e1800]:
+                    - listitem [ref=f22e1801]:
+                      - button [ref=f22e1803] [cursor=pointer]:
+                        - img "Customer Image, click to open customer review" [ref=f22e1804]
+                    - listitem [ref=f22e1806]:
+                      - button [ref=f22e1808] [cursor=pointer]:
+                        - img "Customer Image, click to open customer review" [ref=f22e1809]
+                    - listitem [ref=f22e1811]:
+                      - button [ref=f22e1813] [cursor=pointer]:
+                        - img "Customer Image, click to open customer review" [ref=f22e1814]
+                    - listitem [ref=f22e1816]:
+                      - button [ref=f22e1818] [cursor=pointer]:
+                        - img "Customer Image, click to open customer review" [ref=f22e1819]
+                    - listitem [ref=f22e1821]:
+                      - button [ref=f22e1823] [cursor=pointer]:
+                        - img "Customer Image, click to open customer review" [ref=f22e1824]
+                    - listitem [ref=f22e1826]:
+                      - button [ref=f22e1828] [cursor=pointer]:
+                        - img "Customer Image, click to open customer review" [ref=f22e1829]
+                    - listitem [ref=f22e1831]:
+                      - button [ref=f22e1833] [cursor=pointer]:
+                        - img "Customer Image, click to open customer review" [ref=f22e1834]
+                    - listitem [ref=f22e1836]:
+                      - button [ref=f22e1838] [cursor=pointer]:
+                        - img "Customer Image, click to open customer review" [ref=f22e1839]
+                    - listitem [ref=f22e1841]:
+                      - button [ref=f22e1843] [cursor=pointer]:
+                        - img "Customer Image, click to open customer review" [ref=f22e1844]
+                    - listitem [ref=f22e1846]:
+                      - button [ref=f22e1848] [cursor=pointer]:
+                        - img "Customer Image, click to open customer review" [ref=f22e1849]
+                    - listitem [ref=f22e1851]:
+                      - button [ref=f22e1853] [cursor=pointer]:
+                        - img "Customer Image, click to open customer review" [ref=f22e1854]
+                    - listitem [ref=f22e1856]:
+                      - button [ref=f22e1858] [cursor=pointer]:
+                        - img "Customer Image, click to open customer review" [ref=f22e1859]
+              - separator [aria-hidden] [ref=f22e1861]
+            - generic [ref=f22e1866]:
+              - generic [ref=f22e1867]:
+                - heading "Top reviews from India" [level=3] [ref=f22e1868]
+                - list [ref=f22e1869]:
+                  - listitem [ref=f22e1870]:
+                    - generic [ref=f22e1873]:
+                      - link "Viki" [ref=f22e1875] [cursor=pointer]:
+                        - /url: /gp/profile/amzn1.account.AEYEJDN4JXAWLIQDF5ZTVOYL6OUQ?ref=cm_cr_dp_d_bdcrb_top
+                      - generic [ref=f22e1881]: 5 out of 5 stars
+                      - link [ref=f22e1884] [cursor=pointer]:
+                        - /url: /portal/customer-reviews/srp/-/R2HBX1U7V9D72A/ref=cm_cr_dp_d_rvw_ttl?_encoding=UTF8&ie=UTF8
+                        - heading "The best alrounder" [level=5] [ref=f22e1885]
+                      - generic [ref=f22e1886]: Reviewed in India on 17 October 2025
+                      - generic [ref=f22e1887]:
+                        - 'link "Size: 8GB+256GB Colour: IceSense Blue" [ref=f22e1888] [cursor=pointer]':
+                          - /url: /portal/customer-reviews/B0F6YPX2X5/ref=cm_cr_dp_d_rvw_fmt?_encoding=UTF8&formatType=current_format
+                          - generic [ref=f22e1889]: "Size: 8GB+256GB"
+                          - text: "Colour: IceSense Blue"
+                        - link "Verified Purchase" [ref=f22e1892] [cursor=pointer]:
+                          - /url: /gp/help/customer/display.html/ref=cm_cr_dp_d_rvw_avp?ie=UTF8&nodeId=G8UYX7LALQC8V9KA
+                      - generic [ref=f22e1895]:
+                        - generic [ref=f22e1901]:
+                          - paragraph [ref=f22e1902]: "Review after a week :"
+                          - paragraph
+                          - paragraph [ref=f22e1903]: "1. Blazing Performance: Handles everything from daily tasks to heavy gaming without any lag or stutter. Scores Above 2M antutu score ."
+                          - paragraph [ref=f22e1904]: "2. Incredible Charging Speed: The 120W charger fills the battery from 20% to 100% in under 20 minutes."
+                          - paragraph [ref=f22e1905]: "3. Stunning Display: The vibrant 120Hz AMOLED screen makes scrolling, watching videos, and gaming super smooth."
+                          - paragraph [ref=f22e1906]: "4. Solid Main Camera: Takes sharp, detailed photos in good lighting and holds its own in low-light conditions."
+                          - paragraph [ref=f22e1907]: The telephoto was surprisingly great , its zooming capability is awesome.
+                          - paragraph [ref=f22e1908]: "5. All-Day Battery Life: Easily powers through a full day of moderate to heavy use on a single charge. SOT : about 9 hours ."
+                          - paragraph [ref=f22e1909]: 6. Premium Design:Feels sleek and modern in the hand, looking more expensive than it is.
+                          - paragraph [ref=f22e1910]: "7. Clean Software Experience: The interface is user-friendly with minimal bloatware for a smooth operation. Realme Ai is not bad ."
+                          - paragraph [ref=f22e1911]: "8. Reliable for Video Calls: The front camera and speakers provide clear and high-quality video calls. Face id works so fast it feels like iphone ."
+                          - paragraph [ref=f22e1912]: 9. Excellent Value for Money:Offers high-end features typically found in more expensive flagship phones.
+                          - paragraph [ref=f22e1913]: 10. The True All-Rounder:Doesn't have a single weak point; it excels in performance, display, battery, and charging, making it a perfect daily driver.
+                          - paragraph
+                          - paragraph [ref=f22e1914]: Highly Recommended for anyone seeking a powerful, balanced phone without the flagship price tag.
+                        - button "Read more" [ref=f22e1918] [cursor=pointer]
+                      - generic [ref=f22e1922]:
+                        - button [ref=f22e1923] [cursor=pointer]:
+                          - img "The best alrounder" [ref=f22e1924]
+                        - button [ref=f22e1925] [cursor=pointer]:
+                          - img "The best alrounder" [ref=f22e1926]
+                      - generic [ref=f22e1927]: 7 people found this helpful
+                      - generic [ref=f22e1929]:
+                        - generic [ref=f22e1933] [cursor=pointer]:
+                          - button "Helpful" [ref=f22e1934]
+                          - generic [ref=f22e1936]: Helpful
+                        - button "Report Review" [ref=f22e1939] [cursor=pointer]: Report
+                  - listitem [ref=f22e1940]:
+                    - generic [ref=f22e1943]:
+                      - link "kevin109" [ref=f22e1945] [cursor=pointer]:
+                        - /url: /gp/profile/amzn1.account.AHHZ2BSNGRQYZPVCID7RQ3FV7XZQ?ref=cm_cr_dp_d_bdcrb_top
+                      - generic [ref=f22e1951]: 5 out of 5 stars
+                      - link [ref=f22e1954] [cursor=pointer]:
+                        - /url: /portal/customer-reviews/srp/-/R1X5UTN6AR92R9/ref=cm_cr_dp_d_rvw_ttl?_encoding=UTF8&ie=UTF8
+                        - heading "Camera and how quick this phone is to response. Battery is pretty good." [level=5] [ref=f22e1955]
+                      - generic [ref=f22e1956]: Reviewed in India on 9 June 2025
+                      - generic [ref=f22e1957]:
+                        - 'link "Size: 8GB+256GB Colour: IceSense Black" [ref=f22e1958] [cursor=pointer]':
+                          - /url: /portal/customer-reviews/B0F6YNLBBK/ref=cm_cr_dp_d_rvw_fmt?_encoding=UTF8&formatType=current_format
+                          - generic [ref=f22e1959]: "Size: 8GB+256GB"
+                          - text: "Colour: IceSense Black"
+                        - link "Verified Purchase" [ref=f22e1962] [cursor=pointer]:
+                          - /url: /gp/help/customer/display.html/ref=cm_cr_dp_d_rvw_avp?ie=UTF8&nodeId=G8UYX7LALQC8V9KA
+                      - generic [ref=f22e1965]:
+                        - generic [ref=f22e1971]:
+                          - paragraph [ref=f22e1972]: I am writing a review about this phone after using it for more than 10 days.
+                          - paragraph [ref=f22e1973]: Phone looks Ok.
+                          - paragraph [ref=f22e1974]: Battery is pretty good, One time it lasted almost 2 days.
+                          - paragraph [ref=f22e1975]: Now Its more than a day cause I change the settings to high.
+                          - paragraph [ref=f22e1976]: Camera is pretty good, does a decent job, good photos and great video as well.
+                          - paragraph [ref=f22e1977]: Camera part has multiple options, when it comes to AI quite a few options.
+                          - paragraph
+                          - paragraph [ref=f22e1978]: It is a MediaTek Dimensity 9400e chipset, a 6.78-inch 1.5K AMOLED display with up to 6000 nits peak brightness, a 50MP Sony IMX906 main camera, a 7000mAh battery with 120W -14 min to 50%, 40 min to 100%
+                          - paragraph [ref=f22e1979]: Crazy specs and works well according to the specs.
+                          - paragraph
+                          - paragraph [ref=f22e1980]: Phone is pretty fast, I didn't feel any lag while using applications.
+                          - paragraph [ref=f22e1981]: It has IR Blaster which will work for me to use any devices.
+                          - paragraph
+                          - paragraph [ref=f22e1982]: Downside - No wireless charging.
+                          - paragraph [ref=f22e1983]: I had plans to by 13r but it was more expensive than the Gt7.
+                          - paragraph [ref=f22e1984]: So I though of GT 7 as a better option.
+                          - paragraph
+                          - paragraph [ref=f22e1985]: Its touch and response is pretty damm good. There are more features that I need to explore.
+                          - paragraph [ref=f22e1986]: Over all this phone is Good. For this rate it is a flagship killer indeed. Its got a 2.2 mil on Antutu.
+                          - paragraph
+                          - paragraph [ref=f22e1987]: Update on 18th June 2025.
+                          - paragraph
+                          - paragraph [ref=f22e1988]: I got a new update on this phone and they have updated few fixed, which actually works.
+                          - paragraph [ref=f22e1989]: This phone also has dynamic Island option for few applications.
+                        - button "Read more" [ref=f22e1993] [cursor=pointer]
+                      - generic [ref=f22e1996]: 40 people found this helpful
+                      - generic [ref=f22e1998]:
+                        - generic [ref=f22e2002] [cursor=pointer]:
+                          - button "Helpful" [ref=f22e2003]
+                          - generic [ref=f22e2005]: Helpful
+                        - button "Report Review" [ref=f22e2008] [cursor=pointer]: Report
+                  - listitem [ref=f22e2009]:
+                    - generic [ref=f22e2012]:
+                      - link "Madhuri Padalkar" [ref=f22e2014] [cursor=pointer]:
+                        - /url: /gp/profile/amzn1.account.AELQATQEDGCB7Y33IPO3WLU2OPTQ?ref=cm_cr_dp_d_bdcrb_top
+                      - generic [ref=f22e2020]: 4 out of 5 stars
+                      - link [ref=f22e2023] [cursor=pointer]:
+                        - /url: /portal/customer-reviews/srp/-/R2A579K7YWI4KU/ref=cm_cr_dp_d_rvw_ttl?_encoding=UTF8&ie=UTF8
+                        - heading "Good value for money" [level=5] [ref=f22e2024]
+                      - generic [ref=f22e2025]: Reviewed in India on 17 March 2026
+                      - generic [ref=f22e2026]:
+                        - 'link "Size: 8GB+256GB Colour: IceSense Black" [ref=f22e2027] [cursor=pointer]':
+                          - /url: /portal/customer-reviews/B0F6YNLBBK/ref=cm_cr_dp_d_rvw_fmt?_encoding=UTF8&formatType=current_format
+                          - generic [ref=f22e2028]: "Size: 8GB+256GB"
+                          - text: "Colour: IceSense Black"
+                        - link "Verified Purchase" [ref=f22e2031] [cursor=pointer]:
+                          - /url: /gp/help/customer/display.html/ref=cm_cr_dp_d_rvw_avp?ie=UTF8&nodeId=G8UYX7LALQC8V9KA
+                      - paragraph [ref=f22e2041]: Good performance. Software can be improved. Cams are good. Selfi better than expected. Videos are decent. Battery works fine in balance mode but not in high performance mode. Design is sober and sturdy. Nothing to complain about sound quality and connectivity. Overall good value for money though I don't play games.
+                      - generic [ref=f22e2043]:
+                        - generic [ref=f22e2047] [cursor=pointer]:
+                          - button "Helpful" [ref=f22e2048]
+                          - generic [ref=f22e2050]: Helpful
+                        - button "Report Review" [ref=f22e2053] [cursor=pointer]: Report
+                  - listitem [ref=f22e2054]:
+                    - generic [ref=f22e2057]:
+                      - link "7060052155" [ref=f22e2059] [cursor=pointer]:
+                        - /url: /gp/profile/amzn1.account.AGGYLBWZRLDNHKUOAIA4PHDPOBWA?ref=cm_cr_dp_d_bdcrb_top
+                      - generic [ref=f22e2065]: 5 out of 5 stars
+                      - link [ref=f22e2068] [cursor=pointer]:
+                        - /url: /portal/customer-reviews/srp/-/R2VVDHUXE8BTJ0/ref=cm_cr_dp_d_rvw_ttl?_encoding=UTF8&ie=UTF8
+                        - heading "About phone gt 7" [level=5] [ref=f22e2069]
+                      - generic [ref=f22e2070]: Reviewed in India on 4 September 2026
+                      - generic [ref=f22e2071]:
+                        - 'link "Size: 8GB+256GB Colour: IceSense Black" [ref=f22e2072] [cursor=pointer]':
+                          - /url: /portal/customer-reviews/B0F6YNLBBK/ref=cm_cr_dp_d_rvw_fmt?_encoding=UTF8&formatType=current_format
+                          - generic [ref=f22e2073]: "Size: 8GB+256GB"
+                          - text: "Colour: IceSense Black"
+                        - link "Verified Purchase" [ref=f22e2076] [cursor=pointer]:
+                          - /url: /gp/help/customer/display.html/ref=cm_cr_dp_d_rvw_avp?ie=UTF8&nodeId=G8UYX7LALQC8V9KA
+                      - paragraph [ref=f22e2086]: Good phone overall but 7000 mah battery is not reflecting its power feels like just 5500 mah battery all other things are good now I have an experience of 6 months with phone, 120 watt power adapter is the biggest positive point for this phone, for speed, gt mode of this phone is also unique and good, and feature of privacy for pictures is also one of the best in this phone., battery life is not good that much.
+                      - generic [ref=f22e2087]: One person found this helpful
+                      - generic [ref=f22e2089]:
+                        - generic [ref=f22e2093] [cursor=pointer]:
+                          - button "Helpful" [ref=f22e2094]
+                          - generic [ref=f22e2096]: Helpful
+                        - button "Report Review" [ref=f22e2099] [cursor=pointer]: Report
+                  - listitem [ref=f22e2100]:
+                    - generic [ref=f22e2103]:
+                      - link "Mohithsai" [ref=f22e2105] [cursor=pointer]:
+                        - /url: /gp/profile/amzn1.account.AE3SVK76KFQW6YKPTE6R4HP3HK3A?ref=cm_cr_dp_d_bdcrb_top
+                      - generic [ref=f22e2111]: 3 out of 5 stars
+                      - link [ref=f22e2114] [cursor=pointer]:
+                        - /url: /portal/customer-reviews/srp/-/R7ESBZCVPL45G/ref=cm_cr_dp_d_rvw_ttl?_encoding=UTF8&ie=UTF8
+                        - heading "The s" [level=5] [ref=f22e2115]
+                      - generic [ref=f22e2116]: Reviewed in India on 11 October 2025
+                      - generic [ref=f22e2117]:
+                        - 'link "Size: 8GB+256GB Colour: IceSense Black" [ref=f22e2118] [cursor=pointer]':
+                          - /url: /portal/customer-reviews/B0F6YNLBBK/ref=cm_cr_dp_d_rvw_fmt?_encoding=UTF8&formatType=current_format
+                          - generic [ref=f22e2119]: "Size: 8GB+256GB"
+                          - text: "Colour: IceSense Black"
+                        - link "Verified Purchase" [ref=f22e2122] [cursor=pointer]:
+                          - /url: /gp/help/customer/display.html/ref=cm_cr_dp_d_rvw_avp?ie=UTF8&nodeId=G8UYX7LALQC8V9KA
+                      - paragraph [ref=f22e2132]: I think the battery was doesn't performed like it's 7000mah and the users of this realme gt7 people facing instagram app issues like when you open anyone profile and see their posts. Your display gets too dim when compared to the post of the user.camera was decent, little bit of heating issues and ai features in camera was very good.when it comes to performance it is beast mobile.there is no lag while switching into multiple apps.The speakers are very good at this price segment.
+                      - generic [ref=f22e2133]: 10 people found this helpful
+                      - generic [ref=f22e2135]:
+                        - generic [ref=f22e2139] [cursor=pointer]:
+                          - button "Helpful" [ref=f22e2140]
+                          - generic [ref=f22e2142]: Helpful
+                        - button "Report Review" [ref=f22e2145] [cursor=pointer]: Report
+                  - listitem [ref=f22e2146]:
+                    - generic [ref=f22e2149]:
+                      - link "Avashesh J." [ref=f22e2151] [cursor=pointer]:
+                        - /url: /gp/profile/amzn1.account.AEDMWJZJGHUR5HYJHWA3UW52EZAA?ref=cm_cr_dp_d_bdcrb_top
+                      - generic [ref=f22e2157]: 5 out of 5 stars
+                      - link [ref=f22e2160] [cursor=pointer]:
+                        - /url: /portal/customer-reviews/srp/-/RZ530AU5VV5JV/ref=cm_cr_dp_d_rvw_ttl?_encoding=UTF8&ie=UTF8
+                        - heading "All rounder phone with massive battery" [level=5] [ref=f22e2161]
+                      - generic [ref=f22e2162]: Reviewed in India on 31 May 2026
+                      - generic [ref=f22e2163]:
+                        - 'link "Size: 8GB+256GB Colour: IceSense Black" [ref=f22e2164] [cursor=pointer]':
+                          - /url: /portal/customer-reviews/B0F6YNLBBK/ref=cm_cr_dp_d_rvw_fmt?_encoding=UTF8&formatType=current_format
+                          - generic [ref=f22e2165]: "Size: 8GB+256GB"
+                          - text: "Colour: IceSense Black"
+                        - link "Verified Purchase" [ref=f22e2168] [cursor=pointer]:
+                          - /url: /gp/help/customer/display.html/ref=cm_cr_dp_d_rvw_avp?ie=UTF8&nodeId=G8UYX7LALQC8V9KA
+                      - paragraph [ref=f22e2178]: Allrounder in each aspect, camera, battery, performance and look and feel
+                      - generic [ref=f22e2180]:
+                        - generic [ref=f22e2184] [cursor=pointer]:
+                          - button "Helpful" [ref=f22e2185]
+                          - generic [ref=f22e2187]: Helpful
+                        - button "Report Review" [ref=f22e2190] [cursor=pointer]: Report
+                  - listitem [ref=f22e2191]:
+                    - generic [ref=f22e2194]:
+                      - link "Ram D" [ref=f22e2196] [cursor=pointer]:
+                        - /url: /gp/profile/amzn1.account.AHLG7SKMYF3QYAMR3V6O5DQNNHCQ?ref=cm_cr_dp_d_bdcrb_top
+                      - generic [ref=f22e2202]: 1 out of 5 stars
+                      - link [ref=f22e2205] [cursor=pointer]:
+                        - /url: /portal/customer-reviews/srp/-/RZ86DC41N0IP3/ref=cm_cr_dp_d_rvw_ttl?_encoding=UTF8&ie=UTF8
+                        - heading "Overall experience is not bad but strongly feeling not a value for money mobile! (Critique review)" [level=5] [ref=f22e2206]
+                      - generic [ref=f22e2207]: Reviewed in India on 7 June 2025
+                      - generic [ref=f22e2208]:
+                        - 'link "Size: 8GB+256GB Colour: IceSense Blue" [ref=f22e2209] [cursor=pointer]':
+                          - /url: /portal/customer-reviews/B0F6YPX2X5/ref=cm_cr_dp_d_rvw_fmt?_encoding=UTF8&formatType=current_format
+                          - generic [ref=f22e2210]: "Size: 8GB+256GB"
+                          - text: "Colour: IceSense Blue"
+                        - link "Verified Purchase" [ref=f22e2213] [cursor=pointer]:
+                          - /url: /gp/help/customer/display.html/ref=cm_cr_dp_d_rvw_avp?ie=UTF8&nodeId=G8UYX7LALQC8V9KA
+                      - generic [ref=f22e2216]:
+                        - generic [ref=f22e2222]:
+                          - paragraph [ref=f22e2223]: "Observations:"
+                          - paragraph
+                          - paragraph [ref=f22e2224]: 1. Processor is fast, no issues at all till now but I think you won't find that much difficulties even if you use lower model mobiles in regular usage.
+                          - paragraph
+                          - paragraph [ref=f22e2225]: 2. Giving 8 to 10 hours SOT which is common with any 7000mah battery. My usage is always 5g ON, dark theme, no games, normal day to day apps, watching movies.
+                          - paragraph
+                          - paragraph [ref=f22e2226]: 3. Screen is good with proper support for Dolby Vision in Netflix which is one of the major deciding factor for my purchase. Also, no lags in playing highest quality 4k videos in any apps.
+                          - paragraph
+                          - paragraph [ref=f22e2227]: 4. Photos are just ok ok but not clicked many. What I really not liked is the quality of zoomed photos lacking details and macro shots quality. However many reviews are positive on overall camera performance. I also used Gcam but default camera pictures are having more quality.
+                          - paragraph
+                          - paragraph [ref=f22e2228]: 5. Signal catching chip, I have seen only slight improvement over other mobiles in areas of poor signal but if you have good signal it is getting highest speeds like in Prime I got 138MBPS which is 1gbps.
+                          - paragraph
+                          - paragraph [ref=f22e2229]: 6. In hand feeling is good as it is curved backside but definitely not single hand friendly and also you will get pain for operating and holding it for long time as it is both lengthy at 162.42mm and heavy at 206g (with back cover 226g). Design is not that great and also I hate the big size of the backside camera module but I like the velvet feel of the back which is soothing, unfortunately with black cover which is of good quality provided by the company will suppress the feel.
+                          - paragraph
+                          - paragraph [ref=f22e2230]: 7. For normal tasks I have not seen any heating issues but if the signal is poor, using 5g for continuous downloads, at the time of charging it is getting very hot which is common for other mobiles too.
+                          - paragraph
+                          - paragraph [ref=f22e2231]: 8. OTG transfer speeds are not at all great as it has only USB 2.0 support. NFC available which is generally missing in many mobiles these days. Speaker direct output also seems to be not satisfactory in Prime video as music is interfering and suppressing voice, tried changing all available modes but no improvement. In other areas no issue faced regarding speaker.
+                          - paragraph
+                          - paragraph [ref=f22e2232]: 9. AI features are good and handy but we are still evolving to utilize to the max, I personally like double tap back to enable planner option. Also, there are many other useful features available.
+                          - paragraph
+                          - paragraph [ref=f22e2233]: 10. Sorry, I don't play games and hence not able to review on that aspect which is the main USP of this mobile. Kindly look into other sources.
+                          - paragraph
+                          - paragraph [ref=f22e2234]: However, I don't like the way brands not explicitly providing very important details these days even for this mobile...
+                          - paragraph [ref=f22e2235]: a. SAR for head @1.173, body @0.628, limbs (new one not on box) @2.948W/kg
+                          - paragraph [ref=f22e2236]: b. 4 OS updates, 6 years security updates*
+                          - paragraph [ref=f22e2237]: c. Gorilla glass 7i protection on front
+                          - paragraph
+                          - paragraph [ref=f22e2238]: Even initial promotional reviews not shown the SAR which is a bad thing and also 7i protection is confirmed with company over email and *unfortunately no official confirmation is given by company on updates till date.
+                          - paragraph
+                          - paragraph [ref=f22e2239]: What I personally think about missing features are BT6.0, USB3.1 which might have made the mobile complete. GT 7T support BT6.0 but strangely a better processor mobile GT 7 supports only 5.4.
+                          - paragraph
+                          - paragraph [ref=f22e2240]: I bought this mobile with 1-year screen protection pre-booking promotional offer and at an effective price of Rs.35150 (39999-3000 card discount-1849 icici amazon pay cashback).
+                          - paragraph
+                          - paragraph [ref=f22e2241]: Finally, if it comes around 30000 then only try to have a look otherwise you can skip as we have other competitors like Oneplus 13R, Moto Edge 60 Pro and also Vivo T4 Ultra, Poco F7 in queue.
+                          - paragraph
+                          - paragraph [ref=f22e2242]: Used Realme X7 Max 12gb, 256gb for more than 3 years but due to issue at the time of transferring large number of files my mobile got corrupted. Even though I immediately went to Service centre but there was no luck in retrieving the lost data as it was encrypted. Hence, requesting all to backup your precious data on regular intervals.
+                          - paragraph
+                          - paragraph [ref=f22e2243]: "Suggestion: Always try to buy mobiles of 1 year old which will be available at most reasonable prices and if you buy them on festival or special sales you will get more price variation. Also, by that time you will get better idea about overall quality of the mobile with reasonable user reviews."
+                        - button "Read more" [ref=f22e2247] [cursor=pointer]
+                      - generic [ref=f22e2251]:
+                        - button [ref=f22e2252] [cursor=pointer]:
+                          - img "Overall experience is not bad but strongly feeling not a value for money mobile! (Critique review)" [ref=f22e2253]
+                        - button [ref=f22e2254] [cursor=pointer]:
+                          - img "Overall experience is not bad but strongly feeling not a value for money mobile! (Critique review)" [ref=f22e2255]
+                      - generic [ref=f22e2256]: 215 people found this helpful
+                      - generic [ref=f22e2258]:
+                        - generic [ref=f22e2262] [cursor=pointer]:
+                          - button "Helpful" [ref=f22e2263]
+                          - generic [ref=f22e2265]: Helpful
+                        - button "Report Review" [ref=f22e2268] [cursor=pointer]: Report
+                  - listitem [ref=f22e2269]:
+                    - generic [ref=f22e2272]:
+                      - link "Ankit" [ref=f22e2274] [cursor=pointer]:
+                        - /url: /gp/profile/amzn1.account.AE4LS7NHSKWSYJMD3UBTZQOSURDA?ref=cm_cr_dp_d_bdcrb_top
+                      - generic [ref=f22e2280]: 5 out of 5 stars
+                      - link [ref=f22e2283] [cursor=pointer]:
+                        - /url: /portal/customer-reviews/srp/-/R8W6P21LRHDAX/ref=cm_cr_dp_d_rvw_ttl?_encoding=UTF8&ie=UTF8
+                        - heading "Nice phone" [level=5] [ref=f22e2284]
+                      - generic [ref=f22e2285]: Reviewed in India on 6 October 2025
+                      - generic [ref=f22e2286]:
+                        - 'link "Size: 8GB+256GB Colour: IceSense Black" [ref=f22e2287] [cursor=pointer]':
+                          - /url: /portal/customer-reviews/B0F6YNLBBK/ref=cm_cr_dp_d_rvw_fmt?_encoding=UTF8&formatType=current_format
+                          - generic [ref=f22e2288]: "Size: 8GB+256GB"
+                          - text: "Colour: IceSense Black"
+                        - link "Verified Purchase" [ref=f22e2291] [cursor=pointer]:
+                          - /url: /gp/help/customer/display.html/ref=cm_cr_dp_d_rvw_avp?ie=UTF8&nodeId=G8UYX7LALQC8V9KA
+                      - generic [ref=f22e2300]:
+                        - paragraph [ref=f22e2301]: Good performance, Good battery backup, Nice charging speed.
+                        - paragraph [ref=f22e2302]: Easily found screen guard offline.
+                        - paragraph [ref=f22e2303]: Back cover provided is nice and premium.
+                        - paragraph [ref=f22e2304]: Camera quality is nice. Great Video quality. Photos take time to process. Overall output is nice.
+                        - paragraph [ref=f22e2305]: Calls and internet speed is impressive.
+                      - generic [ref=f22e2306]: 4 people found this helpful
+                      - generic [ref=f22e2308]:
+                        - generic [ref=f22e2312] [cursor=pointer]:
+                          - button "Helpful" [ref=f22e2313]
+                          - generic [ref=f22e2315]: Helpful
+                        - button "Report Review" [ref=f22e2318] [cursor=pointer]: Report
+              - link "See more reviews" [ref=f22e2320] [cursor=pointer]:
+                - /url: /portal/customer-reviews/B0F6YPX2X5/ref=cm_cr_dp_d_show_all_top?_encoding=UTF8&ie=UTF8&reviewerType=all_reviews
+  - complementary "Your recently viewed items and featured recommendations"
+  - generic [ref=f22e2326]:
+    - button "Back to top" [ref=f22e2327] [cursor=pointer]
+    - generic [ref=f22e2329]:
+      - generic [ref=f22e2330]:
+        - heading "Get to Know Us" [level=6] [ref=f22e2331]
+        - list [ref=f22e2332]:
+          - listitem [ref=f22e2333]:
+            - link "About Amazon" [ref=f22e2334] [cursor=pointer]:
+              - /url: https://www.aboutamazon.in/?utm_source=gateway&utm_medium=footer
+          - listitem [ref=f22e2335]:
+            - link "Careers" [ref=f22e2336] [cursor=pointer]:
+              - /url: https://amazon.jobs
+          - listitem [ref=f22e2337]:
+            - link "Press Releases" [ref=f22e2338] [cursor=pointer]:
+              - /url: https://press.aboutamazon.in/?utm_source=gateway&utm_medium=footer
+          - listitem [ref=f22e2339]:
+            - link "Amazon Science" [ref=f22e2340] [cursor=pointer]:
+              - /url: https://www.amazon.science
+      - generic [ref=f22e2342]:
+        - heading "Connect with Us" [level=6] [ref=f22e2343]
+        - list [ref=f22e2344]:
+          - listitem [ref=f22e2345]:
+            - link "Facebook" [ref=f22e2346] [cursor=pointer]:
+              - /url: https://www.facebook.com/AmazonIN
+          - listitem [ref=f22e2347]:
+            - link "Twitter" [ref=f22e2348] [cursor=pointer]:
+              - /url: https://x.com/AmazonIN
+          - listitem [ref=f22e2349]:
+            - link "Instagram" [ref=f22e2350] [cursor=pointer]:
+              - /url: https://www.instagram.com/amazondotin
+      - generic [ref=f22e2352]:
+        - heading "Make Money with Us" [level=6] [ref=f22e2353]
+        - list [ref=f22e2354]:
+          - listitem [ref=f22e2355]:
+            - link "Sell on Amazon" [ref=f22e2356] [cursor=pointer]:
+              - /url: /b/?node=2838698031&ld=AZINSOANavDesktopFooter_C&ref_=nav_footer_sell_C
+          - listitem [ref=f22e2357]:
+            - link "Sell under Amazon Accelerator" [ref=f22e2358] [cursor=pointer]:
+              - /url: https://accelerator.amazon.in/?ref_=map_1_b2b_GW_FT
+          - listitem [ref=f22e2359]:
+            - link "Protect and Build Your Brand" [ref=f22e2360] [cursor=pointer]:
+              - /url: https://brandservices.amazon.in/?ref=AOINABRLGNRFOOT&ld=AOINABRLGNRFOOT
+          - listitem [ref=f22e2361]:
+            - link "Amazon Global Selling" [ref=f22e2362] [cursor=pointer]:
+              - /url: https://sell.amazon.in/grow-your-business/amazon-global-selling.html?ld=AZIN_Footer_V1&ref=AZIN_Footer_V1
+          - listitem [ref=f22e2363]:
+            - link "Supply to Amazon" [ref=f22e2364] [cursor=pointer]:
+              - /url: https://supply.amazon.com/?ref_=footer_sta&lang=en-IN
+          - listitem [ref=f22e2365]:
+            - link "Become an Affiliate" [ref=f22e2366] [cursor=pointer]:
+              - /url: https://affiliate-program.amazon.in/?utm_campaign=assocshowcase&utm_medium=footer&utm_source=GW&ref_=footer_assoc
+          - listitem [ref=f22e2367]:
+            - link "Fulfilment by Amazon" [ref=f22e2368] [cursor=pointer]:
+              - /url: https://services.amazon.in/services/fulfilment-by-amazon/benefits.html/ref=az_footer_fba?ld=AWRGINFBAfooter
+          - listitem [ref=f22e2369]:
+            - link "Advertise Your Products" [ref=f22e2370] [cursor=pointer]:
+              - /url: https://advertising.amazon.in/?ref=Amz.in
+          - listitem [ref=f22e2371]:
+            - link "Amazon Pay on Merchants" [ref=f22e2372] [cursor=pointer]:
+              - /url: https://www.amazonpay.in/merchant
+      - generic [ref=f22e2374]:
+        - heading "Let Us Help You" [level=6] [ref=f22e2375]
+        - list [ref=f22e2376]:
+          - listitem [ref=f22e2377]:
+            - link "Your Account" [ref=f22e2378] [cursor=pointer]:
+              - /url: /gp/css/homepage.html?ref_=footer_ya
+          - listitem [ref=f22e2379]:
+            - link "Returns Centre" [ref=f22e2380] [cursor=pointer]:
+              - /url: /gp/css/returns/homepage.html?ref_=footer_hy_f_4
+          - listitem [ref=f22e2381]:
+            - link "Recalls and Product Safety Alerts" [ref=f22e2382] [cursor=pointer]:
+              - /url: https://www.amazon.in/your-product-safety-alerts?ref_=footer_bsx_ypsa
+          - listitem [ref=f22e2383]:
+            - link "100% Purchase Protection" [ref=f22e2384] [cursor=pointer]:
+              - /url: /gp/help/customer/display.html?nodeId=201083470&ref_=footer_swc
+          - listitem [ref=f22e2385]:
+            - link "Amazon App Download" [ref=f22e2386] [cursor=pointer]:
+              - /url: /gp/browse.html?node=6967393031&ref_=footer_mobapp
+          - listitem [ref=f22e2387]:
+            - link "Help" [ref=f22e2388] [cursor=pointer]:
+              - /url: /gp/help/customer/display.html?nodeId=200507590&ref_=footer_gw_m_b_he
+    - generic [ref=f22e2390]:
+      - link "Amazon India Home" [ref=f22e2393] [cursor=pointer]:
+        - /url: /ref=footer_logo
+      - generic [ref=f22e2396]:
+        - generic [ref=f22e2397]:
+          - link "Choose a language for shopping. Current selection is English." [ref=f22e2398] [cursor=pointer]:
+            - /url: /customer-preferences/edit?ie=UTF8&preferencesReturnUrl=%2F&ref_=footer_lang
+            - generic [ref=f22e2400]: English
+          - button "Expand to Change Language or Country" [ref=f22e2401] [cursor=pointer]
+        - button "Choose a country/region for shopping. The current selection is India." [ref=f22e2402] [cursor=pointer]:
+          - generic [ref=f22e2404]: India
+    - generic "More on Amazon" [ref=f22e2405]:
+      - generic "More on Amazon" [ref=f22e2406]:
+        - list [ref=f22e2407]:
+          - listitem [ref=f22e2408]:
+            - link [ref=f22e2409] [cursor=pointer]:
+              - /url: https://www.abebooks.com/
+              - heading "AbeBooks" [level=5] [ref=f22e2410]
+              - generic [ref=f22e2411]: Books, art& collectibles
+          - listitem [aria-hidden] [ref=f22e2412]
+          - listitem [ref=f22e2413]:
+            - link [ref=f22e2414] [cursor=pointer]:
+              - /url: https://aws.amazon.com/what-is-cloud-computing/?sc_channel=EL&sc_campaign=IN_amazonfooter
+              - heading "Amazon Web Services" [level=5] [ref=f22e2415]
+              - generic [ref=f22e2416]: Scalable CloudComputing Services
+          - listitem [aria-hidden] [ref=f22e2417]
+          - listitem [ref=f22e2418]:
+            - link [ref=f22e2419] [cursor=pointer]:
+              - /url: https://www.audible.in/
+              - heading "Audible" [level=5] [ref=f22e2420]
+              - generic [ref=f22e2421]: DownloadAudio Books
+          - listitem [aria-hidden] [ref=f22e2422]
+          - listitem [ref=f22e2423]:
+            - link [ref=f22e2424] [cursor=pointer]:
+              - /url: https://www.imdb.com/
+              - heading "IMDb" [level=5] [ref=f22e2425]
+              - generic [ref=f22e2426]: Movies, TV& Celebrities
+        - list [ref=f22e2427]:
+          - listitem [ref=f22e2428]:
+            - link [ref=f22e2429] [cursor=pointer]:
+              - /url: https://www.shopbop.com/
+              - heading "Shopbop" [level=5] [ref=f22e2430]
+              - generic [ref=f22e2431]: DesignerFashion Brands
+          - listitem [aria-hidden] [ref=f22e2432]
+          - listitem [ref=f22e2433]:
+            - link [ref=f22e2434] [cursor=pointer]:
+              - /url: /business?ref=footer_aingw
+              - heading "Amazon Business" [level=5] [ref=f22e2435]
+              - generic [ref=f22e2436]: Everything ForYour Business
+          - listitem [aria-hidden] [ref=f22e2437]
+          - listitem [ref=f22e2438]:
+            - link "Amazon Music Stream millions of songs" [ref=f22e2439] [cursor=pointer]:
+              - /url: /music/player?ref=footer_apm
+              - heading "Amazon Music" [level=5] [ref=f22e2440]
+              - generic [ref=f22e2441]: Stream millions of songs
+          - listitem [aria-hidden] [ref=f22e2442]
+          - listitem [aria-hidden] [ref=f22e2443]
+    - generic [ref=f22e2444]:
+      - list [ref=f22e2445]:
+        - listitem [ref=f22e2446]:
+          - link "Conditions of Use & Sale" [ref=f22e2447] [cursor=pointer]:
+            - /url: /gp/help/customer/display.html?nodeId=200545940&ref_=footer_cou
+        - listitem [ref=f22e2448]:
+          - link "Privacy Notice" [ref=f22e2449] [cursor=pointer]:
+            - /url: /gp/help/customer/display.html?nodeId=200534380&ref_=footer_privacy
+        - listitem [ref=f22e2450]:
+          - link "Interest-Based Ads" [ref=f22e2451] [cursor=pointer]:
+            - /url: /gp/help/customer/display.html?nodeId=202075050&ref_=footer_iba
+      - generic [ref=f22e2452]: © 1996-2026, Amazon.com, Inc. or its affiliates

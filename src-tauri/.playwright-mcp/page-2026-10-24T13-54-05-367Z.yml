@@ -1,0 +1,1144 @@
+- generic [ref=f40e3]:
+  - generic [ref=f40e7]:
+    - generic [ref=f40e9]:
+      - link [ref=f40e10] [cursor=pointer]:
+        - /url: /
+        - img "Flipkart" [ref=f40e11]
+      - link "Explore Plus" [ref=f40e12] [cursor=pointer]:
+        - /url: /plus
+    - generic [ref=f40e16]:
+      - textbox "Search for products, brands and more" [ref=f40e18]: POCO X8 Pro
+      - button [ref=f40e19] [cursor=pointer]
+    - generic [ref=f40e26] [cursor=pointer]:
+      - link "Login" [ref=f40e28]:
+        - /url: /login?ret=%2Fsearch%3Fq%3DPOCO%2BX8%2BPro
+      - generic [ref=f40e33]:
+        - button "LOGIN" [ref=f40e34]
+        - generic [ref=f40e35]:
+          - generic [ref=f40e36]: New customer?
+          - generic [ref=f40e37]: Sign Up
+    - link "Become a Seller" [ref=f40e39] [cursor=pointer]:
+      - /url: https://seller.flipkart.com/sell-online/?utm_source=fkwebsite&utm_medium=websitedirect
+    - generic [ref=f40e41]: More
+    - link "Cart" [ref=f40e51] [cursor=pointer]:
+      - /url: /viewcart?exploreMode=true&preference=FLIPKART
+  - generic [ref=f40e59]:
+    - generic [ref=f40e60] [cursor=pointer]: Electronics
+    - generic [ref=f40e63] [cursor=pointer]: TVs & Appliances
+    - generic [ref=f40e66] [cursor=pointer]: Men
+    - generic [ref=f40e69] [cursor=pointer]: Women
+    - generic [ref=f40e72] [cursor=pointer]: Baby & Kids
+    - generic [ref=f40e75] [cursor=pointer]: Home & Furniture
+    - generic [ref=f40e78] [cursor=pointer]: Sports, Books & More
+    - link "Flights" [ref=f40e81] [cursor=pointer]:
+      - /url: /travel/flights?otracker=nmenu_Flights
+    - link "Offer Zone" [ref=f40e82] [cursor=pointer]:
+      - /url: /offers-list/top-deals?screen=dynamic&pk=themeViews%3DDT-OMU-A2%3ADT-OMU~widgetType%3DdealCard~contentType%3Dneo&otracker=nmenu_offer-zone
+  - generic [ref=f40e83]:
+    - generic [ref=f40e84]:
+      - generic [ref=f40e86]:
+        - generic [ref=f40e88]:
+          - generic [ref=f40e89]: Filters
+          - generic [ref=f40e93]:
+            - generic [ref=f40e94]: CATEGORIES
+            - generic [ref=f40e96]:
+              - img [ref=f40e98] [cursor=pointer]
+              - link "Mobiles & Accessories" [ref=f40e100] [cursor=pointer]:
+                - /url: /mobiles-accessories/pr?sid=tyy&q=POCO+X8+Pro&otracker=categorytree
+            - generic [ref=f40e102]:
+              - img [ref=f40e104] [cursor=pointer]
+              - link "Mobiles" [ref=f40e106] [cursor=pointer]:
+                - /url: /mobiles/pr?sid=tyy,4io&q=POCO+X8+Pro&otracker=categorytree
+          - generic [ref=f40e107]:
+            - generic [ref=f40e108] [cursor=pointer]: Ram
+            - generic [ref=f40e113]:
+              - generic "6 GB" [ref=f40e114] [cursor=pointer]
+              - generic "8 GB and Above" [ref=f40e119] [cursor=pointer]
+              - generic "4 GB" [ref=f40e124] [cursor=pointer]
+          - generic [ref=f40e129]: Network Type
+          - generic [ref=f40e134]: Internal Storage
+          - generic [ref=f40e139]:
+            - generic [ref=f40e140]: Price
+            - generic [ref=f40e149]:
+              - generic [ref=f40e150] [cursor=pointer]
+              - generic [ref=f40e157]:
+                - generic [ref=f40e158]: .
+                - generic [ref=f40e159]: .
+                - generic [ref=f40e160]: .
+                - generic [ref=f40e161]: .
+                - generic [ref=f40e162]: .
+                - generic: .
+            - generic [ref=f40e163]:
+              - combobox [ref=f40e165]:
+                - option "Min" [selected]
+                - option "₹10000"
+                - option "₹15000"
+                - option "₹20000"
+                - option "₹30000"
+              - generic [ref=f40e166]: to
+              - combobox [ref=f40e168]:
+                - option "₹10000"
+                - option "₹15000"
+                - option "₹20000"
+                - option "₹30000"
+                - option "₹30000+" [selected]
+          - generic [ref=f40e169]: Processor Brand
+          - generic [ref=f40e174]: Battery Capacity
+          - generic [ref=f40e179]: Speciality
+          - generic [ref=f40e184]: Clock Speed
+          - generic [ref=f40e189]: Resolution Type
+          - generic [ref=f40e194]: Operating System
+          - generic [ref=f40e199]: Type
+          - generic [ref=f40e204]: Sim Type
+          - generic [ref=f40e209]:
+            - generic [ref=f40e210] [cursor=pointer]: Discount
+            - generic [ref=f40e215]:
+              - generic "50% or more" [ref=f40e216] [cursor=pointer]
+              - generic "40% or more" [ref=f40e221] [cursor=pointer]
+              - generic "30% or more" [ref=f40e226] [cursor=pointer]
+              - generic "20% or more" [ref=f40e231] [cursor=pointer]
+              - generic "10% or more" [ref=f40e236] [cursor=pointer]
+          - generic [ref=f40e241]: Screen Size
+          - generic [ref=f40e246]: Primary Camera
+          - generic [ref=f40e251]: Number of Cores
+          - generic [ref=f40e256]: Customer Ratings
+          - generic [ref=f40e261]:
+            - generic [ref=f40e262] [cursor=pointer]
+            - generic [ref=f40e267]: "?"
+          - generic [ref=f40e269]:
+            - generic [ref=f40e270] [cursor=pointer]: Brand
+            - generic [ref=f40e275]:
+              - generic "MOTOROLA" [ref=f40e276] [cursor=pointer]
+              - generic "Infinix" [ref=f40e281] [cursor=pointer]
+              - generic "POCO" [ref=f40e286] [cursor=pointer]
+          - generic [ref=f40e291]:
+            - generic [ref=f40e292] [cursor=pointer]: Offers
+            - generic [ref=f40e297]:
+              - generic "Special Price" [ref=f40e298] [cursor=pointer]
+              - generic "Buy More, Save More" [ref=f40e303] [cursor=pointer]
+          - generic [ref=f40e308]: Features
+          - generic [ref=f40e313]: Secondary Camera
+          - generic [ref=f40e318]: Country Of Origin
+          - generic [ref=f40e323]: GST Invoice Available
+          - generic [ref=f40e328]: Availability
+        - link "Need help? Help me decide Buying Guide" [ref=f40e334] [cursor=pointer]:
+          - /url: /buying-guide/mobiles?sid=tyy,4io&otracker=bg_from_browse_lhs
+          - generic [ref=f40e335]: Need help?
+          - generic [ref=f40e336]: Help me decide
+          - img "Buying Guide" [ref=f40e339]
+      - generic [ref=f40e340]:
+        - generic [ref=f40e343]:
+          - generic [ref=f40e344]:
+            - link "Home" [ref=f40e346] [cursor=pointer]:
+              - /url: /
+            - link "Mobiles & Accessories" [ref=f40e350] [cursor=pointer]:
+              - /url: /mobiles-accessories/pr?sid=tyy&marketplace=FLIPKART
+            - link "Mobiles" [ref=f40e354] [cursor=pointer]:
+              - /url: /mobiles/pr?sid=tyy,4io&marketplace=FLIPKART
+          - generic [ref=f40e355]: Showing 1 – 24 of 47 results for "POCO X8 Pro"
+          - generic [ref=f40e356]:
+            - generic [ref=f40e357]: Sort By
+            - generic [ref=f40e358]: Relevance
+            - generic [ref=f40e359] [cursor=pointer]: Popularity
+            - generic [ref=f40e360] [cursor=pointer]: Price -- Low to High
+            - generic [ref=f40e361] [cursor=pointer]: Price -- High to Low
+            - generic [ref=f40e362] [cursor=pointer]: Newest First
+        - link "Bestseller POCO X8 Pro (White, 256 GB) Add to Compare POCO X8 Pro (White, 256 GB) 4.4 5,895 Ratings & 917 Reviews • 8 GB RAM | 256 GB ROM • 16.74 cm (6.59 inch) Full HD+ AMOLED Display • 50MP + 8MP | 20MP Front Camera • 6500 mAh Lithium-Ion Polymer With Silicon Carbon Technology Battery • Dimensity 8500-Ultra Processor • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories ₹37,999 ₹50,999 25% off Top Discount of the Sale Upto ₹30,450 Off on Exchange" [ref=f40e367] [cursor=pointer]:
+          - /url: /poco-x8-pro-white-256-gb/p/itmaa692ca8a3b36?pid=MOBHMGG5QFZXHVAH&lid=LSTMOBHMGG5QFZXHVAHACODSM&marketplace=FLIPKART&q=POCO+X8+Pro&store=tyy%2F4io&spotlightTagId=default_BestsellerId_tyy%2F4io&srno=s_1_1&otracker=search&fm=organic&iid=ba58881b-0b9f-4942-bac7-f9e47712d1a7.MOBHMGG5QFZXHVAH.SEARCH&ppt=sp&ppn=sp&ssid=2lokzk404w0000001792850044221&qH=6b30becc967daae8&ov_redirect=true
+          - generic: Bestseller
+          - generic [ref=f40e369]:
+            - img "POCO X8 Pro (White, 256 GB)" [ref=f40e373]
+            - generic [ref=f40e374]: Add to Compare
+          - generic [ref=f40e384]:
+            - generic [ref=f40e385]:
+              - generic [ref=f40e386]: POCO X8 Pro (White, 256 GB)
+              - generic [ref=f40e387]:
+                - generic [ref=f40e388]: "4.4"
+                - generic [ref=f40e391]: 5,895 Ratings & 917 Reviews
+              - list [ref=f40e394]:
+                - listitem [ref=f40e395]: • 8 GB RAM | 256 GB ROM
+                - listitem [ref=f40e396]: • 16.74 cm (6.59 inch) Full HD+ AMOLED Display
+                - listitem [ref=f40e397]: • 50MP + 8MP | 20MP Front Camera
+                - listitem [ref=f40e398]: • 6500 mAh Lithium-Ion Polymer With Silicon Carbon Technology Battery
+                - listitem [ref=f40e399]: • Dimensity 8500-Ultra Processor
+                - listitem [ref=f40e400]: • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories
+            - generic [ref=f40e401]:
+              - generic [ref=f40e403]:
+                - generic [ref=f40e404]: ₹37,999
+                - generic [ref=f40e405]: ₹50,999
+                - generic [ref=f40e406]: 25% off
+              - generic [ref=f40e409]: Top Discount of the Sale
+              - generic [ref=f40e413]:
+                - generic [ref=f40e414]: Upto
+                - generic [ref=f40e415]: ₹30,450
+                - generic [ref=f40e416]: Off on Exchange
+        - link "POCO X8 Pro (Black, 256 GB) Add to Compare POCO X8 Pro (Black, 256 GB) 4.4 1,610 Ratings & 250 Reviews • 12 GB RAM | 256 GB ROM • 16.74 cm (6.59 inch) Full HD+ AMOLED Display • 50MP + 8MP | 20MP Front Camera • 6500 mAh Lithium-Ion Polymer With Silicon Carbon Technology Battery • Dimensity 8500-Ultra Processor • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories ₹40,999 ₹52,999 22% off Top Discount of the Sale Upto ₹32,950 Off on Exchange" [ref=f40e421] [cursor=pointer]:
+          - /url: /poco-x8-pro-black-256-gb/p/itm782e626602a77?pid=MOBHMGG5SJRAADHF&lid=LSTMOBHMGG5SJRAADHFSAGNRE&marketplace=FLIPKART&q=POCO+X8+Pro&store=tyy%2F4io&srno=s_1_2&otracker=search&fm=organic&iid=ba58881b-0b9f-4942-bac7-f9e47712d1a7.MOBHMGG5SJRAADHF.SEARCH&ppt=None&ppn=None&ssid=2lokzk404w0000001792850044221&qH=6b30becc967daae8&ov_redirect=true
+          - generic [ref=f40e422]:
+            - img "POCO X8 Pro (Black, 256 GB)" [ref=f40e426]
+            - generic [ref=f40e427]: Add to Compare
+          - generic [ref=f40e437]:
+            - generic [ref=f40e438]:
+              - generic [ref=f40e439]: POCO X8 Pro (Black, 256 GB)
+              - generic [ref=f40e440]:
+                - generic [ref=f40e441]: "4.4"
+                - generic [ref=f40e444]: 1,610 Ratings & 250 Reviews
+              - list [ref=f40e447]:
+                - listitem [ref=f40e448]: • 12 GB RAM | 256 GB ROM
+                - listitem [ref=f40e449]: • 16.74 cm (6.59 inch) Full HD+ AMOLED Display
+                - listitem [ref=f40e450]: • 50MP + 8MP | 20MP Front Camera
+                - listitem [ref=f40e451]: • 6500 mAh Lithium-Ion Polymer With Silicon Carbon Technology Battery
+                - listitem [ref=f40e452]: • Dimensity 8500-Ultra Processor
+                - listitem [ref=f40e453]: • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories
+            - generic [ref=f40e454]:
+              - generic [ref=f40e456]:
+                - generic [ref=f40e457]: ₹40,999
+                - generic [ref=f40e458]: ₹52,999
+                - generic [ref=f40e459]: 22% off
+              - generic [ref=f40e462]: Top Discount of the Sale
+              - generic [ref=f40e466]:
+                - generic [ref=f40e467]: Upto
+                - generic [ref=f40e468]: ₹32,950
+                - generic [ref=f40e469]: Off on Exchange
+        - link "POCO X8 Pro (Black, 256 GB) Add to Compare POCO X8 Pro (Black, 256 GB) 4.4 5,895 Ratings & 917 Reviews • 8 GB RAM | 256 GB ROM • 16.74 cm (6.59 inch) Full HD+ AMOLED Display • 50MP + 8MP | 20MP Front Camera • 6500 mAh Lithium-Ion Polymer With Silicon Carbon Technology Battery • Dimensity 8500-Ultra Processor • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories ₹37,999 ₹50,999 25% off Top Discount of the Sale Upto ₹30,450 Off on Exchange" [ref=f40e474] [cursor=pointer]:
+          - /url: /poco-x8-pro-black-256-gb/p/itmfbd9f2b2c7db9?pid=MOBHMGG5WYZAECZY&lid=LSTMOBHMGG5WYZAECZYJDRRYU&marketplace=FLIPKART&q=POCO+X8+Pro&store=tyy%2F4io&srno=s_1_3&otracker=search&fm=organic&iid=ba58881b-0b9f-4942-bac7-f9e47712d1a7.MOBHMGG5WYZAECZY.SEARCH&ppt=None&ppn=None&ssid=2lokzk404w0000001792850044221&qH=6b30becc967daae8&ov_redirect=true
+          - generic [ref=f40e475]:
+            - img "POCO X8 Pro (Black, 256 GB)" [ref=f40e479]
+            - generic [ref=f40e480]: Add to Compare
+          - generic [ref=f40e490]:
+            - generic [ref=f40e491]:
+              - generic [ref=f40e492]: POCO X8 Pro (Black, 256 GB)
+              - generic [ref=f40e493]:
+                - generic [ref=f40e494]: "4.4"
+                - generic [ref=f40e497]: 5,895 Ratings & 917 Reviews
+              - list [ref=f40e500]:
+                - listitem [ref=f40e501]: • 8 GB RAM | 256 GB ROM
+                - listitem [ref=f40e502]: • 16.74 cm (6.59 inch) Full HD+ AMOLED Display
+                - listitem [ref=f40e503]: • 50MP + 8MP | 20MP Front Camera
+                - listitem [ref=f40e504]: • 6500 mAh Lithium-Ion Polymer With Silicon Carbon Technology Battery
+                - listitem [ref=f40e505]: • Dimensity 8500-Ultra Processor
+                - listitem [ref=f40e506]: • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories
+            - generic [ref=f40e507]:
+              - generic [ref=f40e509]:
+                - generic [ref=f40e510]: ₹37,999
+                - generic [ref=f40e511]: ₹50,999
+                - generic [ref=f40e512]: 25% off
+              - generic [ref=f40e515]: Top Discount of the Sale
+              - generic [ref=f40e519]:
+                - generic [ref=f40e520]: Upto
+                - generic [ref=f40e521]: ₹30,450
+                - generic [ref=f40e522]: Off on Exchange
+        - link "POCO X8 Pro (Green, 256 GB) Add to Compare POCO X8 Pro (Green, 256 GB) 4.4 5,895 Ratings & 917 Reviews • 8 GB RAM | 256 GB ROM • 16.74 cm (6.59 inch) Full HD+ AMOLED Display • 50MP + 8MP | 20MP Front Camera • 6500 mAh Lithium-Ion Polymer With Silicon Carbon Technology Battery • Dimensity 8500-Ultra Processor • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories ₹37,999 ₹50,999 25% off Top Discount of the Sale Upto ₹30,450 Off on Exchange" [ref=f40e527] [cursor=pointer]:
+          - /url: /poco-x8-pro-green-256-gb/p/itme72bf861a71d4?pid=MOBHMGG5ME9NGD5C&lid=LSTMOBHMGG5ME9NGD5COL3RN5&marketplace=FLIPKART&q=POCO+X8+Pro&store=tyy%2F4io&srno=s_1_4&otracker=search&fm=organic&iid=ba58881b-0b9f-4942-bac7-f9e47712d1a7.MOBHMGG5ME9NGD5C.SEARCH&ppt=None&ppn=None&ssid=2lokzk404w0000001792850044221&qH=6b30becc967daae8&ov_redirect=true
+          - generic [ref=f40e528]:
+            - img "POCO X8 Pro (Green, 256 GB)" [ref=f40e532]
+            - generic [ref=f40e533]: Add to Compare
+          - generic [ref=f40e543]:
+            - generic [ref=f40e544]:
+              - generic [ref=f40e545]: POCO X8 Pro (Green, 256 GB)
+              - generic [ref=f40e546]:
+                - generic [ref=f40e547]: "4.4"
+                - generic [ref=f40e550]: 5,895 Ratings & 917 Reviews
+              - list [ref=f40e553]:
+                - listitem [ref=f40e554]: • 8 GB RAM | 256 GB ROM
+                - listitem [ref=f40e555]: • 16.74 cm (6.59 inch) Full HD+ AMOLED Display
+                - listitem [ref=f40e556]: • 50MP + 8MP | 20MP Front Camera
+                - listitem [ref=f40e557]: • 6500 mAh Lithium-Ion Polymer With Silicon Carbon Technology Battery
+                - listitem [ref=f40e558]: • Dimensity 8500-Ultra Processor
+                - listitem [ref=f40e559]: • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories
+            - generic [ref=f40e560]:
+              - generic [ref=f40e562]:
+                - generic [ref=f40e563]: ₹37,999
+                - generic [ref=f40e564]: ₹50,999
+                - generic [ref=f40e565]: 25% off
+              - generic [ref=f40e568]: Top Discount of the Sale
+              - generic [ref=f40e572]:
+                - generic [ref=f40e573]: Upto
+                - generic [ref=f40e574]: ₹30,450
+                - generic [ref=f40e575]: Off on Exchange
+        - link "POCO X8 Pro (White, 256 GB) Add to Compare POCO X8 Pro (White, 256 GB) 4.4 1,610 Ratings & 250 Reviews • 12 GB RAM | 256 GB ROM • 16.74 cm (6.59 inch) Full HD+ AMOLED Display • 50MP + 8MP | 20MP Front Camera • 6500 mAh Lithium-Ion Polymer With Silicon Carbon Technology Battery • Dimensity 8500-Ultra Processor • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories ₹40,999 ₹52,999 22% off Top Discount of the Sale Upto ₹32,950 Off on Exchange" [ref=f40e580] [cursor=pointer]:
+          - /url: /poco-x8-pro-white-256-gb/p/itm1ec9163203374?pid=MOBHMGG5WDBZG8GM&lid=LSTMOBHMGG5WDBZG8GMASZ5EU&marketplace=FLIPKART&q=POCO+X8+Pro&store=tyy%2F4io&srno=s_1_5&otracker=search&fm=organic&iid=ba58881b-0b9f-4942-bac7-f9e47712d1a7.MOBHMGG5WDBZG8GM.SEARCH&ppt=None&ppn=None&ssid=2lokzk404w0000001792850044221&qH=6b30becc967daae8&ov_redirect=true
+          - generic [ref=f40e581]:
+            - img "POCO X8 Pro (White, 256 GB)" [ref=f40e585]
+            - generic [ref=f40e586]: Add to Compare
+          - generic [ref=f40e596]:
+            - generic [ref=f40e597]:
+              - generic [ref=f40e598]: POCO X8 Pro (White, 256 GB)
+              - generic [ref=f40e599]:
+                - generic [ref=f40e600]: "4.4"
+                - generic [ref=f40e603]: 1,610 Ratings & 250 Reviews
+              - list [ref=f40e606]:
+                - listitem [ref=f40e607]: • 12 GB RAM | 256 GB ROM
+                - listitem [ref=f40e608]: • 16.74 cm (6.59 inch) Full HD+ AMOLED Display
+                - listitem [ref=f40e609]: • 50MP + 8MP | 20MP Front Camera
+                - listitem [ref=f40e610]: • 6500 mAh Lithium-Ion Polymer With Silicon Carbon Technology Battery
+                - listitem [ref=f40e611]: • Dimensity 8500-Ultra Processor
+                - listitem [ref=f40e612]: • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories
+            - generic [ref=f40e613]:
+              - generic [ref=f40e615]:
+                - generic [ref=f40e616]: ₹40,999
+                - generic [ref=f40e617]: ₹52,999
+                - generic [ref=f40e618]: 22% off
+              - generic [ref=f40e621]: Top Discount of the Sale
+              - generic [ref=f40e625]:
+                - generic [ref=f40e626]: Upto
+                - generic [ref=f40e627]: ₹32,950
+                - generic [ref=f40e628]: Off on Exchange
+        - link "POCO X8 Pro (Green, 256 GB) Add to Compare POCO X8 Pro (Green, 256 GB) 4.4 1,610 Ratings & 250 Reviews • 12 GB RAM | 256 GB ROM • 16.74 cm (6.59 inch) Full HD+ AMOLED Display • 50MP + 8MP | 20MP Front Camera • 6500 mAh Lithium-Ion Polymer With Silicon Carbon Technology Battery • Dimensity 8500-Ultra Processor • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories ₹40,999 ₹52,999 22% off Top Discount of the Sale Upto ₹32,950 Off on Exchange" [ref=f40e633] [cursor=pointer]:
+          - /url: /poco-x8-pro-green-256-gb/p/itm33db73fe6b36a?pid=MOBHMGG5HDQYUQVX&lid=LSTMOBHMGG5HDQYUQVXLSPFFS&marketplace=FLIPKART&q=POCO+X8+Pro&store=tyy%2F4io&srno=s_1_6&otracker=search&fm=organic&iid=ba58881b-0b9f-4942-bac7-f9e47712d1a7.MOBHMGG5HDQYUQVX.SEARCH&ppt=None&ppn=None&ssid=2lokzk404w0000001792850044221&qH=6b30becc967daae8&ov_redirect=true
+          - generic [ref=f40e634]:
+            - img "POCO X8 Pro (Green, 256 GB)" [ref=f40e638]
+            - generic [ref=f40e639]: Add to Compare
+          - generic [ref=f40e649]:
+            - generic [ref=f40e650]:
+              - generic [ref=f40e651]: POCO X8 Pro (Green, 256 GB)
+              - generic [ref=f40e652]:
+                - generic [ref=f40e653]: "4.4"
+                - generic [ref=f40e656]: 1,610 Ratings & 250 Reviews
+              - list [ref=f40e659]:
+                - listitem [ref=f40e660]: • 12 GB RAM | 256 GB ROM
+                - listitem [ref=f40e661]: • 16.74 cm (6.59 inch) Full HD+ AMOLED Display
+                - listitem [ref=f40e662]: • 50MP + 8MP | 20MP Front Camera
+                - listitem [ref=f40e663]: • 6500 mAh Lithium-Ion Polymer With Silicon Carbon Technology Battery
+                - listitem [ref=f40e664]: • Dimensity 8500-Ultra Processor
+                - listitem [ref=f40e665]: • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories
+            - generic [ref=f40e666]:
+              - generic [ref=f40e668]:
+                - generic [ref=f40e669]: ₹40,999
+                - generic [ref=f40e670]: ₹52,999
+                - generic [ref=f40e671]: 22% off
+              - generic [ref=f40e674]: Top Discount of the Sale
+              - generic [ref=f40e678]:
+                - generic [ref=f40e679]: Upto
+                - generic [ref=f40e680]: ₹32,950
+                - generic [ref=f40e681]: Off on Exchange
+        - link "POCO X8 Pro (Iron man edition, 256 GB) Currently unavailable Add to Compare POCO X8 Pro (Iron man edition, 256 GB) 4.4 1,610 Ratings & 250 Reviews • 12 GB RAM | 256 GB ROM • 16.74 cm (6.59 inch) Full HD+ AMOLED Display • 50MP + 8MP | 20MP Front Camera • 6500 mAh Lithium-Ion Polymer With Silicon Carbon Technology Battery • Dimensity 8500-Ultra Processor • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories ₹41,999 ₹55,999 25% off Top Discount of the Sale Upto ₹30,950 Off on Exchange" [ref=f40e686] [cursor=pointer]:
+          - /url: /poco-x8-pro-iron-man-edition-256-gb/p/itm35f1f22c0ebc1?pid=MOBHMGG5WCWVMNJJ&lid=LSTMOBHMGG5WCWVMNJJJYJQEH&marketplace=FLIPKART&q=POCO+X8+Pro&store=tyy%2F4io&srno=s_1_7&otracker=search&fm=organic&iid=ba58881b-0b9f-4942-bac7-f9e47712d1a7.MOBHMGG5WCWVMNJJ.SEARCH&ppt=None&ppn=None&ssid=2lokzk404w0000001792850044221&qH=6b30becc967daae8&ov_redirect=true
+          - generic [ref=f40e687]:
+            - generic [ref=f40e688]:
+              - img "POCO X8 Pro (Iron man edition, 256 GB)" [ref=f40e691]
+              - generic: Currently unavailable
+            - generic [ref=f40e692]: Add to Compare
+          - generic [ref=f40e702]:
+            - generic [ref=f40e703]:
+              - generic [ref=f40e704]: POCO X8 Pro (Iron man edition, 256 GB)
+              - generic [ref=f40e705]:
+                - generic [ref=f40e706]: "4.4"
+                - generic [ref=f40e709]: 1,610 Ratings & 250 Reviews
+              - list [ref=f40e712]:
+                - listitem [ref=f40e713]: • 12 GB RAM | 256 GB ROM
+                - listitem [ref=f40e714]: • 16.74 cm (6.59 inch) Full HD+ AMOLED Display
+                - listitem [ref=f40e715]: • 50MP + 8MP | 20MP Front Camera
+                - listitem [ref=f40e716]: • 6500 mAh Lithium-Ion Polymer With Silicon Carbon Technology Battery
+                - listitem [ref=f40e717]: • Dimensity 8500-Ultra Processor
+                - listitem [ref=f40e718]: • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories
+            - generic [ref=f40e719]:
+              - generic [ref=f40e721]:
+                - generic [ref=f40e722]: ₹41,999
+                - generic [ref=f40e723]: ₹55,999
+                - generic [ref=f40e724]: 25% off
+              - generic [ref=f40e727]: Top Discount of the Sale
+              - generic [ref=f40e731]:
+                - generic [ref=f40e732]: Upto
+                - generic [ref=f40e733]: ₹30,950
+                - generic [ref=f40e734]: Off on Exchange
+        - link "POCO X8 Pro Max (Black, 512 GB) Add to Compare POCO X8 Pro Max (Black, 512 GB) 4.5 2,960 Ratings & 529 Reviews • 12 GB RAM | 512 GB ROM • 17.35 cm (6.83 inch) Full HD+ AMOLED Display • 50MP + 8MP | 20MP Front Camera • 9000 mAh Lithium-Ion Polymer With Silicon Carbon Technology Battery • Dimensity 9500s Processor • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories ₹49,999 ₹61,999 19% off Upto ₹40,000 Off on Exchange Bank Offer" [ref=f40e739] [cursor=pointer]:
+          - /url: /poco-x8-pro-max-black-512-gb/p/itmd4046d994145a?pid=MOBHMGG5YCYDBYMS&lid=LSTMOBHMGG5YCYDBYMSM0JQVL&marketplace=FLIPKART&q=POCO+X8+Pro&store=tyy%2F4io&srno=s_1_8&otracker=search&fm=organic&iid=ba58881b-0b9f-4942-bac7-f9e47712d1a7.MOBHMGG5YCYDBYMS.SEARCH&ppt=None&ppn=None&ssid=2lokzk404w0000001792850044221&qH=6b30becc967daae8&ov_redirect=true
+          - generic [ref=f40e740]:
+            - img "POCO X8 Pro Max (Black, 512 GB)" [ref=f40e744]
+            - generic [ref=f40e745]: Add to Compare
+          - generic [ref=f40e755]:
+            - generic [ref=f40e756]:
+              - generic [ref=f40e757]: POCO X8 Pro Max (Black, 512 GB)
+              - generic [ref=f40e758]:
+                - generic [ref=f40e759]: "4.5"
+                - generic [ref=f40e762]: 2,960 Ratings & 529 Reviews
+              - list [ref=f40e765]:
+                - listitem [ref=f40e766]: • 12 GB RAM | 512 GB ROM
+                - listitem [ref=f40e767]: • 17.35 cm (6.83 inch) Full HD+ AMOLED Display
+                - listitem [ref=f40e768]: • 50MP + 8MP | 20MP Front Camera
+                - listitem [ref=f40e769]: • 9000 mAh Lithium-Ion Polymer With Silicon Carbon Technology Battery
+                - listitem [ref=f40e770]: • Dimensity 9500s Processor
+                - listitem [ref=f40e771]: • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories
+            - generic [ref=f40e772]:
+              - generic [ref=f40e774]:
+                - generic [ref=f40e775]: ₹49,999
+                - generic [ref=f40e776]: ₹61,999
+                - generic [ref=f40e777]: 19% off
+              - generic [ref=f40e781]:
+                - generic [ref=f40e782]: Upto
+                - generic [ref=f40e783]: ₹40,000
+                - generic [ref=f40e784]: Off on Exchange
+              - generic [ref=f40e785]: Bank Offer
+        - link "POCO X8 Pro Max (White, 256 GB) Add to Compare POCO X8 Pro Max (White, 256 GB) 4.5 2,960 Ratings & 529 Reviews • 12 GB RAM | 256 GB ROM • 17.35 cm (6.83 inch) Full HD+ AMOLED Display • 50MP + 8MP | 20MP Front Camera • 9000 mAh Lithium-Ion Polymer With Silicon Carbon Technology Battery • Dimensity 9500s Processor • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories ₹45,999 ₹57,999 20% off Upto ₹36,200 Off on Exchange Bank Offer" [ref=f40e792] [cursor=pointer]:
+          - /url: /poco-x8-pro-max-white-256-gb/p/itm38fa4fd504c3f?pid=MOBHMGG5YF569YNY&lid=LSTMOBHMGG5YF569YNYPQLFPD&marketplace=FLIPKART&q=POCO+X8+Pro&store=tyy%2F4io&srno=s_1_9&otracker=search&fm=organic&iid=ba58881b-0b9f-4942-bac7-f9e47712d1a7.MOBHMGG5YF569YNY.SEARCH&ppt=None&ppn=None&ssid=2lokzk404w0000001792850044221&qH=6b30becc967daae8&ov_redirect=true
+          - generic [ref=f40e793]:
+            - img "POCO X8 Pro Max (White, 256 GB)" [ref=f40e797]
+            - generic [ref=f40e798]: Add to Compare
+          - generic [ref=f40e808]:
+            - generic [ref=f40e809]:
+              - generic [ref=f40e810]: POCO X8 Pro Max (White, 256 GB)
+              - generic [ref=f40e811]:
+                - generic [ref=f40e812]: "4.5"
+                - generic [ref=f40e815]: 2,960 Ratings & 529 Reviews
+              - list [ref=f40e818]:
+                - listitem [ref=f40e819]: • 12 GB RAM | 256 GB ROM
+                - listitem [ref=f40e820]: • 17.35 cm (6.83 inch) Full HD+ AMOLED Display
+                - listitem [ref=f40e821]: • 50MP + 8MP | 20MP Front Camera
+                - listitem [ref=f40e822]: • 9000 mAh Lithium-Ion Polymer With Silicon Carbon Technology Battery
+                - listitem [ref=f40e823]: • Dimensity 9500s Processor
+                - listitem [ref=f40e824]: • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories
+            - generic [ref=f40e825]:
+              - generic [ref=f40e827]:
+                - generic [ref=f40e828]: ₹45,999
+                - generic [ref=f40e829]: ₹57,999
+                - generic [ref=f40e830]: 20% off
+              - generic [ref=f40e834]:
+                - generic [ref=f40e835]: Upto
+                - generic [ref=f40e836]: ₹36,200
+                - generic [ref=f40e837]: Off on Exchange
+              - generic [ref=f40e838]: Bank Offer
+        - link "POCO X8 Pro Max (Black, 256 GB) Add to Compare POCO X8 Pro Max (Black, 256 GB) 4.5 2,960 Ratings & 529 Reviews • 12 GB RAM | 256 GB ROM • 17.35 cm (6.83 inch) Full HD+ AMOLED Display • 50MP + 8MP | 20MP Front Camera • 9000 mAh Lithium-Ion Polymer With Silicon Carbon Technology Battery • Dimensity 9500s Processor • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories ₹45,999 ₹57,999 20% off Upto ₹36,200 Off on Exchange Bank Offer" [ref=f40e845] [cursor=pointer]:
+          - /url: /poco-x8-pro-max-black-256-gb/p/itm0dc50d67926fb?pid=MOBHMGG5AZ5UWQJM&lid=LSTMOBHMGG5AZ5UWQJMEPJMYX&marketplace=FLIPKART&q=POCO+X8+Pro&store=tyy%2F4io&srno=s_1_10&otracker=search&fm=organic&iid=ba58881b-0b9f-4942-bac7-f9e47712d1a7.MOBHMGG5AZ5UWQJM.SEARCH&ppt=None&ppn=None&ssid=2lokzk404w0000001792850044221&qH=6b30becc967daae8&ov_redirect=true
+          - generic [ref=f40e846]:
+            - img "POCO X8 Pro Max (Black, 256 GB)" [ref=f40e850]
+            - generic [ref=f40e851]: Add to Compare
+          - generic [ref=f40e861]:
+            - generic [ref=f40e862]:
+              - generic [ref=f40e863]: POCO X8 Pro Max (Black, 256 GB)
+              - generic [ref=f40e864]:
+                - generic [ref=f40e865]: "4.5"
+                - generic [ref=f40e868]: 2,960 Ratings & 529 Reviews
+              - list [ref=f40e871]:
+                - listitem [ref=f40e872]: • 12 GB RAM | 256 GB ROM
+                - listitem [ref=f40e873]: • 17.35 cm (6.83 inch) Full HD+ AMOLED Display
+                - listitem [ref=f40e874]: • 50MP + 8MP | 20MP Front Camera
+                - listitem [ref=f40e875]: • 9000 mAh Lithium-Ion Polymer With Silicon Carbon Technology Battery
+                - listitem [ref=f40e876]: • Dimensity 9500s Processor
+                - listitem [ref=f40e877]: • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories
+            - generic [ref=f40e878]:
+              - generic [ref=f40e880]:
+                - generic [ref=f40e881]: ₹45,999
+                - generic [ref=f40e882]: ₹57,999
+                - generic [ref=f40e883]: 20% off
+              - generic [ref=f40e887]:
+                - generic [ref=f40e888]: Upto
+                - generic [ref=f40e889]: ₹36,200
+                - generic [ref=f40e890]: Off on Exchange
+              - generic [ref=f40e891]: Bank Offer
+        - link "POCO X8 Pro Max (White, 512 GB) Add to Compare POCO X8 Pro Max (White, 512 GB) 4.5 2,960 Ratings & 529 Reviews • 12 GB RAM | 512 GB ROM • 17.35 cm (6.83 inch) Full HD+ AMOLED Display • 50MP + 8MP | 20MP Front Camera • 9000 mAh Lithium-Ion Polymer With Silicon Carbon Technology Battery • Dimensity 9500s Processor • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories ₹49,999 ₹61,999 19% off Upto ₹41,000 Off on Exchange Bank Offer" [ref=f40e898] [cursor=pointer]:
+          - /url: /poco-x8-pro-max-white-512-gb/p/itm99efd552c2346?pid=MOBHMGG52GRMRFFN&lid=LSTMOBHMGG52GRMRFFNBEWRC3&marketplace=FLIPKART&q=POCO+X8+Pro&store=tyy%2F4io&srno=s_1_11&otracker=search&fm=organic&iid=ba58881b-0b9f-4942-bac7-f9e47712d1a7.MOBHMGG52GRMRFFN.SEARCH&ppt=None&ppn=None&ssid=2lokzk404w0000001792850044221&qH=6b30becc967daae8&ov_redirect=true
+          - generic [ref=f40e899]:
+            - img "POCO X8 Pro Max (White, 512 GB)" [ref=f40e903]
+            - generic [ref=f40e904]: Add to Compare
+          - generic [ref=f40e914]:
+            - generic [ref=f40e915]:
+              - generic [ref=f40e916]: POCO X8 Pro Max (White, 512 GB)
+              - generic [ref=f40e917]:
+                - generic [ref=f40e918]: "4.5"
+                - generic [ref=f40e921]: 2,960 Ratings & 529 Reviews
+              - list [ref=f40e924]:
+                - listitem [ref=f40e925]: • 12 GB RAM | 512 GB ROM
+                - listitem [ref=f40e926]: • 17.35 cm (6.83 inch) Full HD+ AMOLED Display
+                - listitem [ref=f40e927]: • 50MP + 8MP | 20MP Front Camera
+                - listitem [ref=f40e928]: • 9000 mAh Lithium-Ion Polymer With Silicon Carbon Technology Battery
+                - listitem [ref=f40e929]: • Dimensity 9500s Processor
+                - listitem [ref=f40e930]: • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories
+            - generic [ref=f40e931]:
+              - generic [ref=f40e933]:
+                - generic [ref=f40e934]: ₹49,999
+                - generic [ref=f40e935]: ₹61,999
+                - generic [ref=f40e936]: 19% off
+              - generic [ref=f40e940]:
+                - generic [ref=f40e941]: Upto
+                - generic [ref=f40e942]: ₹41,000
+                - generic [ref=f40e943]: Off on Exchange
+              - generic [ref=f40e944]: Bank Offer
+        - link "POCO X8 Pro Max (Blue, 512 GB) Add to Compare POCO X8 Pro Max (Blue, 512 GB) 4.5 2,960 Ratings & 529 Reviews • 12 GB RAM | 512 GB ROM • 17.35 cm (6.83 inch) Full HD+ AMOLED Display • 50MP + 8MP | 20MP Front Camera • 9000 mAh Lithium-Ion Polymer With Silicon Carbon Technology Battery • Dimensity 9500s Processor • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories ₹49,999 ₹61,999 19% off Upto ₹41,000 Off on Exchange Bank Offer" [ref=f40e951] [cursor=pointer]:
+          - /url: /poco-x8-pro-max-blue-512-gb/p/itmfc8cc712fe4a5?pid=MOBHMGG5SQZQXZF9&lid=LSTMOBHMGG5SQZQXZF9WFQV7L&marketplace=FLIPKART&q=POCO+X8+Pro&store=tyy%2F4io&srno=s_1_12&otracker=search&fm=organic&iid=ba58881b-0b9f-4942-bac7-f9e47712d1a7.MOBHMGG5SQZQXZF9.SEARCH&ppt=None&ppn=None&ssid=2lokzk404w0000001792850044221&qH=6b30becc967daae8&ov_redirect=true
+          - generic [ref=f40e952]:
+            - img "POCO X8 Pro Max (Blue, 512 GB)" [ref=f40e956]
+            - generic [ref=f40e957]: Add to Compare
+          - generic [ref=f40e967]:
+            - generic [ref=f40e968]:
+              - generic [ref=f40e969]: POCO X8 Pro Max (Blue, 512 GB)
+              - generic [ref=f40e970]:
+                - generic [ref=f40e971]: "4.5"
+                - generic [ref=f40e974]: 2,960 Ratings & 529 Reviews
+              - list [ref=f40e977]:
+                - listitem [ref=f40e978]: • 12 GB RAM | 512 GB ROM
+                - listitem [ref=f40e979]: • 17.35 cm (6.83 inch) Full HD+ AMOLED Display
+                - listitem [ref=f40e980]: • 50MP + 8MP | 20MP Front Camera
+                - listitem [ref=f40e981]: • 9000 mAh Lithium-Ion Polymer With Silicon Carbon Technology Battery
+                - listitem [ref=f40e982]: • Dimensity 9500s Processor
+                - listitem [ref=f40e983]: • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories
+            - generic [ref=f40e984]:
+              - generic [ref=f40e986]:
+                - generic [ref=f40e987]: ₹49,999
+                - generic [ref=f40e988]: ₹61,999
+                - generic [ref=f40e989]: 19% off
+              - generic [ref=f40e993]:
+                - generic [ref=f40e994]: Upto
+                - generic [ref=f40e995]: ₹41,000
+                - generic [ref=f40e996]: Off on Exchange
+              - generic [ref=f40e997]: Bank Offer
+        - link "POCO X8 Pro Max (Blue, 256 GB) Add to Compare POCO X8 Pro Max (Blue, 256 GB) 4.5 2,960 Ratings & 529 Reviews • 12 GB RAM | 256 GB ROM • 17.35 cm (6.83 inch) Full HD+ AMOLED Display • 50MP + 8MP | 20MP Front Camera • 9000 mAh Lithium-Ion Polymer With Silicon Carbon Technology Battery • Dimensity 9500s Processor • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories ₹45,999 ₹57,999 20% off Upto ₹36,200 Off on Exchange Bank Offer" [ref=f40e1004] [cursor=pointer]:
+          - /url: /poco-x8-pro-max-blue-256-gb/p/itm510ae4b674bbc?pid=MOBHMGG5K67QQ2RY&lid=LSTMOBHMGG5K67QQ2RY5MKC3P&marketplace=FLIPKART&q=POCO+X8+Pro&store=tyy%2F4io&srno=s_1_13&otracker=search&fm=organic&iid=ba58881b-0b9f-4942-bac7-f9e47712d1a7.MOBHMGG5K67QQ2RY.SEARCH&ppt=None&ppn=None&ssid=2lokzk404w0000001792850044221&qH=6b30becc967daae8&ov_redirect=true
+          - generic [ref=f40e1005]:
+            - img "POCO X8 Pro Max (Blue, 256 GB)" [ref=f40e1009]
+            - generic [ref=f40e1010]: Add to Compare
+          - generic [ref=f40e1020]:
+            - generic [ref=f40e1021]:
+              - generic [ref=f40e1022]: POCO X8 Pro Max (Blue, 256 GB)
+              - generic [ref=f40e1023]:
+                - generic [ref=f40e1024]: "4.5"
+                - generic [ref=f40e1027]: 2,960 Ratings & 529 Reviews
+              - list [ref=f40e1030]:
+                - listitem [ref=f40e1031]: • 12 GB RAM | 256 GB ROM
+                - listitem [ref=f40e1032]: • 17.35 cm (6.83 inch) Full HD+ AMOLED Display
+                - listitem [ref=f40e1033]: • 50MP + 8MP | 20MP Front Camera
+                - listitem [ref=f40e1034]: • 9000 mAh Lithium-Ion Polymer With Silicon Carbon Technology Battery
+                - listitem [ref=f40e1035]: • Dimensity 9500s Processor
+                - listitem [ref=f40e1036]: • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories
+            - generic [ref=f40e1037]:
+              - generic [ref=f40e1039]:
+                - generic [ref=f40e1040]: ₹45,999
+                - generic [ref=f40e1041]: ₹57,999
+                - generic [ref=f40e1042]: 20% off
+              - generic [ref=f40e1046]:
+                - generic [ref=f40e1047]: Upto
+                - generic [ref=f40e1048]: ₹36,200
+                - generic [ref=f40e1049]: Off on Exchange
+              - generic [ref=f40e1050]: Bank Offer
+        - link "POCO X7 Pro 5G (Yellow, 256 GB) Add to Compare POCO X7 Pro 5G (Yellow, 256 GB) 4.3 17,850 Ratings & 1,978 Reviews • 8 GB RAM | 256 GB ROM • 16.94 cm (6.67 inch) Display • 50MP + 8MP | 20MP Front Camera • 6550 mAh Battery • Dimensity D8400 Ultra Processor • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories ₹23,999 ₹31,999 25% off Upto ₹19,250 Off on Exchange Bank Offer" [ref=f40e1057] [cursor=pointer]:
+          - /url: /poco-x7-pro-5g-yellow-256-gb/p/itm0a066ed95064a?pid=MOBH7YZ9J6QGZZEQ&lid=LSTMOBH7YZ9J6QGZZEQCBSSSP&marketplace=FLIPKART&q=POCO+X8+Pro&store=tyy%2F4io&srno=s_1_14&otracker=search&fm=organic&iid=ba58881b-0b9f-4942-bac7-f9e47712d1a7.MOBH7YZ9J6QGZZEQ.SEARCH&ppt=None&ppn=None&ssid=2lokzk404w0000001792850044221&qH=6b30becc967daae8&ov_redirect=true
+          - generic [ref=f40e1058]:
+            - img "POCO X7 Pro 5G (Yellow, 256 GB)" [ref=f40e1062]
+            - generic [ref=f40e1063]: Add to Compare
+          - generic [ref=f40e1073]:
+            - generic [ref=f40e1074]:
+              - generic [ref=f40e1075]: POCO X7 Pro 5G (Yellow, 256 GB)
+              - generic [ref=f40e1076]:
+                - generic [ref=f40e1077]: "4.3"
+                - generic [ref=f40e1080]: 17,850 Ratings & 1,978 Reviews
+              - list [ref=f40e1083]:
+                - listitem [ref=f40e1084]: • 8 GB RAM | 256 GB ROM
+                - listitem [ref=f40e1085]: • 16.94 cm (6.67 inch) Display
+                - listitem [ref=f40e1086]: • 50MP + 8MP | 20MP Front Camera
+                - listitem [ref=f40e1087]: • 6550 mAh Battery
+                - listitem [ref=f40e1088]: • Dimensity D8400 Ultra Processor
+                - listitem [ref=f40e1089]: • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories
+            - generic [ref=f40e1090]:
+              - generic [ref=f40e1092]:
+                - generic [ref=f40e1093]: ₹23,999
+                - generic [ref=f40e1094]: ₹31,999
+                - generic [ref=f40e1095]: 25% off
+              - generic [ref=f40e1099]:
+                - generic [ref=f40e1100]: Upto
+                - generic [ref=f40e1101]: ₹19,250
+                - generic [ref=f40e1102]: Off on Exchange
+              - generic [ref=f40e1103]: Bank Offer
+        - link "POCO X7 Pro 5G (Obsidian Black, 256 GB) Add to Compare POCO X7 Pro 5G (Obsidian Black, 256 GB) 4.4 9,232 Ratings & 971 Reviews • 12 GB RAM | 256 GB ROM • 16.94 cm (6.67 inch) Full HD+ Display • 50MP + 8MP | 20MP Front Camera • 6550 mAh Battery • Dimensity D8400 Ultra Processor • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories ₹25,999 ₹33,999 23% off Upto ₹20,400 Off on Exchange Bank Offer" [ref=f40e1110] [cursor=pointer]:
+          - /url: /poco-x7-pro-5g-obsidian-black-256-gb/p/itm94b2adca01f05?pid=MOBH7YZ9ZUFGFH9N&lid=LSTMOBH7YZ9ZUFGFH9NZRZBKV&marketplace=FLIPKART&q=POCO+X8+Pro&store=tyy%2F4io&srno=s_1_15&otracker=search&fm=organic&iid=ba58881b-0b9f-4942-bac7-f9e47712d1a7.MOBH7YZ9ZUFGFH9N.SEARCH&ppt=None&ppn=None&ssid=2lokzk404w0000001792850044221&qH=6b30becc967daae8&ov_redirect=true
+          - generic [ref=f40e1111]:
+            - img "POCO X7 Pro 5G (Obsidian Black, 256 GB)" [ref=f40e1115]
+            - generic [ref=f40e1116]: Add to Compare
+          - generic [ref=f40e1126]:
+            - generic [ref=f40e1127]:
+              - generic [ref=f40e1128]: POCO X7 Pro 5G (Obsidian Black, 256 GB)
+              - generic [ref=f40e1129]:
+                - generic [ref=f40e1130]: "4.4"
+                - generic [ref=f40e1133]: 9,232 Ratings & 971 Reviews
+              - list [ref=f40e1136]:
+                - listitem [ref=f40e1137]: • 12 GB RAM | 256 GB ROM
+                - listitem [ref=f40e1138]: • 16.94 cm (6.67 inch) Full HD+ Display
+                - listitem [ref=f40e1139]: • 50MP + 8MP | 20MP Front Camera
+                - listitem [ref=f40e1140]: • 6550 mAh Battery
+                - listitem [ref=f40e1141]: • Dimensity D8400 Ultra Processor
+                - listitem [ref=f40e1142]: • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories
+            - generic [ref=f40e1143]:
+              - generic [ref=f40e1145]:
+                - generic [ref=f40e1146]: ₹25,999
+                - generic [ref=f40e1147]: ₹33,999
+                - generic [ref=f40e1148]: 23% off
+              - generic [ref=f40e1152]:
+                - generic [ref=f40e1153]: Upto
+                - generic [ref=f40e1154]: ₹20,400
+                - generic [ref=f40e1155]: Off on Exchange
+              - generic [ref=f40e1156]: Bank Offer
+        - link "POCO X7 Pro 5G (Obsidian Black, 256 GB) Add to Compare POCO X7 Pro 5G (Obsidian Black, 256 GB) 4.3 17,850 Ratings & 1,978 Reviews • 8 GB RAM | 256 GB ROM • 16.94 cm (6.67 inch) Full HD+ Display • 50MP + 8MP | 20MP Front Camera • 6550 mAh Battery • Dimensity D8400 Ultra Processor • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories ₹23,999 ₹31,999 25% off Bank Offer" [ref=f40e1163] [cursor=pointer]:
+          - /url: /poco-x7-pro-5g-obsidian-black-256-gb/p/itm83a82908d7dbb?pid=MOBH7YZ9PPS9ZCNF&lid=LSTMOBH7YZ9PPS9ZCNFKYI0ZP&marketplace=FLIPKART&q=POCO+X8+Pro&store=tyy%2F4io&srno=s_1_16&otracker=search&fm=organic&iid=ba58881b-0b9f-4942-bac7-f9e47712d1a7.MOBH7YZ9PPS9ZCNF.SEARCH&ppt=None&ppn=None&ssid=2lokzk404w0000001792850044221&qH=6b30becc967daae8&ov_redirect=true
+          - generic [ref=f40e1164]:
+            - img "POCO X7 Pro 5G (Obsidian Black, 256 GB)" [ref=f40e1168]
+            - generic [ref=f40e1169]: Add to Compare
+          - generic [ref=f40e1179]:
+            - generic [ref=f40e1180]:
+              - generic [ref=f40e1181]: POCO X7 Pro 5G (Obsidian Black, 256 GB)
+              - generic [ref=f40e1182]:
+                - generic [ref=f40e1183]: "4.3"
+                - generic [ref=f40e1186]: 17,850 Ratings & 1,978 Reviews
+              - list [ref=f40e1189]:
+                - listitem [ref=f40e1190]: • 8 GB RAM | 256 GB ROM
+                - listitem [ref=f40e1191]: • 16.94 cm (6.67 inch) Full HD+ Display
+                - listitem [ref=f40e1192]: • 50MP + 8MP | 20MP Front Camera
+                - listitem [ref=f40e1193]: • 6550 mAh Battery
+                - listitem [ref=f40e1194]: • Dimensity D8400 Ultra Processor
+                - listitem [ref=f40e1195]: • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories
+            - generic [ref=f40e1196]:
+              - generic [ref=f40e1198]:
+                - generic [ref=f40e1199]: ₹23,999
+                - generic [ref=f40e1200]: ₹31,999
+                - generic [ref=f40e1201]: 25% off
+              - generic [ref=f40e1204]: Bank Offer
+        - link "POCO M7 Pro 5G (Lunar Dust, 128 GB) Add to Compare POCO M7 Pro 5G (Lunar Dust, 128 GB) 4.3 38,598 Ratings & 3,324 Reviews • 6 GB RAM | 128 GB ROM • 16.94 cm (6.67 inch) Full HD+ Display • 50MP + 2MP | 20MP Front Camera • 5110 mAh Battery • Dimensity 7025 Ultra Processor • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories ₹14,999 ₹18,999 21% off Upto ₹11,700 Off on Exchange Bank Offer" [ref=f40e1211] [cursor=pointer]:
+          - /url: /poco-m7-pro-5g-lunar-dust-128-gb/p/itm59a079d57519a?pid=MOBH7443YUP5EJXZ&lid=LSTMOBH7443YUP5EJXZN5B3CD&marketplace=FLIPKART&q=POCO+X8+Pro&store=tyy%2F4io&srno=s_1_17&otracker=search&fm=organic&iid=ba58881b-0b9f-4942-bac7-f9e47712d1a7.MOBH7443YUP5EJXZ.SEARCH&ppt=None&ppn=None&ssid=2lokzk404w0000001792850044221&qH=6b30becc967daae8&ov_redirect=true
+          - generic [ref=f40e1212]:
+            - img "POCO M7 Pro 5G (Lunar Dust, 128 GB)" [ref=f40e1216]
+            - generic [ref=f40e1217]: Add to Compare
+          - generic [ref=f40e1227]:
+            - generic [ref=f40e1228]:
+              - generic [ref=f40e1229]: POCO M7 Pro 5G (Lunar Dust, 128 GB)
+              - generic [ref=f40e1230]:
+                - generic [ref=f40e1231]: "4.3"
+                - generic [ref=f40e1234]: 38,598 Ratings & 3,324 Reviews
+              - list [ref=f40e1237]:
+                - listitem [ref=f40e1238]: • 6 GB RAM | 128 GB ROM
+                - listitem [ref=f40e1239]: • 16.94 cm (6.67 inch) Full HD+ Display
+                - listitem [ref=f40e1240]: • 50MP + 2MP | 20MP Front Camera
+                - listitem [ref=f40e1241]: • 5110 mAh Battery
+                - listitem [ref=f40e1242]: • Dimensity 7025 Ultra Processor
+                - listitem [ref=f40e1243]: • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories
+            - generic [ref=f40e1244]:
+              - generic [ref=f40e1246]:
+                - generic [ref=f40e1247]: ₹14,999
+                - generic [ref=f40e1248]: ₹18,999
+                - generic [ref=f40e1249]: 21% off
+              - generic [ref=f40e1253]:
+                - generic [ref=f40e1254]: Upto
+                - generic [ref=f40e1255]: ₹11,700
+                - generic [ref=f40e1256]: Off on Exchange
+              - generic [ref=f40e1257]: Bank Offer
+        - link "POCO M7 Pro 5G (Lavender Frost, 256 GB) Add to Compare POCO M7 Pro 5G (Lavender Frost, 256 GB) 4.3 14,682 Ratings & 1,338 Reviews • 8 GB RAM | 256 GB ROM • 16.94 cm (6.67 inch) Full HD+ Display • 50MP + 2MP | 20MP Front Camera • 5110 mAh Battery • Dimensity 7025 Ultra Processor • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories ₹16,999 ₹20,999 19% off Upto ₹13,375 Off on Exchange Bank Offer" [ref=f40e1264] [cursor=pointer]:
+          - /url: /poco-m7-pro-5g-lavender-frost-256-gb/p/itm34f1d15898b6d?pid=MOBH7443JPJHJH5A&lid=LSTMOBH7443JPJHJH5A1W5UOX&marketplace=FLIPKART&q=POCO+X8+Pro&store=tyy%2F4io&srno=s_1_18&otracker=search&fm=organic&iid=ba58881b-0b9f-4942-bac7-f9e47712d1a7.MOBH7443JPJHJH5A.SEARCH&ppt=None&ppn=None&ssid=2lokzk404w0000001792850044221&qH=6b30becc967daae8&ov_redirect=true
+          - generic [ref=f40e1265]:
+            - img "POCO M7 Pro 5G (Lavender Frost, 256 GB)" [ref=f40e1269]
+            - generic [ref=f40e1270]: Add to Compare
+          - generic [ref=f40e1280]:
+            - generic [ref=f40e1281]:
+              - generic [ref=f40e1282]: POCO M7 Pro 5G (Lavender Frost, 256 GB)
+              - generic [ref=f40e1283]:
+                - generic [ref=f40e1284]: "4.3"
+                - generic [ref=f40e1287]: 14,682 Ratings & 1,338 Reviews
+              - list [ref=f40e1290]:
+                - listitem [ref=f40e1291]: • 8 GB RAM | 256 GB ROM
+                - listitem [ref=f40e1292]: • 16.94 cm (6.67 inch) Full HD+ Display
+                - listitem [ref=f40e1293]: • 50MP + 2MP | 20MP Front Camera
+                - listitem [ref=f40e1294]: • 5110 mAh Battery
+                - listitem [ref=f40e1295]: • Dimensity 7025 Ultra Processor
+                - listitem [ref=f40e1296]: • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories
+            - generic [ref=f40e1297]:
+              - generic [ref=f40e1299]:
+                - generic [ref=f40e1300]: ₹16,999
+                - generic [ref=f40e1301]: ₹20,999
+                - generic [ref=f40e1302]: 19% off
+              - generic [ref=f40e1306]:
+                - generic [ref=f40e1307]: Upto
+                - generic [ref=f40e1308]: ₹13,375
+                - generic [ref=f40e1309]: Off on Exchange
+              - generic [ref=f40e1310]: Bank Offer
+        - link "POCO M7 Pro 5G (Lavender Frost, 128 GB) Add to Compare POCO M7 Pro 5G (Lavender Frost, 128 GB) 4.3 38,598 Ratings & 3,324 Reviews • 6 GB RAM | 128 GB ROM • 16.94 cm (6.67 inch) Full HD+ Display • 50MP + 2MP | 20MP Front Camera • 5110 mAh Battery • Dimensity 7025 Ultra Processor • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories ₹14,999 ₹18,999 21% off Upto ₹11,700 Off on Exchange Bank Offer" [ref=f40e1317] [cursor=pointer]:
+          - /url: /poco-m7-pro-5g-lavender-frost-128-gb/p/itmf76d7942d780f?pid=MOBH7443JBKHRPGW&lid=LSTMOBH7443JBKHRPGWOC2RGL&marketplace=FLIPKART&q=POCO+X8+Pro&store=tyy%2F4io&srno=s_1_19&otracker=search&fm=organic&iid=ba58881b-0b9f-4942-bac7-f9e47712d1a7.MOBH7443JBKHRPGW.SEARCH&ppt=None&ppn=None&ssid=2lokzk404w0000001792850044221&qH=6b30becc967daae8&ov_redirect=true
+          - generic [ref=f40e1318]:
+            - img "POCO M7 Pro 5G (Lavender Frost, 128 GB)" [ref=f40e1322]
+            - generic [ref=f40e1323]: Add to Compare
+          - generic [ref=f40e1333]:
+            - generic [ref=f40e1334]:
+              - generic [ref=f40e1335]: POCO M7 Pro 5G (Lavender Frost, 128 GB)
+              - generic [ref=f40e1336]:
+                - generic [ref=f40e1337]: "4.3"
+                - generic [ref=f40e1340]: 38,598 Ratings & 3,324 Reviews
+              - list [ref=f40e1343]:
+                - listitem [ref=f40e1344]: • 6 GB RAM | 128 GB ROM
+                - listitem [ref=f40e1345]: • 16.94 cm (6.67 inch) Full HD+ Display
+                - listitem [ref=f40e1346]: • 50MP + 2MP | 20MP Front Camera
+                - listitem [ref=f40e1347]: • 5110 mAh Battery
+                - listitem [ref=f40e1348]: • Dimensity 7025 Ultra Processor
+                - listitem [ref=f40e1349]: • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories
+            - generic [ref=f40e1350]:
+              - generic [ref=f40e1352]:
+                - generic [ref=f40e1353]: ₹14,999
+                - generic [ref=f40e1354]: ₹18,999
+                - generic [ref=f40e1355]: 21% off
+              - generic [ref=f40e1359]:
+                - generic [ref=f40e1360]: Upto
+                - generic [ref=f40e1361]: ₹11,700
+                - generic [ref=f40e1362]: Off on Exchange
+              - generic [ref=f40e1363]: Bank Offer
+        - link "POCO M7 Pro 5G (Olive Twilight, 128 GB) Add to Compare POCO M7 Pro 5G (Olive Twilight, 128 GB) 4.3 38,598 Ratings & 3,324 Reviews • 6 GB RAM | 128 GB ROM • 16.94 cm (6.67 inch) Full HD+ Display • 50MP + 2MP | 20MP Front Camera • 5110 mAh Battery • Dimensity 7025 Ultra Processor • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories ₹14,999 ₹18,999 21% off Upto ₹11,700 Off on Exchange Bank Offer" [ref=f40e1370] [cursor=pointer]:
+          - /url: /poco-m7-pro-5g-olive-twilight-128-gb/p/itm39b8c2a99ab7d?pid=MOBH7443JP83ZMJ3&lid=LSTMOBH7443JP83ZMJ3BW6AGF&marketplace=FLIPKART&q=POCO+X8+Pro&store=tyy%2F4io&srno=s_1_20&otracker=search&fm=organic&iid=ba58881b-0b9f-4942-bac7-f9e47712d1a7.MOBH7443JP83ZMJ3.SEARCH&ppt=None&ppn=None&ssid=2lokzk404w0000001792850044221&qH=6b30becc967daae8&ov_redirect=true
+          - generic [ref=f40e1371]:
+            - img "POCO M7 Pro 5G (Olive Twilight, 128 GB)" [ref=f40e1375]
+            - generic [ref=f40e1376]: Add to Compare
+          - generic [ref=f40e1386]:
+            - generic [ref=f40e1387]:
+              - generic [ref=f40e1388]: POCO M7 Pro 5G (Olive Twilight, 128 GB)
+              - generic [ref=f40e1389]:
+                - generic [ref=f40e1390]: "4.3"
+                - generic [ref=f40e1393]: 38,598 Ratings & 3,324 Reviews
+              - list [ref=f40e1396]:
+                - listitem [ref=f40e1397]: • 6 GB RAM | 128 GB ROM
+                - listitem [ref=f40e1398]: • 16.94 cm (6.67 inch) Full HD+ Display
+                - listitem [ref=f40e1399]: • 50MP + 2MP | 20MP Front Camera
+                - listitem [ref=f40e1400]: • 5110 mAh Battery
+                - listitem [ref=f40e1401]: • Dimensity 7025 Ultra Processor
+                - listitem [ref=f40e1402]: • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories
+            - generic [ref=f40e1403]:
+              - generic [ref=f40e1405]:
+                - generic [ref=f40e1406]: ₹14,999
+                - generic [ref=f40e1407]: ₹18,999
+                - generic [ref=f40e1408]: 21% off
+              - generic [ref=f40e1412]:
+                - generic [ref=f40e1413]: Upto
+                - generic [ref=f40e1414]: ₹11,700
+                - generic [ref=f40e1415]: Off on Exchange
+              - generic [ref=f40e1416]: Bank Offer
+        - link "POCO X7 Pro 5G (Nebula Green, 256 GB) Add to Compare POCO X7 Pro 5G (Nebula Green, 256 GB) 4.3 17,850 Ratings & 1,978 Reviews • 8 GB RAM | 256 GB ROM • 16.94 cm (6.67 inch) Full HD+ Display • 50MP + 8MP | 20MP Front Camera • 6550 mAh Battery • Dimensity D8400 Ultra Processor • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories ₹23,999 ₹31,999 25% off Only 3 left Upto ₹19,250 Off on Exchange" [ref=f40e1423] [cursor=pointer]:
+          - /url: /poco-x7-pro-5g-nebula-green-256-gb/p/itm8f21ab157cc72?pid=MOBH7YZ94697Z9D6&lid=LSTMOBH7YZ94697Z9D6DXATPB&marketplace=FLIPKART&q=POCO+X8+Pro&store=tyy%2F4io&srno=s_1_21&otracker=search&fm=organic&iid=ba58881b-0b9f-4942-bac7-f9e47712d1a7.MOBH7YZ94697Z9D6.SEARCH&ppt=None&ppn=None&ssid=2lokzk404w0000001792850044221&qH=6b30becc967daae8&ov_redirect=true
+          - generic [ref=f40e1424]:
+            - img "POCO X7 Pro 5G (Nebula Green, 256 GB)" [ref=f40e1428]
+            - generic [ref=f40e1429]: Add to Compare
+          - generic [ref=f40e1439]:
+            - generic [ref=f40e1440]:
+              - generic [ref=f40e1441]: POCO X7 Pro 5G (Nebula Green, 256 GB)
+              - generic [ref=f40e1442]:
+                - generic [ref=f40e1443]: "4.3"
+                - generic [ref=f40e1446]: 17,850 Ratings & 1,978 Reviews
+              - list [ref=f40e1449]:
+                - listitem [ref=f40e1450]: • 8 GB RAM | 256 GB ROM
+                - listitem [ref=f40e1451]: • 16.94 cm (6.67 inch) Full HD+ Display
+                - listitem [ref=f40e1452]: • 50MP + 8MP | 20MP Front Camera
+                - listitem [ref=f40e1453]: • 6550 mAh Battery
+                - listitem [ref=f40e1454]: • Dimensity D8400 Ultra Processor
+                - listitem [ref=f40e1455]: • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories
+            - generic [ref=f40e1456]:
+              - generic [ref=f40e1458]:
+                - generic [ref=f40e1459]: ₹23,999
+                - generic [ref=f40e1460]: ₹31,999
+                - generic [ref=f40e1461]: 25% off
+              - generic [ref=f40e1464]: Only 3 left
+              - generic [ref=f40e1468]:
+                - generic [ref=f40e1469]: Upto
+                - generic [ref=f40e1470]: ₹19,250
+                - generic [ref=f40e1471]: Off on Exchange
+        - link "POCO X7 Pro 5G (Yellow, 256 GB) Add to Compare POCO X7 Pro 5G (Yellow, 256 GB) 4.4 9,232 Ratings & 971 Reviews • 12 GB RAM | 256 GB ROM • 16.94 cm (6.67 inch) Display • 50MP + 8MP | 20MP Front Camera • 6550 mAh Battery • Dimensity D8400 Ultra Processor • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories ₹25,999 ₹33,999 23% off Upto ₹20,400 Off on Exchange Bank Offer" [ref=f40e1476] [cursor=pointer]:
+          - /url: /poco-x7-pro-5g-yellow-256-gb/p/itm60fe1826fa02f?pid=MOBH7YZ9FMTDHHEF&lid=LSTMOBH7YZ9FMTDHHEFZFHJLV&marketplace=FLIPKART&q=POCO+X8+Pro&store=tyy%2F4io&srno=s_1_22&otracker=search&fm=organic&iid=ba58881b-0b9f-4942-bac7-f9e47712d1a7.MOBH7YZ9FMTDHHEF.SEARCH&ppt=None&ppn=None&ssid=2lokzk404w0000001792850044221&qH=6b30becc967daae8&ov_redirect=true
+          - generic [ref=f40e1477]:
+            - img "POCO X7 Pro 5G (Yellow, 256 GB)" [ref=f40e1481]
+            - generic [ref=f40e1482]: Add to Compare
+          - generic [ref=f40e1492]:
+            - generic [ref=f40e1493]:
+              - generic [ref=f40e1494]: POCO X7 Pro 5G (Yellow, 256 GB)
+              - generic [ref=f40e1495]:
+                - generic [ref=f40e1496]: "4.4"
+                - generic [ref=f40e1499]: 9,232 Ratings & 971 Reviews
+              - list [ref=f40e1502]:
+                - listitem [ref=f40e1503]: • 12 GB RAM | 256 GB ROM
+                - listitem [ref=f40e1504]: • 16.94 cm (6.67 inch) Display
+                - listitem [ref=f40e1505]: • 50MP + 8MP | 20MP Front Camera
+                - listitem [ref=f40e1506]: • 6550 mAh Battery
+                - listitem [ref=f40e1507]: • Dimensity D8400 Ultra Processor
+                - listitem [ref=f40e1508]: • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories
+            - generic [ref=f40e1509]:
+              - generic [ref=f40e1511]:
+                - generic [ref=f40e1512]: ₹25,999
+                - generic [ref=f40e1513]: ₹33,999
+                - generic [ref=f40e1514]: 23% off
+              - generic [ref=f40e1518]:
+                - generic [ref=f40e1519]: Upto
+                - generic [ref=f40e1520]: ₹20,400
+                - generic [ref=f40e1521]: Off on Exchange
+              - generic [ref=f40e1522]: Bank Offer
+        - link "POCO X7 Pro 5G (Nebula Green, 256 GB) Add to Compare POCO X7 Pro 5G (Nebula Green, 256 GB) 4.4 9,232 Ratings & 971 Reviews • 12 GB RAM | 256 GB ROM • 16.94 cm (6.67 inch) Display • 50MP + 8MP | 20MP Front Camera • 6550 mAh Battery • Dimensity D8400 Ultra Processor • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories ₹25,999 ₹33,999 23% off Only 2 left Upto ₹20,400 Off on Exchange" [ref=f40e1529] [cursor=pointer]:
+          - /url: /poco-x7-pro-5g-nebula-green-256-gb/p/itm8fdd9bc638443?pid=MOBH7YZ9XTDYETG9&lid=LSTMOBH7YZ9XTDYETG9CV9WPF&marketplace=FLIPKART&q=POCO+X8+Pro&store=tyy%2F4io&srno=s_1_23&otracker=search&fm=organic&iid=ba58881b-0b9f-4942-bac7-f9e47712d1a7.MOBH7YZ9XTDYETG9.SEARCH&ppt=None&ppn=None&ssid=2lokzk404w0000001792850044221&qH=6b30becc967daae8&ov_redirect=true
+          - generic [ref=f40e1530]:
+            - img "POCO X7 Pro 5G (Nebula Green, 256 GB)" [ref=f40e1534]
+            - generic [ref=f40e1535]: Add to Compare
+          - generic [ref=f40e1545]:
+            - generic [ref=f40e1546]:
+              - generic [ref=f40e1547]: POCO X7 Pro 5G (Nebula Green, 256 GB)
+              - generic [ref=f40e1548]:
+                - generic [ref=f40e1549]: "4.4"
+                - generic [ref=f40e1552]: 9,232 Ratings & 971 Reviews
+              - list [ref=f40e1555]:
+                - listitem [ref=f40e1556]: • 12 GB RAM | 256 GB ROM
+                - listitem [ref=f40e1557]: • 16.94 cm (6.67 inch) Display
+                - listitem [ref=f40e1558]: • 50MP + 8MP | 20MP Front Camera
+                - listitem [ref=f40e1559]: • 6550 mAh Battery
+                - listitem [ref=f40e1560]: • Dimensity D8400 Ultra Processor
+                - listitem [ref=f40e1561]: • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories
+            - generic [ref=f40e1562]:
+              - generic [ref=f40e1564]:
+                - generic [ref=f40e1565]: ₹25,999
+                - generic [ref=f40e1566]: ₹33,999
+                - generic [ref=f40e1567]: 23% off
+              - generic [ref=f40e1570]: Only 2 left
+              - generic [ref=f40e1574]:
+                - generic [ref=f40e1575]: Upto
+                - generic [ref=f40e1576]: ₹20,400
+                - generic [ref=f40e1577]: Off on Exchange
+        - link "POCO M7 Pro 5G (Olive Twilight, 256 GB) Add to Compare POCO M7 Pro 5G (Olive Twilight, 256 GB) 4.3 14,682 Ratings & 1,338 Reviews • 8 GB RAM | 256 GB ROM • 16.94 cm (6.67 inch) Full HD+ Display • 50MP + 2MP | 20MP Front Camera • 5110 mAh Battery • Dimensity 7025 Ultra Processor • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories ₹16,999 ₹20,999 19% off Bank Offer" [ref=f40e1582] [cursor=pointer]:
+          - /url: /poco-m7-pro-5g-olive-twilight-256-gb/p/itm1d88319131b56?pid=MOBH7443K2CR3WUG&lid=LSTMOBH7443K2CR3WUGVV0YHH&marketplace=FLIPKART&q=POCO+X8+Pro&store=tyy%2F4io&srno=s_1_24&otracker=search&fm=organic&iid=ba58881b-0b9f-4942-bac7-f9e47712d1a7.MOBH7443K2CR3WUG.SEARCH&ppt=None&ppn=None&ssid=2lokzk404w0000001792850044221&qH=6b30becc967daae8&ov_redirect=true
+          - generic [ref=f40e1583]:
+            - img "POCO M7 Pro 5G (Olive Twilight, 256 GB)" [ref=f40e1587]
+            - generic [ref=f40e1588]: Add to Compare
+          - generic [ref=f40e1598]:
+            - generic [ref=f40e1599]:
+              - generic [ref=f40e1600]: POCO M7 Pro 5G (Olive Twilight, 256 GB)
+              - generic [ref=f40e1601]:
+                - generic [ref=f40e1602]: "4.3"
+                - generic [ref=f40e1605]: 14,682 Ratings & 1,338 Reviews
+              - list [ref=f40e1608]:
+                - listitem [ref=f40e1609]: • 8 GB RAM | 256 GB ROM
+                - listitem [ref=f40e1610]: • 16.94 cm (6.67 inch) Full HD+ Display
+                - listitem [ref=f40e1611]: • 50MP + 2MP | 20MP Front Camera
+                - listitem [ref=f40e1612]: • 5110 mAh Battery
+                - listitem [ref=f40e1613]: • Dimensity 7025 Ultra Processor
+                - listitem [ref=f40e1614]: • 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories
+            - generic [ref=f40e1615]:
+              - generic [ref=f40e1617]:
+                - generic [ref=f40e1618]: ₹16,999
+                - generic [ref=f40e1619]: ₹20,999
+                - generic [ref=f40e1620]: 19% off
+              - generic [ref=f40e1623]: Bank Offer
+        - generic [ref=f40e1628]:
+          - generic [ref=f40e1629]: Page 1 of 2
+          - navigation [ref=f40e1630]:
+            - link "1" [ref=f40e1631] [cursor=pointer]:
+              - /url: /search?q=POCO+X8+Pro&page=1
+            - link "2" [ref=f40e1632] [cursor=pointer]:
+              - /url: /search?q=POCO+X8+Pro&page=2
+            - link "Next" [ref=f40e1633] [cursor=pointer]:
+              - /url: /search?q=POCO+X8+Pro&page=2
+        - generic [ref=f40e1635]:
+          - text: Did you find what you were looking for?
+          - generic [ref=f40e1636]:
+            - generic [ref=f40e1637] [cursor=pointer]: "Yes"
+            - generic [ref=f40e1638] [cursor=pointer]: "No"
+    - generic [ref=f40e1640]:
+      - generic [ref=f40e1641]: Reviews for Popular Mobiles
+      - generic [ref=f40e1642]:
+        - generic [ref=f40e1643]:
+          - generic [ref=f40e1645]:
+            - img "POCO X7 Pro 5G (Obsidian Black, 256 GB)"
+          - generic [ref=f40e1646]:
+            - link "1. POCO X7 Pro 5G (Obsidian Bl... 4.4 9,232 Ratings&971 Reviews ₹25,999 23% off" [ref=f40e1647] [cursor=pointer]:
+              - /url: /poco-x7-pro-5g-obsidian-black-256-gb/p/itm94b2adca01f05?pid=MOBH7YZ9ZUFGFH9N&marketplace=FLIPKART&ov_redirect=true
+              - generic [ref=f40e1648]: 1. POCO X7 Pro 5G (Obsidian Bl...
+              - generic [ref=f40e1650]:
+                - generic [ref=f40e1651]: "4.4"
+                - generic [ref=f40e1653]:
+                  - text: 9,232 Ratings
+                  - generic [ref=f40e1654]: "&971 Reviews"
+              - generic [ref=f40e1656]:
+                - generic [ref=f40e1657]: ₹25,999
+                - generic [ref=f40e1658]: 23% off
+            - list [ref=f40e1659]:
+              - listitem [ref=f40e1660]: 12 GB RAM | 256 GB ROM
+              - listitem [ref=f40e1661]: 16.94 cm (6.67 inch) Full HD+ Display
+              - listitem [ref=f40e1662]: 50MP + 8MP | 20MP Front Camera
+        - generic [ref=f40e1663]:
+          - generic [ref=f40e1664]: Most Helpful Review
+          - generic [ref=f40e1666]:
+            - generic [ref=f40e1667]:
+              - generic [ref=f40e1668]: "4"
+              - paragraph [ref=f40e1670]: Pretty good
+            - generic [ref=f40e1673]:
+              - generic [ref=f40e1674]: "I'm writing this after using this phone for a month. Performance: Solid, the processor is demanding but is a really good one. For now I have seen 0 lags whe..."
+              - generic [ref=f40e1675] [cursor=pointer]: Read full review
+            - generic [ref=f40e1677]:
+              - paragraph [ref=f40e1678]: Ankit Sinha
+              - paragraph [ref=f40e1683]: Certified Buyer
+              - paragraph [ref=f40e1684]: Apr, 2025
+        - generic [ref=f40e1685]:
+          - generic [ref=f40e1686]: Recent Review
+          - generic [ref=f40e1688]:
+            - generic [ref=f40e1689]:
+              - generic [ref=f40e1690]: "4"
+              - paragraph [ref=f40e1692]: Value-for-money
+            - generic [ref=f40e1695]:
+              - generic [ref=f40e1696]: Does have some heating problem but for day today use or emulator gaming it is very good . The camera is not bad for theis price poco x7 pro really is a va...
+              - generic [ref=f40e1697] [cursor=pointer]: Read full review
+            - generic [ref=f40e1699]:
+              - paragraph [ref=f40e1700]: Flipkart Customer
+              - paragraph [ref=f40e1705]: Certified Buyer
+              - paragraph [ref=f40e1706]: 1 month ago
+      - generic [ref=f40e1707]:
+        - generic [ref=f40e1708]:
+          - generic [ref=f40e1710]:
+            - img "POCO X8 Pro (White, 256 GB)"
+          - generic [ref=f40e1711]:
+            - link "2. POCO X8 Pro (White, 256 GB) 4.4 5,895 Ratings&917 Reviews ₹37,999 25% off" [ref=f40e1712] [cursor=pointer]:
+              - /url: /poco-x8-pro-white-256-gb/p/itmaa692ca8a3b36?pid=MOBHMGG5QFZXHVAH&marketplace=FLIPKART&ov_redirect=true
+              - generic [ref=f40e1713]: 2. POCO X8 Pro (White, 256 GB)
+              - generic [ref=f40e1715]:
+                - generic [ref=f40e1716]: "4.4"
+                - generic [ref=f40e1718]:
+                  - text: 5,895 Ratings
+                  - generic [ref=f40e1719]: "&917 Reviews"
+              - generic [ref=f40e1721]:
+                - generic [ref=f40e1722]: ₹37,999
+                - generic [ref=f40e1723]: 25% off
+            - list [ref=f40e1724]:
+              - listitem [ref=f40e1725]: 8 GB RAM | 256 GB ROM
+              - listitem [ref=f40e1726]: 16.74 cm (6.59 inch) Full HD+ AMOLED Display
+              - listitem [ref=f40e1727]: 50MP + 8MP | 20MP Front Camera
+        - generic [ref=f40e1728]:
+          - generic [ref=f40e1729]: Most Helpful Review
+          - generic [ref=f40e1731]:
+            - generic [ref=f40e1732]:
+              - generic [ref=f40e1733]: "5"
+              - paragraph [ref=f40e1735]: Just wow!
+            - generic [ref=f40e1736]: Camera average Display and design best this price Battery 1 day moderate use Normal hitting Comfortable size Overall best this price segment
+            - generic [ref=f40e1741]:
+              - paragraph [ref=f40e1742]: RAHUL ARATHE
+              - paragraph [ref=f40e1747]: Certified Buyer
+              - paragraph [ref=f40e1748]: 6 months ago
+        - generic [ref=f40e1749]:
+          - generic [ref=f40e1750]: Recent Review
+          - generic [ref=f40e1752]:
+            - generic [ref=f40e1753]:
+              - generic [ref=f40e1754]: "3"
+              - paragraph [ref=f40e1756]: Just okay
+            - generic [ref=f40e1757]: Phone very hat but over all best
+            - generic [ref=f40e1762]:
+              - paragraph [ref=f40e1763]: Vikash Kumar
+              - paragraph [ref=f40e1768]: Certified Buyer
+              - paragraph [ref=f40e1769]: 1 day ago
+      - generic [ref=f40e1770]:
+        - generic [ref=f40e1771]:
+          - generic [ref=f40e1773]:
+            - img "POCO X8 Pro Max (Blue, 256 GB)"
+          - generic [ref=f40e1774]:
+            - link "3. POCO X8 Pro Max (Blue, 256 ... 4.5 2,960 Ratings&529 Reviews ₹45,999 20% off" [ref=f40e1775] [cursor=pointer]:
+              - /url: /poco-x8-pro-max-blue-256-gb/p/itm510ae4b674bbc?pid=MOBHMGG5K67QQ2RY&marketplace=FLIPKART&ov_redirect=true
+              - generic [ref=f40e1776]: 3. POCO X8 Pro Max (Blue, 256 ...
+              - generic [ref=f40e1778]:
+                - generic [ref=f40e1779]: "4.5"
+                - generic [ref=f40e1781]:
+                  - text: 2,960 Ratings
+                  - generic [ref=f40e1782]: "&529 Reviews"
+              - generic [ref=f40e1784]:
+                - generic [ref=f40e1785]: ₹45,999
+                - generic [ref=f40e1786]: 20% off
+            - list [ref=f40e1787]:
+              - listitem [ref=f40e1788]: 12 GB RAM | 256 GB ROM
+              - listitem [ref=f40e1789]: 17.35 cm (6.83 inch) Full HD+ AMOLED Display
+              - listitem [ref=f40e1790]: 50MP + 8MP | 20MP Front Camera
+        - generic [ref=f40e1791]:
+          - generic [ref=f40e1792]: Most Helpful Review
+          - generic [ref=f40e1794]:
+            - generic [ref=f40e1795]:
+              - generic [ref=f40e1796]: "5"
+              - paragraph [ref=f40e1798]: Must buy!
+            - generic [ref=f40e1801]:
+              - generic [ref=f40e1802]: POCO X8 Pro Max – My Experience After Several MonthsI bought the POCO X8 Pro Max in April, and I have been using it as my primary phone since then. A...
+              - generic [ref=f40e1803] [cursor=pointer]: Read full review
+            - generic [ref=f40e1805]:
+              - paragraph [ref=f40e1806]: Divesh Pandey
+              - paragraph [ref=f40e1811]: Certified Buyer
+              - paragraph [ref=f40e1812]: 1 month ago
+        - generic [ref=f40e1813]:
+          - generic [ref=f40e1814]: Recent Review
+          - generic [ref=f40e1816]:
+            - generic [ref=f40e1817]:
+              - generic [ref=f40e1818]: "5"
+              - paragraph [ref=f40e1820]: Awesome
+            - generic [ref=f40e1821]: One off the best gameing phone poco x8 pro max
+            - generic [ref=f40e1826]:
+              - paragraph [ref=f40e1827]: Arjun Patamber
+              - paragraph [ref=f40e1832]: Certified Buyer
+              - paragraph [ref=f40e1833]: 1 day ago
+      - generic [ref=f40e1834]:
+        - generic [ref=f40e1835]:
+          - generic [ref=f40e1837]:
+            - img "POCO M7 Pro 5G (Olive Twilight, 256 GB)"
+          - generic [ref=f40e1838]:
+            - link "4. POCO M7 Pro 5G (Olive Twili... 4.3 14,682 Ratings&1,338 Reviews ₹16,999 19% off" [ref=f40e1839] [cursor=pointer]:
+              - /url: /poco-m7-pro-5g-olive-twilight-256-gb/p/itm1d88319131b56?pid=MOBH7443K2CR3WUG&marketplace=FLIPKART&ov_redirect=true
+              - generic [ref=f40e1840]: 4. POCO M7 Pro 5G (Olive Twili...
+              - generic [ref=f40e1842]:
+                - generic [ref=f40e1843]: "4.3"
+                - generic [ref=f40e1845]:
+                  - text: 14,682 Ratings
+                  - generic [ref=f40e1846]: "&1,338 Reviews"
+              - generic [ref=f40e1848]:
+                - generic [ref=f40e1849]: ₹16,999
+                - generic [ref=f40e1850]: 19% off
+            - list [ref=f40e1851]:
+              - listitem [ref=f40e1852]: 8 GB RAM | 256 GB ROM
+              - listitem [ref=f40e1853]: 16.94 cm (6.67 inch) Full HD+ Display
+              - listitem [ref=f40e1854]: 50MP + 2MP | 20MP Front Camera
+        - generic [ref=f40e1855]:
+          - generic [ref=f40e1856]: Most Helpful Review
+          - generic [ref=f40e1858]:
+            - generic [ref=f40e1859]:
+              - generic [ref=f40e1860]: "4"
+              - paragraph [ref=f40e1862]: Wonderful
+            - generic [ref=f40e1863]: Overall it's good in its segment but the processor is not good. Very much lag in day to day use.
+            - generic [ref=f40e1868]:
+              - paragraph [ref=f40e1869]: Sanat Kumar Das
+              - paragraph [ref=f40e1874]: Certified Buyer
+              - paragraph [ref=f40e1875]: Jul, 2025
+        - generic [ref=f40e1876]:
+          - generic [ref=f40e1877]: Recent Review
+          - generic [ref=f40e1879]:
+            - generic [ref=f40e1880]:
+              - generic [ref=f40e1881]: "5"
+              - paragraph [ref=f40e1883]: Fabulous!
+            - generic [ref=f40e1884]: All rounder phone I love this phone 💪🏻🔥
+            - generic [ref=f40e1889]:
+              - paragraph [ref=f40e1890]: Kanha iya
+              - paragraph [ref=f40e1895]: Certified Buyer
+              - paragraph [ref=f40e1896]: 1 month ago
+      - generic [ref=f40e1897]:
+        - generic [ref=f40e1898]:
+          - generic [ref=f40e1900]:
+            - img "POCO X8 Pro (Iron man edition, 256 GB)"
+          - generic [ref=f40e1901]:
+            - link "5. POCO X8 Pro (Iron man editi... 4.4 1,610 Ratings&250 Reviews ₹41,999 25% off" [ref=f40e1902] [cursor=pointer]:
+              - /url: /poco-x8-pro-iron-man-edition-256-gb/p/itm35f1f22c0ebc1?pid=MOBHMGG5WCWVMNJJ&marketplace=FLIPKART&ov_redirect=true
+              - generic [ref=f40e1903]: 5. POCO X8 Pro (Iron man editi...
+              - generic [ref=f40e1905]:
+                - generic [ref=f40e1906]: "4.4"
+                - generic [ref=f40e1908]:
+                  - text: 1,610 Ratings
+                  - generic [ref=f40e1909]: "&250 Reviews"
+              - generic [ref=f40e1911]:
+                - generic [ref=f40e1912]: ₹41,999
+                - generic [ref=f40e1913]: 25% off
+            - list [ref=f40e1914]:
+              - listitem [ref=f40e1915]: 12 GB RAM | 256 GB ROM
+              - listitem [ref=f40e1916]: 16.74 cm (6.59 inch) Full HD+ AMOLED Display
+              - listitem [ref=f40e1917]: 50MP + 8MP | 20MP Front Camera
+        - generic [ref=f40e1918]:
+          - generic [ref=f40e1919]: Most Helpful Review
+          - generic [ref=f40e1921]:
+            - generic [ref=f40e1922]:
+              - generic [ref=f40e1923]: "4"
+              - paragraph [ref=f40e1925]: Worth the money
+            - generic [ref=f40e1928]:
+              - generic [ref=f40e1929]: After using for 2-3 days I can clearly say that it is facing heating issue but beside that everything working good let me use it 2-4 months and after that I ...
+              - generic [ref=f40e1930] [cursor=pointer]: Read full review
+            - generic [ref=f40e1932]:
+              - paragraph [ref=f40e1933]: Shubham Madeshiya
+              - paragraph [ref=f40e1938]: Certified Buyer
+              - paragraph [ref=f40e1939]: 3 months ago
+        - generic [ref=f40e1940]:
+          - generic [ref=f40e1941]: Recent Review
+          - generic [ref=f40e1943]:
+            - generic [ref=f40e1944]:
+              - generic [ref=f40e1945]: "5"
+              - paragraph [ref=f40e1947]: Just wow!
+            - generic [ref=f40e1948]: Totally Very Nice Product
+            - generic [ref=f40e1953]:
+              - paragraph [ref=f40e1954]: M Sivarama Krishnaiah
+              - paragraph [ref=f40e1959]: Certified Buyer
+              - paragraph [ref=f40e1960]: 2 days ago
+  - contentinfo [ref=f40e1961]:
+    - generic [ref=f40e1963]:
+      - generic [ref=f40e1964]:
+        - generic [ref=f40e1965]:
+          - generic [ref=f40e1966]: ABOUT
+          - link "Contact Us" [ref=f40e1967] [cursor=pointer]:
+            - /url: /helpcentre?otracker=footer_navlinks
+          - link "About Us" [ref=f40e1968] [cursor=pointer]:
+            - /url: https://corporate.flipkart.net/corporate-home
+          - link "Careers" [ref=f40e1969] [cursor=pointer]:
+            - /url: https://www.flipkartcareers.com/?otracker=footer_navlinks
+          - link "Flipkart Stories" [ref=f40e1970] [cursor=pointer]:
+            - /url: http://stories.flipkart.com/?otracker=footer_navlinks
+          - link "Press" [ref=f40e1971] [cursor=pointer]:
+            - /url: http://stories.flipkart.com/category/top-stories/news/
+          - link "Corporate Information" [ref=f40e1972] [cursor=pointer]:
+            - /url: /corporate-information
+        - generic [ref=f40e1973]:
+          - generic [ref=f40e1974]: GROUP COMPANIES
+          - link "Myntra" [ref=f40e1975] [cursor=pointer]:
+            - /url: https://www.myntra.com/
+          - link "Cleartrip" [ref=f40e1976] [cursor=pointer]:
+            - /url: https://www.cleartrip.com/
+          - link "Shopsy" [ref=f40e1977] [cursor=pointer]:
+            - /url: https://www.shopsy.in/
+        - generic [ref=f40e1978]:
+          - generic [ref=f40e1979]: HELP
+          - link "Payments" [ref=f40e1980] [cursor=pointer]:
+            - /url: /pages/payments
+          - link "Shipping" [ref=f40e1981] [cursor=pointer]:
+            - /url: /pages/shipping
+          - link "Cancellation & Returns" [ref=f40e1982] [cursor=pointer]:
+            - /url: /helpcentre?catalog=55c9c6edb000002e002c1701&view=CATALOG
+          - link "FAQ" [ref=f40e1983] [cursor=pointer]:
+            - /url: /helpcentre?catalog=55c9c8e2b0000023002c1702&view=CATALOG
+        - generic [ref=f40e1984]:
+          - generic [ref=f40e1985]: CONSUMER POLICY
+          - link "Cancellation & Returns" [ref=f40e1986] [cursor=pointer]:
+            - /url: /pages/returnpolicy?otracker=footer_navlinks
+          - link "Terms Of Use" [ref=f40e1987] [cursor=pointer]:
+            - /url: /pages/terms?otracker=footer_navlinks
+          - link "Security" [ref=f40e1988] [cursor=pointer]:
+            - /url: /pages/paymentsecurity?otracker=footer_navlinks
+          - link "Privacy" [ref=f40e1989] [cursor=pointer]:
+            - /url: /pages/privacypolicy?otracker=footer_navlinks
+          - link "Sitemap" [ref=f40e1990] [cursor=pointer]:
+            - /url: /sitemap?otracker=footer_navlinks
+          - link "Grievance Redressal" [ref=f40e1991] [cursor=pointer]:
+            - /url: /pages/grievance-redressal-mechanism?otracker=footer_navlinks
+          - link "EPR Compliance" [ref=f40e1992] [cursor=pointer]:
+            - /url: /pages/ewaste-compliance-tnc?otracker=footer_navlinks
+          - link "FSSAI Food Safety Connect App" [ref=f40e1993] [cursor=pointer]:
+            - /url: https://fssai.gov.in/cms/food-safety-connect.php
+        - generic [ref=f40e1995]:
+          - generic [ref=f40e1996]: "Mail Us:"
+          - generic [ref=f40e1999]:
+            - paragraph [ref=f40e2000]: Flipkart Internet Private Limited,
+            - paragraph [ref=f40e2001]: Buildings Alyssa, Begonia &
+            - paragraph [ref=f40e2002]: Clove Embassy Tech Village,
+            - paragraph [ref=f40e2003]: Outer Ring Road, Devarabeesanahalli Village,
+            - paragraph [ref=f40e2004]: Bengaluru, 560103,
+            - paragraph [ref=f40e2005]: Karnataka, India
+          - generic [ref=f40e2006]: Social
+          - generic [ref=f40e2007]:
+            - link [ref=f40e2009] [cursor=pointer]:
+              - /url: https://www.facebook.com/flipkart
+            - link [ref=f40e2012] [cursor=pointer]:
+              - /url: https://www.twitter.com/flipkart
+            - link [ref=f40e2015] [cursor=pointer]:
+              - /url: https://www.youtube.com/flipkart
+            - link [ref=f40e2018] [cursor=pointer]:
+              - /url: https://www.instagram.com/flipkart
+        - generic [ref=f40e2021]:
+          - generic [ref=f40e2022]: "Registered Office Address:"
+          - generic [ref=f40e2025]:
+            - paragraph [ref=f40e2026]: Flipkart Internet Private Limited,
+            - paragraph [ref=f40e2027]: Buildings Alyssa, Begonia &
+            - paragraph [ref=f40e2028]: Clove Embassy Tech Village,
+            - paragraph [ref=f40e2029]: Outer Ring Road, Devarabeesanahalli Village,
+            - paragraph [ref=f40e2030]: Bengaluru, 560103,
+            - paragraph [ref=f40e2031]: Karnataka, India
+            - paragraph [ref=f40e2032]: "CIN : U51109KA2012PTC066107"
+            - paragraph [ref=f40e2033]:
+              - text: "Telephone:"
+              - link "044-45614700" [ref=f40e2034] [cursor=pointer]:
+                - /url: tel:044-45614700
+              - text: /
+              - link "044-67415800" [ref=f40e2035] [cursor=pointer]:
+                - /url: tel:044-67415800
+      - generic [ref=f40e2037]:
+        - link "Become a Seller" [ref=f40e2040] [cursor=pointer]:
+          - /url: https://seller.flipkart.com/?utm_source=fkwebsite&utm_medium=websitedirect
+        - generic [ref=f40e2041]: Advertise
+        - link "Gift Cards" [ref=f40e2045] [cursor=pointer]:
+          - /url: /the-gift-card-store?otracker=footer_navlinks
+        - link "Help Center" [ref=f40e2048] [cursor=pointer]:
+          - /url: /helpcentre?otracker=footer_navlinks
+        - generic [ref=f40e2049]: © 2007-2026 Flipkart.com

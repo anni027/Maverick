@@ -3,11 +3,11 @@
 /// The shine is a linear-gradient clipped to the glyphs via
 /// `background-clip: text`; `useAnimationFrame` drives a motion value
 /// from 0→100, which `useTransform` maps to a background-position that
-/// sweeps the highlight across the text. All motion respects
-/// `prefers-reduced-motion` (see index.css).
+/// sweeps the highlight across the text. Reduced-motion users get the
+/// static gradient — the frame loop is skipped, not merely hidden by CSS.
 
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { motion, useMotionValue, useAnimationFrame, useTransform } from 'motion/react';
+import { motion, useMotionValue, useAnimationFrame, useReducedMotion, useTransform } from 'motion/react';
 
 interface ShinyTextProps {
   text: string;
@@ -37,6 +37,7 @@ export default function ShinyText({
   delay = 0,
 }: ShinyTextProps) {
   const [isPaused, setIsPaused] = useState(false);
+  const reduce = useReducedMotion();
   const progress = useMotionValue(0);
   const elapsedRef = useRef(0);
   const lastTimeRef = useRef<number | null>(null);
@@ -46,7 +47,7 @@ export default function ShinyText({
   const delayDuration = delay * 1000;
 
   useAnimationFrame(time => {
-    if (disabled || isPaused) {
+    if (disabled || isPaused || reduce) {
       lastTimeRef.current = null;
       return;
     }

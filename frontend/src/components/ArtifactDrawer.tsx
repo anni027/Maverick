@@ -7,6 +7,8 @@ interface ArtifactDrawerProps {
   activeId: string | null;
   onSelect: (id: string) => void;
   onClose: () => void;
+  /** Current width in px, reported upward so the chat can narrow beside it. */
+  onWidthChange?: (w: number) => void;
 }
 
 function extFor(a: Artifact): string {
@@ -19,7 +21,7 @@ function extFor(a: Artifact): string {
  * render in a sandboxed iframe (`allow-scripts`, no same-origin), Markdown
  * through our own renderer. Draggable left edge; Esc closes.
  */
-export default function ArtifactDrawer({ artifacts, activeId, onSelect, onClose }: ArtifactDrawerProps) {
+export default function ArtifactDrawer({ artifacts, activeId, onSelect, onClose, onWidthChange }: ArtifactDrawerProps) {
   const active = artifacts.find(a => a.id === activeId) ?? null;
   const index = active ? artifacts.findIndex(a => a.id === active.id) : -1;
   const [tab, setTab] = useState<'preview' | 'code'>('preview');
@@ -51,6 +53,11 @@ export default function ArtifactDrawer({ artifacts, activeId, onSelect, onClose 
   });
   const widthRef = useRef(width);
   widthRef.current = width;
+  // Report the live width upward so the chat column narrows beside the
+  // drawer instead of continuing underneath it.
+  useEffect(() => {
+    onWidthChange?.(width);
+  }, [width, onWidthChange]);
   const startResize = (e: React.PointerEvent) => {
     e.preventDefault();
     const startX = e.clientX;
@@ -100,6 +107,10 @@ export default function ArtifactDrawer({ artifacts, activeId, onSelect, onClose 
     const next = artifacts[(index + dir + artifacts.length) % artifacts.length];
     if (next) onSelect(next.id);
   };
+  // A workspace file renders from the loopback preview server (so its relative
+  // CSS/JS resolve); a bare chat snippet has no file behind it, so it inlines
+  // through `srcDoc`.
+  const served = !!active.url;
 
   return (
     <div
@@ -195,7 +206,20 @@ export default function ArtifactDrawer({ artifacts, activeId, onSelect, onClose 
             <div style={{ flex: 1, overflowY: 'auto', padding: '16px 18px' }}>
               <MarkdownRenderer content={active.code} />
             </div>
+          ) : served ? (
+            /* Workspace file → served over loopback, so relative assets and
+               module scripts resolve against a real origin. `allow-same-origin`
+               is safe here: the frame is cross-origin to the app (127.0.0.1 vs
+               the Tauri origin), so it can't reach into the parent document. */
+            <iframe
+              key={`${active.id}-${active.rev ?? 0}`}
+              title={active.title}
+              sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups"
+              src={active.url}
+              style={{ flex: 1, width: '100%', border: 'none', background: '#fff' }}
+            />
           ) : (
+            /* Chat snippet — no file behind it, so inline it. */
             <iframe
               key={`${active.id}-${active.rev ?? 0}`}
               title={active.title}

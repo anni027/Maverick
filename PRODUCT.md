@@ -33,7 +33,7 @@ Rituals: headless demo (real provider + real ToolBridge) for architecture proof.
 ## Capabilities and Constraints
 
 Capabilities: sessions list/create, provider registry (xAI/OpenAI/Anthropic/subprocess/custom), ToolBridge v1 subset (run_terminal_cmd, get_task_output, kill_task, read_file, search_replace, list_dir, grep, todo_write), MCP placeholder, config snapshot, UI prefs.
-Constraints: Tauri Rust backend single process; frontend must use snake_case invokes (`session_id`, `provider_id`); no `h-screen`, respect `min-h-[100dvh]`; WebView2 required on Windows; icons must not be generic slop — no emoji, no Lucide default, no generic power-status badge.
+Constraints: Tauri Rust backend single process; `#[command]` args are camelCase at the JS boundary (`invoke('send_message', { sessionId, … })` for a `session_id` param) — nested struct payloads keep their serde field names; no `h-screen`, respect `min-h-[100dvh]`; WebView2 required on Windows; icons must not be generic slop — no emoji, no Lucide default, no generic power-status badge.
 Undecided: pricing, auth, cloud sync.
 
 ## Brand Commitments

@@ -1,0 +1,714 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e14]:
+      - banner [ref=e18]:
+        - generic "Browse Flipkart" [ref=e20]:
+          - generic [ref=e21]:
+            - link "Flipkart marketplace dropdown" [ref=e22] [cursor=pointer]:
+              - /url: /
+              - img "FLIPKART" [ref=e23]
+            - img "Chevron" [ref=e24]
+        - generic [ref=e28]:
+          - button "Search for Products, Brands and More" [ref=e29] [cursor=pointer]:
+            - img "Search Icon" [ref=e30]
+          - textbox "Search for Products, Brands and More" [ref=e34]: POCO X8 Pro
+        - generic [ref=e35]:
+          - generic [ref=e40]:
+            - link "Login" [ref=e41] [cursor=pointer]:
+              - /url: /login?ret=/
+              - img "Login" [ref=e42]
+            - img "Chevron" [ref=e44]
+          - generic [ref=e53]:
+            - link "More" [ref=e54] [cursor=pointer]:
+              - /url: "#"
+            - img "Chevron" [ref=e56]
+          - link "Cart Cart" [ref=e59] [cursor=pointer]:
+            - /url: /viewcart?marketplace=FLIPKART
+            - img "Cart" [ref=e60]
+            - generic [ref=e61]: Cart
+      - generic [ref=e63]:
+        - generic [ref=e75]:
+          - generic [ref=e78]:
+            - generic [ref=e80]:
+              - link "Home" [ref=e81] [cursor=pointer]:
+                - /url: /
+              - generic [ref=e82]: /
+            - generic [ref=e84]:
+              - link "Mobiles & Accessories" [ref=e85] [cursor=pointer]:
+                - /url: /mobiles-accessories/pr?sid=tyy&marketplace=FLIPKART
+              - generic [ref=e86]: /
+            - generic [ref=e88]:
+              - link "Mobiles" [ref=e89] [cursor=pointer]:
+                - /url: /mobiles/pr?sid=tyy,4io&marketplace=FLIPKART
+              - generic [ref=e90]: /
+            - generic [ref=e92]:
+              - link "POCO Mobiles" [ref=e93] [cursor=pointer]:
+                - /url: /mobiles/poco~brand/pr?sid=tyy,4io&marketplace=FLIPKART
+              - generic [ref=e94]: /
+          - generic [ref=e95]: X8 Pro (White, 256 GB)
+        - generic [ref=e99]:
+          - generic [ref=e101]:
+            - generic [ref=e111]:
+              - generic [ref=e114]:
+                - img "Image" [ref=e117]
+                - generic [ref=e118]: Key Highlights
+              - generic [ref=e122]:
+                - img "Image" [ref=e125]
+                - generic [ref=e126]: Key Highlights
+              - generic [ref=e141]:
+                - img "Image" [ref=e144]
+                - generic [ref=e145]: Key Highlights
+              - generic [ref=e149]:
+                - img "Image" [ref=e152]
+                - generic [ref=e153]: Key Highlights
+              - generic [ref=e155]:
+                - generic [ref=e157]:
+                  - img "Image" [ref=e160]
+                  - generic [ref=e161]: Key Highlights
+                - generic: "+21"
+            - generic [ref=e164]:
+              - generic [ref=e175]:
+                - link "Image OPPO F35 5G (Mist Pink, 128 GB) 38% 62,999 ₹38,999 AD" [ref=e180] [cursor=pointer]:
+                  - /url: /oppo-f35-5g-mist-pink-128-gb/p/itm337202b9d6fc7?pid=MOBHRHZHJ8NMUN8R&lid=LSTMOBHRHZHJ8NMUN8ROW2QTO&hl_lid=&marketplace=FLIPKART&fm=eyJ3dHAiOiJhZHZlcnRpc2VtZW50IiwicHJwdCI6InBwIiwibWlkIjoicGxhL3AycHNpbWlsYXIifQ%3D%3D
+                  - generic [ref=e181]:
+                    - img "Image" [ref=e184]
+                    - generic [ref=e185]:
+                      - generic [ref=e186]: OPPO F35 5G (Mist Pink, 128 GB)
+                      - generic [ref=e187]:
+                        - generic [ref=e190]: 38%
+                        - generic [ref=e191]: 62,999
+                        - generic [ref=e192]: ₹38,999
+                  - generic [ref=e193]: AD
+                - link "Image Mivi One 5G (Green, 128 GB) 36% 21,999 ₹13,999 AD" [ref=e199] [cursor=pointer]:
+                  - /url: /mivi-one-5g-green-128-gb/p/itm596121720eed0?pid=MOBHR3ZPGHBTGAUG&lid=LSTMOBHR3ZPGHBTGAUG0YU7DT&hl_lid=&marketplace=FLIPKART&fm=eyJ3dHAiOiJhZHZlcnRpc2VtZW50IiwicHJwdCI6InBwIiwibWlkIjoicGxhL3AycHNpbWlsYXIifQ%3D%3D
+                  - generic [ref=e200]:
+                    - img "Image" [ref=e203]
+                    - generic [ref=e204]:
+                      - generic [ref=e205]: Mivi One 5G (Green, 128 GB)
+                      - generic [ref=e206]:
+                        - generic [ref=e209]: 36%
+                        - generic [ref=e210]: 21,999
+                        - generic [ref=e211]: ₹13,999
+                  - generic [ref=e212]: AD
+                - link "Image Mivi One 5G (Green, 128 GB) 35% 25,999 ₹16,999 AD" [ref=e218] [cursor=pointer]:
+                  - /url: /mivi-one-5g-green-128-gb/p/itm7c374475b93cf?pid=MOBHR3ZP7PRKEXUP&lid=LSTMOBHR3ZP7PRKEXUPKQQIR0&hl_lid=&marketplace=FLIPKART&fm=eyJ3dHAiOiJhZHZlcnRpc2VtZW50IiwicHJwdCI6InBwIiwibWlkIjoicGxhL3AycHNpbWlsYXIifQ%3D%3D
+                  - generic [ref=e219]:
+                    - img "Image" [ref=e222]
+                    - generic [ref=e223]:
+                      - generic [ref=e224]: Mivi One 5G (Green, 128 GB)
+                      - generic [ref=e225]:
+                        - generic [ref=e228]: 35%
+                        - generic [ref=e229]: 25,999
+                        - generic [ref=e230]: ₹16,999
+                  - generic [ref=e231]: AD
+                - link "Image OPPO F35 5G (Mist Pink, 128 GB) 38% 62,999 ₹38,999 AD" [ref=e237] [cursor=pointer]:
+                  - /url: /oppo-f35-5g-mist-pink-128-gb/p/itm337202b9d6fc7?pid=MOBHRHZHJ8NMUN8R&lid=LSTMOBHRHZHJ8NMUN8ROW2QTO&hl_lid=&marketplace=FLIPKART&fm=eyJ3dHAiOiJhZHZlcnRpc2VtZW50IiwicHJwdCI6InBwIiwibWlkIjoicGxhL3AycHNpbWlsYXIifQ%3D%3D
+                  - generic [ref=e238]:
+                    - img "Image" [ref=e241]
+                    - generic [ref=e242]:
+                      - generic [ref=e243]: OPPO F35 5G (Mist Pink, 128 GB)
+                      - generic [ref=e244]:
+                        - generic [ref=e247]: 38%
+                        - generic [ref=e248]: 62,999
+                        - generic [ref=e249]: ₹38,999
+                  - generic [ref=e250]: AD
+                - link "Image Mivi One 5G (Green, 128 GB) 36% 21,999 ₹13,999 AD" [ref=e256] [cursor=pointer]:
+                  - /url: /mivi-one-5g-green-128-gb/p/itm596121720eed0?pid=MOBHR3ZPGHBTGAUG&lid=LSTMOBHR3ZPGHBTGAUG0YU7DT&hl_lid=&marketplace=FLIPKART&fm=eyJ3dHAiOiJhZHZlcnRpc2VtZW50IiwicHJwdCI6InBwIiwibWlkIjoicGxhL3AycHNpbWlsYXIifQ%3D%3D
+                  - generic [ref=e257]:
+                    - img "Image" [ref=e260]
+                    - generic [ref=e261]:
+                      - generic [ref=e262]: Mivi One 5G (Green, 128 GB)
+                      - generic [ref=e263]:
+                        - generic [ref=e266]: 36%
+                        - generic [ref=e267]: 21,999
+                        - generic [ref=e268]: ₹13,999
+                  - generic [ref=e269]: AD
+              - generic [ref=e278]:
+                - generic [ref=e279]:
+                  - generic [ref=e280]: "Selected Color:"
+                  - generic [ref=e281]: White
+                - generic [ref=e288]:
+                  - link [ref=e293] [cursor=pointer]:
+                    - /url: /poco-x8-pro-black-256-gb/p/itmfbd9f2b2c7db9?pid=MOBHMGG5WYZAECZY&marketplace=FLIPKART&lid=LSTMOBHMGG5WYZAECZYJDRRYU&q=POCO+X8+Pro&fm=organic
+                    - img "Image" [ref=e297]
+                  - link [ref=e303] [cursor=pointer]:
+                    - /url: /poco-x8-pro-green-256-gb/p/itme72bf861a71d4?pid=MOBHMGG5ME9NGD5C&marketplace=FLIPKART&lid=LSTMOBHMGG5ME9NGD5COL3RN5&q=POCO+X8+Pro&fm=organic
+                    - img "Image" [ref=e307]
+                  - link [ref=e313] [cursor=pointer]:
+                    - /url: /poco-x8-pro-white-256-gb/p/itmaa692ca8a3b36?pid=MOBHMGG5QFZXHVAH&marketplace=FLIPKART&lid=LSTMOBHMGG5QFZXHVAHACODSM&q=POCO+X8+Pro&fm=organic
+                    - img "Image" [ref=e317]
+              - generic [ref=e327]:
+                - generic [ref=e328]:
+                  - generic [ref=e329]: "Variant:"
+                  - generic [ref=e330]: 256 GB + 8 GB
+                - generic [ref=e337]:
+                  - link "256 GB + 12 GB ↓23% 52,999 ₹40,999" [ref=e342] [cursor=pointer]:
+                    - /url: /poco-x8-pro-white-256-gb/p/itm1ec9163203374?pid=MOBHMGG5WDBZG8GM&marketplace=FLIPKART&lid=LSTMOBHMGG5WDBZG8GMASZ5EU&q=POCO+X8+Pro&fm=organic
+                    - generic [ref=e343]: 256 GB + 12 GB
+                    - generic [ref=e346]:
+                      - generic [ref=e347]: ↓23%
+                      - generic [ref=e348]: 52,999
+                    - generic [ref=e349]: ₹40,999
+                  - link "256 GB + 8 GB ↓25% 50,999 ₹37,999" [ref=e357] [cursor=pointer]:
+                    - /url: /poco-x8-pro-white-256-gb/p/itmaa692ca8a3b36?pid=MOBHMGG5QFZXHVAH&marketplace=FLIPKART&lid=LSTMOBHMGG5QFZXHVAHACODSM&q=POCO+X8+Pro&fm=organic
+                    - generic [ref=e358]: 256 GB + 8 GB
+                    - generic [ref=e361]:
+                      - generic [ref=e362]: ↓25%
+                      - generic [ref=e363]: 50,999
+                    - generic [ref=e364]: ₹37,999
+              - heading "POCO X8 Pro (White, 256 GB) (8 GB RAM)" [level=1] [ref=e380]
+              - link "4.4 | 5,895" [ref=e388] [cursor=pointer]:
+                - /url: /ratings-reviews-details-page?pid=MOBHMGG5QFZXHVAH&lidMOBHMGG5QFZXHVAH&marketplace=FLIPKART
+                - generic [ref=e392]:
+                  - generic [ref=e393]: "4.4"
+                  - generic [ref=e396]: "| 5,895"
+              - generic [ref=e408]:
+                - generic [ref=e409]: Top Discount of the Sale
+                - generic [ref=e417]:
+                  - generic [ref=e418]: 25%
+                  - generic [ref=e423]: 50,999
+                  - generic [ref=e425]: ₹37,999
+                - link "+₹199 Protect Promise Fee" [ref=e427] [cursor=pointer]:
+                  - /url: /pp-protect-promise-fee?pid=MOBHMGG5QFZXHVAH&lid=LSTMOBHMGG5QFZXHVAHACODSM
+              - generic [ref=e438]:
+                - generic [ref=e455]:
+                  - generic [ref=e456]: Buy at ₹35,999
+                  - generic [ref=e458]: Apply offers for maximum savings
+                - generic [ref=e467]:
+                  - generic [ref=e477]:
+                    - generic [ref=e479]:
+                      - generic [ref=e480]: ₹35,999
+                      - generic: Lowest price for you
+                    - generic [ref=e482]: OR
+                    - generic [ref=e485]:
+                      - generic [ref=e486]: ₹2,979 x 12m
+                      - generic: Pay ₹35,749 • No Cost EMI
+                  - generic [ref=e488]:
+                    - generic [ref=e495] [cursor=pointer]:
+                      - generic [ref=e497]:
+                        - generic [ref=e501]:
+                          - generic [ref=e502]: Exchange offer
+                          - generic [ref=e503]: Not available at this Pincode
+                        - generic [ref=e511]:
+                          - generic [ref=e512]: Up to ₹28,450
+                          - generic [ref=e515]: Change pincode to exchange item
+                      - generic [ref=e527]:
+                        - generic [ref=e528]: Exchange offer
+                        - generic [ref=e529]: Up to ₹28,450
+                    - generic [ref=e531]:
+                      - generic [ref=e532]: Select and apply the best offers
+                      - generic [ref=e533]:
+                        - generic [ref=e547] [cursor=pointer]:
+                          - generic [ref=e548]: Extra off on Exchange + Banks
+                          - generic [ref=e549]: ₹3,900 off
+                        - generic [ref=e550]:
+                          - generic [ref=e561] [cursor=pointer]:
+                            - generic [ref=e562]: Bank offers
+                            - generic [ref=e563]: ₹2,000 off
+                          - generic [ref=e569]:
+                            - generic [ref=e571]:
+                              - generic [ref=e572] [cursor=pointer]: Bank offers
+                              - generic [ref=e582]:
+                                - generic [ref=e584]:
+                                  - generic [ref=e590] [cursor=pointer]:
+                                    - generic [ref=e591]: Best value for you
+                                    - generic [ref=e598]:
+                                      - generic [ref=e599]:
+                                        - generic [ref=e600]: ₹2,000 off
+                                        - generic [ref=e602]: Apply
+                                      - generic [ref=e605]: HDFC
+                                    - generic [ref=e606]: Credit Card
+                                  - generic [ref=e621] [cursor=pointer]:
+                                    - generic [ref=e626]:
+                                      - generic [ref=e627]:
+                                        - generic [ref=e628]: ₹2,000 off
+                                        - generic [ref=e630]: Apply
+                                      - generic [ref=e633]: SBI
+                                    - generic [ref=e634]: Credit Card
+                                - generic [ref=e645]:
+                                  - generic [ref=e651] [cursor=pointer]:
+                                    - generic [ref=e656]:
+                                      - generic [ref=e657]:
+                                        - generic [ref=e658]: ₹2,000 off
+                                        - generic [ref=e660]: Apply
+                                      - generic [ref=e663]: Axis
+                                    - generic [ref=e664]: Credit Card
+                                  - generic [ref=e679] [cursor=pointer]:
+                                    - generic [ref=e684]:
+                                      - generic [ref=e685]:
+                                        - generic [ref=e686]: ₹1,900 off
+                                        - generic [ref=e688]: Apply
+                                      - generic [ref=e691]: Flipkart Axis
+                                    - generic [ref=e692]: Credit Card • Cashback
+                                - generic [ref=e703]:
+                                  - generic [ref=e709] [cursor=pointer]:
+                                    - generic [ref=e714]:
+                                      - generic [ref=e715]:
+                                        - generic [ref=e716]: ₹2,000 off
+                                        - generic [ref=e718]: Apply
+                                      - generic [ref=e721]: AU Small Finance Bank Limited
+                                    - generic [ref=e722]: Credit Card
+                                  - generic [ref=e737] [cursor=pointer]:
+                                    - generic [ref=e742]:
+                                      - generic [ref=e743]:
+                                        - generic [ref=e744]: ₹2,000 off
+                                        - generic [ref=e746]: Apply
+                                      - generic [ref=e749]: Bank of Baroda
+                                    - generic [ref=e750]: Credit Card
+                                - generic [ref=e761]:
+                                  - generic [ref=e767] [cursor=pointer]:
+                                    - generic [ref=e772]:
+                                      - generic [ref=e773]:
+                                        - generic [ref=e774]: ₹2,000 off
+                                        - generic [ref=e776]: Apply
+                                      - generic [ref=e779]: HSBC
+                                    - generic [ref=e780]: Credit Card
+                                  - generic [ref=e795] [cursor=pointer]:
+                                    - generic [ref=e800]:
+                                      - generic [ref=e801]:
+                                        - generic [ref=e802]: ₹2,000 off
+                                        - generic [ref=e804]: Apply
+                                      - generic [ref=e807]: Multiple Banks
+                                    - generic [ref=e808]: Credit Card
+                                - generic [ref=e819]:
+                                  - generic [ref=e825] [cursor=pointer]:
+                                    - generic [ref=e830]:
+                                      - generic [ref=e831]:
+                                        - generic [ref=e832]: ₹2,000 off
+                                        - generic [ref=e834]: Apply
+                                      - generic [ref=e837]: Standard Chartered
+                                    - generic [ref=e838]: Credit Card
+                                  - generic [ref=e853] [cursor=pointer]:
+                                    - generic [ref=e858]:
+                                      - generic [ref=e859]:
+                                        - generic [ref=e860]: ₹1,900 off
+                                        - generic [ref=e862]: Apply
+                                      - generic [ref=e865]: Flipkart SBI
+                                    - generic [ref=e866]: Credit Card • Cashback
+                                - generic [ref=e883] [cursor=pointer]:
+                                  - generic [ref=e888]:
+                                    - generic [ref=e889]:
+                                      - generic [ref=e890]: ₹875 off
+                                      - generic [ref=e892]: Apply
+                                    - generic [ref=e895]: ICICI
+                                  - generic [ref=e896]: Credit Card
+                            - generic [ref=e912] [cursor=pointer]:
+                              - generic [ref=e913]: Bank offers
+                              - generic [ref=e914]: ₹2,000 off
+                            - generic [ref=e915]: View EMI offers
+              - generic [ref=e928]:
+                - generic [ref=e929] [cursor=pointer]: Additional benefits on this purchase
+                - generic [ref=e947]:
+                  - img "Image" [ref=e951]
+                  - generic [ref=e952]: Unlock Air fryer coupon • 10% off
+              - generic [ref=e963]:
+                - generic [ref=e964]: Delivery details
+                - generic [ref=e966]:
+                  - generic [ref=e972]:
+                    - generic [ref=e973]: Location not set
+                    - generic [ref=e977]: Select delivery location
+                  - generic [ref=e996]:
+                    - generic [ref=e997]: Delivery by
+                    - generic [ref=e998]: Tuesday, 27 Oct
+                  - generic [ref=e1009]:
+                    - generic [ref=e1010]:
+                      - generic [ref=e1011]: "Seller: Truenet Commerce"
+                      - link "See other sellers" [ref=e1013] [cursor=pointer]:
+                        - /url: /sellers?pid=MOBHMGG5QFZXHVAH
+                    - generic [ref=e1015]:
+                      - generic [ref=e1016]: "4.5"
+                      - generic [ref=e1019]: •
+                      - generic [ref=e1020]: 9 years with Flipkart
+              - generic [ref=e1029]:
+                - generic [ref=e1030] [cursor=pointer]: Shop with peace of mind
+                - generic [ref=e1041]:
+                  - link "Image 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories" [ref=e1043] [cursor=pointer]:
+                    - /url: https://www.flipkart.com/item/product-warranty/itemId?pageKey=product-warranty&marketplace=FLIPKART&pin=&lid=LSTMOBHMGG5QFZXHVAHACODSM&pid=MOBHMGG5QFZXHVAH
+                    - generic [ref=e1048]:
+                      - img "Image" [ref=e1052]
+                      - generic [ref=e1053]: 1 Year Manufacturer Warranty for Phone and 6 Months Warranty for In the Box Accessories
+                  - generic [ref=e1056]:
+                    - link "7-day brand support" [ref=e1061] [cursor=pointer]:
+                      - /url: https://www.flipkart.com/ascpolicy-store?marketplace=FLIPKART
+                    - link "Cash on Delivery" [ref=e1075] [cursor=pointer]:
+                      - /url: https://www.flipkart.com/item/payments-callout/itemId?pageKey=payments-callout&marketplace=Flipkart&pin=-1&lid=LSTMOBHMGG5QFZXHVAHACODSM&pid=MOBHMGG5QFZXHVAH?marketplace=FLIPKART
+                    - link "Flipkart Assured" [ref=e1087] [cursor=pointer]:
+                      - /url: http://www.flipkart.com/flipkart-plus-assured-store?marketplace=FLIPKART
+              - generic [ref=e1104]:
+                - generic [ref=e1105] [cursor=pointer]: Product highlights
+                - generic [ref=e1117]:
+                  - generic [ref=e1120]:
+                    - img "Image" [ref=e1124]
+                    - generic [ref=e1125]: 8 GB RAM | 256 GB ROM
+                  - generic [ref=e1129]:
+                    - img "Image" [ref=e1133]
+                    - generic [ref=e1134]: Dimensity 8500-Ultra | Octa Core Processor | 3.4 GHz Clock Speed
+                  - generic [ref=e1138]:
+                    - img "Image" [ref=e1142]
+                    - generic [ref=e1143]: 50MP + 8MP Rear Camera
+                  - generic [ref=e1147]:
+                    - img "Image" [ref=e1151]
+                    - generic [ref=e1152]: 20MP Front Camera
+                  - generic [ref=e1156]:
+                    - img "Image" [ref=e1160]
+                    - generic [ref=e1161]: 6.59 inch
+                  - generic [ref=e1165]:
+                    - img "Image" [ref=e1169]
+                    - generic [ref=e1170]: 6500 mAh Battery
+              - generic [ref=e1182]:
+                - generic [ref=e1183] [cursor=pointer]: All details
+                - generic [ref=e1193]:
+                  - generic [ref=e1195]:
+                    - generic [ref=e1196]: Showcase
+                    - generic [ref=e1201]: Specifications
+                    - generic [ref=e1206]: Warranty
+                    - generic [ref=e1211]: Manufacturer info
+                  - generic [ref=e1217]:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - generic:
+                                      - generic:
+                                        - img "Image"
+                      - generic [ref=e1222]: Show More
+              - generic [ref=e1243]:
+                - generic [ref=e1244]:
+                  - generic [ref=e1245]: Digital plans with this product
+                  - generic [ref=e1246] [cursor=pointer]
+                - generic [ref=e1256]:
+                  - generic [ref=e1262]:
+                    - generic [ref=e1263]:
+                      - generic [ref=e1264]:
+                        - generic [ref=e1265]: Google One
+                        - generic [ref=e1266]: Lite
+                      - generic [ref=e1267]: Add
+                    - generic [ref=e1277]:
+                      - generic [ref=e1278]:
+                        - generic [ref=e1279]: ₹177
+                        - generic [ref=e1280]:
+                          - generic [ref=e1281]: ₹152
+                          - generic [ref=e1282]: /quarter
+                      - generic [ref=e1285]:
+                        - generic [ref=e1286]: Extra ₹46 Off on 1st quarter
+                        - generic [ref=e1287]: Buy together
+                  - generic [ref=e1290]:
+                    - generic [ref=e1291]:
+                      - generic [ref=e1292]: •
+                      - generic [ref=e1293]: 30 GB cloud storage
+                    - generic [ref=e1294]:
+                      - generic [ref=e1295]: •
+                      - generic [ref=e1296]: Automatic backup
+                    - generic [ref=e1297]:
+                      - generic [ref=e1298]: •
+                      - generic [ref=e1299]: Store photos & videos
+                  - generic [ref=e1300]: Show more plans
+              - generic [ref=e1320]:
+                - generic [ref=e1328]:
+                  - generic [ref=e1329]: Buy with EMI
+                  - generic [ref=e1332]: From ₹3,167/m
+                - generic [ref=e1340]:
+                  - generic [ref=e1341]: Buy now
+                  - generic [ref=e1345]:
+                    - generic [ref=e1346]: a
+                    - generic [ref=e1348]: t
+                    - generic [ref=e1352]: ₹
+                    - generic [ref=e1355]:
+                      - generic [ref=e1356]: "0"
+                      - generic [ref=e1358]: "1"
+                      - generic [ref=e1360]: "2"
+                      - generic [ref=e1362]: "3"
+                      - generic [ref=e1364]: "4"
+                      - generic [ref=e1366]: "5"
+                      - generic [ref=e1368]: "6"
+                      - generic [ref=e1370]: "7"
+                      - generic [ref=e1372]: "8"
+                      - generic [ref=e1374]: "9"
+                    - generic [ref=e1377]:
+                      - generic [ref=e1378]: "0"
+                      - generic [ref=e1380]: "1"
+                      - generic [ref=e1382]: "2"
+                      - generic [ref=e1384]: "3"
+                      - generic [ref=e1386]: "4"
+                      - generic [ref=e1388]: "5"
+                      - generic [ref=e1390]: "6"
+                      - generic [ref=e1392]: "7"
+                      - generic [ref=e1394]: "8"
+                      - generic [ref=e1396]: "9"
+                    - generic [ref=e1398]: ","
+                    - generic [ref=e1401]:
+                      - generic [ref=e1402]: "0"
+                      - generic [ref=e1404]: "1"
+                      - generic [ref=e1406]: "2"
+                      - generic [ref=e1408]: "3"
+                      - generic [ref=e1410]: "4"
+                      - generic [ref=e1412]: "5"
+                      - generic [ref=e1414]: "6"
+                      - generic [ref=e1416]: "7"
+                      - generic [ref=e1418]: "8"
+                      - generic [ref=e1420]: "9"
+                    - generic [ref=e1423]:
+                      - generic [ref=e1424]: "0"
+                      - generic [ref=e1426]: "1"
+                      - generic [ref=e1428]: "2"
+                      - generic [ref=e1430]: "3"
+                      - generic [ref=e1432]: "4"
+                      - generic [ref=e1434]: "5"
+                      - generic [ref=e1436]: "6"
+                      - generic [ref=e1438]: "7"
+                      - generic [ref=e1440]: "8"
+                      - generic [ref=e1442]: "9"
+                    - generic [ref=e1445]:
+                      - generic [ref=e1446]: "0"
+                      - generic [ref=e1448]: "1"
+                      - generic [ref=e1450]: "2"
+                      - generic [ref=e1452]: "3"
+                      - generic [ref=e1454]: "4"
+                      - generic [ref=e1456]: "5"
+                      - generic [ref=e1458]: "6"
+                      - generic [ref=e1460]: "7"
+                      - generic [ref=e1462]: "8"
+                      - generic [ref=e1464]: "9"
+          - generic [ref=e1473]:
+            - link "Similar Products" [ref=e1474] [cursor=pointer]:
+              - /url: /products/similar-products?screen=dynamic&pk=stores%3Dtyy%2F4io%2F~pIds%3DMOBHMGG5QFZXHVAH~marketplace%3DFLIPKART~widgetType%3DproductCard~contentType%3DproductRecommendation%2Fsimilar&marketplace=FLIPKART
+            - generic [ref=e1485]:
+              - generic [ref=e1486]:
+                - link "Image AD 4.2 OPPO F35 Pro 5G (Sunrise Orange, 128 GB) 6 GB RAM 39% OFF ₹74,999 ₹45,999 ₹41,400 with No Cost EMI offer" [ref=e1489] [cursor=pointer]:
+                  - /url: /oppo-f35-pro-5g-sunrise-orange-128-gb/p/itm9a32b614f537d?pid=MOBHRHZHYRJYWYUE&lid=LSTMOBHRHZHYRJYWYUEE5MATJ&hl_lid=&marketplace=FLIPKART&fm=eyJ3dHAiOiJyZWNvIiwicHJwdCI6InBwIiwibWlkIjoicHJvZHVjdFJlY29tbWVuZGF0aW9uL3NpbWlsYXIifQ%3D%3D
+                  - generic [ref=e1492]:
+                    - img "Image" [ref=e1496]
+                    - generic [ref=e1499]: AD
+                    - generic: "4.2"
+                    - generic [ref=e1510]:
+                      - generic [ref=e1511]: OPPO F35 Pro 5G (Sunrise Orange, 128 GB) 6 GB RAM
+                      - generic [ref=e1512]: 39% OFF
+                      - generic [ref=e1513]:
+                        - generic [ref=e1514]: ₹74,999
+                        - generic [ref=e1515]: ₹45,999
+                      - generic [ref=e1516]: ₹41,400 with No Cost EMI offer
+                - link "Image AD 4.1 BOLTT ACE 5G (Lavender Bloom, 64 GB) 4 GB RAM 48% OFF ₹24,999 ₹12,999 Top Discount of the Sale" [ref=e1519] [cursor=pointer]:
+                  - /url: /boltt-ace-5g-lavender-bloom-64-gb/p/itm2eb0f483effdd?pid=MOBHPP59CGDHZVJY&lid=LSTMOBHPP59CGDHZVJYFJP39X&hl_lid=&marketplace=FLIPKART&fm=eyJ3dHAiOiJyZWNvIiwicHJwdCI6InBwIiwibWlkIjoicHJvZHVjdFJlY29tbWVuZGF0aW9uL3NpbWlsYXIifQ%3D%3D
+                  - generic [ref=e1522]:
+                    - img "Image" [ref=e1526]
+                    - generic [ref=e1529]: AD
+                    - generic: "4.1"
+                    - generic [ref=e1540]:
+                      - generic [ref=e1541]: BOLTT ACE 5G (Lavender Bloom, 64 GB) 4 GB RAM
+                      - generic [ref=e1542]: 48% OFF
+                      - generic [ref=e1543]:
+                        - generic [ref=e1544]: ₹24,999
+                        - generic [ref=e1545]: ₹12,999
+                      - generic [ref=e1546]: Top Discount of the Sale
+                - link "Image Trending 4.3 POCO X8 Power 5G (Yellow, 256 GB) 8 GB RAM 60% OFF ₹84,999 ₹33,999 ₹31,749 with No Cost EMI offer Get it by 30 Oct" [ref=e1549] [cursor=pointer]:
+                  - /url: /poco-x8-power-5g-yellow-256-gb/p/itm3566b3e7b8329?pid=MOBHQ6XZBJWKEJGJ&lid=LSTMOBHQ6XZBJWKEJGJDF6XIP&hl_lid=&marketplace=FLIPKART&fm=eyJ3dHAiOiJyZWNvIiwicHJwdCI6InBwIiwibWlkIjoicHJvZHVjdFJlY29tbWVuZGF0aW9uL3NpbWlsYXIifQ%3D%3D
+                  - generic [ref=e1552]:
+                    - img "Image" [ref=e1556]
+                    - generic [ref=e1559]: Trending
+                    - generic: "4.3"
+                    - generic [ref=e1570]:
+                      - generic [ref=e1571]: POCO X8 Power 5G (Yellow, 256 GB) 8 GB RAM
+                      - generic [ref=e1572]: 60% OFF
+                      - generic [ref=e1573]:
+                        - generic [ref=e1574]: ₹84,999
+                        - generic [ref=e1575]: ₹33,999
+                      - generic [ref=e1576]: ₹31,749 with No Cost EMI offer
+                      - generic [ref=e1577]:
+                        - generic [ref=e1578]: Get it by
+                        - generic [ref=e1580]: 30 Oct
+                - link "Image AD 4.3 OPPO F35 5G (Mist Pink, 128 GB) 6 GB RAM 38% OFF ₹62,999 ₹38,999 ₹35,099 with Bank offer" [ref=e1583] [cursor=pointer]:
+                  - /url: /oppo-f35-5g-mist-pink-128-gb/p/itm337202b9d6fc7?pid=MOBHRHZHJ8NMUN8R&lid=LSTMOBHRHZHJ8NMUN8ROW2QTO&hl_lid=&marketplace=FLIPKART&fm=eyJ3dHAiOiJyZWNvIiwicHJwdCI6InBwIiwibWlkIjoicHJvZHVjdFJlY29tbWVuZGF0aW9uL3NpbWlsYXIifQ%3D%3D
+                  - generic [ref=e1586]:
+                    - img "Image" [ref=e1590]
+                    - generic [ref=e1593]: AD
+                    - generic: "4.3"
+                    - generic [ref=e1604]:
+                      - generic [ref=e1605]: OPPO F35 5G (Mist Pink, 128 GB) 6 GB RAM
+                      - generic [ref=e1606]: 38% OFF
+                      - generic [ref=e1607]:
+                        - generic [ref=e1608]: ₹62,999
+                        - generic [ref=e1609]: ₹38,999
+                      - generic [ref=e1610]: ₹35,099 with Bank offer
+                - link "Image AD Trending 4.4 realme P4 Power 5G Charger in the Box (TransSilver, 128 GB) 8 GB RAM 41% OFF ₹50,999 ₹29,999 ₹26,599 with Bank offer" [ref=e1613] [cursor=pointer]:
+                  - /url: /realme-p4-power-5g-charger-box-transsilver-128-gb/p/itm756857550aae6?pid=MOBHN7A8E2QAXYCZ&lid=LSTMOBHN7A8E2QAXYCZ4AT06D&hl_lid=&marketplace=FLIPKART&fm=eyJ3dHAiOiJyZWNvIiwicHJwdCI6InBwIiwibWlkIjoicHJvZHVjdFJlY29tbWVuZGF0aW9uL3NpbWlsYXIifQ%3D%3D
+                  - generic [ref=e1616]:
+                    - img "Image" [ref=e1620]
+                    - generic [ref=e1623]: AD
+                    - generic [ref=e1630]: Trending
+                    - generic: "4.4"
+                    - generic [ref=e1641]:
+                      - generic [ref=e1642]: realme P4 Power 5G Charger in the Box (TransSilver, 128 GB) 8 GB RAM
+                      - generic [ref=e1643]: 41% OFF
+                      - generic [ref=e1644]:
+                        - generic [ref=e1645]: ₹50,999
+                        - generic [ref=e1646]: ₹29,999
+                      - generic [ref=e1647]: ₹26,599 with Bank offer
+                - link "Image Image LIVE AD 4.3 realme P4x 5G (Matte Silver, 128 GB) 8 GB RAM 41% OFF ₹43,999 ₹25,999 ₹23,749 with Bank offer" [ref=e1650] [cursor=pointer]:
+                  - /url: /realme-p4x-5g-matte-silver-128-gb/p/itm575b1540859e4?pid=MOBHN7A8HYC9BPAU&lid=LSTMOBHN7A8HYC9BPAUEQNPRK&hl_lid=&marketplace=FLIPKART&fm=eyJ3dHAiOiJyZWNvIiwicHJwdCI6InBwIiwibWlkIjoicHJvZHVjdFJlY29tbWVuZGF0aW9uL3NpbWlsYXIifQ%3D%3D
+                  - generic [ref=e1653]:
+                    - generic [ref=e1654]:
+                      - img "Image" [ref=e1657]
+                      - generic [ref=e1662]:
+                        - img "Image" [ref=e1666]
+                        - generic [ref=e1667]: LIVE
+                    - generic [ref=e1668]: AD
+                    - generic: "4.3"
+                    - generic [ref=e1679]:
+                      - generic [ref=e1680]: realme P4x 5G (Matte Silver, 128 GB) 8 GB RAM
+                      - generic [ref=e1681]: 41% OFF
+                      - generic [ref=e1682]:
+                        - generic [ref=e1683]: ₹43,999
+                        - generic [ref=e1684]: ₹25,999
+                      - generic [ref=e1685]: ₹23,749 with Bank offer
+                - link "Image AD 3.7 OPPO K14 Lite (Stone Brown, 64 GB) 4 GB RAM 58% OFF ₹37,999 ₹15,999 ₹15,199 with Bank offer" [ref=e1688] [cursor=pointer]:
+                  - /url: /oppo-k14-lite-stone-brown-64-gb/p/itmb13fea9340374?pid=MOBHQZZ2HVKFBAGP&lid=LSTMOBHQZZ2HVKFBAGP9HQ2J4&hl_lid=&marketplace=FLIPKART&fm=eyJ3dHAiOiJyZWNvIiwicHJwdCI6InBwIiwibWlkIjoicHJvZHVjdFJlY29tbWVuZGF0aW9uL3NpbWlsYXIifQ%3D%3D
+                  - generic [ref=e1691]:
+                    - img "Image" [ref=e1695]
+                    - generic [ref=e1698]: AD
+                    - generic: "3.7"
+                    - generic [ref=e1709]:
+                      - generic [ref=e1710]: OPPO K14 Lite (Stone Brown, 64 GB) 4 GB RAM
+                      - generic [ref=e1711]: 58% OFF
+                      - generic [ref=e1712]:
+                        - generic [ref=e1713]: ₹37,999
+                        - generic [ref=e1714]: ₹15,999
+                      - generic [ref=e1715]: ₹15,199 with Bank offer
+                - link "Image AD Bestseller 4.4 OPPO K14 Plus 5G (Solar Orange, 128 GB) 8 GB RAM 43% OFF ₹64,999 ₹36,999 ₹34,998 with Bank offer" [ref=e1718] [cursor=pointer]:
+                  - /url: /oppo-k14-plus-5g-solar-orange-128-gb/p/itm6b2b1016fd57a?pid=MOBHR3ZY3Y8DEZVY&lid=LSTMOBHR3ZY3Y8DEZVYI6GQX5&hl_lid=&marketplace=FLIPKART&fm=eyJ3dHAiOiJyZWNvIiwicHJwdCI6InBwIiwibWlkIjoicHJvZHVjdFJlY29tbWVuZGF0aW9uL3NpbWlsYXIifQ%3D%3D
+                  - generic [ref=e1721]:
+                    - img "Image" [ref=e1725]
+                    - generic [ref=e1728]: AD
+                    - generic [ref=e1735]: Bestseller
+                    - generic: "4.4"
+                    - generic [ref=e1746]:
+                      - generic [ref=e1747]: OPPO K14 Plus 5G (Solar Orange, 128 GB) 8 GB RAM
+                      - generic [ref=e1748]: 43% OFF
+                      - generic [ref=e1749]:
+                        - generic [ref=e1750]: ₹64,999
+                        - generic [ref=e1751]: ₹36,999
+                      - generic [ref=e1752]: ₹34,998 with Bank offer
+              - button [ref=e1753]
+        - generic [ref=e1758]: Hang on, loading content
+        - generic [ref=e1772]:
+          - generic [ref=e1773]: More about POCO X8 Pro (White, 256 GB)
+          - generic [ref=e1774]: +
+        - contentinfo [ref=e1775]:
+          - generic [ref=e1777]:
+            - generic [ref=e1778]:
+              - generic [ref=e1779]:
+                - generic [ref=e1780]: ABOUT
+                - link "Contact Us" [ref=e1781] [cursor=pointer]:
+                  - /url: /helpcentre?otracker=footer_navlinks
+                - link "About Us" [ref=e1782] [cursor=pointer]:
+                  - /url: https://corporate.flipkart.net/corporate-home
+                - link "Careers" [ref=e1783] [cursor=pointer]:
+                  - /url: https://www.flipkartcareers.com/?otracker=footer_navlinks
+                - link "Flipkart Stories" [ref=e1784] [cursor=pointer]:
+                  - /url: http://stories.flipkart.com/?otracker=footer_navlinks
+                - link "Press" [ref=e1785] [cursor=pointer]:
+                  - /url: http://stories.flipkart.com/category/top-stories/news/
+                - link "Corporate Information" [ref=e1786] [cursor=pointer]:
+                  - /url: /corporate-information
+              - generic [ref=e1787]:
+                - generic [ref=e1788]: GROUP COMPANIES
+                - link "Myntra" [ref=e1789] [cursor=pointer]:
+                  - /url: https://www.myntra.com/
+                - link "Cleartrip" [ref=e1790] [cursor=pointer]:
+                  - /url: https://www.cleartrip.com/
+                - link "Shopsy" [ref=e1791] [cursor=pointer]:
+                  - /url: https://www.shopsy.in
+              - generic [ref=e1792]:
+                - generic [ref=e1793]: HELP
+                - link "Payments" [ref=e1794] [cursor=pointer]:
+                  - /url: /pages/payments
+                - link "Shipping" [ref=e1795] [cursor=pointer]:
+                  - /url: /pages/shipping
+                - link "Cancellation & Returns" [ref=e1796] [cursor=pointer]:
+                  - /url: /helpcentre?catalog=55c9c6edb000002e002c1701&view=CATALOG
+                - link "FAQ" [ref=e1797] [cursor=pointer]:
+                  - /url: /helpcentre?catalog=55c9c8e2b0000023002c1702&view=CATALOG
+              - generic [ref=e1798]:
+                - generic [ref=e1799]: CONSUMER POLICY
+                - link "Cancellation & Returns" [ref=e1800] [cursor=pointer]:
+                  - /url: /pages/returnpolicy?otracker=footer_navlinks
+                - link "Terms Of Use" [ref=e1801] [cursor=pointer]:
+                  - /url: /pages/terms?otracker=footer_navlinks
+                - link "Security" [ref=e1802] [cursor=pointer]:
+                  - /url: /pages/paymentsecurity?otracker=footer_navlinks
+                - link "Privacy" [ref=e1803] [cursor=pointer]:
+                  - /url: /pages/privacypolicy?otracker=footer_navlinks
+                - link "Sitemap" [ref=e1804] [cursor=pointer]:
+                  - /url: /sitemap?otracker=footer_navlinks
+                - link "Grievance Redressal" [ref=e1805] [cursor=pointer]:
+                  - /url: /pages/grievance-redressal-mechanism?otracker=footer_navlinks
+                - link "EPR Compliance" [ref=e1806] [cursor=pointer]:
+                  - /url: /pages/ewaste-compliance-tnc?otracker=footer_navlinks
+                - link "FSSAI Food Safety Connect App" [ref=e1807] [cursor=pointer]:
+                  - /url: https://fssai.gov.in/cms/food-safety-connect.php
+              - generic [ref=e1808]:
+                - generic [ref=e1809]: "Mail Us:"
+                - generic [ref=e1810]:
+                  - paragraph [ref=e1811]: Flipkart Internet Private Limited,
+                  - paragraph [ref=e1812]: Buildings Alyssa, Begonia &
+                  - paragraph [ref=e1813]: Clove Embassy Tech Village,
+                  - paragraph [ref=e1814]: Outer Ring Road, Devarabeesanahalli Village,
+                  - paragraph [ref=e1815]: Bengaluru, 560103,
+                  - paragraph [ref=e1816]: Karnataka, India
+                - generic [ref=e1817]: "Social:"
+                - generic [ref=e1818]:
+                  - link "Facebook" [ref=e1820] [cursor=pointer]:
+                    - /url: https://www.facebook.com/flipkart
+                    - img "Facebook" [ref=e1821]
+                  - link "Twitter" [ref=e1823] [cursor=pointer]:
+                    - /url: https://www.twitter.com/flipkart
+                    - img "Twitter" [ref=e1824]
+                  - link "YouTube" [ref=e1826] [cursor=pointer]:
+                    - /url: https://www.youtube.com/flipkart
+                    - img "YouTube" [ref=e1827]
+                  - link "Instagram" [ref=e1829] [cursor=pointer]:
+                    - /url: https://www.instagram.com/flipkart
+                    - img "Instagram" [ref=e1830]
+              - generic [ref=e1831]:
+                - generic [ref=e1832]: "Registered Office Address:"
+                - generic [ref=e1833]:
+                  - paragraph [ref=e1834]: Flipkart Internet Private Limited,
+                  - paragraph [ref=e1835]: Buildings Alyssa, Begonia &
+                  - paragraph [ref=e1836]: Clove Embassy Tech Village,
+                  - paragraph [ref=e1837]: Outer Ring Road, Devarabeesanahalli Village,
+                  - paragraph [ref=e1838]: Bengaluru, 560103,
+                  - paragraph [ref=e1839]: Karnataka, India
+                  - paragraph [ref=e1840]: "CIN : U51109KA2012PTC066107"
+                  - paragraph
+                  - paragraph [ref=e1841]:
+                    - text: "Telephone:"
+                    - link "044-45614700" [ref=e1842] [cursor=pointer]:
+                      - /url: tel:044-45614700
+                    - text: /
+                    - link "044-67415800" [ref=e1843] [cursor=pointer]:
+                      - /url: tel:044-67415800
+            - generic [ref=e1844]:
+              - generic [ref=e1845]:
+                - img "Become a Seller" [ref=e1846]
+                - link "Become a Seller" [ref=e1847] [cursor=pointer]:
+                  - /url: https://seller.flipkart.com/?utm_source=fkwebsite&utm_medium=websitedirect
+              - generic [ref=e1848]:
+                - img "Advertise" [ref=e1849]
+                - generic "Advertise" [ref=e1850]
+              - generic [ref=e1851]:
+                - img "Gift Cards" [ref=e1852]
+                - link "Gift Cards" [ref=e1853] [cursor=pointer]:
+                  - /url: /the-gift-card-store?otracker=footer_navlinks
+              - generic [ref=e1854]:
+                - img "Help Center" [ref=e1855]
+                - link "Help Center" [ref=e1856] [cursor=pointer]:
+                  - /url: /helpcentre?otracker=footer_navlinks
+              - generic [ref=e1857]: © 2007-2026 Flipkart.com
+              - img "Payment methods"
+    - main [ref=e1859]:
+      - generic:
+        - paragraph
+  - contentinfo

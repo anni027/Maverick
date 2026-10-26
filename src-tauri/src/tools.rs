@@ -92,18 +92,24 @@ impl PermissionGuard {
         }
         // `run_terminal_cmd` stays gated behind the bridge's own checks;
         // here we only audit.
-        self.audit(tool_name, args, decision, reason);
+        self.audit(tool_name, args, decision, reason).await;
         Ok(decision)
     }
 
-    fn audit(&self, tool_name: &str, args: &serde_json::Value, decision: bool, reason: &str) {
+    async fn audit(&self, tool_name: &str, args: &serde_json::Value, decision: bool, reason: &str) {
         let path = self
             .log_path
             .clone()
             .unwrap_or_else(|| resolve_workspace_dir().join("tool-decisions.log"));
         let mut preview = args.to_string();
         if preview.len() > 500 {
-            preview.truncate(500);
+            // Back off to a char boundary: `truncate` panics mid-codepoint,
+            // and tool args routinely carry non-ASCII text.
+            let mut cut = 500;
+            while cut > 0 && !preview.is_char_boundary(cut) {
+                cut -= 1;
+            }
+            preview.truncate(cut);
         }
         let line = format!(
             "{} tool={} allow={} reason={} args={}\n",
@@ -114,12 +120,23 @@ impl PermissionGuard {
             preview
         );
         use std::io::Write as _;
-        if let Ok(mut file) = std::fs::OpenOptions::new()
-            .create(true)
-            .append(true)
-            .open(path)
-        {
-            let _ = file.write_all(line.as_bytes());
+        // Off the async executor: blocking file I/O on a runtime thread
+        // stalls every other task sharing it. Still awaited (not detached)
+        // so tests and shutdown ordering stay deterministic.
+        let write = move || {
+            if let Ok(mut file) = std::fs::OpenOptions::new()
+                .create(true)
+                .append(true)
+                .open(path)
+            {
+                let _ = file.write_all(line.as_bytes());
+            }
+        };
+        match tokio::runtime::Handle::try_current() {
+            Ok(handle) => {
+                let _ = handle.spawn_blocking(write).await;
+            }
+            Err(_) => write(),
         }
     }
 }
@@ -184,7 +201,7 @@ pub fn build_chat_handle_with_window(
             query_params: Default::default(),
             env_http_headers: Default::default(),
             context_window: NonZeroU64::new(context_window.unwrap_or(128_000))
-                .expect("context window must be nonzero"),
+                .unwrap_or_else(|| NonZeroU64::new(128_000).expect("default context window nonzero")),
             reasoning_effort: None,
             stream_tool_calls: None,
         },
@@ -245,7 +262,7 @@ pub fn write_to_file_spec() -> xai_grok_sampling_types::ToolSpec {
             "properties": {
                 "path": {
                     "type": "string",
-                    "description": "Path to the file to create or write (relative to workspace or absolute)"
+                    "description": "Path to the file to create or write, relative to the workspace (absolute paths must already point inside the workspace; `..` escapes are rejected)"
                 },
                 "content": {
                     "type": "string",
@@ -258,6 +275,54 @@ pub fn write_to_file_spec() -> xai_grok_sampling_types::ToolSpec {
 }
 
 /// Execute a `write_to_file` call against the designated workspace directory.
+/// Lexically normalize `.` and `..` without touching disk (so it works
+/// for not-yet-created files). Symlinks are *not* resolved — callers that
+/// need symlink-aware comparison should canonicalize first.
+fn lexical_normalize(path: &std::path::Path) -> std::path::PathBuf {
+    let mut out = std::path::PathBuf::new();
+    for comp in path.components() {
+        use std::path::Component::*;
+        match comp {
+            Prefix(p) => out.push(p.as_os_str()),
+            RootDir => out.push(comp.as_os_str()),
+            CurDir => {}
+            ParentDir => {
+                out.pop();
+            }
+            Normal(c) => out.push(c),
+        }
+    }
+    out
+}
+
+/// Resolve a candidate write path for jail comparison: prefer a real
+/// canonical path (handles Windows `\\?\` verbatim prefixes and symlinks
+/// so both sides compare apples-to-apples); when the file doesn't exist
+/// yet, canonicalize the nearest existing ancestor and re-append the
+/// missing tail, then lexically normalize.
+fn jail_normalize(candidate: &std::path::Path) -> std::path::PathBuf {
+    if let Ok(canonical) = candidate.canonicalize() {
+        return canonical;
+    }
+    let mut missing: Vec<std::ffi::OsString> = Vec::new();
+    let mut base = candidate.to_path_buf();
+    while !base.exists() {
+        match base.file_name() {
+            Some(name) => {
+                missing.push(name.to_os_string());
+                base.pop();
+            }
+            None => break,
+        }
+    }
+    let base = base.canonicalize().unwrap_or(base);
+    let mut out = base;
+    for part in missing.iter().rev() {
+        out.push(part);
+    }
+    lexical_normalize(&out)
+}
+
 pub fn execute_write_to_file(
     args: &serde_json::Value,
     workspace_dir: &std::path::Path,
@@ -283,6 +348,39 @@ pub fn execute_write_to_file(
     } else {
         workspace_dir.join(path_str)
     };
+
+    // Jail the resolved path inside the workspace and refuse anything that
+    // escapes. Absolute paths are only honored when they already point
+    // inside the workspace. `jail_normalize` canonicalizes (or
+    // nearest-ancestor canonicalizes) so Windows `\\?\` verbatim prefixes
+    // and symlinks compare apples-to-apples on both sides.
+    let workspace_root = workspace_dir
+        .canonicalize()
+        .unwrap_or_else(|_| workspace_dir.to_path_buf());
+    let normalized = jail_normalize(&target_path);
+    if !normalized.starts_with(&workspace_root) {
+        return Err(format!(
+            "Refusing to write outside the workspace: {path_str}"
+        ));
+    }
+    let target_path = normalized;
+
+    // Reject Windows reserved device names (NUL, CON, PRN, AUX, COM1-9, LPT1-9)
+    // even with extensions (e.g., NUL.txt). Check the final path component.
+    if let Some(file_name) = target_path.file_name().and_then(|s| s.to_str()) {
+        let lower = file_name.to_ascii_lowercase();
+        let base = lower.split('.').next().unwrap_or("");
+        const RESERVED: &[&str] = &[
+            "con", "prn", "aux", "nul",
+            "com1", "com2", "com3", "com4", "com5", "com6", "com7", "com8", "com9",
+            "lpt1", "lpt2", "lpt3", "lpt4", "lpt5", "lpt6", "lpt7", "lpt8", "lpt9",
+        ];
+        if RESERVED.contains(&base) {
+            return Err(format!(
+                "Refusing to write to reserved device name: {path_str}"
+            ));
+        }
+    }
 
     if let Some(parent) = target_path.parent() {
         std::fs::create_dir_all(parent).map_err(|e| {
@@ -430,6 +528,43 @@ mod tests {
         assert!(target_file.exists());
         let read_back = std::fs::read_to_string(&target_file).unwrap();
         assert_eq!(read_back, "Hello World from write_to_file!");
+
+        let _ = std::fs::remove_dir_all(&temp_dir);
+    }
+
+    #[test]
+    fn test_execute_write_to_file_rejects_escapes() {
+        let temp_dir = std::env::temp_dir().join("maverick_test_ws_jail");
+        let _ = std::fs::create_dir_all(&temp_dir);
+
+        // `..` escape must be refused.
+        let traversal = serde_json::json!({
+            "path": "../maverick_jail_escape.txt",
+            "content": "evil"
+        });
+        let res = execute_write_to_file(&traversal, &temp_dir);
+        assert!(res.is_err(), "parent-dir escape must be refused: {res:?}");
+
+        // Absolute path outside the workspace must be refused.
+        let outside = std::env::temp_dir().join("maverick_jail_outside.txt");
+        let _ = std::fs::remove_file(&outside);
+        let absolute_out = serde_json::json!({
+            "path": outside.to_string_lossy(),
+            "content": "evil"
+        });
+        let res = execute_write_to_file(&absolute_out, &temp_dir);
+        assert!(res.is_err(), "absolute outside path must be refused: {res:?}");
+        assert!(!outside.exists(), "refused write must not create the file");
+
+        // Absolute path *inside* the workspace is honored.
+        let inside = temp_dir.join("nested/inside.txt");
+        let absolute_in = serde_json::json!({
+            "path": inside.to_string_lossy(),
+            "content": "ok"
+        });
+        let res = execute_write_to_file(&absolute_in, &temp_dir);
+        assert!(res.is_ok(), "absolute inside path failed: {:?}", res.err());
+        assert!(inside.exists());
 
         let _ = std::fs::remove_dir_all(&temp_dir);
     }

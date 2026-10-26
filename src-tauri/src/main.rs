@@ -9,7 +9,6 @@ fn main() -> anyhow::Result<()> {
         .init();
 
     tauri::Builder::default()
-        .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
@@ -27,8 +26,13 @@ fn main() -> anyhow::Result<()> {
         .invoke_handler(tauri::generate_handler![
             maverick_backend::commands::init_session,
             maverick_backend::commands::send_message,
+            maverick_backend::commands::set_generative_ui_prompt,
             maverick_backend::commands::cancel_message,
-            maverick_backend::commands::get_usage,
+            maverick_backend::commands::get_email_config,
+            maverick_backend::commands::set_email_config,
+            maverick_backend::commands::email_connect,
+            maverick_backend::commands::email_disconnect,
+            maverick_backend::commands::email_send,
             maverick_backend::commands::list_sessions,
             maverick_backend::commands::delete_session,
             maverick_backend::commands::rename_session,
@@ -42,19 +46,19 @@ fn main() -> anyhow::Result<()> {
             maverick_backend::commands::remove_api_key,
             maverick_backend::commands::set_provider_settings,
             maverick_backend::commands::get_provider_settings,
-            maverick_backend::commands::list_provider_settings,
             maverick_backend::commands::set_default_provider,
             maverick_backend::commands::get_default_provider,
             maverick_backend::commands::list_model_presets,
             maverick_backend::commands::save_model_presets,
             maverick_backend::commands::add_mcp_server_full,
+            maverick_backend::commands::computer_status,
+            maverick_backend::commands::computer_enable,
+            maverick_backend::commands::computer_disable,
             maverick_backend::commands::get_ui_config,
             maverick_backend::commands::set_ui_config,
-            maverick_backend::commands::get_context_config,
             maverick_backend::commands::set_context_config,
             maverick_backend::commands::get_budget_config,
             maverick_backend::commands::set_budget_config,
-            maverick_backend::commands::get_memory_config,
             maverick_backend::commands::set_memory_config,
             maverick_backend::commands::get_memory_text,
             maverick_backend::commands::save_memory_text,
@@ -63,7 +67,6 @@ fn main() -> anyhow::Result<()> {
             maverick_backend::commands::set_session_memory_enabled,
             maverick_backend::commands::answer_question,
             maverick_backend::commands::get_pending_questions,
-            maverick_backend::commands::get_interaction_config,
             maverick_backend::commands::set_interaction_config,
             maverick_backend::commands::get_session_workspace,
             maverick_backend::commands::set_session_workspace,
@@ -76,10 +79,6 @@ fn main() -> anyhow::Result<()> {
             maverick_backend::commands::install_skill,
             maverick_backend::commands::remove_skill,
             maverick_backend::commands::fetch_hub_skill,
-            maverick_backend::commands::list_hub_skills,
-            maverick_backend::commands::refresh_skills,
-            maverick_backend::commands::search_skills,
-            maverick_backend::commands::get_skill_content,
             maverick_backend::commands::list_marketplace_sources,
             maverick_backend::commands::add_marketplace_source,
             maverick_backend::commands::remove_marketplace_source,
@@ -91,6 +90,7 @@ fn main() -> anyhow::Result<()> {
             maverick_backend::commands::list_workspace_files,
             maverick_backend::commands::read_workspace_file,
             maverick_backend::commands::preview_workspace_file,
+            maverick_backend::commands::preview_server_start,
         ])
         .run(tauri::generate_context!())
         .map_err(anyhow::Error::from)

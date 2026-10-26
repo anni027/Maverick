@@ -10,7 +10,7 @@ export interface ProviderInfo {
   id: string;
   name: string;
   model: string;
-  kind: 'OpenAi' | 'Anthropic' | 'Subprocess' | 'Mcp';
+  kind: 'OpenAi' | 'Anthropic';
   config: ProviderConfig;
   /** Provider kind accepts a `reasoning_effort` request field. */
   supports_reasoning_effort?: boolean;
@@ -40,20 +40,11 @@ export interface ModelPreset {
   effort?: string | null;
 }
 
-export type ProviderConfig =
-  | { type: 'http' | 'Http'; baseUrl: string; apiKey?: string }
-  | { type: 'subprocess' | 'Subprocess'; command: string; args: string[]; env: Array<[string, string]> | Record<string, string> };
-
-export interface ToolDefinition {
-  name: string;
-  description: string;
-  parameters: Record<string, any>;
-}
-
-export interface AgentEvent {
-  session_id: string;
-  event: AgentEventType;
-}
+export type ProviderConfig = {
+  type: 'http' | 'Http';
+  baseUrl: string;
+  apiKey?: string;
+};
 
 export type AgentEventType =
   | { type: 'TurnStarted'; turn: number }
@@ -98,6 +89,12 @@ export interface UiConfig {
   show_tool_calls: boolean;
   auto_scroll: boolean;
   compact_mode: boolean;
+  /** Generative-UI (OpenUI) rendering + prompt injection. Optional so older
+   *  payloads still parse; absent means enabled. */
+  generative_ui?: boolean;
+  /** Auto-open the artifact viewer when the agent writes a previewable file.
+   *  Optional so older payloads still parse; absent means enabled. */
+  auto_preview?: boolean;
 }
 
 /** Fallback used before `get_ui_config` resolves, and to fill missing fields. */
@@ -106,7 +103,40 @@ export const DEFAULT_UI_CONFIG: UiConfig = {
   show_tool_calls: true,
   auto_scroll: true,
   compact_mode: false,
+  generative_ui: true,
+  auto_preview: true,
 };
+
+/** Gmail connection state from the backend (secrets never cross). Mirrors
+ *  Rust `EmailStatus`; part of the `get_config` snapshot as `email`. */
+export interface EmailStatus {
+  enabled: boolean;
+  connected: boolean;
+  account_email: string;
+  client_configured: boolean;
+}
+
+export const DEFAULT_EMAIL_STATUS: EmailStatus = {
+  enabled: true,
+  connected: false,
+  account_email: '',
+  client_configured: false,
+};
+
+/** Computer panel state — the agent's browser (Rust `ComputerStatus`).
+ *  `headless`/`persistent` are derived from the stored MCP args, so they
+ *  survive an app restart. `status` uses the MCP vocabulary plus `Disabled`. */
+export interface ComputerStatus {
+  enabled: boolean;
+  headless: boolean;
+  persistent: boolean;
+  profile_dir: string;
+  tool_count: number;
+  status: 'Ready' | 'Placeholder' | 'Error' | 'Disabled';
+  tools: string[];
+  /** No Chrome/Edge on a known path — a warning, not a failure. */
+  browser_found: boolean;
+}
 
 /** Unified cross-chat memory policy (`MemoryConfig` on the Rust side).
  *  Field names are snake_case — they deserialize straight into Rust. */
@@ -120,7 +150,7 @@ export interface MemoryConfig {
   max_chars: number;
 }
 
-/** Fallback used before `get_memory_config` resolves. */
+/** Fallback used before `get_config` delivers the saved memory policy. */
 export const DEFAULT_MEMORY_CONFIG: MemoryConfig = {
   enabled: true,
   auto_extract: true,
@@ -153,12 +183,12 @@ export interface Artifact {
   note?: string;
   /** Workspace path for file artifacts (live-refresh on rewrite). */
   path?: string;
+  /** Loopback URL that serves this file, so its relative CSS/JS resolve.
+   *  Absent for chat-only snippets, which render inline through `srcDoc`. */
+  url?: string;
   /** Bumped on every refresh so the iframe reloads. */
   rev?: number;
 }
-
-/** Languages whose chat code blocks get an Open-preview button. */
-export const PREVIEWABLE_LANGUAGES = ['html', 'htm', 'svg', 'markdown', 'md'];
 
 /** Normalize a fence language to an artifact language, or null. */
 export function previewLanguage(language: string): string | null {
@@ -204,20 +234,4 @@ export interface ToolCall {
 export interface ToolResult {
   toolCallId: string;
   content: string;
-}
-
-export interface SkillDto {
-  name: string;
-  display_name?: string | null;
-  description: string;
-  path: string;
-  scope: string;
-  enabled: boolean;
-  plugin_name?: string | null;
-  when_to_use?: string | null;
-  allowed_tools?: string[] | null;
-}
-
-export interface HubIndex {
-  skills: Record<string, { version: string; description: string; author?: string; path: string }>;
 }

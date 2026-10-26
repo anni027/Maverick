@@ -14,9 +14,20 @@
 //! cargo run -p xai-grok-sandbox --example sandbox_smoke_test -- read-only
 //! ```
 
+#[cfg(unix)]
 use std::path::Path;
+#[cfg(unix)]
 use xai_grok_sandbox::{ProfileName, SandboxManager};
 
+/// Kernel sandboxing (Seatbelt/Landlock) only exists on unix; the crate's
+/// `enforce` API surface is `cfg(all(feature = "enforce", unix))`, so there is
+/// nothing to smoke-test on other targets.
+#[cfg(not(unix))]
+fn main() {
+    eprintln!("sandbox_smoke_test: kernel sandboxing is only available on macOS/Linux.");
+}
+
+#[cfg(unix)]
 fn main() {
     // Parse profile from args (default: workspace).
     let profile_name = std::env::args()
@@ -124,6 +135,7 @@ fn main() {
     println!("\n✅ Smoke test complete");
 }
 
+#[cfg(unix)]
 fn test_read(label: &str, path: &Path) {
     if path.is_file() {
         match std::fs::read(path) {
@@ -153,6 +165,7 @@ fn test_read(label: &str, path: &Path) {
     }
 }
 
+#[cfg(unix)]
 fn test_write(label: &str, path: &Path) {
     match std::fs::write(path, b"sandbox-test") {
         Ok(()) => {

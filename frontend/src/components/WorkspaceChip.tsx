@@ -29,7 +29,7 @@ export default function WorkspaceChip({ sessionId }: { sessionId: string }) {
   const load = async (sid: string) => {
     try {
       const [i, r] = await Promise.all([
-        invoke<WorkspaceInfo>('get_session_workspace', { sessionId: sid }),
+        invoke<WorkspaceInfo>('get_session_workspace', { session_id: sid }),
         invoke<string[]>('list_recent_workspaces'),
       ]);
       setInfo(i);
@@ -65,7 +65,7 @@ export default function WorkspaceChip({ sessionId }: { sessionId: string }) {
   const apply = async (path: string | null) => {
     setBusy(true);
     try {
-      await invoke('set_session_workspace', { sessionId, path });
+      await invoke('set_session_workspace', { session_id: sessionId, path });
       await load(sessionId);
     } catch (e) {
       alert(String(e));

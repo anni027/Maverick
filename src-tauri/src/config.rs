@@ -11,8 +11,6 @@ use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use tokio::sync::RwLock;
 
-use crate::providers::ProviderConfig;
-
 /// Top-level configuration file.
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct MaverickConfig {
@@ -57,6 +55,10 @@ pub struct MaverickConfig {
     /// the key deserialize to enabled.
     #[serde(default)]
     pub interaction: InteractionConfig,
+    /// Gmail integration (OAuth tokens + client credentials). Legacy configs
+    /// without the key deserialize to disconnected.
+    #[serde(default)]
+    pub email: EmailConfig,
 }
 
 /// Context-management policy (Phase 3).
@@ -243,6 +245,71 @@ impl Default for InteractionConfig {
     }
 }
 
+/// Gmail integration (OAuth 2.0, Desktop/loopback flow).
+///
+/// Secrets live here alongside provider API keys — same file, same risk
+/// class, never logged and never sent to the frontend (see `EmailStatus`).
+/// Legacy `config.toml` files without `[email]` deserialize to disconnected.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EmailConfig {
+    /// Master switch: when false the email tools are unoffered. Default true
+    /// (tools are additionally gated on a stored refresh token).
+    #[serde(default = "default_true")]
+    pub enabled: bool,
+    /// Google OAuth Desktop client id (user's own GCP project).
+    #[serde(default)]
+    pub client_id: String,
+    /// Google OAuth client secret. Desktop clients are public by design —
+    /// this is an identifier, not a real secret — but it is still never
+    /// exposed to the frontend.
+    #[serde(default)]
+    pub client_secret: String,
+    /// Long-lived refresh token from the connect flow (empty = disconnected).
+    #[serde(default)]
+    pub refresh_token: String,
+    /// Cached short-lived access token (refreshed automatically).
+    #[serde(default)]
+    pub access_token: String,
+    /// Unix timestamp when `access_token` expires (0 = unknown/expired).
+    #[serde(default)]
+    pub expires_at: i64,
+    /// Gmail address the tokens belong to (from the profile endpoint).
+    #[serde(default)]
+    pub account_email: String,
+}
+
+impl Default for EmailConfig {
+    fn default() -> Self {
+        Self {
+            enabled: true,
+            client_id: String::new(),
+            client_secret: String::new(),
+            refresh_token: String::new(),
+            access_token: String::new(),
+            expires_at: 0,
+            account_email: String::new(),
+        }
+    }
+}
+
+/// Public email state for the frontend: connectivity without secrets.
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct EmailStatus {
+    pub enabled: bool,
+    pub connected: bool,
+    pub account_email: String,
+    pub client_configured: bool,
+}
+
+/// Frontend-writable email settings. `None` leaves the stored value alone,
+/// so the UI can update the switch without re-sending (or seeing) secrets.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EmailSettingsPatch {
+    pub enabled: Option<bool>,
+    pub client_id: Option<String>,
+    pub client_secret: Option<String>,
+}
+
 impl BudgetConfig {
     /// Effective per-segment turn budget (≥ 1).
     pub fn effective_max_turns(&self) -> u32 {
@@ -401,7 +468,7 @@ impl MarketplaceSource {
 }
 
 /// UI preferences.
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UiConfig {
     /// Theme: "dark", "light", or "system"
     #[serde(default = "default_theme")]
@@ -415,6 +482,31 @@ pub struct UiConfig {
     /// Compact mode (smaller message spacing)
     #[serde(default)]
     pub compact_mode: bool,
+    /// Generative UI (OpenUI): render ```openui-lang blocks as live components
+    /// and inject the component language into the agent system prompt.
+    #[serde(default = "default_true")]
+    pub generative_ui: bool,
+    /// Open the artifact viewer automatically when the agent writes a
+    /// previewable file (.html/.svg/.md), instead of waiting for a click.
+    #[serde(default = "default_true")]
+    pub auto_preview: bool,
+}
+
+/// Manual, not derived: a derived `Default` would give every field its
+/// `bool`/`String` type default (i.e. `false` / `""`), silently contradicting
+/// the `default_true` serde fallbacks that govern a missing config. Fresh
+/// profiles must boot with the same prefs an existing profile already has.
+impl Default for UiConfig {
+    fn default() -> Self {
+        Self {
+            theme: default_theme(),
+            show_tool_calls: default_true(),
+            auto_scroll: default_true(),
+            compact_mode: false,
+            generative_ui: default_true(),
+            auto_preview: default_true(),
+        }
+    }
 }
 
 fn default_theme() -> String {
@@ -570,32 +662,6 @@ impl MaverickConfig {
             .unwrap_or(default_model);
         (base, model, api_key)
     }
-
-    /// Get enabled MCP servers as ProviderConfig.
-    pub fn mcp_provider_configs(&self) -> Vec<(String, ProviderConfig)> {
-        self.mcp_servers
-            .iter()
-            .filter(|(_, c)| c.enabled)
-            .filter_map(|(name, config)| match config.transport.as_str() {
-                "stdio" => config.command.as_ref().map(|cmd| {
-                    let config = ProviderConfig::Subprocess {
-                        command: cmd.clone(),
-                        args: config.args.clone(),
-                        env: vec![],
-                    };
-                    (name.clone(), config)
-                }),
-                "http" => config.url.as_ref().map(|url| {
-                    let config = ProviderConfig::Http {
-                        base_url: url.clone(),
-                        api_key: None,
-                    };
-                    (name.clone(), config)
-                }),
-                _ => None,
-            })
-            .collect()
-    }
 }
 
 /// Runtime configuration holder with hot-reload support.
@@ -702,11 +768,6 @@ impl ConfigManager {
             .effective_provider_config(provider_id)
     }
 
-    /// Get MCP provider configs.
-    pub async fn mcp_provider_configs(&self) -> Vec<(String, ProviderConfig)> {
-        self.config.read().await.mcp_provider_configs()
-    }
-
     /// Add/update an MCP server.
     pub async fn add_mcp_server(&self, name: String, config: McpServerConfig) -> Result<()> {
         {
@@ -808,11 +869,6 @@ impl ConfigManager {
         self.persist().await
     }
 
-    /// Get context-management config.
-    pub async fn context_config(&self) -> ContextConfig {
-        self.config.read().await.context.clone()
-    }
-
     /// Set context-management config and persist.
     pub async fn set_context_config(&self, context: ContextConfig) -> Result<()> {
         {
@@ -827,8 +883,26 @@ impl ConfigManager {
         self.config.read().await.budget.clone()
     }
 
-    /// Set turn/segment budget config and persist.
-    pub async fn set_budget_config(&self, budget: BudgetConfig) -> Result<()> {
+    /// Set turn/segment budget config and persist. Oversize values are
+    /// clamped (older configs may carry larger numbers from before the
+    /// caps existed); only non-positive / non-finite values are rejected.
+    pub async fn set_budget_config(&self, mut budget: BudgetConfig) -> Result<()> {
+        if budget.max_turns == 0 {
+            anyhow::bail!("max_turns must be >= 1");
+        }
+        if budget.max_segments == 0 {
+            anyhow::bail!("max_segments must be >= 1");
+        }
+        if budget.avg_tokens_per_turn == 0 {
+            anyhow::bail!("avg_tokens_per_turn must be >= 1");
+        }
+        if let Some(cap) = budget.spend_cap_usd
+            && (!cap.is_finite() || cap < 0.0)
+        {
+            anyhow::bail!("spend_cap_usd must be >= 0");
+        }
+        budget.max_turns = budget.max_turns.min(1000);
+        budget.max_segments = budget.max_segments.min(100);
         {
             let mut config = self.config.write().await;
             config.budget = budget;
@@ -864,6 +938,32 @@ impl ConfigManager {
         self.persist().await
     }
 
+    /// Get Gmail integration config (includes secrets — Rust side only).
+    pub async fn email_config(&self) -> EmailConfig {
+        self.config.read().await.email.clone()
+    }
+
+    /// Replace Gmail integration config and persist.
+    pub async fn set_email_config(&self, email: EmailConfig) -> Result<()> {
+        {
+            let mut config = self.config.write().await;
+            config.email = email;
+        }
+        self.persist().await
+    }
+
+    /// Public email state: connectivity without secrets.
+    pub async fn email_status(&self) -> EmailStatus {
+        let email = self.config.read().await.email.clone();
+        EmailStatus {
+            enabled: email.enabled,
+            connected: !email.refresh_token.trim().is_empty(),
+            account_email: email.account_email,
+            client_configured: !email.client_id.trim().is_empty()
+                && !email.client_secret.trim().is_empty(),
+        }
+    }
+
     /// Get config for Tauri commands (serializable snapshot).
     pub async fn snapshot(&self) -> ConfigSnapshot {
         let config = self.config.read().await;
@@ -877,6 +977,13 @@ impl ConfigManager {
             budget: config.budget.clone(),
             memory: config.memory.clone(),
             interaction: config.interaction.clone(),
+            email: EmailStatus {
+                enabled: config.email.enabled,
+                connected: !config.email.refresh_token.trim().is_empty(),
+                account_email: config.email.account_email.clone(),
+                client_configured: !config.email.client_id.trim().is_empty()
+                    && !config.email.client_secret.trim().is_empty(),
+            },
         }
     }
 
@@ -904,6 +1011,8 @@ pub struct ConfigSnapshot {
     pub memory: MemoryConfig,
     #[serde(default)]
     pub interaction: InteractionConfig,
+    #[serde(default)]
+    pub email: EmailStatus,
 }
 
 #[cfg(test)]
@@ -1024,6 +1133,35 @@ theme = "dark"
         let encoded = toml::to_string_pretty(&config).expect("serializes");
         let decoded: MaverickConfig = toml::from_str(&encoded).expect("parses back");
         assert!(!decoded.interaction.ask_user_enabled);
+    }
+
+    #[test]
+    fn legacy_config_without_email_deserializes_disconnected() {
+        let toml = r#"
+default_provider = "openai"
+
+[ui]
+theme = "dark"
+"#;
+        let config: MaverickConfig = toml::from_str(toml).expect("legacy config parses");
+        assert!(config.email.enabled);
+        assert!(config.email.refresh_token.is_empty());
+        assert!(config.email.account_email.is_empty());
+    }
+
+    #[test]
+    fn email_round_trip_through_toml() {
+        let mut config = MaverickConfig::default();
+        config.email.client_id = "cid.apps.googleusercontent.com".to_string();
+        config.email.refresh_token = "1//refresh".to_string();
+        config.email.account_email = "user@example.com".to_string();
+        config.email.expires_at = 1_700_000_000;
+        let encoded = toml::to_string_pretty(&config).expect("serializes");
+        let decoded: MaverickConfig = toml::from_str(&encoded).expect("parses back");
+        assert_eq!(decoded.email.client_id, "cid.apps.googleusercontent.com");
+        assert_eq!(decoded.email.refresh_token, "1//refresh");
+        assert_eq!(decoded.email.account_email, "user@example.com");
+        assert_eq!(decoded.email.expires_at, 1_700_000_000);
     }
 
     /// The removed xAI provider migrates gracefully: stored "xai" defaults

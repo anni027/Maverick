@@ -29,6 +29,7 @@ use std::sync::atomic::{AtomicU64, Ordering};
 
 use anyhow::Result;
 use tokio::sync::{Mutex, RwLock};
+use tokio::sync::mpsc;
 use tokio_util::sync::CancellationToken;
 use xai_chat_state::ChatStateHandle;
 use xai_grok_sampling_types::{ConversationItem, ConversationRequest, ReasoningEffort, ToolSpec};
@@ -77,19 +78,42 @@ const MAX_TOOL_OUTPUT_BYTES: usize = 12_000;
 /// Bridge tools that only observe (recon): calling them never marks the run
 /// as acted, so briefing questions asked around them stay cap-free.
 /// Everything else — writes, commands, MCP tools, delegation — is an action.
-const READONLY_TOOLS: [&str; 6] = [
+const READONLY_TOOLS: [&str; 8] = [
     "read_file",
     "list_dir",
     "grep",
     "web_fetch",
     "duckduckgo_search",
     "get_task_output",
+    "list_emails",
+    "read_email",
 ];
 
 /// Whether dispatching `name` counts as the run acting (ends the briefing
 /// phase for question-cap purposes). `ask_user` itself never does.
 fn tool_marks_acted(name: &str) -> bool {
     name != crate::questions::ASK_USER_TOOL_NAME && !READONLY_TOOLS.contains(&name)
+}
+
+/// Remedy appended to provider errors caused by the model/gateway timing out
+/// mid-stream ("Upstream idle timeout", inference idle timeouts). The sampler
+/// already retried these, so a surfaced failure means the request is
+/// persistently too heavy for the gateway's idle window — the user needs to
+/// lighten the next attempt, not just resend blindly.
+fn friendly_provider_error(raw: &str) -> String {
+    let lower = raw.to_lowercase();
+    if lower.contains("upstream idle timeout")
+        || lower.contains("inference idle timeout")
+        || lower.contains("idle timeout")
+    {
+        format!(
+            "{raw} The model stopped responding mid-stream (the sampler already retried). \
+This usually means the request is too heavy for the gateway's idle window: \
+try resending, lowering the reasoning-effort tier, compacting context, or switching models."
+        )
+    } else {
+        raw.to_string()
+    }
 }
 
 /// Hard cap on auto-continued segments per [`AgentLoop::send_user_message_auto`]
@@ -117,6 +141,14 @@ const MEMORY_EXTRACT_MIN_CHARS: usize = 200;
 const MEMORY_EXTRACT_MIN_NEW_ITEMS: usize = 2;
 /// Timeout for the background extraction call — it must never hang the UI.
 const MEMORY_EXTRACT_TIMEOUT_SECS: u64 = 60;
+
+/// How long `send_user_message_auto` waits for a previous run to release the
+/// run lock before giving up. The UI's Stop button clears its spinner
+/// optimistically, so the very next send routinely arrives while the prior run
+/// is still unwinding — this wait absorbs that brief overlap. Anything still
+/// holding the lock past it is stuck, and a fast error beats hanging the
+/// composer forever (`PromptBar` drops input silently while busy).
+const RUN_LOCK_WAIT_SECS: u64 = 3;
 
 /// Injected as the user message that opens each auto-continued segment (2..).
 /// Terse on purpose.
@@ -252,8 +284,8 @@ pub struct AgentLoop {
     /// Optional config store for compaction policy, per-tool output budgets,
     /// and turn/segment budgets. `None` in unit tests (defaults apply).
     config_manager: Option<Arc<crate::config::ConfigManager>>,
-    /// Per-task token/cost ledger (§5.6-B). Shared so the `get_usage`
-    /// command can snapshot mid-run.
+    /// Per-task token/cost ledger (§5.6-B). Shared so a subagent can fold its
+    /// spend into the parent while the run is in flight.
     usage: Arc<Mutex<crate::usage::UsageLedger>>,
     /// Cancellation for the in-flight run (§5.6-C). Replaced at the start of
     /// every [`Self::send_user_message_auto`] so a stale cancel never leaks
@@ -298,6 +330,13 @@ pub struct AgentLoop {
     /// Workspace mapping store for the global-default fallback (None in
     /// tests and headless runs without an app-data dir).
     workspace_store: Option<crate::workspaces::WorkspaceStore>,
+    /// Session permission policy, consulted before every dispatched tool
+    /// call. `None` leaves calls ungated (tests, headless builders).
+    permission_guard: Option<crate::tools::PermissionGuard>,
+    /// Serializes concurrent `send_message_auto` calls per session. A second
+    /// send while one is in flight gets a busy error instead of interleaving
+    /// chat history, usage ledger, and sink events.
+    run_lock: tokio::sync::Mutex<()>,
 }
 
 impl AgentLoop {
@@ -321,7 +360,16 @@ impl AgentLoop {
             acted: std::sync::Mutex::new(false),
             session_workspace: RwLock::new(None),
             workspace_store: None,
+            permission_guard: None,
+            run_lock: tokio::sync::Mutex::new(()),
         }
+    }
+
+    /// Attach the session's permission policy. Without it every tool call
+    /// runs ungated.
+    pub fn with_permission_guard(mut self, guard: crate::tools::PermissionGuard) -> Self {
+        self.permission_guard = Some(guard);
+        self
     }
 
     /// Attach the config store (compaction policy + per-tool output budgets
@@ -354,11 +402,26 @@ impl AgentLoop {
         }
     }
 
+    /// The registry provider id recorded by `set_provider_id` (empty until
+    /// set). Needed to rebuild a loop without losing the id (session rename).
+    pub fn provider_id_label(&self) -> String {
+        self.provider_id
+            .lock()
+            .map(|guard| guard.clone())
+            .unwrap_or_default()
+    }
+
     /// Mark this loop as non-interactive (headless runs): the `ask_user`
     /// tool is unoffered and any call fails closed instead of waiting.
     pub fn with_interactive(mut self, interactive: bool) -> Self {
         self.interactive = interactive;
         self
+    }
+
+    /// Clone of the session's chat-state handle (e.g. to align the system
+    /// head with freshly generated prompt blocks). `Arc`-backed, cheap.
+    pub fn chat_handle(&self) -> ChatStateHandle {
+        self.chat.clone()
     }
 
     /// Resolve a pending question batch with the user's aligned answers.
@@ -517,6 +580,116 @@ impl AgentLoop {
                 false,
             ),
             Err(e) => (format!("Error forgetting memory: {e}"), true),
+        }
+    }
+
+    /// Email tools are offered on parent loops only (like `memory`/`ask_user`:
+    /// a delegated child must never send mail as the user) and only when the
+    /// account is connected. Without a config store (tests) they stay hidden.
+    async fn email_offerable(&self) -> bool {
+        if self.subagent_depth >= SUBAGENT_MAX_DEPTH {
+            return false;
+        }
+        match &self.config_manager {
+            Some(cm) => {
+                let cfg = cm.email_config().await;
+                cfg.enabled && !cfg.refresh_token.trim().is_empty()
+            }
+            None => false,
+        }
+    }
+
+    /// Execute the `send_email` agent tool (shares the Settings path).
+    async fn dispatch_email_send(&self, args: &serde_json::Value) -> (String, bool) {
+        let Some(cm) = self.config_manager.clone() else {
+            return (
+                "Error: email is not configured for this session.".to_string(),
+                true,
+            );
+        };
+        let parsed = match crate::email::parse_send_args(args) {
+            Ok(a) => a,
+            Err(e) => return (format!("Error: {e}"), true),
+        };
+        match crate::commands::email_send_inner(
+            &cm,
+            &parsed.to,
+            &parsed.subject,
+            &parsed.body_text,
+            parsed.body_html.as_deref(),
+            &parsed.cc,
+            &parsed.bcc,
+        )
+        .await
+        {
+            Ok(id) => (format!("Email sent to {} (Gmail id {id}).", parsed.to), false),
+            Err(e) => (format!("Error: {e}"), true),
+        }
+    }
+
+    /// Execute the `list_emails` agent tool.
+    async fn dispatch_email_list(&self, args: &serde_json::Value) -> (String, bool) {
+        let Some(cm) = self.config_manager.clone() else {
+            return (
+                "Error: email is not configured for this session.".to_string(),
+                true,
+            );
+        };
+        let parsed = crate::email::parse_list_args(args);
+        let (access_token, _) = match crate::email::valid_access_token(&cm).await {
+            Ok(pair) => pair,
+            Err(e) => return (format!("Error: {e}"), true),
+        };
+        let ids = match crate::email::list_message_ids(&access_token, &parsed.query, parsed.max_results).await
+        {
+            Ok(ids) => ids,
+            Err(e) => return (format!("Error: {e}"), true),
+        };
+        if ids.is_empty() {
+            return ("No messages matched.".to_string(), false);
+        }
+        let mut lines = Vec::with_capacity(ids.len());
+        for id in &ids {
+            match crate::email::get_metadata(&access_token, id).await {
+                Ok(m) => lines.push(format!("- {} | {} | {} (id: {})", m.date, m.from, m.subject, m.id)),
+                Err(_) => lines.push(format!("- (unreadable metadata) (id: {id})")),
+            }
+        }
+        (lines.join("\n"), false)
+    }
+
+    /// Execute the `read_email` agent tool.
+    async fn dispatch_email_read(&self, args: &serde_json::Value) -> (String, bool) {
+        let Some(cm) = self.config_manager.clone() else {
+            return (
+                "Error: email is not configured for this session.".to_string(),
+                true,
+            );
+        };
+        let id = args
+            .get("id")
+            .and_then(|v| v.as_str())
+            .map(str::trim)
+            .filter(|s| !s.is_empty());
+        let Some(id) = id else {
+            return (
+                "Error: `id` (a Gmail message id from `list_emails`) is required.".to_string(),
+                true,
+            );
+        };
+        let (access_token, _) = match crate::email::valid_access_token(&cm).await {
+            Ok(pair) => pair,
+            Err(e) => return (format!("Error: {e}"), true),
+        };
+        match crate::email::get_message(&access_token, id).await {
+            Ok(m) => (
+                format!(
+                    "From: {}\nTo: {}\nDate: {}\nSubject: {}\n\n{}",
+                    m.from, m.to, m.date, m.subject, m.body
+                ),
+                false,
+            ),
+            Err(e) => (format!("Error: {e}"), true),
         }
     }
 
@@ -885,6 +1058,14 @@ impl AgentLoop {
         {
             specs.push(crate::questions::ask_user_tool_spec());
         }
+        // Gmail tools: parent loops with a connected account only. Offering
+        // them is per-turn, so connecting/disconnecting in Settings takes
+        // effect on the very next turn without a restart.
+        if self.email_offerable().await {
+            specs.push(crate::email::send_email_tool_spec());
+            specs.push(crate::email::list_emails_tool_spec());
+            specs.push(crate::email::read_email_tool_spec());
+        }
         specs
     }
 
@@ -952,7 +1133,6 @@ impl AgentLoop {
             } else {
                 self.tool_specs().await
             };
-            let spec_count = specs.len();
 
             if wrap_up {
                 self.chat
@@ -983,29 +1163,49 @@ impl AgentLoop {
 
             sink.on_event(AgentEvent::TurnStarted { turn }).await;
             sink.on_event(AgentEvent::ThinkingStarted { turn }).await;
-            sink.on_event(AgentEvent::ThinkingStep {
-                turn,
-                text: format!("building request for turn {turn} ({spec_count} tool(s) offered)"),
-            })
-            .await;
+            // NOTE: no per-turn "building request" ThinkingStep here. It fired
+            // on every turn (3 emits/turn total), each one appending to the
+            // transcript's thinking steps and re-rendering the frontend.
 
             let provider = self.provider.read().await.clone();
-            let response = tokio::select! {
-                r = provider.complete(request) => match r {
-                    Ok(r) => r,
-                    Err(e) => {
-                        sink.on_event(AgentEvent::Error {
-                            message: e.to_string(),
-                        })
-                        .await;
-                        anyhow::bail!(e);
+            // Live token streaming: the provider forwards sampler deltas into
+            // `delta_rx` while `complete_streaming` awaits the final response.
+            let (delta_tx, mut delta_rx) = mpsc::unbounded_channel::<String>();
+            let mut provider_fut = std::pin::pin!(provider.complete_streaming(request, delta_tx));
+            let mut streamed_text = false;
+            let mut deltas_open = true;
+            let response = loop {
+                tokio::select! {
+                    biased;
+                    r = &mut provider_fut => match r {
+                        Ok(r) => break r,
+                        Err(e) => {
+                            let message = friendly_provider_error(&e.to_string());
+                            sink.on_event(AgentEvent::Error {
+                                message: message.clone(),
+                            })
+                            .await;
+                            anyhow::bail!(message);
+                        }
+                    },
+                    d = delta_rx.recv(), if deltas_open => match d {
+                        Some(text) => {
+                            streamed_text = true;
+                            sink.on_event(AgentEvent::AssistantText { text }).await;
+                        }
+                        None => deltas_open = false,
+                    },
+                    () = token.cancelled() => {
+                        sink.on_event(AgentEvent::Cancelled { segment }).await;
+                        anyhow::bail!("run cancelled by user");
                     }
-                },
-                () = token.cancelled() => {
-                    sink.on_event(AgentEvent::Cancelled { segment }).await;
-                    anyhow::bail!("run cancelled by user");
                 }
             };
+            // Deltas that raced past provider completion are still owed to the UI.
+            while let Ok(text) = delta_rx.try_recv() {
+                streamed_text = true;
+                sink.on_event(AgentEvent::AssistantText { text }).await;
+            }
 
             sink.on_event(AgentEvent::ThinkingStep {
                 turn,
@@ -1034,9 +1234,11 @@ impl AgentLoop {
                 anyhow::bail!(message);
             }
 
-            // Stream the assistant text to the UI.
+            // Full-text fallback: only when the provider streamed no deltas
+            // (external/non-native backends). Re-emitting streamed text would
+            // render the reply twice.
             let text = response.assistant_text();
-            if !text.is_empty() {
+            if !text.is_empty() && !streamed_text {
                 sink.on_event(AgentEvent::AssistantText { text: text.clone() })
                     .await;
             }
@@ -1177,6 +1379,10 @@ impl AgentLoop {
         }
 
         sink.on_event(AgentEvent::TurnCompleted).await;
+        // Durability for the batched JSONL writes (`write_item` flushes by
+        // buffer size, not per line): push everything to disk at the segment
+        // boundary. Fire-and-forget — a dead actor simply drops it.
+        self.chat.flush();
         Ok(RunOutcome {
             hit_budget,
             wrap_up_text,
@@ -1202,6 +1408,18 @@ impl AgentLoop {
                 *acted = true;
             }
         }
+        if let Some(guard) = &self.permission_guard {
+            match guard.check(name, args).await {
+                Ok(true) => {}
+                Ok(false) => {
+                    return (
+                        format!("`{name}` was blocked by this session's permission policy."),
+                        true,
+                    )
+                }
+                Err(e) => return (format!("permission check failed for `{name}`: {e}"), true),
+            }
+        }
         if name == SUBAGENT_TOOL_NAME {
             return self.dispatch_subagent(args, token, sink).await;
         }
@@ -1213,6 +1431,15 @@ impl AgentLoop {
         }
         if name == crate::questions::ASK_USER_TOOL_NAME {
             return self.dispatch_ask_user(args, token, sink).await;
+        }
+        if name == crate::email::EMAIL_SEND_TOOL_NAME {
+            return self.dispatch_email_send(args).await;
+        }
+        if name == crate::email::EMAIL_LIST_TOOL_NAME {
+            return self.dispatch_email_list(args).await;
+        }
+        if name == crate::email::EMAIL_READ_TOOL_NAME {
+            return self.dispatch_email_read(args).await;
         }
         match name {
             "write_to_file" | "write_file" | "create_file" => {
@@ -1308,6 +1535,9 @@ impl AgentLoop {
             // Children inherit the parent session's workspace.
             session_workspace: RwLock::new(self.session_workspace.read().await.clone()),
             workspace_store: None,
+            // …and its permission policy, so delegation is not a way around it.
+            permission_guard: self.permission_guard.clone(),
+            run_lock: tokio::sync::Mutex::new(()),
         };
         // Child budget: its own turn cap, single segment, no auto-continue.
         // Raw child output stays out of the parent context — the summary below
@@ -1332,7 +1562,7 @@ impl AgentLoop {
         ))
         .await;
         // Merge child usage into the parent ledger so subagent spend counts
-        // toward the parent's cap and `get_usage`. The child ledger is
+        // toward the parent's cap and totals. The child ledger is
         // local to this call and its segment has finished, so holding both
         // guards briefly here cannot deadlock against the parent paths
         // (which never touch a child ledger).
@@ -1392,18 +1622,6 @@ impl AgentLoop {
     /// True when the accumulated cost exceeds the configured spend cap.
     async fn spend_capped(&self, budget: &BudgetConfig) -> bool {
         self.usage.lock().await.exceeds_cap(budget.spend_cap_usd)
-    }
-
-    /// True when the tool-bridge todo resource holds pending or in-progress
-    /// items. An absent resource (the model never called `todo_write`) counts
-    /// as "nothing open".
-    ///
-    /// Advisory only: no longer a stop gate for the segmented runner (a model
-    /// that never calls `todo_write` must still be able to run long tasks).
-    /// Used by tests and retained for callers that want the signal.
-    #[allow(dead_code)]
-    async fn has_open_todos(&self) -> bool {
-        !self.open_todo_labels().await.is_empty()
     }
 
     /// Labels of pending/in-progress todos (for compaction checkpoints).
@@ -1498,6 +1716,27 @@ impl AgentLoop {
         text: &str,
         sink: Arc<dyn AgentEventSink>,
     ) -> Result<()> {
+        // Bounded wait, never an unbounded one. A previous run that is still
+        // unwinding (the common case right after Stop, where the UI already
+        // showed `isLoading = false`) must not hang this call forever: an
+        // unresolved `send_message` leaves the composer permanently "busy"
+        // and silently drops every later message. Fail fast with a message the
+        // frontend already recognises so the user gets told instead of stuck.
+        // Held (never read) for its RAII scope: the lock must stay taken for
+        // the whole run so a second send serialises behind this one.
+        let _run_guard = match tokio::time::timeout(
+            std::time::Duration::from_secs(RUN_LOCK_WAIT_SECS),
+            self.run_lock.lock(),
+        )
+        .await
+        {
+            Ok(guard) => guard,
+            Err(_) => {
+                return Err(anyhow::anyhow!(
+                    "A run is already in progress for this session - stop it first"
+                ))
+            }
+        };
         let budget = self.budget().await;
         let token = self.reset_cancel_token();
         // Per-message ledger: a tripped cap must not poison later messages on
@@ -1507,10 +1746,15 @@ impl AgentLoop {
         if let Ok(mut asked) = self.questions_asked.lock() {
             *asked = 0;
         }
+        // Fresh briefing gate every run: task 2 must not inherit task 1's acted flag.
+        if let Ok(mut acted) = self.acted.lock() {
+            *acted = false;
+        }
         // Unbounded running is an explicit `spend_cap_usd` opt-in *and* an
         // explicit auto-continue opt-in: a configured `auto_continue: false`
-        // means one segment even when a cap is set.
-        let capped = budget.spend_cap_usd.is_some();
+        // means one segment even when a cap is set. A negative cap is invalid
+        // (rejected at set time) and must not enable unbounded running.
+        let capped = matches!(budget.spend_cap_usd, Some(cap) if cap >= 0.0);
         let unbounded = budget.auto_continue && capped;
         let max_segments = if budget.auto_continue {
             budget.effective_max_segments()
@@ -1774,6 +2018,49 @@ mod tests {
         (result, sink, chat)
     }
 
+    /// A wedged previous run that never released the run lock must fail this
+    /// send fast instead of blocking it indefinitely. An unresolved
+    /// `send_message` strands the composer's busy state, and `PromptBar` then
+    /// drops every later message with no feedback — the recurring "I type and
+    /// nothing answers" failure.
+    #[tokio::test]
+    async fn send_fails_fast_instead_of_blocking_on_a_held_run_lock() {
+        let (agent, sink) = build_agent(
+            vec![ScriptedTurn {
+                text: "never reached",
+                tool_calls: vec![],
+            }],
+            false,
+        )
+        .await;
+
+        // Stand in for a run that is still holding the lock (the common state
+        // immediately after Stop, whose spinner the UI clears optimistically).
+        let held = agent.run_lock.lock().await;
+
+        let started = std::time::Instant::now();
+        let result = agent.send_user_message_auto("second send", sink).await;
+        let elapsed = started.elapsed();
+
+        let err = result.expect_err("a held run lock must fail the send");
+        assert!(
+            err.to_string().contains("already in progress"),
+            "unexpected error: {err}"
+        );
+        // It must actually wait out the grace period (so a run that is merely
+        // unwinding still gets to finish) and then give up promptly.
+        assert!(
+            elapsed >= std::time::Duration::from_secs(RUN_LOCK_WAIT_SECS - 1),
+            "returned in {elapsed:?} — the grace wait should elapse"
+        );
+        assert!(
+            elapsed < std::time::Duration::from_secs(RUN_LOCK_WAIT_SECS + 15),
+            "blocked for {elapsed:?} — this must not hang the composer"
+        );
+
+        drop(held);
+    }
+
     /// Build an agent over the scripted provider and return it with the sink,
     /// so tests can seed tool-bridge resources before driving a run.
     async fn build_agent(
@@ -1870,6 +2157,8 @@ mod tests {
             acted: std::sync::Mutex::new(false),
             session_workspace: RwLock::new(None),
             workspace_store: None,
+            permission_guard: None,
+            run_lock: tokio::sync::Mutex::new(()),
         });
         (agent, manager)
     }
@@ -2121,30 +2410,30 @@ mod tests {
     /// `has_open_todos`: true with pending/in-progress items, false when all
     /// completed/cancelled, and false when the resource is absent entirely.
     #[tokio::test]
-    async fn has_open_todos_reflects_todo_state() {
+    async fn open_todos_track_todo_state() {
         let chat = crate::tools::build_chat_handle("phase2-todos", None).expect("chat handle");
         let tools = test_bridge("p2-todos").await;
         let provider: Arc<dyn Provider> = Arc::new(ScriptedProvider::new(vec![]));
         let agent = AgentLoop::new(chat, tools, provider);
 
-        // Absent resource -> false.
-        assert!(!agent.has_open_todos().await);
+        // Absent resource -> nothing open.
+        assert!(agent.open_todo_labels().await.is_empty());
 
-        // Pending item -> true.
+        // Pending item -> open.
         seed_todos(&agent, vec![("a", TodoStatus::Pending)]).await;
-        assert!(agent.has_open_todos().await);
+        assert!(!agent.open_todo_labels().await.is_empty());
 
-        // In-progress item -> true.
+        // In-progress item also counts.
         seed_todos(&agent, vec![("b", TodoStatus::InProgress)]).await;
-        assert!(agent.has_open_todos().await);
+        assert!(!agent.open_todo_labels().await.is_empty());
 
-        // Everything completed/cancelled -> false.
+        // Everything completed/cancelled -> nothing open.
         seed_todos(
             &agent,
             vec![("a", TodoStatus::Completed), ("b", TodoStatus::Cancelled)],
         )
         .await;
-        assert!(!agent.has_open_todos().await);
+        assert!(agent.open_todo_labels().await.is_empty());
     }
 
     /// Provider always tool-calls, todos stay open: the runner must cross two
@@ -2215,7 +2504,10 @@ mod tests {
             .send_user_message_auto("run the scripted scenario", sink.clone())
             .await;
         result.expect("run must succeed");
-        assert!(agent.has_open_todos().await, "todos remain open");
+        assert!(
+            !agent.open_todo_labels().await.is_empty(),
+            "todos remain open"
+        );
 
         let boundaries = sink
             .events()
@@ -3541,6 +3833,19 @@ mod tests {
             assert!(tool_marks_acted(action), "{action} is an action");
         }
         assert!(!tool_marks_acted(crate::questions::ASK_USER_TOOL_NAME));
+    }
+
+    /// Upstream/idle timeouts get an actionable remedy; other errors pass
+    /// through unchanged.
+    #[test]
+    fn friendly_provider_error_guides_on_idle_timeout() {
+        let msg = friendly_provider_error(
+            "openai sampling failed: stream error (unknown): Upstream idle timeout exceeded",
+        );
+        assert!(msg.contains("Upstream idle timeout exceeded"));
+        assert!(msg.contains("reasoning-effort"));
+        let plain = friendly_provider_error("openai sampling failed: HTTP 401 unauthorized");
+        assert_eq!(plain, "openai sampling failed: HTTP 401 unauthorized");
     }
 
     /// Answering an unknown id reports false (drives the command's error).

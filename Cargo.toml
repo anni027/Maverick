@@ -425,7 +425,11 @@ codegen-units = 1
 strip = true
 
 [profile.dev]
-panic = "abort"
+# NOTE: `panic = "abort"` was removed: it breaks `cargo test` /
+# `cargo clippy --all-targets` (the test harness needs `unwind`).
+# If abort-on-panic is wanted for a dist profile, put it on a
+# dedicated `[profile.*-dist]` that inherits from release instead.
+panic = "unwind"
 split-debuginfo = "unpacked"
 codegen-units = 128
 debug = "line-tables-only"

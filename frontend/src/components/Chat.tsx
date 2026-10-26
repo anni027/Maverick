@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { listen, UnlistenFn } from '@tauri-apps/api/event';
-import { Message, AgentEventType, Artifact, MemoryStats, PendingBatch, UiConfig, ProviderInfo, ReasoningProfile, ModelPreset } from '../types';
+import { Message, AgentEventType, Artifact, PendingBatch, UiConfig, ProviderInfo, ReasoningProfile, ModelPreset } from '../types';
 import { artifactLanguageForPath } from '../types';
 import { type RunStatusData } from './RunStatusBar';
 import ApertureLogo, { ApertureTile } from './ApertureLogo';
@@ -14,6 +14,56 @@ import ArtifactDrawer from './ArtifactDrawer';
 import QuestionCard from './QuestionCard';
 import ThoughtLine from './ThoughtLine';
 import CallChip, { CallChipIcon } from './CallChip';
+import { OpenUiBlock, splitOpenUiSegments, MarkdownProseBlock, type ActionEvent as OpenUiActionEvent } from '../openui/library';
+import { EmailDraftBlock, isEmailDraftCode } from '../openui/email-drafts';
+
+/** Assistant body: EVERYTHING renders through the OpenUI pipeline — prose as
+ *  the `Markdown` component (`root = Markdown()` + text via context), fenced
+ *  segments as live generative UI. The plain MarkdownRenderer path survives
+ *  only as the escape hatch for generative_ui === false. */
+function AssistantContent({ content, streaming, genUiEnabled, onOpenArtifact, onOpenUiAction }: {
+  content: string;
+  streaming?: boolean;
+  genUiEnabled: boolean;
+  onOpenArtifact?: (a: { language: string; code: string; title: string }) => void;
+  onOpenUiAction: (event: OpenUiActionEvent) => void;
+}) {
+  const segments = useMemo(
+    () => (genUiEnabled ? splitOpenUiSegments(content) : null),
+    [content, genUiEnabled],
+  );
+  // Escape hatch: with generative UI off, this is byte-for-byte the old path.
+  if (!genUiEnabled) {
+    return <MarkdownRenderer content={content} onOpenArtifact={onOpenArtifact} streaming={streaming} />;
+  }
+  if (!segments || segments.every(s => s.kind === 'text')) {
+    return <MarkdownProseBlock text={content} isStreaming={streaming} onOpenArtifact={onOpenArtifact} />;
+  }
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      {segments.map((seg, i) => {
+        if (seg.kind === 'text') {
+          return seg.body.trim() ? (
+            <MarkdownProseBlock key={i} text={seg.body} isStreaming={streaming} onOpenArtifact={onOpenArtifact} />
+          ) : null;
+        }
+        if (!seg.body.trim()) return null;
+        // A fence still missing its closer while streaming is a UI under
+        // construction — show a quiet placeholder, not flashing raw code.
+        if (!seg.complete && streaming) {
+          return <div key={i} style={{ fontSize: '13px', color: 'var(--muted)' }}>Composing interface…</div>;
+        }
+        // Email drafts render with the react-email library; everything else
+        // with the Maverick component library.
+        return isEmailDraftCode(seg.body) ? (
+          <EmailDraftBlock key={i} code={seg.body} isStreaming={streaming ?? false} onAction={onOpenUiAction} />
+        ) : (
+          <OpenUiBlock key={i} code={seg.body} isStreaming={streaming ?? false} onAction={onOpenUiAction} />
+        );
+      })}
+    </div>
+  );
+}
 
 /// Fallback effort tiers: shown while a model's profile loads, and for kinds
 /// where the backend reports only its kind-wide default. Sent as strings; the
@@ -56,8 +106,23 @@ const pickHeadline = (exclude?: string): string => {
   return next;
 };
 
-/// Tool names that create files (artifact viewer sources).
-const WRITE_TOOL_NAMES = ['write_to_file', 'write_file', 'create_file'];
+/// Tool names that create or modify workspace files (artifact viewer sources).
+/// `search_replace` is the agent's Edit tool — the one it actually reaches for,
+/// and with an empty `old_string` it creates a file. Missing it meant a whole
+/// "write three files" run produced no preview at all.
+const WRITE_TOOL_NAMES = [
+  'write_to_file', 'write_file', 'create_file',
+  'search_replace', 'hashline_edit', 'edit_file', 'apply_patch',
+];
+
+/// The backend prefixes a failed tool result with this marker. Anything else
+/// from a write-family tool means the file changed on disk.
+const TOOL_ERROR_PREFIX = '[TOOL_ERROR] ';
+
+/** Did this write-family tool call succeed? */
+function writeSucceeded(output: string | undefined): boolean {
+  return !!output && !output.startsWith(TOOL_ERROR_PREFIX);
+}
 
 /** Path a write-family tool call targeted: live args JSON first, else the
  *  "Successfully wrote N bytes to P" result line (reloaded transcripts have
@@ -123,9 +188,11 @@ interface ChatProps {
   /** App pushes a preset's effort down after apply; `token` busts re-applies
    *  of the same preset (same tier). */
   presetEffort?: { tier: string; token: number } | null;
+  /** Live run state mirrored up for Settings → Status. */
+  onRunStatus?: (status: RunStatusData | null, summary: string | null) => void;
 }
 
-export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvider, onProviderChange, presets = [], onApplyPreset, onSavePresetRequest, onEffortChange, presetEffort }: ChatProps) {
+export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvider, onProviderChange, presets = [], onApplyPreset, onSavePresetRequest, onEffortChange, presetEffort, onRunStatus }: ChatProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [attachments, setAttachments] = useState<Attachment[]>([]);
@@ -139,6 +206,13 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
   const [efforts, setEfforts] = useState<string[]>(DEFAULT_EFFORTS);
   const [profile, setProfile] = useState<ReasoningProfile | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  // The `agent-event` listener closure binds once per session switch, so
+  // async continuations must read live values through these ref mirrors —
+  // closure-captured state stays frozen at its mount-time value.
+  const isLoadingRef = useRef(false);
+  isLoadingRef.current = isLoading;
+  const uiRef = useRef(ui);
+  uiRef.current = ui;
   const [showMcpDialog, setShowMcpDialog] = useState(false);
   const [mcpName, setMcpName] = useState('');
   const [mcpCommand, setMcpCommand] = useState('');
@@ -157,7 +231,7 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
     const provider = providers.find(p => p.id === selectedProvider);
     setProfile(null);
     invoke<ReasoningProfile>('get_model_reasoning', {
-      providerId: selectedProvider,
+      provider_id: selectedProvider,
       model: provider?.model ?? null,
     })
       .then(resolved => {
@@ -204,13 +278,49 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
       return (p.effort || '') === (effort || '');
     }) ?? null;
 
-  // ── Live run status (banners + attention; no status bar readout) ────
-  const [, setRunStatus] = useState<RunStatusData | null>(null);
+  // Composer model list, memoized: rebuilding it per render (10x/sec while
+  // streaming) busts PromptBar's internal memo and re-renders the menu.
+  const composerModels = useMemo<PromptBarModel[]>(() => [
+    ...presets.map<PromptBarModel>(p => ({
+      key: `preset:${p.id}`,
+      name: p.name,
+      tag: p.model,
+      description: `${providers.find(x => x.id === p.provider_id)?.name ?? p.provider_id} · ${p.effort || 'default effort'}`,
+    })),
+    ...providers.map<PromptBarModel>(p => ({
+      key: p.id,
+      name: p.name,
+      tag: p.model,
+      description:
+        p.id === selectedProvider
+          ? profile
+            ? profile.supported
+              ? `Reasoning: ${efforts.join(' · ')}`
+              : 'No reasoning effort'
+            : undefined
+          : p.supports_reasoning_effort
+            ? 'Reasoning models supported'
+            : undefined,
+    })),
+  ], [presets, providers, selectedProvider, profile, efforts]);
+
+  // Visible transcript rows, memoized: the filter allocated a new array per
+  // render (~10x/sec while streaming) even when nothing changed.
+  const visibleMessages = useMemo(
+    () => (ui.show_tool_calls ? messages : messages.filter(m => m.role !== 'tool')),
+    [ui.show_tool_calls, messages],
+  );
+
+  // ── Live run status (status bar + banners + attention) ─────────────────
+  const [runStatus, setRunStatus] = useState<RunStatusData | null>(null);
   const [runBanner, setRunBanner] = useState<{ kind: 'warn' | 'cap'; text: string } | null>(null);
-  const [, setRunSummary] = useState<string | null>(null);
+  const [runSummary, setRunSummary] = useState<string | null>(null);
   // Ref mirror: the `agent-event` listener closure is bound on mount, so
   // handlers must read run state from refs, never from stale state.
   const runStatusRef = useRef<RunStatusData | null>(null);
+  // Last wall-clock push of token totals to React state (UsageUpdated events
+  // arrive per token batch; mirroring each one re-renders the whole app).
+  const lastStatusPushRef = useRef(0);
   const toolStartRef = useRef<{ name: string; at: number; args?: string }[]>([]);
   const runIdRef = useRef(0);
 
@@ -231,30 +341,20 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
   useEffect(() => {
     setGreeting(pickHeadline());
   }, [sessionId]);
-  // Composer memory indicator: refresh counts when the session changes and
-  // when a run settles (background extraction may have added facts).
-  const [memStats, setMemStats] = useState<MemoryStats | null>(null);
-  useEffect(() => {
-    let cancelled = false;
-    invoke<MemoryStats>('get_memory_stats', { sessionId })
-      .then(s => { if (!cancelled) setMemStats(s); })
-      .catch(() => {});
-    return () => { cancelled = true; };
-  }, [sessionId, isLoading]);
   // Per-session memory kill-switch (composer + menu). Loop-local on the
   // backend: re-sync whenever the visible session changes so a fresh loop
   // (new/reopened session) picks up this session's choice.
   const [memoryOff, setMemoryOff] = useState<Record<string, boolean>>({});
   const memoryEnabled = !(memoryOff[sessionId] ?? false);
   useEffect(() => {
-    invoke('set_session_memory_enabled', { sessionId, enabled: !(memoryOff[sessionId] ?? false) }).catch(() => {});
+    invoke('set_session_memory_enabled', { session_id: sessionId, enabled: !(memoryOff[sessionId] ?? false) }).catch(() => {});
     // Only the session switch re-syncs; the toggle pushes directly.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionId]);
   const toggleMemory = () => {
     const next = !memoryEnabled;
     setMemoryOff(prev => ({ ...prev, [sessionId]: !next }));
-    invoke('set_session_memory_enabled', { sessionId, enabled: next }).catch(e => alert(String(e)));
+    invoke('set_session_memory_enabled', { session_id: sessionId, enabled: next }).catch(e => alert(String(e)));
   };
   // Artifact viewer drawer (Claude-style): chat code blocks + workspace
   // files the agent wrote. Cleared on session switch.
@@ -263,65 +363,122 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
   const [artifactOpen, setArtifactOpen] = useState(false);
   const artifactsRef = useRef<Artifact[]>([]);
   artifactsRef.current = artifacts;
-  const openArtifact = (a: { title: string; language: string; code: string; note?: string; path?: string }) => {
+  // Live drawer width, reported by ArtifactDrawer: the chat column narrows to
+  // clear it instead of continuing underneath.
+  const [drawerWidth, setDrawerWidth] = useState(560);
+  const artifactOpenRef = useRef(false);
+  artifactOpenRef.current = artifactOpen;
+  /** Set at run start when a run may auto-open the viewer exactly once. */
+  const autoOpenPendingRef = useRef(false);
+  // Stable callbacks so memoized bubbles below don't re-render on every
+  // parent render: both use functional setState, no live values needed.
+  const openArtifact = useCallback((a: { title: string; language: string; code: string; note?: string; path?: string; url?: string }) => {
     const id = `art-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     setArtifacts(prev => [...prev.slice(-19), { ...a, id }]);
     setActiveArtifactId(id);
     setArtifactOpen(true);
-  };
-  const openFileArtifact = async (path: string) => {
+  }, []);
+  const openFileArtifact = useCallback(async (path: string) => {
     try {
-      const r = await invoke<{ path: string; content: string; size: number; truncated: boolean }>('preview_workspace_file', { path, sessionId });
+      const r = await invoke<{ path: string; content: string; size: number; truncated: boolean }>('preview_workspace_file', { path, session_id: sessionId });
       const lang = artifactLanguageForPath(r.path) ?? artifactLanguageForPath(path);
       if (!lang) {
         alert(`Not previewable (only .html, .svg, .md): ${path}`);
         return;
       }
+      // Resolve a loopback URL for this exact file so relative CSS/JS, ES
+      // modules and fetch() work. Best-effort: on failure the drawer falls
+      // back to inline `srcDoc`, which still renders single-file output.
+      let url: string | undefined;
+      try {
+        url = await invoke<string>('preview_server_start', { path, session_id: sessionId });
+      } catch (e) {
+        console.warn('preview server unavailable, rendering inline', e);
+      }
       openArtifact({
         title: r.path.split(/[\\/]/).pop() || path,
         language: lang,
         code: r.content,
-        note: r.truncated ? 'Showing the first 24 KB of this file.' : undefined,
+        note: r.truncated ? 'Showing the first 4 MB of this file.' : undefined,
         path,
+        url,
       });
     } catch (e) { alert(String(e)); }
-  };
+  }, [sessionId, openArtifact]);
   // Live refresh: the agent rewrote `path` — reload every tracked artifact
   // for it so an open preview never goes stale. Failures keep the old copy
   // (file deleted/moved mid-run).
   const refreshFileArtifacts = async (path: string) => {
-    const norm = (s: string) => s.trim().replace(/\\/g, '/');
+    const norm = (s: string) => s.trim().replace(/\\/g, '/').replace(/^\.\//, '');
+    // The agent may echo the same file as `index.html` on one call and an
+    // absolute path on the next (per-call cwd, absolute writes). Match on a
+    // path boundary so both forms reach the same artifact.
+    const same = (a: string, b: string) =>
+      a === b || a.endsWith(`/${b}`) || b.endsWith(`/${a}`);
+    const dirOf = (p: string) => {
+      const i = p.lastIndexOf('/');
+      return i < 0 ? '' : p.slice(0, i);
+    };
+    // An empty directory means the path is root-relative — the same directory
+    // in a different form, so it matches anything.
+    const sameDir = (a: string, b: string) => {
+      const da = dirOf(a);
+      const db = dirOf(b);
+      return da === db || !da || !db || da.endsWith(`/${db}`) || db.endsWith(`/${da}`);
+    };
     const target = norm(path);
-    if (!artifactsRef.current.some(a => a.path && norm(a.path) === target)) return;
-    try {
-      const r = await invoke<{ path: string; content: string; size: number; truncated: boolean }>('preview_workspace_file', { path, sessionId });
-      setArtifacts(prev => prev.map(a =>
-        a.path && norm(a.path) === target
-          ? { ...a, code: r.content, rev: (a.rev ?? 0) + 1, note: r.truncated ? 'Showing the first 24 KB of this file.' : undefined }
-          : a,
-      ));
-    } catch { /* keep the stale copy */ }
+    const tracked = artifactsRef.current.filter(a => !!a.path);
+    // A write to a tracked file reloads it. A write to a *sibling* — the
+    // stylesheet or script a tracked page links — reloads that page too: the
+    // agent writes index.html first, so without this the drawer would keep the
+    // first unstyled paint while style.css and app.js land behind it.
+    const direct = tracked.filter(a => same(norm(a.path!), target));
+    const hits = direct.length ? direct : tracked.filter(a => sameDir(norm(a.path!), target));
+    if (!hits.length) return;
+    for (const hit of hits) {
+      const p = hit.path!;
+      try {
+        const r = await invoke<{ path: string; content: string; size: number; truncated: boolean }>('preview_workspace_file', { path: p, session_id: sessionId });
+        setArtifacts(prev => prev.map(a =>
+          a.path && same(norm(a.path), norm(p))
+            ? { ...a, code: r.content, rev: (a.rev ?? 0) + 1, note: r.truncated ? 'Showing the first 4 MB of this file.' : undefined }
+            : a,
+        ));
+      } catch { /* keep the stale copy */ }
+    }
   };
+  // Auto-open the viewer when the agent writes a previewable file, so the
+  // result shows up without hunting for the eye icon. Controlled by the
+  // `auto_preview` UI pref (Settings → Behavior, on by default). Gated on
+  // `autoOpenPendingRef` so a run opens it at most once, and never while the
+  // drawer is already open — an open drawer is served by the refresh above.
+  const maybeAutoOpenArtifact = useCallback((path: string) => {
+    if (ui.auto_preview === false) return;
+    if (!autoOpenPendingRef.current) return;
+    if (!artifactLanguageForPath(path)) return;
+    autoOpenPendingRef.current = false;
+    void openFileArtifact(path);
+  }, [ui.auto_preview, openFileArtifact]);
   // Clarifying-question batches waiting on the user (`ask_user` tool).
   // Source of truth is the loop: re-sync on session switch so a run left
   // waiting in another session shows its card when you return.
   const [pendingQuestions, setPendingQuestions] = useState<PendingBatch[]>([]);
   const [answeringIds, setAnsweringIds] = useState<Record<string, boolean>>({});
   useEffect(() => {
-    invoke<PendingBatch[]>('get_pending_questions', { sessionId })
+    invoke<PendingBatch[]>('get_pending_questions', { session_id: sessionId })
       .then(qs => setPendingQuestions(qs))
       .catch(() => setPendingQuestions([]));
   }, [sessionId]);
   const answerQuestion = async (id: string, answers: string[]) => {
     setAnsweringIds(prev => ({ ...prev, [id]: true }));
     try {
-      await invoke('answer_question', { sessionId, questionId: id, answers });
+      await invoke('answer_question', { session_id: sessionId, question_id: id, answers });
       setPendingQuestions(prev => prev.filter(q => q.id !== id));
     } catch {
       // Stale card (run ended/cancelled) or transient failure: re-sync and
       // let the user retry if the batch is genuinely still pending.
       try {
-        const qs = await invoke<PendingBatch[]>('get_pending_questions', { sessionId });
+        const qs = await invoke<PendingBatch[]>('get_pending_questions', { session_id: sessionId });
         setPendingQuestions(qs);
       } catch {
         setPendingQuestions(prev => prev.filter(q => q.id !== id));
@@ -342,6 +499,12 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
   const currentAssistantIdRef = useRef<string | null>(null);
   const runHere = runSessionId === sessionId;
   const busy = (isLoading || isStreaming) && runHere;
+  // Settings → Status renders the live run, so mirror it up. Only the session
+  // that owns the run reports; switching chats leaves the other session's run
+  // out of the panel instead of showing someone else's numbers.
+  useEffect(() => {
+    onRunStatus?.(runHere ? runStatus : null, runHere ? runSummary : null);
+  }, [runStatus, runSummary, runHere, onRunStatus]);
 
   const clearStreamingLoop = () => {
     if (streamFrameRef.current !== null) {
@@ -350,13 +513,15 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
     }
   };
 
-  const pushStreamingText = (msgId: string, fullTargetText: string) => {
+  const pushStreamingText = (msgId: string, deltaText: string) => {
     let existing = streamTargetMapRef.current.get(msgId);
     if (!existing) {
       existing = { current: '', target: '' };
       streamTargetMapRef.current.set(msgId, existing);
     }
-    existing.target = fullTargetText;
+    // Backend emits deltas per chunk — append, never overwrite,
+    // or each chunk would replace the previous one and garble the stream.
+    existing.target += deltaText;
 
     setIsStreaming(true);
     isStreamingRef.current = true;
@@ -365,27 +530,46 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
 
     let lastTick = performance.now();
     const pumpLoop = (now: number) => {
-      // Pump on frame tick (~16ms delta cadence, synced to monitor refresh rate)
-      if (now - lastTick >= 16) {
+      // Throttled pump (~100ms): one setMessages per tick for all active
+      // streams. 16ms rAF cadence re-rendered the whole transcript 60x/sec
+      // (each tick re-parsing every message's markdown) and stacked smooth
+      // scroll animations — cost grows with transcript length.
+      if (now - lastTick >= 100) {
         lastTick = now;
         let activeAny = false;
+        const advanced = new Map<string, string>();
         streamTargetMapRef.current.forEach((data, id) => {
           if (data.current.length < data.target.length) {
             activeAny = true;
             const remaining = data.target.slice(data.current.length);
             const nextSpace = remaining.indexOf(' ');
-            // Natural token pacing (word-chunk stream)
-            const stepSize = nextSpace > 0 && nextSpace <= 8 ? nextSpace + 1 : Math.min(remaining.length, 5);
+            // Natural token pacing (word-chunk stream), larger steps since
+            // ticks are less frequent.
+            const stepSize = nextSpace > 0 && nextSpace <= 24 ? nextSpace + 1 : Math.min(remaining.length, 16);
             data.current += remaining.slice(0, stepSize);
-
-            setMessages(prev =>
-              prev.map(m => (m.id === id ? { ...m, content: data.current, isStreaming: true } : m))
-            );
+            if (data.current.length >= data.target.length) data.current = data.target;
+            advanced.set(id, data.current);
           }
         });
 
-        if (ui.auto_scroll) {
-          scrollerRef.current?.scrollTo({ top: scrollerRef.current.scrollHeight, behavior: 'smooth' });
+        if (advanced.size > 0) {
+          setMessages(prev =>
+            prev.map(m => {
+              const text = advanced.get(m.id);
+              return text !== undefined ? { ...m, content: text, isStreaming: true } : m;
+            })
+          );
+        }
+
+        if (uiRef.current.auto_scroll) {
+          const sc = scrollerRef.current;
+          if (sc) {
+            // Only follow when the user is already near the bottom, and use
+            // instant scrolling while streaming: smooth per tick queues
+            // overlapping animations and yanks scrolled-up readers.
+            const nearBottom = sc.scrollHeight - sc.scrollTop - sc.clientHeight < 160;
+            if (nearBottom) sc.scrollTo({ top: sc.scrollHeight, behavior: 'auto' });
+          }
         }
 
         if (!activeAny) {
@@ -393,7 +577,9 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
           isStreamingRef.current = false;
           setIsStreaming(false);
           setMessages(prev => prev.map(m => (m.isStreaming ? { ...m, isStreaming: false } : m)));
-          if (!isLoading) {
+          // Read the live run state: the frozen mount-time closure value would
+          // otherwise kill the spinner while the run is still in flight.
+          if (!isLoadingRef.current) {
             setIsLoading(false);
           }
           return;
@@ -509,7 +695,7 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
   const loadSessionMessages = async (targetSessionId: string) => {
     const seq = ++loadSeqRef.current;
     try {
-      const raw = await invoke<any[]>('get_session_messages', { sessionId: targetSessionId });
+      const raw = await invoke<any[]>('get_session_messages', { session_id: targetSessionId });
       if (seq !== loadSeqRef.current) return;
       const mapped: Message[] = (raw || []).map(m => ({
         ...m,
@@ -572,6 +758,10 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
       isStreamingRef.current = false;
       setIsStreaming(false);
       streamTargetMapRef.current.clear();
+      // Drop the streaming-bubble id with the stream buffers: a stale id from
+      // the previous session never matches the reloaded rows and would append
+      // a duplicate assistant bubble.
+      currentAssistantIdRef.current = null;
       if (unlisten) unlisten();
     };
   }, [sessionId]);
@@ -747,8 +937,11 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
         setMessages(prev => {
           const upd = [...prev];
           let idx = -1;
+          // Pair by tool name against a row still awaiting its result: a
+          // reverse scan by role alone lands concurrent-call outputs on the
+          // wrong card.
           for (let i = upd.length - 1; i >= 0; i--) {
-            if (upd[i].role === 'tool') { idx = i; break; }
+            if (upd[i].role === 'tool' && !upd[i].toolResult && upd[i].toolCalls?.[0]?.name === event.name) { idx = i; break; }
           }
           if (idx >= 0) {
             upd[idx] = { ...upd[idx], content: event.name, durationMs, toolResult: { toolCallId: `call-${Date.now()}`, content: event.output } };
@@ -756,8 +949,10 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
           return upd;
         });
         // Live artifact refresh: a successful rewrite of a tracked file
-        // reloads its preview so an open drawer never goes stale.
-        if (WRITE_TOOL_NAMES.includes(event.name) && event.output.startsWith('Successfully wrote ')) {
+        // reloads its preview so an open drawer never goes stale. Success is
+        // "no error marker", not one tool's exact wording — `search_replace`
+        // returns a structured result, never "Successfully wrote …".
+        if (WRITE_TOOL_NAMES.includes(event.name) && writeSucceeded(event.output)) {
           let p: string | null = null;
           if (startedArgs) {
             try {
@@ -770,7 +965,7 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
             const m = event.output.match(/Successfully wrote \d+ bytes to (.+?)\s*$/);
             if (m) p = m[1].trim();
           }
-          if (p) refreshFileArtifacts(p);
+          if (p) { refreshFileArtifacts(p); maybeAutoOpenArtifact(p); }
         }
         touchStatus({ lastTool: event.name });
         break;
@@ -800,11 +995,25 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
         );
         break;
       }
-      case 'UsageUpdated':
-        setStatus(prev =>
-          prev ? { ...prev, totalTokens: event.total_tokens, costUsd: event.cost_usd, lastActivityAt: Date.now() } : prev,
-        );
+      case 'UsageUpdated': {
+        // Throttled to ~1Hz: the backend emits per token batch and each
+        // update re-renders the whole app via the onRunStatus mirror.
+        const now = Date.now();
+        if (now - lastStatusPushRef.current >= 1000) {
+          lastStatusPushRef.current = now;
+          setStatus(prev =>
+            prev ? { ...prev, totalTokens: event.total_tokens, costUsd: event.cost_usd, lastActivityAt: now } : prev,
+          );
+        } else {
+          // Keep the ref fresh so the status bar lands on final totals.
+          const s = runStatusRef.current;
+          if (s) {
+            s.totalTokens = event.total_tokens;
+            s.costUsd = event.cost_usd;
+          }
+        }
         break;
+      }
       case 'SpendWarning': {
         const text = `Spend notice: ${event.percent_used}% of the token budget used (${event.total_tokens}/${event.budget_tokens} tokens).`;
         setMessages(prev => [...prev, { id: `spend-${Date.now()}`, role: 'assistant', content: text, timestamp: new Date() }]);
@@ -835,7 +1044,7 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
       default:
         break;
     }
-    if (ui.auto_scroll) {
+    if (uiRef.current.auto_scroll) {
       requestAnimationFrame(() => scrollerRef.current?.scrollTo({ top: scrollerRef.current.scrollHeight, behavior: 'smooth' }));
     }
   };
@@ -871,6 +1080,10 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
     setRunBanner(null);
     setRunSummary(null);
     toolStartRef.current = [];
+    // Auto-open the artifact viewer at most once per run, and never while the
+    // drawer is already open (that would yank the user's active artifact out
+    // from under them — an open drawer just gets refreshed instead).
+    autoOpenPendingRef.current = !artifactOpenRef.current;
     const startedAt = Date.now();
     const init: RunStatusData = {
       segment: 1, maxSegments: 1, turn: 0, startedAt, lastActivityAt: startedAt,
@@ -894,7 +1107,7 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
     const visibleHere = () => sessionIdRef.current === sentSession;
     try {
       await invoke('send_message', {
-        sessionId: sentSession,
+        session_id: sentSession,
         text,
         effort: effort && efforts.includes(effort) ? effort : null,
       });
@@ -911,8 +1124,21 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
     } catch (error) {
       // A terminal event (Error / Cancelled) usually already explained the
       // failure — only add a bubble when the run died before emitting one.
+      // A busy rejection (double-send while a run is in flight) is not a
+      // failure: notify and leave the transcript alone.
+      const msg = `${error}`;
+      if (msg.includes('already in progress')) {
+        notifyUser('Maverick — already running', 'A run is already in progress for this session.');
+        // This send never became a run: undo the optimistic run state handleSend
+        // opened for it, or the status bar and the taskbar spinner stay active
+        // forever with nothing behind them.
+        setStatus(null);
+        setRunSummary(null);
+        setTaskbarProgress('none');
+        return;
+      }
       if (!stillMyRun()) {
-        notifyUser('Maverick — run failed', `${error}`.slice(0, 200));
+        notifyUser('Maverick — run failed', msg.slice(0, 200));
       } else if (!runStatusRef.current?.finished) {
         if (visibleHere()) {
           setMessages(prev => [...prev, { id: `error-${Date.now()}`, role: 'assistant', content: `Send failed: ${error}`, timestamp: new Date() }]);
@@ -928,6 +1154,25 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
       }
     }
   };
+
+  // Generative-UI component interactions (OpenUI form submits, action buttons)
+  // arrive here. A ref keeps the callback identity stable so MemoBubble keeps
+  // working; the ref mirror is the file's standard trick for the same problem.
+  const handleSendRef = useRef(handleSend);
+  handleSendRef.current = handleSend;
+  const handleOpenUiAction = useCallback((event: OpenUiActionEvent) => {
+    if (event.type === 'open_url' && typeof event.params?.url === 'string') {
+      window.open(event.params.url, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    // Everything else continues the conversation: the action's human-readable
+    // message plus the form state (if any) becomes a normal user turn.
+    const state =
+      event.formState && Object.keys(event.formState).length > 0
+        ? `\n\n\`\`\`json\n${JSON.stringify(event.formState, null, 2)}\n\`\`\``
+        : '';
+    void handleSendRef.current(`${event.humanFriendlyMessage}${state}`);
+  }, []);
 
   // Skills picker drops a natural-language skill reference at the caret.
   const insertSkill = (name: string) => {
@@ -953,7 +1198,7 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
     // Cancel the run's own session, not whatever session happens to be visible.
     const target = runSessionIdRef.current ?? sessionId;
     try {
-      await invoke('cancel_message', { sessionId: target });
+      await invoke('cancel_message', { session_id: target });
     } catch (e) {
       console.warn('cancel_message failed', e);
     }
@@ -980,7 +1225,10 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
   const isEmptyState = messages.length === 0;
 
   return (
-    <div style={{display:'flex', flexDirection:'column', flex:1, minHeight:0, background:'var(--bg)', position:'relative'}}>
+    <div style={{display:'flex', flexDirection:'column', flex:1, minHeight:0, background:'var(--bg)', position:'relative',
+      // Dock the composer column beside the artifact viewer instead of
+      // letting it continue underneath the overlay.
+      marginRight: artifactOpen ? drawerWidth : 0, transition: 'margin-right 0.2s ease'}}>
       {/* Messages — collapsed on the home screen; the empty-state hero lives
           inside the dock below so the composer can center vertically. */}
       <div
@@ -991,13 +1239,15 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
       >
         <div style={{width:'100%', maxWidth:'768px', margin:'0 auto', flex:1, display:'flex', flexDirection:'column', padding:'24px 20px 0', gap:'0', minHeight:'100%'}}>
           <div style={{display:'flex', flexDirection:'column', gap:'0', paddingBottom:'24px'}}>
-            {(ui.show_tool_calls ? messages : messages.filter(m => m.role !== 'tool')).map(msg => (
-              <MessageBubble
+            {visibleMessages.map(msg => (
+              <MemoBubble
                 key={msg.id}
                 message={msg}
                 compact={ui.compact_mode}
-                onOpenArtifact={a => openArtifact(a)}
-                onPreviewFile={p => openFileArtifact(p)}
+                onOpenArtifact={openArtifact}
+                onPreviewFile={openFileArtifact}
+                genUiEnabled={ui.generative_ui !== false}
+                onOpenUiAction={handleOpenUiAction}
               />
             ))}
             <div ref={messagesEndRef} />
@@ -1066,47 +1316,15 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
               ))}
             </div>
           )}
-          {memStats && memoryEnabled && (memStats.global_bullets + memStats.workspace_bullets) > 0 && (
-            <div
-              className="mono"
-              style={{fontSize:'11px', color:'var(--muted)', display:'flex', alignItems:'center', gap:'6px', padding:'0 4px'}}
-              title={`Cross-chat memory active — ${memStats.global_bullets} global · ${memStats.workspace_bullets} workspace (${memStats.workspace_name}). Manage in Settings → Memory.`}
-            >
-              <span style={{width:'6px', height:'6px', borderRadius:'50%', background:'var(--ok-text)', display:'inline-block'}} />
-              {memStats.global_bullets + memStats.workspace_bullets} {memStats.global_bullets + memStats.workspace_bullets === 1 ? 'memory' : 'memories'} · {memStats.workspace_name}
-            </div>
-          )}
-          {/* Composer — PromptBar owns the field, model picker, and effort slider */}
-          <PromptBar
-            value={input}
-            onChange={setInput}
-            inputRef={textareaRef}
-            onSend={t => handleSend(t)}
-            onStop={handleCancel}
-            models={[
-              ...presets.map<PromptBarModel>(p => ({
-                key: `preset:${p.id}`,
-                name: p.name,
-                tag: p.model,
-                description: `${providers.find(x => x.id === p.provider_id)?.name ?? p.provider_id} · ${p.effort || 'default effort'}`,
-              })),
-              ...providers.map<PromptBarModel>(p => ({
-                key: p.id,
-                name: p.name,
-                tag: p.model,
-                description:
-                  p.id === selectedProvider
-                    ? profile
-                      ? profile.supported
-                        ? `Reasoning: ${efforts.join(' · ')}`
-                        : 'No reasoning effort'
-                      : undefined
-                    : p.supports_reasoning_effort
-                      ? 'Reasoning models supported'
-                      : undefined,
-              })),
-            ]}
-            defaultModel={activePreset ? `preset:${activePreset.id}` : selectedProvider}
+            {/* Composer — PromptBar owns the field, model picker, and effort slider */}
+            <PromptBar
+              value={input}
+              onChange={setInput}
+              inputRef={textareaRef}
+              onSend={t => handleSend(t)}
+              onStop={handleCancel}
+              models={composerModels}
+              defaultModel={activePreset ? `preset:${activePreset.id}` : selectedProvider}
             onModelChange={key => {
               if (key.startsWith('preset:')) {
                 const preset = presets.find(p => `preset:${p.id}` === key);
@@ -1165,6 +1383,7 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
           activeId={activeArtifactId}
           onSelect={setActiveArtifactId}
           onClose={() => setArtifactOpen(false)}
+          onWidthChange={setDrawerWidth}
         />
       )}
       {showMcpDialog && (
@@ -1193,11 +1412,13 @@ export default function Chat({ sessionId, onAddMcp, ui, providers, selectedProvi
   );
 }
 
-function MessageBubble({ message, compact = false, onOpenArtifact, onPreviewFile }: {
+function MessageBubble({ message, compact = false, onOpenArtifact, onPreviewFile, genUiEnabled, onOpenUiAction }: {
   message: Message;
   compact?: boolean;
   onOpenArtifact?: (a: { language: string; code: string; title: string }) => void;
   onPreviewFile?: (path: string) => void;
+  genUiEnabled: boolean;
+  onOpenUiAction: (event: OpenUiActionEvent) => void;
 }) {
   const [copied, setCopied] = useState(false);
   const [open, setOpen] = useState(false);
@@ -1240,11 +1461,15 @@ function MessageBubble({ message, compact = false, onOpenArtifact, onPreviewFile
       }
       if (!chipArg) chipArg = args.length > 60 ? `${args.slice(0, 57)}…` : args;
     }
-    const chipStatus = isRunning ? 'running' : output?.startsWith('Error') ? 'error' : 'done';
+    const chipStatus = isRunning
+      ? 'running'
+      : output?.startsWith(TOOL_ERROR_PREFIX) || output?.startsWith('Error')
+        ? 'error'
+        : 'done';
     // Artifact viewer: successful write-family calls targeting a previewable
     // path get a Preview-file button (live args or the result line).
     const writePath =
-      !isRunning && WRITE_TOOL_NAMES.includes(toolName) && output?.startsWith('Successfully wrote ')
+      !isRunning && WRITE_TOOL_NAMES.includes(toolName) && writeSucceeded(output)
         ? extractWritePath(message)
         : null;
     const writePreviewLang = writePath ? artifactLanguageForPath(writePath) : null;
@@ -1423,7 +1648,13 @@ function MessageBubble({ message, compact = false, onOpenArtifact, onPreviewFile
               <div style={{ whiteSpace: 'pre-wrap', color: 'var(--error)', fontSize: '14px' }}>{message.content}</div>
             ) : (
               <div style={{ position: 'relative' }}>
-                <MarkdownRenderer content={message.content} onOpenArtifact={onOpenArtifact} />
+                <AssistantContent
+                  content={message.content}
+                  streaming={message.isStreaming}
+                  genUiEnabled={genUiEnabled}
+                  onOpenArtifact={onOpenArtifact}
+                  onOpenUiAction={onOpenUiAction}
+                />
                 {message.isStreaming && <span className="streaming-caret" />}
               </div>
             )}
@@ -1461,6 +1692,10 @@ function MessageBubble({ message, compact = false, onOpenArtifact, onPreviewFile
     </div>
   );
 }
+// Memoized transcript row: the stream pump replaces the messages array ~10x/sec,
+// so without this every bubble (and its markdown parse) re-renders per tick.
+// Only the bubble whose `message` object identity changed re-renders.
+const MemoBubble = memo(MessageBubble);
 
 function CopySnippet({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);

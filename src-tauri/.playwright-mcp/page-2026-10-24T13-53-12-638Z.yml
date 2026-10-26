@@ -1,0 +1,1556 @@
+- generic [ref=f25e2]:
+  - navigation "Shortcuts menu" [ref=f25e3]:
+    - heading "Skip to" [level=2] [ref=f25e4]
+    - list "Skip to" [ref=f25e5]:
+      - listitem [ref=f25e6]:
+        - link "main content" [ref=f25e7] [cursor=pointer]:
+          - /url: "#skippedLink"
+          - text: Main content
+      - listitem [ref=f25e8]:
+        - link "Results" [ref=f25e9] [cursor=pointer]:
+          - /url: .s-asin a:has(h2)
+      - listitem [ref=f25e10]:
+        - button "Filters" [ref=f25e11] [cursor=pointer]
+    - separator [aria-hidden] [ref=f25e12]
+    - heading "Keyboard shortcuts" [level=2] [ref=f25e13]
+    - list "Keyboard shortcuts" [ref=f25e14]:
+      - listitem [ref=f25e15]:
+        - link "Search, alt, forward slash" [ref=f25e16] [cursor=pointer]:
+          - /url: javascript:void(0)
+          - generic [aria-hidden] [ref=f25e17]:
+            - generic [ref=f25e18]: Search
+            - generic [ref=f25e19]:
+              - generic [ref=f25e20]: alt
+              - generic [ref=f25e21]: +
+              - generic [ref=f25e22]: /
+      - listitem [ref=f25e23]:
+        - link "Cart, shift, alt, c" [ref=f25e24] [cursor=pointer]:
+          - /url: javascript:void(0)
+          - generic [aria-hidden] [ref=f25e25]:
+            - generic [ref=f25e26]: Cart
+            - generic [ref=f25e27]:
+              - generic [ref=f25e28]: shift
+              - generic [ref=f25e29]: +
+              - generic [ref=f25e30]: alt
+              - generic [ref=f25e31]: +
+              - generic [ref=f25e32]: C
+      - listitem [ref=f25e33]:
+        - link "Home, shift, alt, h" [ref=f25e34] [cursor=pointer]:
+          - /url: javascript:void(0)
+          - generic [aria-hidden] [ref=f25e35]:
+            - generic [ref=f25e36]: Home
+            - generic [ref=f25e37]:
+              - generic [ref=f25e38]: shift
+              - generic [ref=f25e39]: +
+              - generic [ref=f25e40]: alt
+              - generic [ref=f25e41]: +
+              - generic [ref=f25e42]: H
+      - listitem [ref=f25e43]:
+        - link "Your orders, shift, alt, o" [ref=f25e44] [cursor=pointer]:
+          - /url: javascript:void(0)
+          - generic [aria-hidden] [ref=f25e45]:
+            - generic [ref=f25e46]: Orders
+            - generic [ref=f25e47]:
+              - generic [ref=f25e48]: shift
+              - generic [ref=f25e49]: +
+              - generic [ref=f25e50]: alt
+              - generic [ref=f25e51]: +
+              - generic [ref=f25e52]: O
+      - listitem [ref=f25e53]:
+        - button "Show/hide shortcuts, shift, alt, z" [ref=f25e54] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f25e55]:
+            - generic [ref=f25e56]: Show/Hide shortcuts
+            - generic [ref=f25e57]:
+              - generic [ref=f25e58]: shift
+              - generic [ref=f25e59]: +
+              - generic [ref=f25e60]: alt
+              - generic [ref=f25e61]: +
+              - generic [ref=f25e62]: Z
+    - generic [ref=f25e63]: To move between items, use your keyboard's up or down arrows.
+  - banner [ref=f25e69]:
+    - navigation "Primary" [ref=f25e70]:
+      - generic [ref=f25e71]:
+        - generic [ref=f25e72]:
+          - link "Amazon.in" [ref=f25e74] [cursor=pointer]:
+            - /url: /ref=nav_logo
+            - generic: .in
+          - button "Delivering to Thāne 400060 Update location" [ref=f25e77] [cursor=pointer]:
+            - generic [ref=f25e79]:
+              - generic [ref=f25e80]: Delivering to Thāne 400060
+              - generic [ref=f25e81]: Update location
+        - search [ref=f25e84]:
+          - generic [ref=f25e87]:
+            - generic [ref=f25e88]: All
+            - combobox "Select the department you want to search in" [ref=f25e91] [cursor=pointer]:
+              - option "All Categories" [selected]
+              - option "Alexa Skills"
+              - option "Amazon Devices"
+              - option "Amazon Fashion"
+              - option "Amazon Fresh Meat"
+              - option "Amazon Pharmacy"
+              - option "Appliances"
+              - option "Apps & Games"
+              - option "Audible Audiobooks"
+              - option "Baby"
+              - option "Beauty"
+              - option "Books"
+              - option "Car & Motorbike"
+              - option "Clothing & Accessories"
+              - option "Collectibles"
+              - option "Computers & Accessories"
+              - option "Deals"
+              - option "Electronics"
+              - option "Furniture"
+              - option "Garden & Outdoors"
+              - option "Gift Cards"
+              - option "Grocery & Gourmet Foods"
+              - option "Health & Personal Care"
+              - option "Home & Kitchen"
+              - option "Industrial & Scientific"
+              - option "Jewellery"
+              - option "Kindle Store"
+              - option "Luggage & Bags"
+              - option "Luxury Beauty"
+              - option "Movies & TV Shows"
+              - option "MP3 Music"
+              - option "Music"
+              - option "Musical Instruments"
+              - option "Office Products"
+              - option "Pet Supplies"
+              - option "Prime Video"
+              - option "Shoes & Handbags"
+              - option "Software"
+              - option "Sports, Fitness & Outdoors"
+              - option "Subscribe & Save"
+              - option "Tools & Home Improvement"
+              - option "Toys & Games"
+              - option "Under ₹500"
+              - option "Video Games"
+              - option "Watches"
+          - searchbox "Search Amazon.in" [ref=f25e94]: Vivo T4 Ultra 5G
+          - generic "Go" [ref=f25e97] [cursor=pointer]:
+            - button "Go" [ref=f25e98]
+        - generic [ref=f25e100]:
+          - generic [ref=f25e101]:
+            - link "Choose a language for shopping in Amazon India. The current selection is English (EN)." [ref=f25e102] [cursor=pointer]:
+              - /url: /customer-preferences/edit?ie=UTF8&preferencesReturnUrl=%2F&ref_=topnav_lang
+              - generic [ref=f25e105]:
+                - img "India" [ref=f25e106]
+                - generic [ref=f25e107]: EN
+            - button "Expand to Change Language or Country" [ref=f25e108] [cursor=pointer]
+          - generic [ref=f25e109]:
+            - link "Hello, sign in Account & Lists" [ref=f25e110] [cursor=pointer]:
+              - /url: https://www.amazon.in/ap/signin?openid.return_to=https%3A%2F%2Fwww.amazon.in%2Fs%3Fk%3DVivo%2BT4%2BUltra%2B5G%26ref_%3Dnav_ya_signin&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.assoc_handle=inflex&openid.mode=checkid_setup&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0
+              - generic [ref=f25e111]: Hello, sign in
+              - generic [ref=f25e113]: Account & Lists
+            - button "Expand Account and Lists" [ref=f25e114] [cursor=pointer]
+          - link "Returns & Orders" [ref=f25e115] [cursor=pointer]:
+            - /url: /gp/css/order-history?ref_=nav_orders_first
+            - generic [ref=f25e116]: Returns
+            - generic [ref=f25e117]: "& Orders"
+          - link "0 items in cart" [ref=f25e118] [cursor=pointer]:
+            - /url: /gp/cart/view.html?ref_=nav_cart
+            - generic [aria-hidden] [ref=f25e120]: "0"
+      - generic [ref=f25e122]:
+        - button "Open All Categories Menu" [ref=f25e124] [cursor=pointer]:
+          - generic [ref=f25e126]: All
+        - list [ref=f25e130]:
+          - listitem [ref=f25e131]:
+            - link "Fresh Meat" [ref=f25e133] [cursor=pointer]:
+              - /url: /freshmeat?ref_=nav_cs_fm
+          - listitem [ref=f25e134]:
+            - link "Amazon Pay" [ref=f25e136] [cursor=pointer]:
+              - /url: /gp/sva/dashboard?ref_=nav_cs_apay
+          - listitem [ref=f25e137]:
+            - link "Mobiles" [ref=f25e139] [cursor=pointer]:
+              - /url: /mobile-phones/b/?ie=UTF8&node=1389401031&ref_=nav_cs_mobiles
+          - listitem [ref=f25e140]:
+            - link "Today's Deals" [ref=f25e142] [cursor=pointer]:
+              - /url: /deals?ref_=nav_cs_gb
+          - listitem [ref=f25e143]:
+            - link "Coupons" [ref=f25e145] [cursor=pointer]:
+              - /url: /coupons?ref_=nav_cs_coupons
+          - listitem [ref=f25e146]:
+            - link "Flights" [ref=f25e148] [cursor=pointer]:
+              - /url: /flights?ref_=nav_cs_apay_desktop_topnav_flights
+          - listitem [ref=f25e149]:
+            - link "Electronics" [ref=f25e151] [cursor=pointer]:
+              - /url: /electronics/b/?ie=UTF8&node=976419031&ref_=nav_cs_electronics
+          - listitem [ref=f25e152]:
+            - link "New Releases" [ref=f25e154] [cursor=pointer]:
+              - /url: /gp/new-releases/?ref_=nav_cs_newreleases
+          - listitem [ref=f25e155]:
+            - link "Bestsellers" [ref=f25e157] [cursor=pointer]:
+              - /url: /gp/bestsellers/?ref_=nav_cs_bestsellers
+          - listitem [ref=f25e158]:
+            - link "Fashion" [ref=f25e160] [cursor=pointer]:
+              - /url: /gp/browse.html?node=6648217031&ref_=nav_cs_fashion
+          - listitem [ref=f25e161]:
+            - link "Computers" [ref=f25e163] [cursor=pointer]:
+              - /url: /computers-and-accessories/b/?ie=UTF8&node=976392031&ref_=nav_cs_pc
+          - listitem [ref=f25e164]:
+            - link "Home & Kitchen" [ref=f25e166] [cursor=pointer]:
+              - /url: /Home-Kitchen/b/?ie=UTF8&node=976442031&ref_=nav_cs_home
+          - listitem [ref=f25e167]:
+            - link "Pet Supplies" [ref=f25e169] [cursor=pointer]:
+              - /url: /Pet-Supplies/b/?ie=UTF8&node=2454181031&ref_=nav_cs_pets
+          - listitem [ref=f25e170]:
+            - link "Sports, Fitness & Outdoors" [ref=f25e172] [cursor=pointer]:
+              - /url: /Sports/b/?ie=UTF8&node=1984443031&ref_=nav_cs_sports
+          - listitem [ref=f25e173]:
+            - link "Custom Products" [ref=f25e175] [cursor=pointer]:
+              - /url: /Amazon-Custom/b/?ie=UTF8&node=32615889031&ref_=nav_cs_custom
+          - listitem [ref=f25e176]:
+            - link "Baby" [ref=f25e178] [cursor=pointer]:
+              - /url: /Baby/b/?ie=UTF8&node=1571274031&ref_=nav_cs_baby
+          - listitem [ref=f25e179]:
+            - link "Video Games" [ref=f25e181] [cursor=pointer]:
+              - /url: /video-games/b/?ie=UTF8&node=976460031&ref_=nav_cs_video_games
+          - listitem [ref=f25e182]:
+            - link "Books" [ref=f25e184] [cursor=pointer]:
+              - /url: /Books/b/?ie=UTF8&node=976389031&ref_=nav_cs_books
+          - listitem [ref=f25e185]:
+            - link "Kindle eBooks" [ref=f25e187] [cursor=pointer]:
+              - /url: /Kindle-eBooks/b/?ie=UTF8&node=1634753031&ref_=nav_cs_kindle_books
+          - listitem [ref=f25e188]:
+            - link "Grocery & Gourmet Foods" [ref=f25e190] [cursor=pointer]:
+              - /url: /Gourmet-Specialty-Foods/b/?ie=UTF8&node=2454178031&ref_=nav_cs_grocery
+          - listitem [ref=f25e191]:
+            - link "Toys & Games" [ref=f25e193] [cursor=pointer]:
+              - /url: /Toys-Games/b/?ie=UTF8&node=1350380031&ref_=nav_cs_toys
+          - listitem [ref=f25e194]:
+            - link "Car & Motorbike" [ref=f25e196] [cursor=pointer]:
+              - /url: /Car-Motorbike-Store/b/?ie=UTF8&node=4772060031&ref_=nav_cs_automotive
+          - listitem [ref=f25e197]:
+            - link "Customer Service" [ref=f25e199] [cursor=pointer]:
+              - /url: /gp/help/customer/display.html?nodeId=200507590&ref_=nav_cs_help
+          - listitem [ref=f25e200]:
+            - link "Home Improvement" [ref=f25e202] [cursor=pointer]:
+              - /url: /Home-Improvement/b/?ie=UTF8&node=4286640031&ref_=nav_cs_hi
+          - listitem [ref=f25e203]:
+            - link "Gift Cards" [ref=f25e205] [cursor=pointer]:
+              - /url: /gift-card-store/b/?ie=UTF8&node=3704982031&ref_=nav_cs_gc
+          - listitem [ref=f25e206]:
+            - link "Beauty & Personal Care" [ref=f25e208] [cursor=pointer]:
+              - /url: /beauty/b/?ie=UTF8&node=1355016031&ref_=nav_cs_beauty
+          - listitem [ref=f25e209]:
+            - generic [ref=f25e210]:
+              - link "Prime" [ref=f25e211] [cursor=pointer]:
+                - /url: /prime?ref_=nav_cs_primelink_nonmember
+              - button "Prime Details" [ref=f25e212] [cursor=pointer]
+          - listitem [ref=f25e213]:
+            - link "Audible" [ref=f25e215] [cursor=pointer]:
+              - /url: /Audible-Books-and-Originals/b/?ie=UTF8&node=17941593031&ref_=nav_cs_audible
+          - listitem [ref=f25e216]:
+            - link "AmazonBasics" [ref=f25e218] [cursor=pointer]:
+              - /url: /b/?node=6637738031&ref_=nav_cs_amazonbasics
+          - listitem [ref=f25e219]:
+            - link "Subscribe & Save" [ref=f25e221] [cursor=pointer]:
+              - /url: /auto-deliveries/landing?ref_=nav_cs_sns
+        - link "Jan26_Event" [ref=f25e225] [cursor=pointer]:
+          - /url: /events/greatindianfestival/?_encoding=UTF8&ref_=nav_swm_event&pf_rd_p=913c2c21-782e-4de5-909f-10ab3b6494e9&pf_rd_s=nav-sitewide-msg&pf_rd_t=4201&pf_rd_i=navbar-4201&pf_rd_m=A21TJRUUN4KGV&pf_rd_r=XWP39J58CKJTHTGJZ9FP
+          - img "Jan26_Event" [ref=f25e226]
+      - dialog [ref=f25e227]
+  - generic [ref=f25e229]:
+    - heading [level=1] [ref=f25e232]:
+      - generic [ref=f25e233]:
+        - generic [ref=f25e236]:
+          - button [ref=f25e242] [cursor=pointer]:
+            - img "Filters" [ref=f25e243]
+          - heading "1-16 of over 4,000 results for \"Vivo T4 Ultra 5G\"" [level=2] [ref=f25e249]
+        - generic [ref=f25e254]:
+          - generic [aria-hidden] [ref=f25e255]: "Sort by:"
+          - combobox "Sort by:" [ref=f25e256]:
+            - option "Featured" [selected]
+            - 'option "Price: Low to High"'
+            - 'option "Price: High to Low"'
+            - option "Avg. Customer Review"
+            - option "Newest Arrivals"
+            - option "Best Sellers"
+          - generic [aria-hidden] [ref=f25e259] [cursor=pointer]: Sort by:Featured
+    - generic [ref=f25e263]:
+      - generic [ref=f25e265]:
+        - generic [ref=f25e267]:
+          - generic [ref=f25e270]:
+            - heading "Results" [level=2] [ref=f25e271]
+            - generic [ref=f25e272]: Check each product page for other buying options.
+          - generic:
+            - list:
+              - listitem [ref=f25e273]:
+                - generic [ref=f25e281]:
+                  - link [aria-hidden] [ref=f25e287] [cursor=pointer]:
+                    - /url: /sspa/click?ie=UTF8&spc=MTo3OTg2MjM0MDE4Njg0NTI0OjE3OTI4NDk5OTA6c3BfYXRmOjMwMTE2MTUxMTc0MzMzMjo6MDo6&url=%2FMediaTek-Dimensity-7540mAh-Battery-HyperCharge%2Fdp%2FB0H293SFTR%2Fref%3Dsr_1_1_sspa%3Fdib%3DeyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ%26dib_tag%3Dse%26keywords%3DVivo%2BT4%2BUltra%2B5G%26qid%3D1792849990%26sr%3D8-1-spons%26aref%3DQqJlBENA1h%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9hdGY%26psc%3D1&aref=QqJlBENA1h&sp_cr=ZAZ
+                  - generic [ref=f25e292]:
+                    - generic [ref=f25e293]:
+                      - button "View Sponsored information or leave ad feedback" [ref=f25e296] [cursor=pointer]:
+                        - generic [ref=f25e297]: Sponsored
+                      - heading "Redmi" [level=2] [ref=f25e301]
+                      - link [ref=f25e302] [cursor=pointer]:
+                        - /url: /sspa/click?ie=UTF8&spc=MTo3OTg2MjM0MDE4Njg0NTI0OjE3OTI4NDk5OTA6c3BfYXRmOjMwMTE2MTUxMTc0MzMzMjo6MDo6&url=%2FMediaTek-Dimensity-7540mAh-Battery-HyperCharge%2Fdp%2FB0H293SFTR%2Fref%3Dsr_1_1_sspa%3Fdib%3DeyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ%26dib_tag%3Dse%26keywords%3DVivo%2BT4%2BUltra%2B5G%26qid%3D1792849990%26sr%3D8-1-spons%26aref%3DQqJlBENA1h%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9hdGY%26psc%3D1&aref=QqJlBENA1h&sp_cr=ZAZ
+                        - heading "Sponsored Ad - Turbo 5 (8GB + 256GB) Turbo White | MediaTek Dimensity 8500 Ultra | Mega 7540mAh Battery | 100W HyperCharge | Compact 16.75cm(6.9) 120Hz Display | 50MP Sony OIS Camera" [level=2] [ref=f25e303]: Turbo 5 (8GB + 256GB) Turbo White | MediaTek Dimensity 8500 Ultra | Mega 7540mAh Battery | 100W HyperCharge | Compact 16.75cm(6.9) 120Hz Display | 50MP Sony OIS Camera
+                    - generic [ref=f25e304]:
+                      - generic [ref=f25e305]:
+                        - text: "4.1"
+                        - button "4.1 out of 5 stars, rating details" [ref=f25e307] [cursor=pointer]:
+                          - generic [ref=f25e309]: 4.1 out of 5 stars
+                        - link "873 ratings" [ref=f25e311] [cursor=pointer]:
+                          - /url: /sspa/click?ie=UTF8&spc=MTo3OTg2MjM0MDE4Njg0NTI0OjE3OTI4NDk5OTA6c3BfYXRmOjMwMTE2MTUxMTc0MzMzMjo6MDo6&url=%2FMediaTek-Dimensity-7540mAh-Battery-HyperCharge%2Fdp%2FB0H293SFTR%2Fref%3Dsr_1_1_sspa%3Fdib%3DeyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ%26dib_tag%3Dse%26keywords%3DVivo%2BT4%2BUltra%2B5G%26qid%3D1792849990%26sr%3D8-1-spons%26aref%3DQqJlBENA1h%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9hdGY%26psc%3D1&aref=QqJlBENA1h&sp_cr=ZAZ#customerReviews
+                          - text: (873)
+                      - generic [ref=f25e312]: 5K+ bought in past month
+                    - generic [ref=f25e315]:
+                      - generic [ref=f25e316]:
+                        - link "Great Indian Festival" [ref=f25e318] [cursor=pointer]:
+                          - /url: /deals
+                        - generic [ref=f25e324]:
+                          - generic [ref=f25e325]: Price, product page
+                          - 'link "₹40,999 M.R.P: ₹54,999 M.R.P: ₹54,999" [ref=f25e326] [cursor=pointer]':
+                            - /url: /sspa/click?ie=UTF8&spc=MTo3OTg2MjM0MDE4Njg0NTI0OjE3OTI4NDk5OTA6c3BfYXRmOjMwMTE2MTUxMTc0MzMzMjo6MDo6&url=%2FMediaTek-Dimensity-7540mAh-Battery-HyperCharge%2Fdp%2FB0H293SFTR%2Fref%3Dsr_1_1_sspa%3Fdib%3DeyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ%26dib_tag%3Dse%26keywords%3DVivo%2BT4%2BUltra%2B5G%26qid%3D1792849990%26sr%3D8-1-spons%26aref%3DQqJlBENA1h%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9hdGY%26psc%3D1&aref=QqJlBENA1h&sp_cr=ZAZ
+                            - generic [ref=f25e327]:
+                              - generic [ref=f25e328]: ₹40,999
+                              - generic [aria-hidden] [ref=f25e329]: ₹40,999
+                            - generic [ref=f25e330]: "M.R.P: ₹54,999"
+                            - generic [ref=f25e331]:
+                              - text: "M.R.P:"
+                              - generic [ref=f25e332]:
+                                - generic [ref=f25e333]: ₹54,999
+                                - text: ₹54,999
+                          - text: (25% off)
+                        - generic [ref=f25e336]:
+                          - generic [ref=f25e337]: You pay ₹38,999
+                          - text: with coupon
+                      - generic [ref=f25e340]:
+                        - generic [ref=f25e341]: FREE delivery Wed, 28 Oct
+                        - generic [ref=f25e343]: Arrives before Diwali
+                      - generic [ref=f25e358] [cursor=pointer]:
+                        - button "Add to cart" [ref=f25e359]
+                        - generic [aria-hidden] [ref=f25e360]: Add to cart
+                      - group "colours available" [ref=f25e362]:
+                        - list
+                        - link "+2 other colors/patterns" [ref=f25e364] [cursor=pointer]:
+                          - /url: /sspa/click?ie=UTF8&spc=MTo3OTg2MjM0MDE4Njg0NTI0OjE3OTI4NDk5OTA6c3BfYXRmOjMwMTE2MTUxMTc0MzMzMjo6MDo6&url=%2FMediaTek-Dimensity-7540mAh-Battery-HyperCharge%2Fdp%2FB0H293SFTR%2Fref%3Dsr_1_1_sspa%3Fdib%3DeyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ%26dib_tag%3Dse%26keywords%3DVivo%2BT4%2BUltra%2B5G%26qid%3D1792849990%26sr%3D8-1-spons%26aref%3DQqJlBENA1h%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9hdGY%26psc%3D1&aref=QqJlBENA1h&sp_cr=ZAZ
+              - listitem [ref=f25e365]:
+                - generic [ref=f25e371]:
+                  - link [aria-hidden] [ref=f25e377] [cursor=pointer]:
+                    - /url: /VIVO-T4R-Twilight-Blue-256GB/dp/B0FPGR6SJ5/ref=sr_1_2?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-2
+                  - generic [ref=f25e382]:
+                    - generic [ref=f25e383]:
+                      - heading "vivo" [level=2] [ref=f25e386]
+                      - link [ref=f25e387] [cursor=pointer]:
+                        - /url: /VIVO-T4R-Twilight-Blue-256GB/dp/B0FPGR6SJ5/ref=sr_1_2?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-2
+                        - heading "T4R 5G, Twilight Blue (8GB, 256GB)" [level=2] [ref=f25e388]
+                    - generic [ref=f25e389]:
+                      - generic [ref=f25e390]:
+                        - text: "4.3"
+                        - button "4.3 out of 5 stars, rating details" [ref=f25e392] [cursor=pointer]:
+                          - generic [ref=f25e394]: 4.3 out of 5 stars
+                        - link "79 ratings" [ref=f25e396] [cursor=pointer]:
+                          - /url: /VIVO-T4R-Twilight-Blue-256GB/dp/B0FPGR6SJ5/ref=sr_1_2?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-2#customerReviews
+                          - text: (79)
+                      - generic [ref=f25e397]: 50+ bought in past month
+                    - generic [ref=f25e400]:
+                      - generic [ref=f25e401]:
+                        - generic [ref=f25e403]:
+                          - generic [ref=f25e404]: Price, product page
+                          - link "₹33,999" [ref=f25e405] [cursor=pointer]:
+                            - /url: /VIVO-T4R-Twilight-Blue-256GB/dp/B0FPGR6SJ5/ref=sr_1_2?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-2
+                            - generic [ref=f25e406]:
+                              - generic [ref=f25e407]: ₹33,999
+                              - generic [aria-hidden] [ref=f25e408]: ₹33,999
+                        - generic [ref=f25e412]:
+                          - generic [ref=f25e413]: Up to 5% back with Amazon Pay ICICI card
+                          - generic [aria-hidden] [ref=f25e414]: Up to 5% back with Amazon Pay ICICI card
+                      - generic [ref=f25e415]:
+                        - generic [ref=f25e417]:
+                          - generic [ref=f25e418]: FREE delivery Thu, 29 Oct
+                          - generic [ref=f25e420]: Or fastest delivery Tue, 27 Oct
+                          - generic [ref=f25e422]: Arrives before Diwali
+                        - generic "Only 1 left in stock." [ref=f25e425]
+                      - generic [ref=f25e439] [cursor=pointer]:
+                        - button "Add to cart" [ref=f25e440]
+                        - generic [aria-hidden] [ref=f25e441]: Add to cart
+              - listitem [ref=f25e442]:
+                - generic [ref=f25e448]:
+                  - link [aria-hidden] [ref=f25e454] [cursor=pointer]:
+                    - /url: /vivo-Glacier-Storage-Display-Snapdragon/dp/B0GY51XV7C/ref=sr_1_3?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-3
+                  - generic [ref=f25e459]:
+                    - generic [ref=f25e460]:
+                      - heading "vivo" [level=2] [ref=f25e463]
+                      - link [ref=f25e464] [cursor=pointer]:
+                        - /url: /vivo-Glacier-Storage-Display-Snapdragon/dp/B0GY51XV7C/ref=sr_1_3?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-3
+                        - heading "T5 Pro 5G (Glacier Blue, 8GB RAM, 128GB Storage) | 50MP Camera | 6.83\" FHD+ AMOLED Display | Snapdragon 7s Gen 4 | 9020mAh Battery" [level=2] [ref=f25e465]
+                    - generic [ref=f25e466]:
+                      - generic [ref=f25e467]:
+                        - text: "4.2"
+                        - button "4.2 out of 5 stars, rating details" [ref=f25e469] [cursor=pointer]:
+                          - generic [ref=f25e471]: 4.2 out of 5 stars
+                        - link "70 ratings" [ref=f25e473] [cursor=pointer]:
+                          - /url: /vivo-Glacier-Storage-Display-Snapdragon/dp/B0GY51XV7C/ref=sr_1_3?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-3#customerReviews
+                          - text: (70)
+                      - generic [ref=f25e474]: 200+ bought in past month
+                    - generic [ref=f25e477]:
+                      - generic [ref=f25e478]:
+                        - generic [ref=f25e480]:
+                          - generic [ref=f25e481]: Price, product page
+                          - 'link "₹39,499 M.R.P: ₹55,999 M.R.P: ₹55,999" [ref=f25e482] [cursor=pointer]':
+                            - /url: /vivo-Glacier-Storage-Display-Snapdragon/dp/B0GY51XV7C/ref=sr_1_3?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-3
+                            - generic [ref=f25e483]:
+                              - generic [ref=f25e484]: ₹39,499
+                              - generic [aria-hidden] [ref=f25e485]: ₹39,499
+                            - generic [ref=f25e486]: "M.R.P: ₹55,999"
+                            - generic [ref=f25e487]:
+                              - text: "M.R.P:"
+                              - generic [ref=f25e488]:
+                                - generic [ref=f25e489]: ₹55,999
+                                - text: ₹55,999
+                          - text: (29% off)
+                        - generic [ref=f25e493]:
+                          - generic [ref=f25e494]: Up to 5% back with Amazon Pay ICICI card
+                          - generic [aria-hidden] [ref=f25e495]: Up to 5% back with Amazon Pay ICICI card
+                      - generic [ref=f25e498]:
+                        - generic [ref=f25e499]: FREE delivery Tue, 27 Oct
+                        - generic [ref=f25e501]: Or fastest delivery Tomorrow 8 am - 12 pm
+                        - generic [ref=f25e503]: Arrives before Diwali
+                      - generic [ref=f25e518] [cursor=pointer]:
+                        - button "Add to cart" [ref=f25e519]
+                        - generic [aria-hidden] [ref=f25e520]: Add to cart
+                      - generic [ref=f25e522]:
+                        - text: More Buying Choices₹39,490
+                        - link "(6 new offers)" [ref=f25e524] [cursor=pointer]:
+                          - /url: /gp/offer-listing/B0GY51XV7C/ref=sr_1_3_olp?keywords=Vivo+T4+Ultra+5G&dib_tag=se&dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&qid=1792849990&sr=8-3
+              - listitem [ref=f25e525]:
+                - generic [ref=f25e533]:
+                  - link [aria-hidden] [ref=f25e539] [cursor=pointer]:
+                    - /url: /sspa/click?ie=UTF8&spc=MTo3OTg2MjM0MDE4Njg0NTI0OjE3OTI4NDk5OTA6c3BfbXRmOjMwMTE3ODc0ODM2NzUzMjo6MDo6&url=%2FSamsung-Awesome-Complete-Processor-Security%2Fdp%2FB0H1WY55ZL%2Fref%3Dsr_1_4_sspa%3Fdib%3DeyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ%26dib_tag%3Dse%26keywords%3DVivo%2BT4%2BUltra%2B5G%26qid%3D1792849990%26sr%3D8-4-spons%26aref%3D3f4ReZc2qi%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9tdGY%26psc%3D1&aref=3f4ReZc2qi&sp_cr=ZAZ
+                  - generic [ref=f25e544]:
+                    - generic [ref=f25e545]:
+                      - button "View Sponsored information or leave ad feedback" [ref=f25e548] [cursor=pointer]:
+                        - generic [ref=f25e549]: Sponsored
+                      - heading "Samsung" [level=2] [ref=f25e553]
+                      - link [ref=f25e554] [cursor=pointer]:
+                        - /url: /sspa/click?ie=UTF8&spc=MTo3OTg2MjM0MDE4Njg0NTI0OjE3OTI4NDk5OTA6c3BfbXRmOjMwMTE3ODc0ODM2NzUzMjo6MDo6&url=%2FSamsung-Awesome-Complete-Processor-Security%2Fdp%2FB0H1WY55ZL%2Fref%3Dsr_1_4_sspa%3Fdib%3DeyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ%26dib_tag%3Dse%26keywords%3DVivo%2BT4%2BUltra%2B5G%26qid%3D1792849990%26sr%3D8-4-spons%26aref%3D3f4ReZc2qi%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9tdGY%26psc%3D1&aref=3f4ReZc2qi&sp_cr=ZAZ
+                        - heading "Sponsored Ad - Galaxy A56 5G Mobile (Awesome Violet Glow, 8GB, 128GB) | Segment Most Complete Triple Camera | 50MP | AI Editing | 4nm Processor | sAMOLED | 5000mAh | Gorilla Glass Victus+| Knox Security" [level=2] [ref=f25e555]: Galaxy A56 5G Mobile (Awesome Violet Glow, 8GB, 128GB) | Segment Most Complete Triple Camera | 50MP | AI Editing | 4nm Processor | sAMOLED | 5000mAh | Gorilla Glass Victus+| Knox Security
+                    - generic [ref=f25e556]:
+                      - generic [ref=f25e557]:
+                        - text: "4.3"
+                        - button "4.3 out of 5 stars, rating details" [ref=f25e559] [cursor=pointer]:
+                          - generic [ref=f25e561]: 4.3 out of 5 stars
+                        - link "1,018 ratings" [ref=f25e563] [cursor=pointer]:
+                          - /url: /sspa/click?ie=UTF8&spc=MTo3OTg2MjM0MDE4Njg0NTI0OjE3OTI4NDk5OTA6c3BfbXRmOjMwMTE3ODc0ODM2NzUzMjo6MDo6&url=%2FSamsung-Awesome-Complete-Processor-Security%2Fdp%2FB0H1WY55ZL%2Fref%3Dsr_1_4_sspa%3Fdib%3DeyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ%26dib_tag%3Dse%26keywords%3DVivo%2BT4%2BUltra%2B5G%26qid%3D1792849990%26sr%3D8-4-spons%26aref%3D3f4ReZc2qi%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9tdGY%26psc%3D1&aref=3f4ReZc2qi&sp_cr=ZAZ#customerReviews
+                          - text: (1K)
+                      - generic [ref=f25e564]: 5K+ bought in past month
+                    - generic [ref=f25e567]:
+                      - generic [ref=f25e568]:
+                        - link "Great Indian Festival" [ref=f25e570] [cursor=pointer]:
+                          - /url: /deals
+                        - generic [ref=f25e576]:
+                          - generic [ref=f25e577]: Price, product page
+                          - 'link "₹32,999 M.R.P: ₹49,999 M.R.P: ₹49,999" [ref=f25e578] [cursor=pointer]':
+                            - /url: /sspa/click?ie=UTF8&spc=MTo3OTg2MjM0MDE4Njg0NTI0OjE3OTI4NDk5OTA6c3BfbXRmOjMwMTE3ODc0ODM2NzUzMjo6MDo6&url=%2FSamsung-Awesome-Complete-Processor-Security%2Fdp%2FB0H1WY55ZL%2Fref%3Dsr_1_4_sspa%3Fdib%3DeyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ%26dib_tag%3Dse%26keywords%3DVivo%2BT4%2BUltra%2B5G%26qid%3D1792849990%26sr%3D8-4-spons%26aref%3D3f4ReZc2qi%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9tdGY%26psc%3D1&aref=3f4ReZc2qi&sp_cr=ZAZ
+                            - generic [ref=f25e579]:
+                              - generic [ref=f25e580]: ₹32,999
+                              - generic [aria-hidden] [ref=f25e581]: ₹32,999
+                            - generic [ref=f25e582]: "M.R.P: ₹49,999"
+                            - generic [ref=f25e583]:
+                              - text: "M.R.P:"
+                              - generic [ref=f25e584]:
+                                - generic [ref=f25e585]: ₹49,999
+                                - text: ₹49,999
+                          - text: (34% off)
+                        - generic [ref=f25e589]:
+                          - generic [ref=f25e590]: Up to 5% back with Amazon Pay ICICI card
+                          - generic [aria-hidden] [ref=f25e591]: Up to 5% back with Amazon Pay ICICI card
+                      - generic [ref=f25e594]:
+                        - generic [ref=f25e595]: FREE delivery Tue, 27 Oct
+                        - generic [ref=f25e597]: Or fastest delivery Tomorrow 6 am - 10 am
+                        - generic [ref=f25e599]: Arrives before Diwali
+                      - generic [ref=f25e614] [cursor=pointer]:
+                        - button "Add to cart" [ref=f25e615]
+                        - generic [aria-hidden] [ref=f25e616]: Add to cart
+                      - group "colours available" [ref=f25e618]:
+                        - list
+                        - link "+4 other colors/patterns" [ref=f25e620] [cursor=pointer]:
+                          - /url: /sspa/click?ie=UTF8&spc=MTo3OTg2MjM0MDE4Njg0NTI0OjE3OTI4NDk5OTA6c3BfbXRmOjMwMTE3ODc0ODM2NzUzMjo6MDo6&url=%2FSamsung-Awesome-Complete-Processor-Security%2Fdp%2FB0H1WY55ZL%2Fref%3Dsr_1_4_sspa%3Fdib%3DeyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ%26dib_tag%3Dse%26keywords%3DVivo%2BT4%2BUltra%2B5G%26qid%3D1792849990%26sr%3D8-4-spons%26aref%3D3f4ReZc2qi%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9tdGY%26psc%3D1&aref=3f4ReZc2qi&sp_cr=ZAZ
+              - listitem [ref=f25e621]:
+                - generic [ref=f25e629]:
+                  - link [aria-hidden] [ref=f25e635] [cursor=pointer]:
+                    - /url: /sspa/click?ie=UTF8&spc=MTo3OTg2MjM0MDE4Njg0NTI0OjE3OTI4NDk5OTA6c3BfbXRmOjMwMTE4MjQ0NTc1MzAzMjo6MDo6&url=%2FSamsung-Storage-Snapdragon-Processor-Security%2Fdp%2FB0H4L5T84X%2Fref%3Dsr_1_5_sspa%3Fdib%3DeyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ%26dib_tag%3Dse%26keywords%3DVivo%2BT4%2BUltra%2B5G%26qid%3D1792849990%26sr%3D8-5-spons%26aref%3DuPesatE7MQ%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9tdGY%26psc%3D1&aref=uPesatE7MQ&sp_cr=ZAZ
+                  - generic [ref=f25e640]:
+                    - generic [ref=f25e641]:
+                      - button "View Sponsored information or leave ad feedback" [ref=f25e644] [cursor=pointer]:
+                        - generic [ref=f25e645]: Sponsored
+                      - heading "Samsung" [level=2] [ref=f25e649]
+                      - link [ref=f25e650] [cursor=pointer]:
+                        - /url: /sspa/click?ie=UTF8&spc=MTo3OTg2MjM0MDE4Njg0NTI0OjE3OTI4NDk5OTA6c3BfbXRmOjMwMTE4MjQ0NTc1MzAzMjo6MDo6&url=%2FSamsung-Storage-Snapdragon-Processor-Security%2Fdp%2FB0H4L5T84X%2Fref%3Dsr_1_5_sspa%3Fdib%3DeyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ%26dib_tag%3Dse%26keywords%3DVivo%2BT4%2BUltra%2B5G%26qid%3D1792849990%26sr%3D8-5-spons%26aref%3DuPesatE7MQ%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9tdGY%26psc%3D1&aref=uPesatE7MQ&sp_cr=ZAZ
+                        - heading "Sponsored Ad - Galaxy M47 5G Mobile (Rogue Red, 6GB RAM, 128GB Storage, 6000mAh Battery)| 50MP OIS| Snapdragon Processor| LPDDR5X RAM,UFS 3.1 Storage| Gorilla Glass Victus+| sAMOLED| Knox Security| AI" [level=2] [ref=f25e651]: Galaxy M47 5G Mobile (Rogue Red, 6GB RAM, 128GB Storage, 6000mAh Battery)| 50MP OIS| Snapdragon Processor| LPDDR5X RAM,UFS 3.1 Storage| Gorilla Glass Victus+| sAMOLED| Knox Security| AI
+                    - generic [ref=f25e652]:
+                      - generic [ref=f25e653]:
+                        - text: "3.1"
+                        - button "3.1 out of 5 stars, rating details" [ref=f25e655] [cursor=pointer]:
+                          - generic [ref=f25e657]: 3.1 out of 5 stars
+                        - link "897 ratings" [ref=f25e659] [cursor=pointer]:
+                          - /url: /sspa/click?ie=UTF8&spc=MTo3OTg2MjM0MDE4Njg0NTI0OjE3OTI4NDk5OTA6c3BfbXRmOjMwMTE4MjQ0NTc1MzAzMjo6MDo6&url=%2FSamsung-Storage-Snapdragon-Processor-Security%2Fdp%2FB0H4L5T84X%2Fref%3Dsr_1_5_sspa%3Fdib%3DeyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ%26dib_tag%3Dse%26keywords%3DVivo%2BT4%2BUltra%2B5G%26qid%3D1792849990%26sr%3D8-5-spons%26aref%3DuPesatE7MQ%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9tdGY%26psc%3D1&aref=uPesatE7MQ&sp_cr=ZAZ#customerReviews
+                          - text: (897)
+                      - generic [ref=f25e660]: 5K+ bought in past month
+                    - generic [ref=f25e663]:
+                      - generic [ref=f25e664]:
+                        - link "Mega Festival Deal" [ref=f25e666] [cursor=pointer]:
+                          - /url: /deals
+                        - generic [ref=f25e672]:
+                          - generic [ref=f25e673]: Price, product page
+                          - 'link "₹26,999 M.R.P: ₹46,999 M.R.P: ₹46,999" [ref=f25e674] [cursor=pointer]':
+                            - /url: /sspa/click?ie=UTF8&spc=MTo3OTg2MjM0MDE4Njg0NTI0OjE3OTI4NDk5OTA6c3BfbXRmOjMwMTE4MjQ0NTc1MzAzMjo6MDo6&url=%2FSamsung-Storage-Snapdragon-Processor-Security%2Fdp%2FB0H4L5T84X%2Fref%3Dsr_1_5_sspa%3Fdib%3DeyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ%26dib_tag%3Dse%26keywords%3DVivo%2BT4%2BUltra%2B5G%26qid%3D1792849990%26sr%3D8-5-spons%26aref%3DuPesatE7MQ%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9tdGY%26psc%3D1&aref=uPesatE7MQ&sp_cr=ZAZ
+                            - generic [ref=f25e675]:
+                              - generic [ref=f25e676]: ₹26,999
+                              - generic [aria-hidden] [ref=f25e677]: ₹26,999
+                            - generic [ref=f25e678]: "M.R.P: ₹46,999"
+                            - generic [ref=f25e679]:
+                              - text: "M.R.P:"
+                              - generic [ref=f25e680]:
+                                - generic [ref=f25e681]: ₹46,999
+                                - text: ₹46,999
+                          - text: (43% off)
+                        - generic [ref=f25e684]:
+                          - generic [ref=f25e685]: You pay ₹24,999
+                          - text: with coupon
+                      - generic [ref=f25e688]:
+                        - generic [ref=f25e689]: FREE delivery Tue, 27 Oct
+                        - generic [ref=f25e691]: Or fastest delivery Tomorrow 8 am - 12 pm
+                        - generic [ref=f25e693]: Arrives before Diwali
+                      - generic [ref=f25e708] [cursor=pointer]:
+                        - button "Add to cart" [ref=f25e709]
+                        - generic [aria-hidden] [ref=f25e710]: Add to cart
+                      - group "colours available" [ref=f25e712]:
+                        - list
+                        - link "+1 other color/pattern" [ref=f25e714] [cursor=pointer]:
+                          - /url: /sspa/click?ie=UTF8&spc=MTo3OTg2MjM0MDE4Njg0NTI0OjE3OTI4NDk5OTA6c3BfbXRmOjMwMTE4MjQ0NTc1MzAzMjo6MDo6&url=%2FSamsung-Storage-Snapdragon-Processor-Security%2Fdp%2FB0H4L5T84X%2Fref%3Dsr_1_5_sspa%3Fdib%3DeyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ%26dib_tag%3Dse%26keywords%3DVivo%2BT4%2BUltra%2B5G%26qid%3D1792849990%26sr%3D8-5-spons%26aref%3DuPesatE7MQ%26sp_csd%3Dd2lkZ2V0TmFtZT1zcF9tdGY%26psc%3D1&aref=uPesatE7MQ&sp_cr=ZAZ
+              - listitem [ref=f25e715]:
+                - generic [ref=f25e721]:
+                  - link [aria-hidden] [ref=f25e727] [cursor=pointer]:
+                    - /url: /vivo-Sunrise-Storage-Additional-Exchange/dp/B0HJD2T8FW/ref=sr_1_6?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-6
+                  - generic [ref=f25e732]:
+                    - generic [ref=f25e733]:
+                      - heading "vivo" [level=2] [ref=f25e736]
+                      - link [ref=f25e737] [cursor=pointer]:
+                        - /url: /vivo-Sunrise-Storage-Additional-Exchange/dp/B0HJD2T8FW/ref=sr_1_6?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-6
+                        - heading "V80 5G (Sunrise Anthem, 8GB RAM, 128GB Storage) with No Cost EMI/Additional Exchange Offers" [level=2] [ref=f25e738]
+                    - generic [ref=f25e740]:
+                      - text: "5.0"
+                      - button "5.0 out of 5 stars, rating details" [ref=f25e742] [cursor=pointer]:
+                        - generic [ref=f25e744]: 5.0 out of 5 stars
+                      - link "1 ratings" [ref=f25e746] [cursor=pointer]:
+                        - /url: /vivo-Sunrise-Storage-Additional-Exchange/dp/B0HJD2T8FW/ref=sr_1_6?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-6#customerReviews
+                        - text: (1)
+                    - generic [ref=f25e749]:
+                      - generic [ref=f25e750]:
+                        - link "Great Indian Festival" [ref=f25e752] [cursor=pointer]:
+                          - /url: /deals
+                        - generic [ref=f25e758]:
+                          - generic [ref=f25e759]: Price, product page
+                          - 'link "₹62,999 M.R.P: ₹1,11,999 M.R.P: ₹1,11,999" [ref=f25e760] [cursor=pointer]':
+                            - /url: /vivo-Sunrise-Storage-Additional-Exchange/dp/B0HJD2T8FW/ref=sr_1_6?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-6
+                            - generic [ref=f25e761]:
+                              - generic [ref=f25e762]: ₹62,999
+                              - generic [aria-hidden] [ref=f25e763]: ₹62,999
+                            - generic [ref=f25e764]: "M.R.P: ₹1,11,999"
+                            - generic [ref=f25e765]:
+                              - text: "M.R.P:"
+                              - generic [ref=f25e766]:
+                                - generic [ref=f25e767]: ₹1,11,999
+                                - text: ₹1,11,999
+                          - text: (44% off)
+                        - generic [ref=f25e771]:
+                          - generic [ref=f25e772]: Save extra with No Cost EMI
+                          - generic [aria-hidden] [ref=f25e773]: Save extra with No Cost EMI
+                      - generic [ref=f25e776]:
+                        - generic [ref=f25e777]: FREE delivery Tue, 27 Oct
+                        - generic [ref=f25e779]: Or fastest delivery Tomorrow 8 am - 12 pm
+                        - generic [ref=f25e781]: Arrives before Diwali
+                      - generic [ref=f25e796] [cursor=pointer]:
+                        - button "Add to cart" [ref=f25e797]
+                        - generic [aria-hidden] [ref=f25e798]: Add to cart
+                      - group "colours available" [ref=f25e800]:
+                        - list [ref=f25e801]:
+                          - generic [ref=f25e802]:
+                            - listitem:
+                              - link "Sunrise Anthem":
+                                - /url: /vivo-Sunrise-Storage-Additional-Exchange/dp/B0HJD2T8FW/ref=cs_sr_dp_1?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-6
+                                - generic [ref=f25e803] [cursor=pointer]
+                          - generic [ref=f25e805]:
+                            - listitem:
+                              - link "Horizon Blue":
+                                - /url: /vivo-Sunrise-Storage-Additional-Exchange/dp/B0HJCYSRDB/ref=cs_sr_dp_2?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-6
+                                - generic [ref=f25e806] [cursor=pointer]
+                          - generic [ref=f25e808]:
+                            - listitem:
+                              - link "Stellar Black":
+                                - /url: /vivo-Sunrise-Storage-Additional-Exchange/dp/B0HJCZQNZT/ref=cs_sr_dp_3?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-6
+                                - generic [ref=f25e809] [cursor=pointer]
+              - listitem [ref=f25e811]:
+                - generic [ref=f25e817]:
+                  - link [aria-hidden] [ref=f25e823] [cursor=pointer]:
+                    - /url: /vivo-Storage-Processor-Additional-Exchange/dp/B0H99SS8B2/ref=sr_1_7?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-7
+                  - generic [ref=f25e828]:
+                    - generic [ref=f25e829]:
+                      - heading "vivo" [level=2] [ref=f25e832]
+                      - link [ref=f25e833] [cursor=pointer]:
+                        - /url: /vivo-Storage-Processor-Additional-Exchange/dp/B0H99SS8B2/ref=sr_1_7?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-7
+                        - heading "S2 5G (Silk White, 8GB RAM, 128GB Storage) | 50MP Sony Camera | 4K Video | 7050 mAh Battery | 3D Curved AMOLED Display | MTK D-7360 Turbo Processor with No Cost EMI/Additional Exchange Offers" [level=2] [ref=f25e834]
+                    - generic [ref=f25e835]:
+                      - generic [ref=f25e836]:
+                        - text: "3.8"
+                        - button "3.8 out of 5 stars, rating details" [ref=f25e838] [cursor=pointer]:
+                          - generic [ref=f25e840]: 3.8 out of 5 stars
+                        - link "57 ratings" [ref=f25e842] [cursor=pointer]:
+                          - /url: /vivo-Storage-Processor-Additional-Exchange/dp/B0H99SS8B2/ref=sr_1_7?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-7#customerReviews
+                          - text: (57)
+                      - generic [ref=f25e843]: 200+ bought in past month
+                    - generic [ref=f25e846]:
+                      - generic [ref=f25e847]:
+                        - generic [ref=f25e849]:
+                          - generic [ref=f25e850]: Price, product page
+                          - 'link "₹42,999 M.R.P: ₹66,999 M.R.P: ₹66,999" [ref=f25e851] [cursor=pointer]':
+                            - /url: /vivo-Storage-Processor-Additional-Exchange/dp/B0H99SS8B2/ref=sr_1_7?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-7
+                            - generic [ref=f25e852]:
+                              - generic [ref=f25e853]: ₹42,999
+                              - generic [aria-hidden] [ref=f25e854]: ₹42,999
+                            - generic [ref=f25e855]: "M.R.P: ₹66,999"
+                            - generic [ref=f25e856]:
+                              - text: "M.R.P:"
+                              - generic [ref=f25e857]:
+                                - generic [ref=f25e858]: ₹66,999
+                                - text: ₹66,999
+                          - text: (36% off)
+                        - generic [ref=f25e862]:
+                          - generic [ref=f25e863]: Save extra with No Cost EMI
+                          - generic [aria-hidden] [ref=f25e864]: Save extra with No Cost EMI
+                      - generic [ref=f25e867]:
+                        - generic [ref=f25e868]: FREE delivery Tue, 27 Oct
+                        - generic [ref=f25e870]: Or fastest delivery Tomorrow 6 am - 10 am
+                        - generic [ref=f25e872]: Arrives before Diwali
+                      - generic [ref=f25e887] [cursor=pointer]:
+                        - button "Add to cart" [ref=f25e888]
+                        - generic [aria-hidden] [ref=f25e889]: Add to cart
+                      - group "colours available" [ref=f25e891]:
+                        - list [ref=f25e892]:
+                          - generic [ref=f25e893]:
+                            - listitem:
+                              - link "Silk White":
+                                - /url: /vivo-Storage-Processor-Additional-Exchange/dp/B0H99SS8B2/ref=cs_sr_dp_1?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-7
+                                - generic [ref=f25e894] [cursor=pointer]
+                          - generic [ref=f25e896]:
+                            - listitem:
+                              - link "Regal Bronze":
+                                - /url: /vivo-Storage-Processor-Additional-Exchange/dp/B0H9KNJ4JP/ref=cs_sr_dp_2?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-7
+                                - generic [ref=f25e897] [cursor=pointer]
+                          - generic [ref=f25e899]:
+                            - listitem:
+                              - link "Sapphire Blue":
+                                - /url: /vivo-Storage-Processor-Additional-Exchange/dp/B0H9KQ13MM/ref=cs_sr_dp_3?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-7
+                                - generic [ref=f25e900] [cursor=pointer]
+              - listitem [ref=f25e902]:
+                - generic [ref=f25e908]:
+                  - link [aria-hidden] [ref=f25e914] [cursor=pointer]:
+                    - /url: /vivo-Storage-Snapdragon-9020mAh-Battery/dp/B0GZ399NRJ/ref=sr_1_8?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-8
+                  - generic [ref=f25e919]:
+                    - generic [ref=f25e920]:
+                      - heading "vivo" [level=2] [ref=f25e923]
+                      - link [ref=f25e924] [cursor=pointer]:
+                        - /url: /vivo-Storage-Snapdragon-9020mAh-Battery/dp/B0GZ399NRJ/ref=sr_1_8?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-8
+                        - heading "T5 Pro 5G (Cosmic Black, 8GB RAM, 128GB Storage) | Snapdragon 7s Gen 4 | 50MP Camera | 9020mAh Battery | 6.83” FHD+ Display" [level=2] [ref=f25e925]
+                    - generic [ref=f25e926]:
+                      - generic [ref=f25e927]:
+                        - text: "4.1"
+                        - button "4.1 out of 5 stars, rating details" [ref=f25e929] [cursor=pointer]:
+                          - generic [ref=f25e931]: 4.1 out of 5 stars
+                        - link "18 ratings" [ref=f25e933] [cursor=pointer]:
+                          - /url: /vivo-Storage-Snapdragon-9020mAh-Battery/dp/B0GZ399NRJ/ref=sr_1_8?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-8#customerReviews
+                          - text: (18)
+                      - generic [ref=f25e934]: 100+ bought in past month
+                    - generic [ref=f25e937]:
+                      - generic [ref=f25e938]:
+                        - generic [ref=f25e940]:
+                          - generic [ref=f25e941]: Price, product page
+                          - 'link "₹39,998 M.R.P: ₹55,999 M.R.P: ₹55,999" [ref=f25e942] [cursor=pointer]':
+                            - /url: /vivo-Storage-Snapdragon-9020mAh-Battery/dp/B0GZ399NRJ/ref=sr_1_8?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-8
+                            - generic [ref=f25e943]:
+                              - generic [ref=f25e944]: ₹39,998
+                              - generic [aria-hidden] [ref=f25e945]: ₹39,998
+                            - generic [ref=f25e946]: "M.R.P: ₹55,999"
+                            - generic [ref=f25e947]:
+                              - text: "M.R.P:"
+                              - generic [ref=f25e948]:
+                                - generic [ref=f25e949]: ₹55,999
+                                - text: ₹55,999
+                          - text: (29% off)
+                        - generic [ref=f25e953]:
+                          - generic [ref=f25e954]: Up to 5% back with Amazon Pay ICICI card
+                          - generic [aria-hidden] [ref=f25e955]: Up to 5% back with Amazon Pay ICICI card
+                      - generic [ref=f25e958]:
+                        - generic [ref=f25e959]: FREE delivery Tue, 27 Oct
+                        - generic [ref=f25e961]: Or fastest delivery Tomorrow 8 am - 12 pm
+                        - generic [ref=f25e963]: Arrives before Diwali
+                      - generic [ref=f25e978] [cursor=pointer]:
+                        - button "Add to cart" [ref=f25e979]
+                        - generic [aria-hidden] [ref=f25e980]: Add to cart
+                      - generic [ref=f25e982]:
+                        - text: More Buying Choices₹39,950
+                        - link "(4 new offers)" [ref=f25e984] [cursor=pointer]:
+                          - /url: /gp/offer-listing/B0GZ399NRJ/ref=sr_1_8_olp?keywords=Vivo+T4+Ultra+5G&dib_tag=se&dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&qid=1792849990&sr=8-8
+              - listitem [ref=f25e985]:
+                - generic [ref=f25e991]:
+                  - link [aria-hidden] [ref=f25e997] [cursor=pointer]:
+                    - /url: /OnePlus-Snapdragon-Segments-Complete-Personalized/dp/B0GRBBPBGQ/ref=sr_1_9?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-9
+                  - generic [ref=f25e1002]:
+                    - generic [ref=f25e1003]:
+                      - heading "OnePlus" [level=2] [ref=f25e1006]
+                      - link [ref=f25e1007] [cursor=pointer]:
+                        - /url: /OnePlus-Snapdragon-Segments-Complete-Personalized/dp/B0GRBBPBGQ/ref=sr_1_9?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-9
+                        - heading "Nord 6 | 8GB+256GB | Fresh Mint | Snapdragon 8s Gen 4 | Segment's First Stable 165FPS Gaming | Segment's Largest 9000mAh Battery | Most Complete IP Rating | Personalized AI" [level=2] [ref=f25e1008]
+                    - generic [ref=f25e1009]:
+                      - generic [ref=f25e1010]:
+                        - text: "4.3"
+                        - button "4.3 out of 5 stars, rating details" [ref=f25e1012] [cursor=pointer]:
+                          - generic [ref=f25e1014]: 4.3 out of 5 stars
+                        - link "2,730 ratings" [ref=f25e1016] [cursor=pointer]:
+                          - /url: /OnePlus-Snapdragon-Segments-Complete-Personalized/dp/B0GRBBPBGQ/ref=sr_1_9?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-9#customerReviews
+                          - text: (2.7K)
+                      - generic [ref=f25e1017]: 5K+ bought in past month
+                    - generic [ref=f25e1020]:
+                      - generic [ref=f25e1021]:
+                        - link "Mega Festival Deal" [ref=f25e1023] [cursor=pointer]:
+                          - /url: /deals
+                        - generic [ref=f25e1029]:
+                          - generic [ref=f25e1030]: Price, product page
+                          - 'link "₹44,999 M.R.P: ₹52,999 M.R.P: ₹52,999" [ref=f25e1031] [cursor=pointer]':
+                            - /url: /OnePlus-Snapdragon-Segments-Complete-Personalized/dp/B0GRBBPBGQ/ref=sr_1_9?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-9
+                            - generic [ref=f25e1032]:
+                              - generic [ref=f25e1033]: ₹44,999
+                              - generic [aria-hidden] [ref=f25e1034]: ₹44,999
+                            - generic [ref=f25e1035]: "M.R.P: ₹52,999"
+                            - generic [ref=f25e1036]:
+                              - text: "M.R.P:"
+                              - generic [ref=f25e1037]:
+                                - generic [ref=f25e1038]: ₹52,999
+                                - text: ₹52,999
+                          - text: (15% off)
+                        - generic [ref=f25e1042]:
+                          - generic [ref=f25e1043]: Save extra with No Cost EMI
+                          - generic [aria-hidden] [ref=f25e1044]: Save extra with No Cost EMI
+                      - generic [ref=f25e1047]:
+                        - generic [ref=f25e1048]: FREE delivery Tue, 27 Oct
+                        - generic [ref=f25e1050]: Or fastest delivery Tomorrow 6 am - 10 am
+                        - generic [ref=f25e1052]: Arrives before Diwali
+                      - generic [ref=f25e1067] [cursor=pointer]:
+                        - button "Add to cart" [ref=f25e1068]
+                        - generic [aria-hidden] [ref=f25e1069]: Add to cart
+                      - group "colours available" [ref=f25e1071]:
+                        - list [ref=f25e1072]:
+                          - generic [ref=f25e1073]:
+                            - listitem:
+                              - link "Fresh Mint":
+                                - /url: /OnePlus-Snapdragon-Segments-Complete-Personalized/dp/B0GRBBPBGQ/ref=cs_sr_dp_1?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-9
+                                - generic [ref=f25e1074] [cursor=pointer]
+                          - generic [ref=f25e1076]:
+                            - listitem:
+                              - link "Pitch Black":
+                                - /url: /OnePlus-Snapdragon-Segments-Complete-Personalized/dp/B0GRB3FBBB/ref=cs_sr_dp_2?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-9
+                                - generic [ref=f25e1077] [cursor=pointer]
+                          - generic [ref=f25e1079]:
+                            - listitem:
+                              - link "Quick Silver":
+                                - /url: /OnePlus-Snapdragon-Segments-Complete-Personalized/dp/B0GRB5C1HW/ref=cs_sr_dp_3?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-9
+                                - generic [ref=f25e1080] [cursor=pointer]
+              - listitem [ref=f25e1082]:
+                - generic [ref=f25e1088]:
+                  - link [aria-hidden] [ref=f25e1094] [cursor=pointer]:
+                    - /url: /vivo-Glacier-Snapdragon-Processor-Charging/dp/B0H1HZHY2B/ref=sr_1_10?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-10
+                  - generic [ref=f25e1099]:
+                    - generic [ref=f25e1100]:
+                      - heading "vivo" [level=2] [ref=f25e1103]
+                      - link [ref=f25e1104] [cursor=pointer]:
+                        - /url: /vivo-Glacier-Snapdragon-Processor-Charging/dp/B0H1HZHY2B/ref=sr_1_10?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-10
+                        - heading "T5 Pro 5G (Glacier Blue, 8GB RAM, 256GB Storage) | Snapdragon 7s Gen 4 Processor | 50MP AI Dual Camera | 6.83\" AMOLED 144Hz Display | 9020mAh Battery with 90W Fast Charging" [level=2] [ref=f25e1105]
+                    - generic [ref=f25e1107]:
+                      - text: "3.8"
+                      - button "3.8 out of 5 stars, rating details" [ref=f25e1109] [cursor=pointer]:
+                        - generic [ref=f25e1111]: 3.8 out of 5 stars
+                      - link "32 ratings" [ref=f25e1113] [cursor=pointer]:
+                        - /url: /vivo-Glacier-Snapdragon-Processor-Charging/dp/B0H1HZHY2B/ref=sr_1_10?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-10#customerReviews
+                        - text: (32)
+                    - generic [ref=f25e1116]:
+                      - generic [ref=f25e1117]:
+                        - generic [ref=f25e1119]:
+                          - generic [ref=f25e1120]: Price, product page
+                          - 'link "₹45,799 M.R.P: ₹61,999 M.R.P: ₹61,999" [ref=f25e1121] [cursor=pointer]':
+                            - /url: /vivo-Glacier-Snapdragon-Processor-Charging/dp/B0H1HZHY2B/ref=sr_1_10?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-10
+                            - generic [ref=f25e1122]:
+                              - generic [ref=f25e1123]: ₹45,799
+                              - generic [aria-hidden] [ref=f25e1124]: ₹45,799
+                            - generic [ref=f25e1125]: "M.R.P: ₹61,999"
+                            - generic [ref=f25e1126]:
+                              - text: "M.R.P:"
+                              - generic [ref=f25e1127]:
+                                - generic [ref=f25e1128]: ₹61,999
+                                - text: ₹61,999
+                          - text: (26% off)
+                        - generic [ref=f25e1132]:
+                          - generic [ref=f25e1133]: Up to 5% back with Amazon Pay ICICI card
+                          - generic [aria-hidden] [ref=f25e1134]: Up to 5% back with Amazon Pay ICICI card
+                      - generic [ref=f25e1137]:
+                        - generic [ref=f25e1138]: FREE delivery Tue, 27 Oct
+                        - generic [ref=f25e1140]: Or fastest delivery Mon, 26 Oct
+                        - generic [ref=f25e1142]: Arrives before Diwali
+                      - generic [ref=f25e1157] [cursor=pointer]:
+                        - button "Add to cart" [ref=f25e1158]
+                        - generic [aria-hidden] [ref=f25e1159]: Add to cart
+                      - group "colours available" [ref=f25e1161]:
+                        - list
+                        - link "+4 other colors/patterns" [ref=f25e1163] [cursor=pointer]:
+                          - /url: /vivo-Glacier-Snapdragon-Processor-Charging/dp/B0H1HZHY2B/ref=cs_sr_dp?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-10
+              - listitem [ref=f25e1164]:
+                - generic [ref=f25e1170]:
+                  - link [aria-hidden] [ref=f25e1176] [cursor=pointer]:
+                    - /url: /200MasterPixel-Snapdragon-CrystalRes-6500mAh-HyperCharge/dp/B0GF216T4Q/ref=sr_1_11?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-11
+                  - generic [ref=f25e1181]:
+                    - generic [ref=f25e1182]:
+                      - heading "Redmi" [level=2] [ref=f25e1185]
+                      - link [ref=f25e1186] [cursor=pointer]:
+                        - /url: /200MasterPixel-Snapdragon-CrystalRes-6500mAh-HyperCharge/dp/B0GF216T4Q/ref=sr_1_11?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-11
+                        - heading "Note 15 Pro+ 5G (Carbon Black, 8GB + 256GB) | 200MasterPixel OIS Camera | Snapdragon 7s Gen 4 | CrystalRes AMOLED | IP69/69K | 6500mAh Si/C Battery | 100W HyperCharge" [level=2] [ref=f25e1187]
+                    - generic [ref=f25e1188]:
+                      - generic [ref=f25e1189]:
+                        - text: "4.0"
+                        - button "4.0 out of 5 stars, rating details" [ref=f25e1191] [cursor=pointer]:
+                          - generic [ref=f25e1193]: 4.0 out of 5 stars
+                        - link "195 ratings" [ref=f25e1195] [cursor=pointer]:
+                          - /url: /200MasterPixel-Snapdragon-CrystalRes-6500mAh-HyperCharge/dp/B0GF216T4Q/ref=sr_1_11?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-11#customerReviews
+                          - text: (195)
+                      - generic [ref=f25e1196]: 100+ bought in past month
+                    - generic [ref=f25e1199]:
+                      - generic [ref=f25e1200]:
+                        - generic [ref=f25e1202]:
+                          - generic [ref=f25e1203]: Price, product page
+                          - link "₹39,999" [ref=f25e1204] [cursor=pointer]:
+                            - /url: /200MasterPixel-Snapdragon-CrystalRes-6500mAh-HyperCharge/dp/B0GF216T4Q/ref=sr_1_11?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-11
+                            - generic [ref=f25e1205]:
+                              - generic [ref=f25e1206]: ₹39,999
+                              - generic [aria-hidden] [ref=f25e1207]: ₹39,999
+                        - generic [ref=f25e1211]:
+                          - generic [ref=f25e1212]: Save extra with No Cost EMI
+                          - generic [aria-hidden] [ref=f25e1213]: Save extra with No Cost EMI
+                      - generic [ref=f25e1216]:
+                        - generic [ref=f25e1217]: FREE delivery Tue, 27 Oct
+                        - generic [ref=f25e1219]: Or fastest delivery Mon, 26 Oct
+                        - generic [ref=f25e1221]: Arrives before Diwali
+                      - generic [ref=f25e1236] [cursor=pointer]:
+                        - button "Add to cart" [ref=f25e1237]
+                        - generic [aria-hidden] [ref=f25e1238]: Add to cart
+                      - group "colours available" [ref=f25e1240]:
+                        - list [ref=f25e1241]:
+                          - generic [ref=f25e1242]:
+                            - listitem:
+                              - link "Carbon Black":
+                                - /url: /200MasterPixel-Snapdragon-CrystalRes-6500mAh-HyperCharge/dp/B0GF216T4Q/ref=cs_sr_dp_1?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-11
+                                - generic [ref=f25e1243] [cursor=pointer]
+                          - generic [ref=f25e1245]:
+                            - listitem:
+                              - link "Coffee Mocha":
+                                - /url: /200MasterPixel-Snapdragon-CrystalRes-6500mAh-HyperCharge/dp/B0GF24NXX8/ref=cs_sr_dp_2?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-11
+                                - generic [ref=f25e1246] [cursor=pointer]
+                          - generic [ref=f25e1248]:
+                            - listitem:
+                              - link "Mirage Blue":
+                                - /url: /200MasterPixel-Snapdragon-CrystalRes-6500mAh-HyperCharge/dp/B0GF24NJHN/ref=cs_sr_dp_3?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-11
+                                - generic [ref=f25e1249] [cursor=pointer]
+              - listitem [ref=f25e1251]:
+                - generic [ref=f25e1257]:
+                  - link [aria-hidden] [ref=f25e1263] [cursor=pointer]:
+                    - /url: /vivo-Storage-7200mAh-Dimensity-Processor/dp/B0GTTX8WG4/ref=sr_1_12?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-12
+                  - generic [ref=f25e1268]:
+                    - generic [ref=f25e1269]:
+                      - heading "vivo" [level=2] [ref=f25e1272]
+                      - link [ref=f25e1273] [cursor=pointer]:
+                        - /url: /vivo-Storage-7200mAh-Dimensity-Processor/dp/B0GTTX8WG4/ref=sr_1_12?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-12
+                        - heading "T5X 5G (Cyber Green, 8GB RAM, 128GB Storage) | 7200mAh Battery | 50MP Dual Camera | 32MP Selfie Camera | 6.76\" FHD+ 120Hz Display | Dimensity 7400 Turbo Processor" [level=2] [ref=f25e1274]
+                    - generic [ref=f25e1275]:
+                      - generic [ref=f25e1276]:
+                        - text: "4.2"
+                        - button "4.2 out of 5 stars, rating details" [ref=f25e1278] [cursor=pointer]:
+                          - generic [ref=f25e1280]: 4.2 out of 5 stars
+                        - link "247 ratings" [ref=f25e1282] [cursor=pointer]:
+                          - /url: /vivo-Storage-7200mAh-Dimensity-Processor/dp/B0GTTX8WG4/ref=sr_1_12?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-12#customerReviews
+                          - text: (247)
+                      - generic [ref=f25e1283]: 500+ bought in past month
+                    - generic [ref=f25e1286]:
+                      - generic [ref=f25e1287]:
+                        - generic [ref=f25e1289]:
+                          - generic [ref=f25e1290]: Price, product page
+                          - 'link "₹28,898 M.R.P: ₹30,999 M.R.P: ₹30,999" [ref=f25e1291] [cursor=pointer]':
+                            - /url: /vivo-Storage-7200mAh-Dimensity-Processor/dp/B0GTTX8WG4/ref=sr_1_12?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-12
+                            - generic [ref=f25e1292]:
+                              - generic [ref=f25e1293]: ₹28,898
+                              - generic [aria-hidden] [ref=f25e1294]: ₹28,898
+                            - generic [ref=f25e1295]: "M.R.P: ₹30,999"
+                            - generic [ref=f25e1296]:
+                              - text: "M.R.P:"
+                              - generic [ref=f25e1297]:
+                                - generic [ref=f25e1298]: ₹30,999
+                                - text: ₹30,999
+                          - text: (7% off)
+                        - generic [ref=f25e1302]:
+                          - generic [ref=f25e1303]: Up to 5% back with Amazon Pay ICICI card
+                          - generic [aria-hidden] [ref=f25e1304]: Up to 5% back with Amazon Pay ICICI card
+                      - generic [ref=f25e1307]:
+                        - generic [ref=f25e1308]: FREE delivery Tue, 27 Oct
+                        - generic [ref=f25e1310]: Or fastest delivery Tomorrow 8 am - 12 pm
+                        - generic [ref=f25e1312]: Arrives before Diwali
+                      - generic [ref=f25e1327] [cursor=pointer]:
+                        - button "Add to cart" [ref=f25e1328]
+                        - generic [aria-hidden] [ref=f25e1329]: Add to cart
+                      - generic [ref=f25e1331]:
+                        - text: More Buying Choices₹28,890
+                        - link "(5 new offers)" [ref=f25e1333] [cursor=pointer]:
+                          - /url: /gp/offer-listing/B0GTTX8WG4/ref=sr_1_12_olp?keywords=Vivo+T4+Ultra+5G&dib_tag=se&dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&qid=1792849990&sr=8-12
+              - listitem [ref=f25e1334]:
+                - generic [ref=f25e1340]:
+                  - link [aria-hidden] [ref=f25e1346] [cursor=pointer]:
+                    - /url: /OnePlus-Midnight-Smoothness-Military-Grade-Durability/dp/B0H3LKPC2K/ref=sr_1_13?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-13
+                  - generic [ref=f25e1351]:
+                    - generic [ref=f25e1352]:
+                      - heading "OnePlus" [level=2] [ref=f25e1355]
+                      - link [ref=f25e1356] [cursor=pointer]:
+                        - /url: /OnePlus-Midnight-Smoothness-Military-Grade-Durability/dp/B0H3LKPC2K/ref=sr_1_13?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-13
+                        - heading "N6 | 6GB+128GB | Midnight Green | Segment's Biggest 8000mAh Battery | Segment's Fastest 45W Charging | 60-Month Smoothness | Smooth 120Hz Display | 50MP Camera | Military-Grade Durability" [level=2] [ref=f25e1357]
+                    - generic [ref=f25e1358]:
+                      - generic [ref=f25e1359]:
+                        - text: "3.9"
+                        - button "3.9 out of 5 stars, rating details" [ref=f25e1361] [cursor=pointer]:
+                          - generic [ref=f25e1363]: 3.9 out of 5 stars
+                        - link "1,491 ratings" [ref=f25e1365] [cursor=pointer]:
+                          - /url: /OnePlus-Midnight-Smoothness-Military-Grade-Durability/dp/B0H3LKPC2K/ref=sr_1_13?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-13#customerReviews
+                          - text: (1.4K)
+                      - generic [ref=f25e1366]: 5K+ bought in past month
+                    - generic [ref=f25e1369]:
+                      - generic [ref=f25e1370]:
+                        - link "Great Indian Festival" [ref=f25e1372] [cursor=pointer]:
+                          - /url: /deals
+                        - generic [ref=f25e1378]:
+                          - generic [ref=f25e1379]: Price, product page
+                          - 'link "₹24,999 M.R.P: ₹33,999 M.R.P: ₹33,999" [ref=f25e1380] [cursor=pointer]':
+                            - /url: /OnePlus-Midnight-Smoothness-Military-Grade-Durability/dp/B0H3LKPC2K/ref=sr_1_13?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-13
+                            - generic [ref=f25e1381]:
+                              - generic [ref=f25e1382]: ₹24,999
+                              - generic [aria-hidden] [ref=f25e1383]: ₹24,999
+                            - generic [ref=f25e1384]: "M.R.P: ₹33,999"
+                            - generic [ref=f25e1385]:
+                              - text: "M.R.P:"
+                              - generic [ref=f25e1386]:
+                                - generic [ref=f25e1387]: ₹33,999
+                                - text: ₹33,999
+                          - text: (26% off)
+                        - generic [ref=f25e1391]:
+                          - generic [ref=f25e1392]: Up to 5% back with Amazon Pay ICICI card
+                          - generic [aria-hidden] [ref=f25e1393]: Up to 5% back with Amazon Pay ICICI card
+                      - generic [ref=f25e1396]:
+                        - generic [ref=f25e1397]: FREE delivery Tue, 27 Oct
+                        - generic [ref=f25e1399]: Or fastest delivery Tomorrow 6 am - 10 am
+                        - generic [ref=f25e1401]: Arrives before Diwali
+                      - generic [ref=f25e1416] [cursor=pointer]:
+                        - button "Add to cart" [ref=f25e1417]
+                        - generic [aria-hidden] [ref=f25e1418]: Add to cart
+                      - group "colours available" [ref=f25e1420]:
+                        - list [ref=f25e1421]:
+                          - generic [ref=f25e1422]:
+                            - listitem:
+                              - link "Midnight Green":
+                                - /url: /OnePlus-Midnight-Smoothness-Military-Grade-Durability/dp/B0H3LKPC2K/ref=cs_sr_dp_1?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-13
+                                - generic [ref=f25e1423] [cursor=pointer]
+                          - generic [ref=f25e1425]:
+                            - listitem:
+                              - link "Fresh Mint":
+                                - /url: /OnePlus-Midnight-Smoothness-Military-Grade-Durability/dp/B0H3LGB59B/ref=cs_sr_dp_2?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-13
+                                - generic [ref=f25e1426] [cursor=pointer]
+              - listitem [ref=f25e1428]:
+                - generic [ref=f25e1434]:
+                  - link [aria-hidden] [ref=f25e1440] [cursor=pointer]:
+                    - /url: /vivo-Sapphire-Processor-Additional-Exchange/dp/B0H99JPWFV/ref=sr_1_14?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-14
+                  - generic [ref=f25e1445]:
+                    - generic [ref=f25e1446]:
+                      - heading "vivo" [level=2] [ref=f25e1449]
+                      - link [ref=f25e1450] [cursor=pointer]:
+                        - /url: /vivo-Sapphire-Processor-Additional-Exchange/dp/B0H99JPWFV/ref=sr_1_14?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-14
+                        - heading "S2 5G (Sapphire Blue, 8GB RAM, 128GB Storage) | 50MP Sony Camera | 4K Video | 7050 mAh Battery | 3D Curved AMOLED Display | MTK D-7360 Turbo Processor with No Cost EMI/Additional Exchange Offers" [level=2] [ref=f25e1451]
+                    - generic [ref=f25e1452]:
+                      - generic [ref=f25e1453]:
+                        - text: "3.8"
+                        - button "3.8 out of 5 stars, rating details" [ref=f25e1455] [cursor=pointer]:
+                          - generic [ref=f25e1457]: 3.8 out of 5 stars
+                        - link "57 ratings" [ref=f25e1459] [cursor=pointer]:
+                          - /url: /vivo-Sapphire-Processor-Additional-Exchange/dp/B0H99JPWFV/ref=sr_1_14?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-14#customerReviews
+                          - text: (57)
+                      - generic [ref=f25e1460]: 100+ bought in past month
+                    - generic [ref=f25e1463]:
+                      - generic [ref=f25e1464]:
+                        - generic [ref=f25e1466]:
+                          - generic [ref=f25e1467]: Price, product page
+                          - 'link "₹42,999 M.R.P: ₹66,999 M.R.P: ₹66,999" [ref=f25e1468] [cursor=pointer]':
+                            - /url: /vivo-Sapphire-Processor-Additional-Exchange/dp/B0H99JPWFV/ref=sr_1_14?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-14
+                            - generic [ref=f25e1469]:
+                              - generic [ref=f25e1470]: ₹42,999
+                              - generic [aria-hidden] [ref=f25e1471]: ₹42,999
+                            - generic [ref=f25e1472]: "M.R.P: ₹66,999"
+                            - generic [ref=f25e1473]:
+                              - text: "M.R.P:"
+                              - generic [ref=f25e1474]:
+                                - generic [ref=f25e1475]: ₹66,999
+                                - text: ₹66,999
+                          - text: (36% off)
+                        - generic [ref=f25e1479]:
+                          - generic [ref=f25e1480]: Save extra with No Cost EMI
+                          - generic [aria-hidden] [ref=f25e1481]: Save extra with No Cost EMI
+                      - generic [ref=f25e1484]:
+                        - generic [ref=f25e1485]: FREE delivery Tue, 27 Oct
+                        - generic [ref=f25e1487]: Or fastest delivery Tomorrow 6 am - 10 am
+                        - generic [ref=f25e1489]: Arrives before Diwali
+                      - generic [ref=f25e1504] [cursor=pointer]:
+                        - button "Add to cart" [ref=f25e1505]
+                        - generic [aria-hidden] [ref=f25e1506]: Add to cart
+                      - group "colours available" [ref=f25e1508]:
+                        - list [ref=f25e1509]:
+                          - generic [ref=f25e1510]:
+                            - listitem:
+                              - link "Sapphire Blue":
+                                - /url: /vivo-Sapphire-Processor-Additional-Exchange/dp/B0H99JPWFV/ref=cs_sr_dp_1?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-14
+                                - generic [ref=f25e1511] [cursor=pointer]
+                          - generic [ref=f25e1513]:
+                            - listitem:
+                              - link "Regal Bronze":
+                                - /url: /vivo-Sapphire-Processor-Additional-Exchange/dp/B0H9KNJ4JP/ref=cs_sr_dp_2?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-14
+                                - generic [ref=f25e1514] [cursor=pointer]
+                          - generic [ref=f25e1516]:
+                            - listitem:
+                              - link "Silk White":
+                                - /url: /vivo-Sapphire-Processor-Additional-Exchange/dp/B0H9KY1LB3/ref=cs_sr_dp_3?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-14
+                                - generic [ref=f25e1517] [cursor=pointer]
+              - listitem [ref=f25e1519]:
+                - generic [ref=f25e1525]:
+                  - link [aria-hidden] [ref=f25e1531] [cursor=pointer]:
+                    - /url: /iQOO-Processor-Snapdragon-Supercomputing-FlashCharge/dp/B0GXZ1VC4J/ref=sr_1_15?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-15
+                  - generic [ref=f25e1536]:
+                    - generic [ref=f25e1537]:
+                      - heading "iQOO" [level=2] [ref=f25e1540]
+                      - link [ref=f25e1541] [cursor=pointer]:
+                        - /url: /iQOO-Processor-Snapdragon-Supercomputing-FlashCharge/dp/B0GXZ1VC4J/ref=sr_1_15?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-15
+                        - heading "Neo 10 (Alpine White, 8GB RAM, 256GB Storage) | Segment's Fastest Processor* with Snapdragon 8s Gen 4 & Supercomputing chip Q1 | 120W FlashCharge | Segment's Brightest AMOLED Display*" [level=2] [ref=f25e1542]
+                    - generic [ref=f25e1543]:
+                      - generic [ref=f25e1544]:
+                        - text: "4.4"
+                        - button "4.4 out of 5 stars, rating details" [ref=f25e1546] [cursor=pointer]:
+                          - generic [ref=f25e1548]: 4.4 out of 5 stars
+                        - link "473 ratings" [ref=f25e1550] [cursor=pointer]:
+                          - /url: /iQOO-Processor-Snapdragon-Supercomputing-FlashCharge/dp/B0GXZ1VC4J/ref=sr_1_15?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-15#customerReviews
+                          - text: (473)
+                      - generic [ref=f25e1551]: 2K+ bought in past month
+                    - generic [ref=f25e1554]:
+                      - generic [ref=f25e1555]:
+                        - generic [ref=f25e1557]:
+                          - generic [ref=f25e1558]: Price, product page
+                          - 'link "₹43,999 M.R.P: ₹45,999 M.R.P: ₹45,999" [ref=f25e1559] [cursor=pointer]':
+                            - /url: /iQOO-Processor-Snapdragon-Supercomputing-FlashCharge/dp/B0GXZ1VC4J/ref=sr_1_15?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-15
+                            - generic [ref=f25e1560]:
+                              - generic [ref=f25e1561]: ₹43,999
+                              - generic [aria-hidden] [ref=f25e1562]: ₹43,999
+                            - generic [ref=f25e1563]: "M.R.P: ₹45,999"
+                            - generic [ref=f25e1564]:
+                              - text: "M.R.P:"
+                              - generic [ref=f25e1565]:
+                                - generic [ref=f25e1566]: ₹45,999
+                                - text: ₹45,999
+                          - text: (4% off)
+                        - generic [ref=f25e1570]:
+                          - generic [ref=f25e1571]: Up to 5% back with Amazon Pay ICICI card
+                          - generic [aria-hidden] [ref=f25e1572]: Up to 5% back with Amazon Pay ICICI card
+                      - generic [ref=f25e1575]:
+                        - generic [ref=f25e1576]: FREE delivery Tue, 27 Oct
+                        - generic [ref=f25e1578]: Or fastest delivery Tomorrow 8 am - 12 pm
+                        - generic [ref=f25e1580]: Arrives before Diwali
+                      - generic [ref=f25e1595] [cursor=pointer]:
+                        - button "Add to cart" [ref=f25e1596]
+                        - generic [aria-hidden] [ref=f25e1597]: Add to cart
+              - listitem [ref=f25e1598]:
+                - generic [ref=f25e1604]:
+                  - link [aria-hidden] [ref=f25e1610] [cursor=pointer]:
+                    - /url: /OnePlus-Snapdragon-Segments-Complete-Personalized/dp/B0GRB5C1HW/ref=sr_1_16?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-16
+                  - generic [ref=f25e1615]:
+                    - generic [ref=f25e1616]:
+                      - heading "OnePlus" [level=2] [ref=f25e1619]
+                      - link [ref=f25e1620] [cursor=pointer]:
+                        - /url: /OnePlus-Snapdragon-Segments-Complete-Personalized/dp/B0GRB5C1HW/ref=sr_1_16?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-16
+                        - heading "Nord 6 | 8GB+256GB | Quick Silver | Snapdragon 8s Gen 4 | Segment's First Stable 165FPS Gaming | Segment's Largest 9000mAh Battery | Most Complete IP Rating | Personalized AI" [level=2] [ref=f25e1621]
+                    - generic [ref=f25e1622]:
+                      - generic [ref=f25e1623]:
+                        - text: "4.3"
+                        - button "4.3 out of 5 stars, rating details" [ref=f25e1625] [cursor=pointer]:
+                          - generic [ref=f25e1627]: 4.3 out of 5 stars
+                        - link "2,730 ratings" [ref=f25e1629] [cursor=pointer]:
+                          - /url: /OnePlus-Snapdragon-Segments-Complete-Personalized/dp/B0GRB5C1HW/ref=sr_1_16?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-16#customerReviews
+                          - text: (2.7K)
+                      - generic [ref=f25e1630]: 5K+ bought in past month
+                    - generic [ref=f25e1633]:
+                      - generic [ref=f25e1634]:
+                        - link "Mega Festival Deal" [ref=f25e1636] [cursor=pointer]:
+                          - /url: /deals
+                        - generic [ref=f25e1642]:
+                          - generic [ref=f25e1643]: Price, product page
+                          - 'link "₹44,999 M.R.P: ₹52,999 M.R.P: ₹52,999" [ref=f25e1644] [cursor=pointer]':
+                            - /url: /OnePlus-Snapdragon-Segments-Complete-Personalized/dp/B0GRB5C1HW/ref=sr_1_16?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-16
+                            - generic [ref=f25e1645]:
+                              - generic [ref=f25e1646]: ₹44,999
+                              - generic [aria-hidden] [ref=f25e1647]: ₹44,999
+                            - generic [ref=f25e1648]: "M.R.P: ₹52,999"
+                            - generic [ref=f25e1649]:
+                              - text: "M.R.P:"
+                              - generic [ref=f25e1650]:
+                                - generic [ref=f25e1651]: ₹52,999
+                                - text: ₹52,999
+                          - text: (15% off)
+                        - generic [ref=f25e1655]:
+                          - generic [ref=f25e1656]: Save extra with No Cost EMI
+                          - generic [aria-hidden] [ref=f25e1657]: Save extra with No Cost EMI
+                      - generic [ref=f25e1660]:
+                        - generic [ref=f25e1661]: FREE delivery Tue, 27 Oct
+                        - generic [ref=f25e1663]: Or fastest delivery Tomorrow 6 am - 10 am
+                        - generic [ref=f25e1665]: Arrives before Diwali
+                      - generic [ref=f25e1680] [cursor=pointer]:
+                        - button "Add to cart" [ref=f25e1681]
+                        - generic [aria-hidden] [ref=f25e1682]: Add to cart
+                      - group "colours available" [ref=f25e1684]:
+                        - list [ref=f25e1685]:
+                          - generic [ref=f25e1686]:
+                            - listitem:
+                              - link "Quick Silver":
+                                - /url: /OnePlus-Snapdragon-Segments-Complete-Personalized/dp/B0GRB5C1HW/ref=cs_sr_dp_1?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-16
+                                - generic [ref=f25e1687] [cursor=pointer]
+                          - generic [ref=f25e1689]:
+                            - listitem:
+                              - link "Fresh Mint":
+                                - /url: /OnePlus-Snapdragon-Segments-Complete-Personalized/dp/B0GRBBPBGQ/ref=cs_sr_dp_2?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-16
+                                - generic [ref=f25e1690] [cursor=pointer]
+                          - generic [ref=f25e1692]:
+                            - listitem:
+                              - link "Pitch Black":
+                                - /url: /OnePlus-Snapdragon-Segments-Complete-Personalized/dp/B0GRB3FBBB/ref=cs_sr_dp_3?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-16
+                                - generic [ref=f25e1693] [cursor=pointer]
+              - listitem [ref=f25e1695]:
+                - generic [ref=f25e1701]:
+                  - link [aria-hidden] [ref=f25e1707] [cursor=pointer]:
+                    - /url: /OnePlus-Snapdragon-Segments-Fastest-Response/dp/B0GWLDWKF3/ref=sr_1_17?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-17
+                  - generic [ref=f25e1712]:
+                    - generic [ref=f25e1713]:
+                      - heading "OnePlus" [level=2] [ref=f25e1716]
+                      - link [ref=f25e1717] [cursor=pointer]:
+                        - /url: /OnePlus-Snapdragon-Segments-Fastest-Response/dp/B0GWLDWKF3/ref=sr_1_17?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-17
+                        - heading "Nord CE6 | 8GB+256GB | Fresh Blue | Snapdragon 7s Gen 4 | Segment's Fastest Touch Response | 8000mAh Battery | 144Hz 1.5K AMOLED Display | 50MP Main + 32MP Selfie 4K Cameras | IP66,68,69,69K" [level=2] [ref=f25e1718]
+                    - generic [ref=f25e1719]:
+                      - generic [ref=f25e1720]:
+                        - text: "4.3"
+                        - button "4.3 out of 5 stars, rating details" [ref=f25e1722] [cursor=pointer]:
+                          - generic [ref=f25e1724]: 4.3 out of 5 stars
+                        - link "3,584 ratings" [ref=f25e1726] [cursor=pointer]:
+                          - /url: /OnePlus-Snapdragon-Segments-Fastest-Response/dp/B0GWLDWKF3/ref=sr_1_17?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-17#customerReviews
+                          - text: (3.5K)
+                      - generic [ref=f25e1727]: 5K+ bought in past month
+                    - generic [ref=f25e1730]:
+                      - generic [ref=f25e1731]:
+                        - generic [ref=f25e1733]:
+                          - generic [ref=f25e1734]: Price, product page
+                          - 'link "₹39,999 M.R.P: ₹43,999 M.R.P: ₹43,999" [ref=f25e1735] [cursor=pointer]':
+                            - /url: /OnePlus-Snapdragon-Segments-Fastest-Response/dp/B0GWLDWKF3/ref=sr_1_17?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-17
+                            - generic [ref=f25e1736]:
+                              - generic [ref=f25e1737]: ₹39,999
+                              - generic [aria-hidden] [ref=f25e1738]: ₹39,999
+                            - generic [ref=f25e1739]: "M.R.P: ₹43,999"
+                            - generic [ref=f25e1740]:
+                              - text: "M.R.P:"
+                              - generic [ref=f25e1741]:
+                                - generic [ref=f25e1742]: ₹43,999
+                                - text: ₹43,999
+                          - text: (9% off)
+                        - generic [ref=f25e1746]:
+                          - generic [ref=f25e1747]: Save extra with No Cost EMI
+                          - generic [aria-hidden] [ref=f25e1748]: Save extra with No Cost EMI
+                      - generic [ref=f25e1751]:
+                        - generic [ref=f25e1752]: FREE delivery Tue, 27 Oct
+                        - generic [ref=f25e1754]: Or fastest delivery Tomorrow 6 am - 10 am
+                        - generic [ref=f25e1756]: Arrives before Diwali
+                      - generic [ref=f25e1771] [cursor=pointer]:
+                        - button "Add to cart" [ref=f25e1772]
+                        - generic [aria-hidden] [ref=f25e1773]: Add to cart
+                      - group "colours available" [ref=f25e1775]:
+                        - list [ref=f25e1776]:
+                          - generic [ref=f25e1777]:
+                            - listitem:
+                              - link "Fresh Blue":
+                                - /url: /OnePlus-Snapdragon-Segments-Fastest-Response/dp/B0GWLDWKF3/ref=cs_sr_dp_1?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-17
+                                - generic [ref=f25e1778] [cursor=pointer]
+                          - generic [ref=f25e1780]:
+                            - listitem:
+                              - link "Lunar Pearl":
+                                - /url: /OnePlus-Snapdragon-Segments-Fastest-Response/dp/B0GWLV615M/ref=cs_sr_dp_2?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-17
+                                - generic [ref=f25e1781] [cursor=pointer]
+                          - generic [ref=f25e1783]:
+                            - listitem:
+                              - link "Pitch Black":
+                                - /url: /OnePlus-Snapdragon-Segments-Fastest-Response/dp/B0GWLJL55D/ref=cs_sr_dp_3?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-17
+                                - generic [ref=f25e1784] [cursor=pointer]
+              - listitem [ref=f25e1786]:
+                - generic [ref=f25e1792]:
+                  - link [aria-hidden] [ref=f25e1798] [cursor=pointer]:
+                    - /url: /iQOO-Prismatic-Dimensity-Processor-OriginOS/dp/B0HG96MZ9P/ref=sr_1_18?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-18
+                  - generic [ref=f25e1803]:
+                    - generic [ref=f25e1804]:
+                      - heading "iQOO" [level=2] [ref=f25e1807]
+                      - link [ref=f25e1808] [cursor=pointer]:
+                        - /url: /iQOO-Prismatic-Dimensity-Processor-OriginOS/dp/B0HG96MZ9P/ref=sr_1_18?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-18
+                        - heading "Z11xa 5G (Prismatic Green, 8GB RAM, 128 GB Storage) | Massive 7200mAh Battery | Dimensity 7400 Turbo Processor | OriginOS 6 with 4 Years of Security Updates*" [level=2] [ref=f25e1809]
+                    - generic [ref=f25e1810]:
+                      - generic [ref=f25e1811]:
+                        - text: "3.9"
+                        - button "3.9 out of 5 stars, rating details" [ref=f25e1813] [cursor=pointer]:
+                          - generic [ref=f25e1815]: 3.9 out of 5 stars
+                        - link "157 ratings" [ref=f25e1817] [cursor=pointer]:
+                          - /url: /iQOO-Prismatic-Dimensity-Processor-OriginOS/dp/B0HG96MZ9P/ref=sr_1_18?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-18#customerReviews
+                          - text: (157)
+                      - generic [ref=f25e1818]: 5K+ bought in past month
+                    - generic [ref=f25e1821]:
+                      - generic [ref=f25e1822]:
+                        - link "Great Indian Festival" [ref=f25e1824] [cursor=pointer]:
+                          - /url: /deals
+                        - generic [ref=f25e1830]:
+                          - generic [ref=f25e1831]: Price, product page
+                          - 'link "₹28,998 M.R.P: ₹40,999 M.R.P: ₹40,999" [ref=f25e1832] [cursor=pointer]':
+                            - /url: /iQOO-Prismatic-Dimensity-Processor-OriginOS/dp/B0HG96MZ9P/ref=sr_1_18?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-18
+                            - generic [ref=f25e1833]:
+                              - generic [ref=f25e1834]: ₹28,998
+                              - generic [aria-hidden] [ref=f25e1835]: ₹28,998
+                            - generic [ref=f25e1836]: "M.R.P: ₹40,999"
+                            - generic [ref=f25e1837]:
+                              - text: "M.R.P:"
+                              - generic [ref=f25e1838]:
+                                - generic [ref=f25e1839]: ₹40,999
+                                - text: ₹40,999
+                          - text: (29% off)
+                        - generic [ref=f25e1842]:
+                          - generic [ref=f25e1843]: You pay ₹26,998
+                          - text: with coupon
+                      - generic [ref=f25e1846]:
+                        - generic [ref=f25e1847]: FREE delivery Tue, 27 Oct
+                        - generic [ref=f25e1849]: Or fastest delivery Tomorrow 6 am - 10 am
+                        - generic [ref=f25e1851]: Arrives before Diwali
+                      - generic [ref=f25e1866] [cursor=pointer]:
+                        - button "Add to cart" [ref=f25e1867]
+                        - generic [aria-hidden] [ref=f25e1868]: Add to cart
+                      - group "colours available" [ref=f25e1870]:
+                        - list [ref=f25e1871]:
+                          - generic [ref=f25e1872]:
+                            - listitem:
+                              - link "Prismatic Green":
+                                - /url: /iQOO-Prismatic-Dimensity-Processor-OriginOS/dp/B0HG96MZ9P/ref=cs_sr_dp_1?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-18
+                                - generic [ref=f25e1873] [cursor=pointer]
+                          - generic [ref=f25e1875]:
+                            - listitem:
+                              - link "Titan Black":
+                                - /url: /iQOO-Prismatic-Dimensity-Processor-OriginOS/dp/B0HG929FR4/ref=cs_sr_dp_2?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-18
+                                - generic [ref=f25e1876] [cursor=pointer]
+              - listitem [ref=f25e1878]:
+                - generic [ref=f25e1884]:
+                  - link [aria-hidden] [ref=f25e1890] [cursor=pointer]:
+                    - /url: /Samsung-Midnight-Complete-Processor-Security/dp/B0H1X5XP25/ref=sr_1_19?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-19
+                  - generic [ref=f25e1895]:
+                    - generic [ref=f25e1896]:
+                      - heading "Samsung" [level=2] [ref=f25e1899]
+                      - link [ref=f25e1900] [cursor=pointer]:
+                        - /url: /Samsung-Midnight-Complete-Processor-Security/dp/B0H1X5XP25/ref=sr_1_19?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-19
+                        - heading "Galaxy A56 5G Mobile (Awesome Midnight Blue, 8GB, 128GB) | Segment Most Complete Triple Camera | 50MP | AI Editing | 4nm Processor | sAMOLED | 5000mAh | Gorilla Glass Victus+| Knox Security" [level=2] [ref=f25e1901]
+                    - generic [ref=f25e1902]:
+                      - generic [ref=f25e1903]:
+                        - text: "4.3"
+                        - button "4.3 out of 5 stars, rating details" [ref=f25e1905] [cursor=pointer]:
+                          - generic [ref=f25e1907]: 4.3 out of 5 stars
+                        - link "1,018 ratings" [ref=f25e1909] [cursor=pointer]:
+                          - /url: /Samsung-Midnight-Complete-Processor-Security/dp/B0H1X5XP25/ref=sr_1_19?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-19#customerReviews
+                          - text: (1K)
+                      - generic [ref=f25e1910]: 5K+ bought in past month
+                    - generic [ref=f25e1913]:
+                      - generic [ref=f25e1914]:
+                        - generic [ref=f25e1916]:
+                          - generic [ref=f25e1917]: Price, product page
+                          - 'link "₹32,999 M.R.P: ₹49,999 M.R.P: ₹49,999" [ref=f25e1918] [cursor=pointer]':
+                            - /url: /Samsung-Midnight-Complete-Processor-Security/dp/B0H1X5XP25/ref=sr_1_19?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-19
+                            - generic [ref=f25e1919]:
+                              - generic [ref=f25e1920]: ₹32,999
+                              - generic [aria-hidden] [ref=f25e1921]: ₹32,999
+                            - generic [ref=f25e1922]: "M.R.P: ₹49,999"
+                            - generic [ref=f25e1923]:
+                              - text: "M.R.P:"
+                              - generic [ref=f25e1924]:
+                                - generic [ref=f25e1925]: ₹49,999
+                                - text: ₹49,999
+                          - text: (34% off)
+                        - generic [ref=f25e1929]:
+                          - generic [ref=f25e1930]: Up to 5% back with Amazon Pay ICICI card
+                          - generic [aria-hidden] [ref=f25e1931]: Up to 5% back with Amazon Pay ICICI card
+                      - generic [ref=f25e1934]:
+                        - generic [ref=f25e1935]: FREE delivery Tue, 27 Oct
+                        - generic [ref=f25e1937]: Or fastest delivery Tomorrow 6 am - 10 am
+                        - generic [ref=f25e1939]: Arrives before Diwali
+                      - generic [ref=f25e1954] [cursor=pointer]:
+                        - button "Add to cart" [ref=f25e1955]
+                        - generic [aria-hidden] [ref=f25e1956]: Add to cart
+                      - group "colours available" [ref=f25e1958]:
+                        - list [ref=f25e1959]:
+                          - generic [ref=f25e1960]:
+                            - listitem:
+                              - link "Awesome Midnight Blue":
+                                - /url: /Samsung-Midnight-Complete-Processor-Security/dp/B0H1X5XP25/ref=cs_sr_dp_1?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-19
+                                - generic [ref=f25e1961] [cursor=pointer]
+                          - generic [ref=f25e1963]:
+                            - listitem:
+                              - link "Awesome Graphite":
+                                - /url: /Samsung-Midnight-Complete-Processor-Security/dp/B0DYDRXSFH/ref=cs_sr_dp_2?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-19
+                                - generic [ref=f25e1964] [cursor=pointer]
+                          - generic [ref=f25e1966]:
+                            - listitem:
+                              - link "Awesome Olive":
+                                - /url: /Samsung-Midnight-Complete-Processor-Security/dp/B0DYDQYVN6/ref=cs_sr_dp_3?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-19
+                                - generic [ref=f25e1967] [cursor=pointer]
+                          - generic [ref=f25e1969]:
+                            - listitem:
+                              - link "Awesome Pink":
+                                - /url: /Samsung-Midnight-Complete-Processor-Security/dp/B0FQB6YPMT/ref=cs_sr_dp_4?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-19
+                                - generic [ref=f25e1970] [cursor=pointer]
+                          - generic [ref=f25e1972]:
+                            - listitem:
+                              - link "Awesome Violet Glow":
+                                - /url: /Samsung-Midnight-Complete-Processor-Security/dp/B0HKHRB77P/ref=cs_sr_dp_5?dib=eyJ2IjoiMSJ9.DB1R1UGCyp6yUqHcFt9a--Mbk4ozfiZmU5F7z2TmkUzd0qmxVZWP767x7Mn9hh6oJlTnscxS98ycz3EEjBbd443aK5x3Yy9Y4bsRE123QE2K5Atob66NEKxTlyVKa2NktGixo2OTprVl9uj53BDaUz2wez4XwAVWmwmdBW_XwHKGtLVPRAMVMCr98ZyIE_VMrWGfmp4f9BViE7DoxoyzXKtRhksmoHDl5X2DA-UVuwg.o54TL0BW7xCK8oGw-Gqvd7p7e4Ctb_cFEBa-hh1EkJQ&dib_tag=se&keywords=Vivo+T4+Ultra+5G&qid=1792849990&sr=8-19
+                                - generic [ref=f25e1973] [cursor=pointer]
+        - navigation "pagination" [ref=f25e1977]:
+          - list [ref=f25e1979]:
+            - listitem [ref=f25e1980]:
+              - button "Previous" [disabled] [ref=f25e1982]
+            - listitem [ref=f25e1985]:
+              - button "Page 1" [ref=f25e1987]: "1"
+            - listitem [ref=f25e1988]:
+              - button "Go to page 2" [ref=f25e1990] [cursor=pointer]: "2"
+            - listitem [ref=f25e1991]:
+              - button "Go to page 3" [ref=f25e1993] [cursor=pointer]: "3"
+            - button [disabled] [ref=f25e1994]:
+              - img [aria-hidden] [ref=f25e1995]: ...
+            - button "20" [disabled] [ref=f25e1997]
+            - listitem [ref=f25e1998]:
+              - button "Go to next page, page 2" [ref=f25e2000] [cursor=pointer]: Next
+        - generic [ref=f25e2006]:
+          - separator [aria-hidden] [ref=f25e2007]
+          - generic [ref=f25e2008]:
+            - heading "Brands related to your search" [ref=f25e2009]
+            - button "Leave feedback on Sponsored ad" [ref=f25e2014] [cursor=pointer]: Sponsored
+            - generic [ref=f25e2018]:
+              - generic [ref=f25e2020]:
+                - generic:
+                  - generic:
+                    - link [aria-hidden]:
+                      - /url: https://sponsored-ads.amazon.in/clk/?_encoding=UTF8&p=eAFdUMtu00AUVYuAEkBEWRQpqyoSWVSdZPxIYhdZaMZ20yTEeThJSzfWxJ44FontzkyTtIvs2fEbSKy65APYdM93IL4AuTwkOLqLI517dM89OX_v6_cf3x4VniNZGrWH47GjdpqT0o50uD-jcbTxulWdzJMNnIbJoD1lveP99nLTmYllnDiWlL6LZptr2O2uh09ltV7JplaBF7sunu4he3RqD1tu4WXucUD5e5GkhWdjZ2ibvabTurCt4oed3F6meFMxKzwhS3KTxJUoLr6acwIY9ZPlksYBEVESA07ZKvIp4JQwfw6mYlZ6SGOv5RzKy6uFiMCUkTgAPqNERCsKfl8EPmEBBymJYkEZ8JNY0FjI-S42PaXvvvUs2-2Mev2SltuB-Y93t7d3X6xi_o87C6KkfFF6oUAIoaKpmqRDSanLD1rO8PiB2TcPe4XXFkZmetICDbTFl78Qoi0e8Pimo6F_scXhFg-2GN2TsJg3Q3vTbK98FFkBn6uG_Hk392l3LkTKj6vV9Xpd-dtMlYuEUV5NSUir2JQsjBQFaLYtAVWVZIAUHQHLshSzrjXkmq28uTd4jM4MF3sIyrqm6zWp75xrtaEpT1BXAgjqiqoqqnxmnjh4MjYtZOJyGngs8NLFPGCGKM858XzmRYEBy4vUIzyKuYGh3mh3zaaEjzKKT08GE_cIQ-ieTVTHHGebl1eUXRuTaJUcjNSD8UIwclBrZgpfJML4v-cyD1KPBF7IkqvUyDqXoVzT1Ua9rqjlyCApL5PsmybcyLVzmzX0nxfq3uU&v=c1&r=https%3A%2F%2Fwww.amazon.in%2Fstores%2Fpage%2FBC1DBA33-8EE1-4412-A39A-DDD3C68725E3%3Fstore_ref%3DSB_A02989951PNX85RC2VAM1-A09344342WCFNBVUCDACB%26pd_rd_plhdr%3Dt%26hsa_cr_id%3D0%26lp_asins%3DB097JMCG1B%2CB097BHFQVS%2CB00SWV4NCU%26lp_query%3DVivo%20T4%20Ultra%205G%26lp_slot%3Ddesktop-hsa-3psl%26sdp_ad_group%3D300020259476634%26i%3Daps%26aref%3DG0x25XEr79&ref_=sbx_be_s_3psl_mbd_mb0_bkgd&pd_rd_w=w0Ajz&content-id=amzn1.sym.e3b1209d-74b7-4fc9-bd01-2d594919a892%3Aamzn1.sym.e3b1209d-74b7-4fc9-bd01-2d594919a892&pf_rd_p=e3b1209d-74b7-4fc9-bd01-2d594919a892&pf_rd_r=XWP39J58CKJTHTGJZ9FP&pd_rd_wg=7k5EU&pd_rd_r=9b6fff4a-9120-4972-bd9f-8d57aaa489f5
+                    - link [ref=f25e2021] [cursor=pointer]:
+                      - /url: https://sponsored-ads.amazon.in/clk/?_encoding=UTF8&p=eAFdUMtu00AUVYuAEkBEWRQpqyoSWVSdZPxIYhdZaMZ20yTEeThJSzfWxJ44FontzkyTtIvs2fEbSKy65APYdM93IL4AuTwkOLqLI517dM89OX_v6_cf3x4VniNZGrWH47GjdpqT0o50uD-jcbTxulWdzJMNnIbJoD1lveP99nLTmYllnDiWlL6LZptr2O2uh09ltV7JplaBF7sunu4he3RqD1tu4WXucUD5e5GkhWdjZ2ibvabTurCt4oed3F6meFMxKzwhS3KTxJUoLr6acwIY9ZPlksYBEVESA07ZKvIp4JQwfw6mYlZ6SGOv5RzKy6uFiMCUkTgAPqNERCsKfl8EPmEBBymJYkEZ8JNY0FjI-S42PaXvvvUs2-2Mev2SltuB-Y93t7d3X6xi_o87C6KkfFF6oUAIoaKpmqRDSanLD1rO8PiB2TcPe4XXFkZmetICDbTFl78Qoi0e8Pimo6F_scXhFg-2GN2TsJg3Q3vTbK98FFkBn6uG_Hk392l3LkTKj6vV9Xpd-dtMlYuEUV5NSUir2JQsjBQFaLYtAVWVZIAUHQHLshSzrjXkmq28uTd4jM4MF3sIyrqm6zWp75xrtaEpT1BXAgjqiqoqqnxmnjh4MjYtZOJyGngs8NLFPGCGKM858XzmRYEBy4vUIzyKuYGh3mh3zaaEjzKKT08GE_cIQ-ieTVTHHGebl1eUXRuTaJUcjNSD8UIwclBrZgpfJML4v-cyD1KPBF7IkqvUyDqXoVzT1Ua9rqjlyCApL5PsmybcyLVzmzX0nxfq3uU&v=c1&r=https%3A%2F%2Fwww.amazon.in%2Fstores%2Fpage%2FBC1DBA33-8EE1-4412-A39A-DDD3C68725E3%3Fstore_ref%3DSB_A02989951PNX85RC2VAM1-A09344342WCFNBVUCDACB%26pd_rd_plhdr%3Dt%26hsa_cr_id%3D0%26lp_asins%3DB097JMCG1B%2CB097BHFQVS%2CB00SWV4NCU%26lp_query%3DVivo%20T4%20Ultra%205G%26lp_slot%3Ddesktop-hsa-3psl%26sdp_ad_group%3D300020259476634%26i%3Daps%26aref%3DG0x25XEr79&ref_=sbx_be_s_3psl_mbd_mb0_ls&pd_rd_w=w0Ajz&content-id=amzn1.sym.e3b1209d-74b7-4fc9-bd01-2d594919a892%3Aamzn1.sym.e3b1209d-74b7-4fc9-bd01-2d594919a892&pf_rd_p=e3b1209d-74b7-4fc9-bd01-2d594919a892&pf_rd_r=XWP39J58CKJTHTGJZ9FP&pd_rd_wg=7k5EU&pd_rd_r=9b6fff4a-9120-4972-bd9f-8d57aaa489f5
+                      - img "SAFARI" [ref=f25e2022]
+                    - generic [ref=f25e2024]:
+                      - generic [ref=f25e2025]:
+                        - link [aria-hidden] [ref=f25e2026] [cursor=pointer]:
+                          - /url: https://sponsored-ads.amazon.in/clk/?_encoding=UTF8&p=eAFdUMtu00AUVYuAEkBEWRQpqyoSWVSdZPxIYhdZaMZ20yTEeThJSzfWxJ44FontzkyTtIvs2fEbSKy65APYdM93IL4AuTwkOLqLI517dM89OX_v6_cf3x4VniNZGrWH47GjdpqT0o50uD-jcbTxulWdzJMNnIbJoD1lveP99nLTmYllnDiWlL6LZptr2O2uh09ltV7JplaBF7sunu4he3RqD1tu4WXucUD5e5GkhWdjZ2ibvabTurCt4oed3F6meFMxKzwhS3KTxJUoLr6acwIY9ZPlksYBEVESA07ZKvIp4JQwfw6mYlZ6SGOv5RzKy6uFiMCUkTgAPqNERCsKfl8EPmEBBymJYkEZ8JNY0FjI-S42PaXvvvUs2-2Mev2SltuB-Y93t7d3X6xi_o87C6KkfFF6oUAIoaKpmqRDSanLD1rO8PiB2TcPe4XXFkZmetICDbTFl78Qoi0e8Pimo6F_scXhFg-2GN2TsJg3Q3vTbK98FFkBn6uG_Hk392l3LkTKj6vV9Xpd-dtMlYuEUV5NSUir2JQsjBQFaLYtAVWVZIAUHQHLshSzrjXkmq28uTd4jM4MF3sIyrqm6zWp75xrtaEpT1BXAgjqiqoqqnxmnjh4MjYtZOJyGngs8NLFPGCGKM858XzmRYEBy4vUIzyKuYGh3mh3zaaEjzKKT08GE_cIQ-ieTVTHHGebl1eUXRuTaJUcjNSD8UIwclBrZgpfJML4v-cyD1KPBF7IkqvUyDqXoVzT1Ua9rqjlyCApL5PsmybcyLVzmzX0nxfq3uU&v=c1&r=https%3A%2F%2Fwww.amazon.in%2Fstores%2Fpage%2FBC1DBA33-8EE1-4412-A39A-DDD3C68725E3%3Fstore_ref%3DSB_A02989951PNX85RC2VAM1-A09344342WCFNBVUCDACB%26pd_rd_plhdr%3Dt%26hsa_cr_id%3D0%26lp_asins%3DB097JMCG1B%2CB097BHFQVS%2CB00SWV4NCU%26lp_query%3DVivo%20T4%20Ultra%205G%26lp_slot%3Ddesktop-hsa-3psl%26sdp_ad_group%3D300020259476634%26i%3Daps%26aref%3DG0x25XEr79&ref_=sbx_be_s_3psl_mbd_mb0_bkgd&pd_rd_w=w0Ajz&content-id=amzn1.sym.e3b1209d-74b7-4fc9-bd01-2d594919a892%3Aamzn1.sym.e3b1209d-74b7-4fc9-bd01-2d594919a892&pf_rd_p=e3b1209d-74b7-4fc9-bd01-2d594919a892&pf_rd_r=XWP39J58CKJTHTGJZ9FP&pd_rd_wg=7k5EU&pd_rd_r=9b6fff4a-9120-4972-bd9f-8d57aaa489f5
+                        - link [ref=f25e2027] [cursor=pointer]:
+                          - /url: https://sponsored-ads.amazon.in/clk/?_encoding=UTF8&p=eAFdUMtu00AUVYuAEkBEWRQpqyoSWVSdZPxIYhdZaMZ20yTEeThJSzfWxJ44FontzkyTtIvs2fEbSKy65APYdM93IL4AuTwkOLqLI517dM89OX_v6_cf3x4VniNZGrWH47GjdpqT0o50uD-jcbTxulWdzJMNnIbJoD1lveP99nLTmYllnDiWlL6LZptr2O2uh09ltV7JplaBF7sunu4he3RqD1tu4WXucUD5e5GkhWdjZ2ibvabTurCt4oed3F6meFMxKzwhS3KTxJUoLr6acwIY9ZPlksYBEVESA07ZKvIp4JQwfw6mYlZ6SGOv5RzKy6uFiMCUkTgAPqNERCsKfl8EPmEBBymJYkEZ8JNY0FjI-S42PaXvvvUs2-2Mev2SltuB-Y93t7d3X6xi_o87C6KkfFF6oUAIoaKpmqRDSanLD1rO8PiB2TcPe4XXFkZmetICDbTFl78Qoi0e8Pimo6F_scXhFg-2GN2TsJg3Q3vTbK98FFkBn6uG_Hk392l3LkTKj6vV9Xpd-dtMlYuEUV5NSUir2JQsjBQFaLYtAVWVZIAUHQHLshSzrjXkmq28uTd4jM4MF3sIyrqm6zWp75xrtaEpT1BXAgjqiqoqqnxmnjh4MjYtZOJyGngs8NLFPGCGKM858XzmRYEBy4vUIzyKuYGh3mh3zaaEjzKKT08GE_cIQ-ieTVTHHGebl1eUXRuTaJUcjNSD8UIwclBrZgpfJML4v-cyD1KPBF7IkqvUyDqXoVzT1Ua9rqjlyCApL5PsmybcyLVzmzX0nxfq3uU&v=c1&r=https%3A%2F%2Fwww.amazon.in%2Fstores%2Fpage%2FBC1DBA33-8EE1-4412-A39A-DDD3C68725E3%3Fstore_ref%3DSB_A02989951PNX85RC2VAM1-A09344342WCFNBVUCDACB%26pd_rd_plhdr%3Dt%26hsa_cr_id%3D0%26lp_asins%3DB097JMCG1B%2CB097BHFQVS%2CB00SWV4NCU%26lp_query%3DVivo%20T4%20Ultra%205G%26lp_slot%3Ddesktop-hsa-3psl%26sdp_ad_group%3D300020259476634%26i%3Daps%26aref%3DG0x25XEr79&ref_=sbx_be_s_3psl_mbd_mb0_logo&pd_rd_w=w0Ajz&content-id=amzn1.sym.e3b1209d-74b7-4fc9-bd01-2d594919a892%3Aamzn1.sym.e3b1209d-74b7-4fc9-bd01-2d594919a892&pf_rd_p=e3b1209d-74b7-4fc9-bd01-2d594919a892&pf_rd_r=XWP39J58CKJTHTGJZ9FP&pd_rd_wg=7k5EU&pd_rd_r=9b6fff4a-9120-4972-bd9f-8d57aaa489f5
+                          - img "SAFARI" [ref=f25e2029]
+                      - generic [ref=f25e2030]:
+                        - link [aria-hidden] [ref=f25e2031] [cursor=pointer]:
+                          - /url: https://sponsored-ads.amazon.in/clk/?_encoding=UTF8&p=eAFdUMtu00AUVYuAEkBEWRQpqyoSWVSdZPxIYhdZaMZ20yTEeThJSzfWxJ44FontzkyTtIvs2fEbSKy65APYdM93IL4AuTwkOLqLI517dM89OX_v6_cf3x4VniNZGrWH47GjdpqT0o50uD-jcbTxulWdzJMNnIbJoD1lveP99nLTmYllnDiWlL6LZptr2O2uh09ltV7JplaBF7sunu4he3RqD1tu4WXucUD5e5GkhWdjZ2ibvabTurCt4oed3F6meFMxKzwhS3KTxJUoLr6acwIY9ZPlksYBEVESA07ZKvIp4JQwfw6mYlZ6SGOv5RzKy6uFiMCUkTgAPqNERCsKfl8EPmEBBymJYkEZ8JNY0FjI-S42PaXvvvUs2-2Mev2SltuB-Y93t7d3X6xi_o87C6KkfFF6oUAIoaKpmqRDSanLD1rO8PiB2TcPe4XXFkZmetICDbTFl78Qoi0e8Pimo6F_scXhFg-2GN2TsJg3Q3vTbK98FFkBn6uG_Hk392l3LkTKj6vV9Xpd-dtMlYuEUV5NSUir2JQsjBQFaLYtAVWVZIAUHQHLshSzrjXkmq28uTd4jM4MF3sIyrqm6zWp75xrtaEpT1BXAgjqiqoqqnxmnjh4MjYtZOJyGngs8NLFPGCGKM858XzmRYEBy4vUIzyKuYGh3mh3zaaEjzKKT08GE_cIQ-ieTVTHHGebl1eUXRuTaJUcjNSD8UIwclBrZgpfJML4v-cyD1KPBF7IkqvUyDqXoVzT1Ua9rqjlyCApL5PsmybcyLVzmzX0nxfq3uU&v=c1&r=https%3A%2F%2Fwww.amazon.in%2Fstores%2Fpage%2FBC1DBA33-8EE1-4412-A39A-DDD3C68725E3%3Fstore_ref%3DSB_A02989951PNX85RC2VAM1-A09344342WCFNBVUCDACB%26pd_rd_plhdr%3Dt%26hsa_cr_id%3D0%26lp_asins%3DB097JMCG1B%2CB097BHFQVS%2CB00SWV4NCU%26lp_query%3DVivo%20T4%20Ultra%205G%26lp_slot%3Ddesktop-hsa-3psl%26sdp_ad_group%3D300020259476634%26i%3Daps%26aref%3DG0x25XEr79&ref_=sbx_be_s_3psl_mbd_mb0_bkgd&pd_rd_w=w0Ajz&content-id=amzn1.sym.e3b1209d-74b7-4fc9-bd01-2d594919a892%3Aamzn1.sym.e3b1209d-74b7-4fc9-bd01-2d594919a892&pf_rd_p=e3b1209d-74b7-4fc9-bd01-2d594919a892&pf_rd_r=XWP39J58CKJTHTGJZ9FP&pd_rd_wg=7k5EU&pd_rd_r=9b6fff4a-9120-4972-bd9f-8d57aaa489f5
+                        - link "Shades ahead" [ref=f25e2032] [cursor=pointer]:
+                          - /url: https://sponsored-ads.amazon.in/clk/?_encoding=UTF8&p=eAFdUMtu00AUVYuAEkBEWRQpqyoSWVSdZPxIYhdZaMZ20yTEeThJSzfWxJ44FontzkyTtIvs2fEbSKy65APYdM93IL4AuTwkOLqLI517dM89OX_v6_cf3x4VniNZGrWH47GjdpqT0o50uD-jcbTxulWdzJMNnIbJoD1lveP99nLTmYllnDiWlL6LZptr2O2uh09ltV7JplaBF7sunu4he3RqD1tu4WXucUD5e5GkhWdjZ2ibvabTurCt4oed3F6meFMxKzwhS3KTxJUoLr6acwIY9ZPlksYBEVESA07ZKvIp4JQwfw6mYlZ6SGOv5RzKy6uFiMCUkTgAPqNERCsKfl8EPmEBBymJYkEZ8JNY0FjI-S42PaXvvvUs2-2Mev2SltuB-Y93t7d3X6xi_o87C6KkfFF6oUAIoaKpmqRDSanLD1rO8PiB2TcPe4XXFkZmetICDbTFl78Qoi0e8Pimo6F_scXhFg-2GN2TsJg3Q3vTbK98FFkBn6uG_Hk392l3LkTKj6vV9Xpd-dtMlYuEUV5NSUir2JQsjBQFaLYtAVWVZIAUHQHLshSzrjXkmq28uTd4jM4MF3sIyrqm6zWp75xrtaEpT1BXAgjqiqoqqnxmnjh4MjYtZOJyGngs8NLFPGCGKM858XzmRYEBy4vUIzyKuYGh3mh3zaaEjzKKT08GE_cIQ-ieTVTHHGebl1eUXRuTaJUcjNSD8UIwclBrZgpfJML4v-cyD1KPBF7IkqvUyDqXoVzT1Ua9rqjlyCApL5PsmybcyLVzmzX0nxfq3uU&v=c1&r=https%3A%2F%2Fwww.amazon.in%2Fstores%2Fpage%2FBC1DBA33-8EE1-4412-A39A-DDD3C68725E3%3Fstore_ref%3DSB_A02989951PNX85RC2VAM1-A09344342WCFNBVUCDACB%26pd_rd_plhdr%3Dt%26hsa_cr_id%3D0%26lp_asins%3DB097JMCG1B%2CB097BHFQVS%2CB00SWV4NCU%26lp_query%3DVivo%20T4%20Ultra%205G%26lp_slot%3Ddesktop-hsa-3psl%26sdp_ad_group%3D300020259476634%26i%3Daps%26aref%3DG0x25XEr79&ref_=sbx_be_s_3psl_mbd_mb0_hl&pd_rd_w=w0Ajz&content-id=amzn1.sym.e3b1209d-74b7-4fc9-bd01-2d594919a892%3Aamzn1.sym.e3b1209d-74b7-4fc9-bd01-2d594919a892&pf_rd_p=e3b1209d-74b7-4fc9-bd01-2d594919a892&pf_rd_r=XWP39J58CKJTHTGJZ9FP&pd_rd_wg=7k5EU&pd_rd_r=9b6fff4a-9120-4972-bd9f-8d57aaa489f5
+                          - generic [ref=f25e2034]:
+                            - generic [ref=f25e2035]: Shades ahead
+                            - generic [aria-hidden] [ref=f25e2036]: Shades ahead
+              - generic [ref=f25e2038]:
+                - generic:
+                  - generic:
+                    - link [aria-hidden]:
+                      - /url: https://sponsored-ads.amazon.in/clk/?_encoding=UTF8&p=eAFdUMtu00AUVVsBJYCIsihSVlUksqg6yfjtFFnIM07dJM07adpsrLE9SawmtjszTdouskdixyewQkLiL-AP-Ad2iC9AKQ8Jjs7iSucc3XtPJtj9_P3H14e5Z7YsDeq94bClNtyzwpZ0sDehcXTjNcsVMktuoD9NunWftY_2mheXxwK36yM6OunxaHg56t75q94TWdVLG2olON7uI3_Xrg5Oqr1aP_ci8yik_FIkae7psNWr4rbbqo2rTv7NVmZ3o3i-mOQekwW5S-JSFOdfzjgBjAbJYkHjkIgoiQGnbBkFFHBKWDADvpgUHtDYq7UO5MX1XETAZyQOQcAoEdGSgt8bQUBYyEFKolhQBoIkFjQWcraJsKd0-qeeU-03Bu1OwcxsSdm33768e__JyWf_pDeHKCmfF54rEEK1IimSrJqmoss7tVbvaAd38EE798pBNk6Pa8Cw1-jqF6b2GnV5fNcw7X-xRtM16q6RfT9M81k8rd649WVgR07IZ6olf9zOfNieCZHyo3J5tVqV_jZT5iJhlJdTMqVlrQpN3ZEQgKYKgSppKrCxZgBoY1O1FefYxpXX9wGP0YnVR54NDcOUdVVxzYHmOgjJHakBbAgNSdcqsg7P286F25bc4aCYhh4LvXQ-C5klijNOvIB5UWjB4jz1CI9ibiGIGxdjaTzSDhFEZ-NT0zD6hwhi5QS7WBltnFfXlN1aZ9Ey2R-o-8O5YGRfczcKnyfC-r_nIg9Tj4TelCXXqaVAKMmybECoyrqiFiOLpLxINt808bguMfM29H8CBe3euA&v=c1&r=https%3A%2F%2Fwww.amazon.in%2Fstores%2Fpage%2F5E086D1B-0840-4154-AC57-0AC84A3DFAC9%3Fstore_ref%3DSB_A07782643G8T5GDBB2P1K-A0071659260XODYGO1GUT%26pd_rd_plhdr%3Dt%26hsa_cr_id%3D0%26lp_asins%3DB0CKYZ1ZW5%2CB0BVZL877S%2CB0C3HCGC3W%26lp_query%3DVivo%20T4%20Ultra%205G%26lp_slot%3Ddesktop-hsa-3psl%26sdp_ad_group%3D300122270042634%26i%3Daps%26aref%3DMCZJ1r8ydb&ref_=sbx_be_s_3psl_mbd_mb1_bkgd&pd_rd_w=w0Ajz&content-id=amzn1.sym.e3b1209d-74b7-4fc9-bd01-2d594919a892%3Aamzn1.sym.e3b1209d-74b7-4fc9-bd01-2d594919a892&pf_rd_p=e3b1209d-74b7-4fc9-bd01-2d594919a892&pf_rd_r=XWP39J58CKJTHTGJZ9FP&pd_rd_wg=7k5EU&pd_rd_r=9b6fff4a-9120-4972-bd9f-8d57aaa489f5
+                    - link [ref=f25e2039] [cursor=pointer]:
+                      - /url: https://sponsored-ads.amazon.in/clk/?_encoding=UTF8&p=eAFdUMtu00AUVVsBJYCIsihSVlUksqg6yfjtFFnIM07dJM07adpsrLE9SawmtjszTdouskdixyewQkLiL-AP-Ad2iC9AKQ8Jjs7iSucc3XtPJtj9_P3H14e5Z7YsDeq94bClNtyzwpZ0sDehcXTjNcsVMktuoD9NunWftY_2mheXxwK36yM6OunxaHg56t75q94TWdVLG2olON7uI3_Xrg5Oqr1aP_ci8yik_FIkae7psNWr4rbbqo2rTv7NVmZ3o3i-mOQekwW5S-JSFOdfzjgBjAbJYkHjkIgoiQGnbBkFFHBKWDADvpgUHtDYq7UO5MX1XETAZyQOQcAoEdGSgt8bQUBYyEFKolhQBoIkFjQWcraJsKd0-qeeU-03Bu1OwcxsSdm33768e__JyWf_pDeHKCmfF54rEEK1IimSrJqmoss7tVbvaAd38EE798pBNk6Pa8Cw1-jqF6b2GnV5fNcw7X-xRtM16q6RfT9M81k8rd649WVgR07IZ6olf9zOfNieCZHyo3J5tVqV_jZT5iJhlJdTMqVlrQpN3ZEQgKYKgSppKrCxZgBoY1O1FefYxpXX9wGP0YnVR54NDcOUdVVxzYHmOgjJHakBbAgNSdcqsg7P286F25bc4aCYhh4LvXQ-C5klijNOvIB5UWjB4jz1CI9ibiGIGxdjaTzSDhFEZ-NT0zD6hwhi5QS7WBltnFfXlN1aZ9Ey2R-o-8O5YGRfczcKnyfC-r_nIg9Tj4TelCXXqaVAKMmybECoyrqiFiOLpLxINt808bguMfM29H8CBe3euA&v=c1&r=https%3A%2F%2Fwww.amazon.in%2Fstores%2Fpage%2F5E086D1B-0840-4154-AC57-0AC84A3DFAC9%3Fstore_ref%3DSB_A07782643G8T5GDBB2P1K-A0071659260XODYGO1GUT%26pd_rd_plhdr%3Dt%26hsa_cr_id%3D0%26lp_asins%3DB0CKYZ1ZW5%2CB0BVZL877S%2CB0C3HCGC3W%26lp_query%3DVivo%20T4%20Ultra%205G%26lp_slot%3Ddesktop-hsa-3psl%26sdp_ad_group%3D300122270042634%26i%3Daps%26aref%3DMCZJ1r8ydb&ref_=sbx_be_s_3psl_mbd_mb1_ls&pd_rd_w=w0Ajz&content-id=amzn1.sym.e3b1209d-74b7-4fc9-bd01-2d594919a892%3Aamzn1.sym.e3b1209d-74b7-4fc9-bd01-2d594919a892&pf_rd_p=e3b1209d-74b7-4fc9-bd01-2d594919a892&pf_rd_r=XWP39J58CKJTHTGJZ9FP&pd_rd_wg=7k5EU&pd_rd_r=9b6fff4a-9120-4972-bd9f-8d57aaa489f5
+                      - img "8848" [ref=f25e2040]
+                    - generic [ref=f25e2042]:
+                      - generic [ref=f25e2043]:
+                        - link [aria-hidden] [ref=f25e2044] [cursor=pointer]:
+                          - /url: https://sponsored-ads.amazon.in/clk/?_encoding=UTF8&p=eAFdUMtu00AUVVsBJYCIsihSVlUksqg6yfjtFFnIM07dJM07adpsrLE9SawmtjszTdouskdixyewQkLiL-AP-Ad2iC9AKQ8Jjs7iSucc3XtPJtj9_P3H14e5Z7YsDeq94bClNtyzwpZ0sDehcXTjNcsVMktuoD9NunWftY_2mheXxwK36yM6OunxaHg56t75q94TWdVLG2olON7uI3_Xrg5Oqr1aP_ci8yik_FIkae7psNWr4rbbqo2rTv7NVmZ3o3i-mOQekwW5S-JSFOdfzjgBjAbJYkHjkIgoiQGnbBkFFHBKWDADvpgUHtDYq7UO5MX1XETAZyQOQcAoEdGSgt8bQUBYyEFKolhQBoIkFjQWcraJsKd0-qeeU-03Bu1OwcxsSdm33768e__JyWf_pDeHKCmfF54rEEK1IimSrJqmoss7tVbvaAd38EE798pBNk6Pa8Cw1-jqF6b2GnV5fNcw7X-xRtM16q6RfT9M81k8rd649WVgR07IZ6olf9zOfNieCZHyo3J5tVqV_jZT5iJhlJdTMqVlrQpN3ZEQgKYKgSppKrCxZgBoY1O1FefYxpXX9wGP0YnVR54NDcOUdVVxzYHmOgjJHakBbAgNSdcqsg7P286F25bc4aCYhh4LvXQ-C5klijNOvIB5UWjB4jz1CI9ibiGIGxdjaTzSDhFEZ-NT0zD6hwhi5QS7WBltnFfXlN1aZ9Ey2R-o-8O5YGRfczcKnyfC-r_nIg9Tj4TelCXXqaVAKMmybECoyrqiFiOLpLxINt808bguMfM29H8CBe3euA&v=c1&r=https%3A%2F%2Fwww.amazon.in%2Fstores%2Fpage%2F5E086D1B-0840-4154-AC57-0AC84A3DFAC9%3Fstore_ref%3DSB_A07782643G8T5GDBB2P1K-A0071659260XODYGO1GUT%26pd_rd_plhdr%3Dt%26hsa_cr_id%3D0%26lp_asins%3DB0CKYZ1ZW5%2CB0BVZL877S%2CB0C3HCGC3W%26lp_query%3DVivo%20T4%20Ultra%205G%26lp_slot%3Ddesktop-hsa-3psl%26sdp_ad_group%3D300122270042634%26i%3Daps%26aref%3DMCZJ1r8ydb&ref_=sbx_be_s_3psl_mbd_mb1_bkgd&pd_rd_w=w0Ajz&content-id=amzn1.sym.e3b1209d-74b7-4fc9-bd01-2d594919a892%3Aamzn1.sym.e3b1209d-74b7-4fc9-bd01-2d594919a892&pf_rd_p=e3b1209d-74b7-4fc9-bd01-2d594919a892&pf_rd_r=XWP39J58CKJTHTGJZ9FP&pd_rd_wg=7k5EU&pd_rd_r=9b6fff4a-9120-4972-bd9f-8d57aaa489f5
+                        - link [ref=f25e2045] [cursor=pointer]:
+                          - /url: https://sponsored-ads.amazon.in/clk/?_encoding=UTF8&p=eAFdUMtu00AUVVsBJYCIsihSVlUksqg6yfjtFFnIM07dJM07adpsrLE9SawmtjszTdouskdixyewQkLiL-AP-Ad2iC9AKQ8Jjs7iSucc3XtPJtj9_P3H14e5Z7YsDeq94bClNtyzwpZ0sDehcXTjNcsVMktuoD9NunWftY_2mheXxwK36yM6OunxaHg56t75q94TWdVLG2olON7uI3_Xrg5Oqr1aP_ci8yik_FIkae7psNWr4rbbqo2rTv7NVmZ3o3i-mOQekwW5S-JSFOdfzjgBjAbJYkHjkIgoiQGnbBkFFHBKWDADvpgUHtDYq7UO5MX1XETAZyQOQcAoEdGSgt8bQUBYyEFKolhQBoIkFjQWcraJsKd0-qeeU-03Bu1OwcxsSdm33768e__JyWf_pDeHKCmfF54rEEK1IimSrJqmoss7tVbvaAd38EE798pBNk6Pa8Cw1-jqF6b2GnV5fNcw7X-xRtM16q6RfT9M81k8rd649WVgR07IZ6olf9zOfNieCZHyo3J5tVqV_jZT5iJhlJdTMqVlrQpN3ZEQgKYKgSppKrCxZgBoY1O1FefYxpXX9wGP0YnVR54NDcOUdVVxzYHmOgjJHakBbAgNSdcqsg7P286F25bc4aCYhh4LvXQ-C5klijNOvIB5UWjB4jz1CI9ibiGIGxdjaTzSDhFEZ-NT0zD6hwhi5QS7WBltnFfXlN1aZ9Ey2R-o-8O5YGRfczcKnyfC-r_nIg9Tj4TelCXXqaVAKMmybECoyrqiFiOLpLxINt808bguMfM29H8CBe3euA&v=c1&r=https%3A%2F%2Fwww.amazon.in%2Fstores%2Fpage%2F5E086D1B-0840-4154-AC57-0AC84A3DFAC9%3Fstore_ref%3DSB_A07782643G8T5GDBB2P1K-A0071659260XODYGO1GUT%26pd_rd_plhdr%3Dt%26hsa_cr_id%3D0%26lp_asins%3DB0CKYZ1ZW5%2CB0BVZL877S%2CB0C3HCGC3W%26lp_query%3DVivo%20T4%20Ultra%205G%26lp_slot%3Ddesktop-hsa-3psl%26sdp_ad_group%3D300122270042634%26i%3Daps%26aref%3DMCZJ1r8ydb&ref_=sbx_be_s_3psl_mbd_mb1_logo&pd_rd_w=w0Ajz&content-id=amzn1.sym.e3b1209d-74b7-4fc9-bd01-2d594919a892%3Aamzn1.sym.e3b1209d-74b7-4fc9-bd01-2d594919a892&pf_rd_p=e3b1209d-74b7-4fc9-bd01-2d594919a892&pf_rd_r=XWP39J58CKJTHTGJZ9FP&pd_rd_wg=7k5EU&pd_rd_r=9b6fff4a-9120-4972-bd9f-8d57aaa489f5
+                          - img "8848" [ref=f25e2047]
+                      - generic [ref=f25e2048]:
+                        - link [aria-hidden] [ref=f25e2049] [cursor=pointer]:
+                          - /url: https://sponsored-ads.amazon.in/clk/?_encoding=UTF8&p=eAFdUMtu00AUVVsBJYCIsihSVlUksqg6yfjtFFnIM07dJM07adpsrLE9SawmtjszTdouskdixyewQkLiL-AP-Ad2iC9AKQ8Jjs7iSucc3XtPJtj9_P3H14e5Z7YsDeq94bClNtyzwpZ0sDehcXTjNcsVMktuoD9NunWftY_2mheXxwK36yM6OunxaHg56t75q94TWdVLG2olON7uI3_Xrg5Oqr1aP_ci8yik_FIkae7psNWr4rbbqo2rTv7NVmZ3o3i-mOQekwW5S-JSFOdfzjgBjAbJYkHjkIgoiQGnbBkFFHBKWDADvpgUHtDYq7UO5MX1XETAZyQOQcAoEdGSgt8bQUBYyEFKolhQBoIkFjQWcraJsKd0-qeeU-03Bu1OwcxsSdm33768e__JyWf_pDeHKCmfF54rEEK1IimSrJqmoss7tVbvaAd38EE798pBNk6Pa8Cw1-jqF6b2GnV5fNcw7X-xRtM16q6RfT9M81k8rd649WVgR07IZ6olf9zOfNieCZHyo3J5tVqV_jZT5iJhlJdTMqVlrQpN3ZEQgKYKgSppKrCxZgBoY1O1FefYxpXX9wGP0YnVR54NDcOUdVVxzYHmOgjJHakBbAgNSdcqsg7P286F25bc4aCYhh4LvXQ-C5klijNOvIB5UWjB4jz1CI9ibiGIGxdjaTzSDhFEZ-NT0zD6hwhi5QS7WBltnFfXlN1aZ9Ey2R-o-8O5YGRfczcKnyfC-r_nIg9Tj4TelCXXqaVAKMmybECoyrqiFiOLpLxINt808bguMfM29H8CBe3euA&v=c1&r=https%3A%2F%2Fwww.amazon.in%2Fstores%2Fpage%2F5E086D1B-0840-4154-AC57-0AC84A3DFAC9%3Fstore_ref%3DSB_A07782643G8T5GDBB2P1K-A0071659260XODYGO1GUT%26pd_rd_plhdr%3Dt%26hsa_cr_id%3D0%26lp_asins%3DB0CKYZ1ZW5%2CB0BVZL877S%2CB0C3HCGC3W%26lp_query%3DVivo%20T4%20Ultra%205G%26lp_slot%3Ddesktop-hsa-3psl%26sdp_ad_group%3D300122270042634%26i%3Daps%26aref%3DMCZJ1r8ydb&ref_=sbx_be_s_3psl_mbd_mb1_bkgd&pd_rd_w=w0Ajz&content-id=amzn1.sym.e3b1209d-74b7-4fc9-bd01-2d594919a892%3Aamzn1.sym.e3b1209d-74b7-4fc9-bd01-2d594919a892&pf_rd_p=e3b1209d-74b7-4fc9-bd01-2d594919a892&pf_rd_r=XWP39J58CKJTHTGJZ9FP&pd_rd_wg=7k5EU&pd_rd_r=9b6fff4a-9120-4972-bd9f-8d57aaa489f5
+                        - link "Manage Blood Sugar Level Naturally" [ref=f25e2050] [cursor=pointer]:
+                          - /url: https://sponsored-ads.amazon.in/clk/?_encoding=UTF8&p=eAFdUMtu00AUVVsBJYCIsihSVlUksqg6yfjtFFnIM07dJM07adpsrLE9SawmtjszTdouskdixyewQkLiL-AP-Ad2iC9AKQ8Jjs7iSucc3XtPJtj9_P3H14e5Z7YsDeq94bClNtyzwpZ0sDehcXTjNcsVMktuoD9NunWftY_2mheXxwK36yM6OunxaHg56t75q94TWdVLG2olON7uI3_Xrg5Oqr1aP_ci8yik_FIkae7psNWr4rbbqo2rTv7NVmZ3o3i-mOQekwW5S-JSFOdfzjgBjAbJYkHjkIgoiQGnbBkFFHBKWDADvpgUHtDYq7UO5MX1XETAZyQOQcAoEdGSgt8bQUBYyEFKolhQBoIkFjQWcraJsKd0-qeeU-03Bu1OwcxsSdm33768e__JyWf_pDeHKCmfF54rEEK1IimSrJqmoss7tVbvaAd38EE798pBNk6Pa8Cw1-jqF6b2GnV5fNcw7X-xRtM16q6RfT9M81k8rd649WVgR07IZ6olf9zOfNieCZHyo3J5tVqV_jZT5iJhlJdTMqVlrQpN3ZEQgKYKgSppKrCxZgBoY1O1FefYxpXX9wGP0YnVR54NDcOUdVVxzYHmOgjJHakBbAgNSdcqsg7P286F25bc4aCYhh4LvXQ-C5klijNOvIB5UWjB4jz1CI9ibiGIGxdjaTzSDhFEZ-NT0zD6hwhi5QS7WBltnFfXlN1aZ9Ey2R-o-8O5YGRfczcKnyfC-r_nIg9Tj4TelCXXqaVAKMmybECoyrqiFiOLpLxINt808bguMfM29H8CBe3euA&v=c1&r=https%3A%2F%2Fwww.amazon.in%2Fstores%2Fpage%2F5E086D1B-0840-4154-AC57-0AC84A3DFAC9%3Fstore_ref%3DSB_A07782643G8T5GDBB2P1K-A0071659260XODYGO1GUT%26pd_rd_plhdr%3Dt%26hsa_cr_id%3D0%26lp_asins%3DB0CKYZ1ZW5%2CB0BVZL877S%2CB0C3HCGC3W%26lp_query%3DVivo%20T4%20Ultra%205G%26lp_slot%3Ddesktop-hsa-3psl%26sdp_ad_group%3D300122270042634%26i%3Daps%26aref%3DMCZJ1r8ydb&ref_=sbx_be_s_3psl_mbd_mb1_hl&pd_rd_w=w0Ajz&content-id=amzn1.sym.e3b1209d-74b7-4fc9-bd01-2d594919a892%3Aamzn1.sym.e3b1209d-74b7-4fc9-bd01-2d594919a892&pf_rd_p=e3b1209d-74b7-4fc9-bd01-2d594919a892&pf_rd_r=XWP39J58CKJTHTGJZ9FP&pd_rd_wg=7k5EU&pd_rd_r=9b6fff4a-9120-4972-bd9f-8d57aaa489f5
+                          - generic [ref=f25e2052]:
+                            - generic [ref=f25e2053]: Manage Blood Sugar Level Naturally
+                            - generic [aria-hidden] [ref=f25e2054]: Manage Blood Sugar Level Naturally
+      - link "Go back to filtering menu" [ref=f25e2057] [cursor=pointer]:
+        - /url: "#s-skipLinkTargetForFilterOptions"
+  - complementary "Your recently viewed items and featured recommendations"
+  - generic [ref=f25e2058]:
+    - button "Back to top" [ref=f25e2059] [cursor=pointer]
+    - generic [ref=f25e2061]:
+      - generic [ref=f25e2062]:
+        - heading "Get to Know Us" [level=6] [ref=f25e2063]
+        - list [ref=f25e2064]:
+          - listitem [ref=f25e2065]:
+            - link "About Amazon" [ref=f25e2066] [cursor=pointer]:
+              - /url: https://www.aboutamazon.in/?utm_source=gateway&utm_medium=footer
+          - listitem [ref=f25e2067]:
+            - link "Careers" [ref=f25e2068] [cursor=pointer]:
+              - /url: https://amazon.jobs
+          - listitem [ref=f25e2069]:
+            - link "Press Releases" [ref=f25e2070] [cursor=pointer]:
+              - /url: https://press.aboutamazon.in/?utm_source=gateway&utm_medium=footer
+          - listitem [ref=f25e2071]:
+            - link "Amazon Science" [ref=f25e2072] [cursor=pointer]:
+              - /url: https://www.amazon.science
+      - generic [ref=f25e2074]:
+        - heading "Connect with Us" [level=6] [ref=f25e2075]
+        - list [ref=f25e2076]:
+          - listitem [ref=f25e2077]:
+            - link "Facebook" [ref=f25e2078] [cursor=pointer]:
+              - /url: https://www.facebook.com/AmazonIN
+          - listitem [ref=f25e2079]:
+            - link "Twitter" [ref=f25e2080] [cursor=pointer]:
+              - /url: https://x.com/AmazonIN
+          - listitem [ref=f25e2081]:
+            - link "Instagram" [ref=f25e2082] [cursor=pointer]:
+              - /url: https://www.instagram.com/amazondotin
+      - generic [ref=f25e2084]:
+        - heading "Make Money with Us" [level=6] [ref=f25e2085]
+        - list [ref=f25e2086]:
+          - listitem [ref=f25e2087]:
+            - link "Sell on Amazon" [ref=f25e2088] [cursor=pointer]:
+              - /url: /b/?node=2838698031&ld=AZINSOANavDesktopFooter_C&ref_=nav_footer_sell_C
+          - listitem [ref=f25e2089]:
+            - link "Sell under Amazon Accelerator" [ref=f25e2090] [cursor=pointer]:
+              - /url: https://accelerator.amazon.in/?ref_=map_1_b2b_GW_FT
+          - listitem [ref=f25e2091]:
+            - link "Protect and Build Your Brand" [ref=f25e2092] [cursor=pointer]:
+              - /url: https://brandservices.amazon.in/?ref=AOINABRLGNRFOOT&ld=AOINABRLGNRFOOT
+          - listitem [ref=f25e2093]:
+            - link "Amazon Global Selling" [ref=f25e2094] [cursor=pointer]:
+              - /url: https://sell.amazon.in/grow-your-business/amazon-global-selling.html?ld=AZIN_Footer_V1&ref=AZIN_Footer_V1
+          - listitem [ref=f25e2095]:
+            - link "Supply to Amazon" [ref=f25e2096] [cursor=pointer]:
+              - /url: https://supply.amazon.com/?ref_=footer_sta&lang=en-IN
+          - listitem [ref=f25e2097]:
+            - link "Become an Affiliate" [ref=f25e2098] [cursor=pointer]:
+              - /url: https://affiliate-program.amazon.in/?utm_campaign=assocshowcase&utm_medium=footer&utm_source=GW&ref_=footer_assoc
+          - listitem [ref=f25e2099]:
+            - link "Fulfilment by Amazon" [ref=f25e2100] [cursor=pointer]:
+              - /url: https://services.amazon.in/services/fulfilment-by-amazon/benefits.html/ref=az_footer_fba?ld=AWRGINFBAfooter
+          - listitem [ref=f25e2101]:
+            - link "Advertise Your Products" [ref=f25e2102] [cursor=pointer]:
+              - /url: https://advertising.amazon.in/?ref=Amz.in
+          - listitem [ref=f25e2103]:
+            - link "Amazon Pay on Merchants" [ref=f25e2104] [cursor=pointer]:
+              - /url: https://www.amazonpay.in/merchant
+      - generic [ref=f25e2106]:
+        - heading "Let Us Help You" [level=6] [ref=f25e2107]
+        - list [ref=f25e2108]:
+          - listitem [ref=f25e2109]:
+            - link "Your Account" [ref=f25e2110] [cursor=pointer]:
+              - /url: /gp/css/homepage.html?ref_=footer_ya
+          - listitem [ref=f25e2111]:
+            - link "Returns Centre" [ref=f25e2112] [cursor=pointer]:
+              - /url: /gp/css/returns/homepage.html?ref_=footer_hy_f_4
+          - listitem [ref=f25e2113]:
+            - link "Recalls and Product Safety Alerts" [ref=f25e2114] [cursor=pointer]:
+              - /url: https://www.amazon.in/your-product-safety-alerts?ref_=footer_bsx_ypsa
+          - listitem [ref=f25e2115]:
+            - link "100% Purchase Protection" [ref=f25e2116] [cursor=pointer]:
+              - /url: /gp/help/customer/display.html?nodeId=201083470&ref_=footer_swc
+          - listitem [ref=f25e2117]:
+            - link "Amazon App Download" [ref=f25e2118] [cursor=pointer]:
+              - /url: /gp/browse.html?node=6967393031&ref_=footer_mobapp
+          - listitem [ref=f25e2119]:
+            - link "Help" [ref=f25e2120] [cursor=pointer]:
+              - /url: /gp/help/customer/display.html?nodeId=200507590&ref_=footer_gw_m_b_he
+    - generic [ref=f25e2122]:
+      - link "Amazon India Home" [ref=f25e2125] [cursor=pointer]:
+        - /url: /ref=footer_logo
+      - generic [ref=f25e2128]:
+        - generic [ref=f25e2129]:
+          - link "Choose a language for shopping. Current selection is English." [ref=f25e2130] [cursor=pointer]:
+            - /url: /customer-preferences/edit?ie=UTF8&preferencesReturnUrl=%2F&ref_=footer_lang
+            - generic [ref=f25e2132]: English
+          - button "Expand to Change Language or Country" [ref=f25e2133] [cursor=pointer]
+        - button "Choose a country/region for shopping. The current selection is India." [ref=f25e2134] [cursor=pointer]:
+          - generic [ref=f25e2136]: India
+    - generic "More on Amazon" [ref=f25e2137]:
+      - generic "More on Amazon" [ref=f25e2138]:
+        - list [ref=f25e2139]:
+          - listitem [ref=f25e2140]:
+            - link [ref=f25e2141] [cursor=pointer]:
+              - /url: https://www.abebooks.com/
+              - heading "AbeBooks" [level=5] [ref=f25e2142]
+              - generic [ref=f25e2143]: Books, art& collectibles
+          - listitem [aria-hidden] [ref=f25e2144]
+          - listitem [ref=f25e2145]:
+            - link [ref=f25e2146] [cursor=pointer]:
+              - /url: https://aws.amazon.com/what-is-cloud-computing/?sc_channel=EL&sc_campaign=IN_amazonfooter
+              - heading "Amazon Web Services" [level=5] [ref=f25e2147]
+              - generic [ref=f25e2148]: Scalable CloudComputing Services
+          - listitem [aria-hidden] [ref=f25e2149]
+          - listitem [ref=f25e2150]:
+            - link [ref=f25e2151] [cursor=pointer]:
+              - /url: https://www.audible.in/
+              - heading "Audible" [level=5] [ref=f25e2152]
+              - generic [ref=f25e2153]: DownloadAudio Books
+          - listitem [aria-hidden] [ref=f25e2154]
+          - listitem [ref=f25e2155]:
+            - link [ref=f25e2156] [cursor=pointer]:
+              - /url: https://www.imdb.com/
+              - heading "IMDb" [level=5] [ref=f25e2157]
+              - generic [ref=f25e2158]: Movies, TV& Celebrities
+        - list [ref=f25e2159]:
+          - listitem [ref=f25e2160]:
+            - link [ref=f25e2161] [cursor=pointer]:
+              - /url: https://www.shopbop.com/
+              - heading "Shopbop" [level=5] [ref=f25e2162]
+              - generic [ref=f25e2163]: DesignerFashion Brands
+          - listitem [aria-hidden] [ref=f25e2164]
+          - listitem [ref=f25e2165]:
+            - link [ref=f25e2166] [cursor=pointer]:
+              - /url: /business?ref=footer_aingw
+              - heading "Amazon Business" [level=5] [ref=f25e2167]
+              - generic [ref=f25e2168]: Everything ForYour Business
+          - listitem [aria-hidden] [ref=f25e2169]
+          - listitem [ref=f25e2170]:
+            - link "Amazon Music Stream millions of songs" [ref=f25e2171] [cursor=pointer]:
+              - /url: /music/player?ref=footer_apm
+              - heading "Amazon Music" [level=5] [ref=f25e2172]
+              - generic [ref=f25e2173]: Stream millions of songs
+          - listitem [aria-hidden] [ref=f25e2174]
+          - listitem [aria-hidden] [ref=f25e2175]
+    - generic [ref=f25e2176]:
+      - list [ref=f25e2177]:
+        - listitem [ref=f25e2178]:
+          - link "Conditions of Use & Sale" [ref=f25e2179] [cursor=pointer]:
+            - /url: /gp/help/customer/display.html?nodeId=200545940&ref_=footer_cou
+        - listitem [ref=f25e2180]:
+          - link "Privacy Notice" [ref=f25e2181] [cursor=pointer]:
+            - /url: /gp/help/customer/display.html?nodeId=200534380&ref_=footer_privacy
+        - listitem [ref=f25e2182]:
+          - link "Interest-Based Ads" [ref=f25e2183] [cursor=pointer]:
+            - /url: /gp/help/customer/display.html?nodeId=202075050&ref_=footer_iba
+      - generic [ref=f25e2184]: © 1996-2026, Amazon.com, Inc. or its affiliates

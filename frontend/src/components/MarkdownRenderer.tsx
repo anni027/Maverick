@@ -1,32 +1,35 @@
-import React, { useState } from 'react';
-
-declare global {
-  interface Window {
-    katex?: {
-      renderToString: (tex: string, options?: { displayMode?: boolean; throwOnError?: boolean }) => string;
-    };
-  }
-}
+import React, { memo, useMemo, useState } from 'react';
+import katex from 'katex';
+import 'katex/dist/katex.min.css';
 
 interface MarkdownRendererProps {
   content: string;
   /** Open-preview handler for html/svg/markdown fences (artifact viewer).
    *  Absent = no preview buttons (e.g. inside the viewer itself). */
   onOpenArtifact?: (a: { language: string; code: string; title: string }) => void;
+  /** While streaming, skip KaTeX (re-parsed per stream tick) and render raw
+   *  text; the settled render does full math once. */
+  streaming?: boolean;
 }
 
-export default function MarkdownRenderer({ content, onOpenArtifact }: MarkdownRendererProps) {
+function MarkdownRenderer({ content, onOpenArtifact, streaming }: MarkdownRendererProps) {
+  // Parse once per content change: the parent re-renders ~10x/sec while
+  // streaming, and without this every tick re-parsed the full message.
+  const blocks = useMemo(() => parseBlocks(content), [content]);
   if (!content) return null;
-  const blocks = parseBlocks(content);
 
   return (
     <div className="markdown-body" style={{ lineHeight: 1.7, fontSize: '14.5px', color: 'var(--text)' }}>
       {blocks.map((block, idx) => (
-        <BlockView key={idx} block={block} onOpenArtifact={onOpenArtifact} />
+        <BlockView key={idx} block={block} onOpenArtifact={onOpenArtifact} streaming={streaming} />
       ))}
     </div>
   );
 }
+
+// Memoized: a transcript re-render only re-parses the bubbles whose
+// `content` actually changed (plus the streaming flag flip at settle).
+export default memo(MarkdownRenderer);
 
 // -----------------------------------------------------------------------------
 // Block Types & Parser
@@ -198,7 +201,7 @@ function parseBlocks(raw: string): Block[] {
 // Component Renderers
 // -----------------------------------------------------------------------------
 
-function BlockView({ block, onOpenArtifact }: { block: Block; onOpenArtifact?: (a: { language: string; code: string; title: string }) => void }) {
+function BlockView({ block, onOpenArtifact, streaming }: { block: Block; onOpenArtifact?: (a: { language: string; code: string; title: string }) => void; streaming?: boolean }) {
   switch (block.type) {
     case 'heading': {
       const Tag = (`h${Math.min(block.level, 6)}` as keyof JSX.IntrinsicElements) || 'h4';
@@ -215,7 +218,7 @@ function BlockView({ block, onOpenArtifact }: { block: Block; onOpenArtifact?: (
             color: 'var(--text)',
           }}
         >
-          <InlineContent text={block.text} />
+          <InlineContent text={block.text} streaming={streaming} />
         </Tag>
       );
     }
@@ -224,7 +227,7 @@ function BlockView({ block, onOpenArtifact }: { block: Block; onOpenArtifact?: (
       return <CodeBlock language={block.language} code={block.code} onOpenArtifact={onOpenArtifact} />;
 
     case 'math_block':
-      return <MathBlock tex={block.tex} />;
+      return <MathBlock tex={block.tex} streaming={streaming} />;
 
     case 'blockquote':
       return (
@@ -239,7 +242,7 @@ function BlockView({ block, onOpenArtifact }: { block: Block; onOpenArtifact?: (
             opacity: 0.95,
           }}
         >
-          <InlineContent text={block.text} />
+          <InlineContent text={block.text} streaming={streaming} />
         </blockquote>
       );
 
@@ -251,7 +254,7 @@ function BlockView({ block, onOpenArtifact }: { block: Block; onOpenArtifact?: (
               <tr style={{ background: 'transparent', borderBottom: '1px solid var(--line)' }}>
                 {block.headers.map((h, i) => (
                   <th key={i} style={{ padding: '10px 14px', fontWeight: 650, color: 'var(--text)' }}>
-                    <InlineContent text={h} />
+                    <InlineContent text={h} streaming={streaming} />
                   </th>
                 ))}
               </tr>
@@ -267,7 +270,7 @@ function BlockView({ block, onOpenArtifact }: { block: Block; onOpenArtifact?: (
                 >
                   {row.map((cell, ci) => (
                     <td key={ci} style={{ padding: '9px 14px', color: 'var(--text)' }}>
-                      <InlineContent text={cell} />
+                      <InlineContent text={cell} streaming={streaming} />
                     </td>
                   ))}
                 </tr>
@@ -282,7 +285,7 @@ function BlockView({ block, onOpenArtifact }: { block: Block; onOpenArtifact?: (
         <ul style={{ margin: '8px 0', paddingLeft: '22px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
           {block.items.map((item, i) => (
             <li key={i} style={{ listStyleType: 'disc' }}>
-              <InlineContent text={item} />
+              <InlineContent text={item} streaming={streaming} />
             </li>
           ))}
         </ul>
@@ -293,7 +296,7 @@ function BlockView({ block, onOpenArtifact }: { block: Block; onOpenArtifact?: (
         <ol style={{ margin: '8px 0', paddingLeft: '22px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
           {block.items.map((item, i) => (
             <li key={i}>
-              <InlineContent text={item} />
+              <InlineContent text={item} streaming={streaming} />
             </li>
           ))}
         </ol>
@@ -305,7 +308,7 @@ function BlockView({ block, onOpenArtifact }: { block: Block; onOpenArtifact?: (
     case 'paragraph':
       return (
         <p style={{ margin: '8px 0', lineHeight: 1.7, color: 'var(--text)' }}>
-          <InlineContent text={block.text} />
+          <InlineContent text={block.text} streaming={streaming} />
         </p>
       );
 
@@ -449,19 +452,26 @@ function CodeBlock({ language, code, onOpenArtifact }: { language: string; code:
 // Math Block ($$...$$)
 // -----------------------------------------------------------------------------
 
-function MathBlock({ tex }: { tex: string }) {
-  if (typeof window !== 'undefined' && window.katex) {
-    try {
-      const html = window.katex.renderToString(tex, { displayMode: true, throwOnError: false });
-      return (
-        <div
-          style={{ margin: '14px 0', padding: '12px 16px', overflowX: 'auto', textAlign: 'center' }}
-          dangerouslySetInnerHTML={{ __html: html }}
-        />
-      );
-    } catch {
-      // fallback below
-    }
+function MathBlock({ tex, streaming }: { tex: string; streaming?: boolean }) {
+  // While streaming the tex is usually incomplete (and re-parsed per tick):
+  // show it raw and render KaTeX once it settles.
+  if (streaming) {
+    return (
+      <div style={{ margin: '14px 0', padding: '12px 16px', overflowX: 'auto', textAlign: 'center', fontStyle: 'italic', color: 'var(--muted)' }}>
+        {tex}
+      </div>
+    );
+  }
+  try {
+    const html = katex.renderToString(tex, { displayMode: true, throwOnError: false, trust: false });
+    return (
+      <div
+        style={{ margin: '14px 0', padding: '12px 16px', overflowX: 'auto', textAlign: 'center' }}
+        dangerouslySetInnerHTML={{ __html: html }}
+      />
+    );
+  } catch {
+    // Malformed TeX falls through to the plaintext renderer below.
   }
 
   // Fallback math display
@@ -490,8 +500,11 @@ function MathBlock({ tex }: { tex: string }) {
 // Inline Markdown & Math Parser ($...$, `code`, **bold**, *italic*, [link](url))
 // -----------------------------------------------------------------------------
 
-function InlineContent({ text }: { text: string }) {
+function InlineContent({ text, streaming }: { text: string; streaming?: boolean }) {
   if (!text) return null;
+  // Raw text while streaming: inline KaTeX + tokenizing per tick is the
+  // hottest cost in a math-heavy reply; full parse happens on settle.
+  if (streaming) return <>{text}</>;
   const elements = parseInline(text);
   return <>{elements}</>;
 }
@@ -531,26 +544,10 @@ function parseInline(text: string): React.ReactNode[] {
     } else if (token.startsWith('$') && token.endsWith('$') && token.length > 2) {
       // Inline math
       const mathTex = token.slice(1, -1);
-      if (typeof window !== 'undefined' && window.katex) {
-        try {
-          const html = window.katex.renderToString(mathTex, { displayMode: false, throwOnError: false });
-          parts.push(<span key={key} dangerouslySetInnerHTML={{ __html: html }} />);
-        } catch {
-          parts.push(
-            <span
-              key={key}
-              style={{
-                fontFamily: 'KaTeX_Main, Cambria Math, Times New Roman, serif',
-                fontStyle: 'italic',
-                padding: '0 3px',
-                color: 'var(--code-fg-strong)',
-              }}
-            >
-              {formatFallbackMath(mathTex)}
-            </span>
-          );
-        }
-      } else {
+      try {
+        const html = katex.renderToString(mathTex, { displayMode: false, throwOnError: false, trust: false });
+        parts.push(<span key={key} dangerouslySetInnerHTML={{ __html: html }} />);
+      } catch {
         parts.push(
           <span
             key={key}
@@ -580,7 +577,7 @@ function parseInline(text: string): React.ReactNode[] {
     } else if (token.startsWith('[') && token.includes('](')) {
       // Link
       const linkMatch = token.match(/\[([^\]]+)\]\(([^)]+)\)/);
-      if (linkMatch) {
+      if (linkMatch && isSafeHref(linkMatch[2])) {
         parts.push(
           <a
             key={key}
@@ -606,6 +603,16 @@ function parseInline(text: string): React.ReactNode[] {
   }
 
   return parts;
+}
+
+/// Hrefs come from model/tool output — only allow schemes that can't execute
+/// or exfiltrate inside the webview (`javascript:`, `data:` etc. render as
+/// inert text).
+function isSafeHref(raw: string): boolean {
+  // Browsers ignore whitespace/control chars inside URLs — normalize first.
+  const href = raw.replace(/[\s\u0000-\u001f]/g, '').toLowerCase();
+  if (href.startsWith('/') || href.startsWith('#') || href.startsWith('.')) return true;
+  return /^(https?:|mailto:|tel:)/.test(href);
 }
 
 // -----------------------------------------------------------------------------

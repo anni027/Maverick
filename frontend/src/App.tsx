@@ -1,15 +1,16 @@
-import { useEffect, useState, type PointerEvent as ReactPointerEvent } from 'react';
+import { useEffect, useRef, useState, useCallback, type PointerEvent as ReactPointerEvent } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import Chat from './components/Chat';
 import SessionSidebar from './components/SessionSidebar';
 import ModelPresetBadge from './components/ModelPresetBadge';
-import WorkspaceChip from './components/WorkspaceChip';
 import Settings from './components/Settings';
 import ApertureLogo from './components/ApertureLogo';
 import { PanelIcon, SettingsIcon, PlusIcon } from './components/icons';
+import { type RunStatusData } from './components/RunStatusBar';
 import { ProviderInfo, UiConfig, DEFAULT_UI_CONFIG, ModelPreset } from './types';
 import { useTheme, type ThemeMode } from './hooks/useTheme';
+import { generateGenUiPrompt } from './openui/library';
 
 export default function App() {
   // No placeholder id: a fake default would make `init_session` create a real
@@ -68,12 +69,63 @@ export default function App() {
   const [presetEffort, setPresetEffort] = useState<{ tier: string; token: number } | null>(null);
   // "Save as preset" name dialog (App-level modal, not window.prompt).
   const [presetDialog, setPresetDialog] = useState<{ open: boolean; name: string }>({ open: false, name: '' });
+  // Run state mirrored up from Chat: Settings → Status renders it, and the
+  // since-launch totals accumulate here because the backend ledger resets on
+  // every message. `countedRunRef` keys on the run's start so a session
+  // switch that re-reports the same finished run is not counted twice.
+  const [runStatus, setRunStatus] = useState<RunStatusData | null>(null);
+  const [runSummary, setRunSummary] = useState<string | null>(null);
+  const [runTotals, setRunTotals] = useState({ runs: 0, tokens: 0, costUsd: 0 });
+  const countedRunRef = useRef<number | null>(null);
+  // Guards initialize() against StrictMode double-mount (dev only).
+  const initRef = useRef(false);
+  const handleRunStatus = useCallback((status: RunStatusData | null, summary: string | null) => {
+    setRunStatus(status);
+    setRunSummary(summary);
+    if (status?.finished && countedRunRef.current !== status.startedAt) {
+      countedRunRef.current = status.startedAt;
+      setRunTotals(t => ({
+        runs: t.runs + 1,
+        tokens: t.tokens + status.totalTokens,
+        costUsd: t.costUsd + status.costUsd,
+      }));
+    }
+  }, []);
   const loadUiConfig = async () => {
     try {
       const ui = await invoke<Partial<UiConfig>>('get_ui_config');
       setUiConfig({ ...DEFAULT_UI_CONFIG, ...ui });
     } catch { /* keep defaults */ }
   };
+
+  // Generative UI: align the session's system head with the component language
+  // the renderer understands. Reads the flag fresh (never render-time state)
+  // so boot races and toggle flips can't desync prompt from renderer. The
+  // command rebuilds the head from a known const — repeats are no-ops.
+  const syncGenUiPrompt = async (session: string) => {
+    if (!session) return;
+    try {
+      const ui = await invoke<Partial<UiConfig>>('get_ui_config').catch(() => ({} as Partial<UiConfig>));
+      const enabled = { ...DEFAULT_UI_CONFIG, ...ui }.generative_ui !== false;
+      await invoke('set_generative_ui_prompt', {
+        session_id: session,
+        instructions: enabled ? generateGenUiPrompt() : null,
+      });
+    } catch (e) {
+      // A missing loop (init still in flight) resolves via the direct
+      // post-init calls below; never break boot over prompt alignment.
+      console.warn('genui prompt sync failed', e);
+    }
+  };
+
+  // Toggle flips (Settings → onRefresh → loadUiConfig) re-align the visible
+  // session without a restart. Init paths call syncGenUiPrompt directly after
+  // their awaits, so this effect is only the flip/switch backstop.
+  useEffect(() => {
+    if (!sessionId) return;
+    void syncGenUiPrompt(sessionId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionId, uiConfig.generative_ui]);
 
   // Theme: UiConfig.theme (config.toml) is the source of truth; push it into
   // ThemeProvider, which applies the `dark` class + localStorage mirror.
@@ -83,7 +135,27 @@ export default function App() {
     setMode(t === 'light' || t === 'dark' || t === 'system' ? (t as ThemeMode) : 'dark');
   }, [uiConfig.theme, setMode]);
 
-  useEffect(() => { initialize(); }, []);
+  // Debug tap: full event payloads in dev only — never in prod builds. Own
+  // effect so the unlisten handle is released on unmount; an effect that
+  // re-runs (or StrictMode's double mount) would otherwise stack listeners
+  // and log every event twice.
+  useEffect(() => {
+    if (!import.meta.env.DEV) return;
+    let unlisten: (() => void) | undefined;
+    let cancelled = false;
+    listen('agent-event', (e: any) => console.log('agent-event', e.payload))
+      .then((u) => { if (cancelled) u(); else unlisten = u; })
+      .catch(() => {});
+    return () => { cancelled = true; unlisten?.(); };
+  }, []);
+
+  useEffect(() => {
+    // StrictMode double-mounts in dev: without this guard initialize() runs
+    // twice, firing duplicate list_sessions/init_session and racing setSessionId.
+    if (initRef.current) return;
+    initRef.current = true;
+    initialize();
+  }, []);
 
   const withTimeout = <T,>(p: Promise<T>, ms: number, label: string): Promise<T> =>
     Promise.race([p, new Promise<never>((_, r) => setTimeout(() => r(new Error(`${label} timed out after ${ms}ms`)), ms))]);
@@ -93,10 +165,6 @@ export default function App() {
     const fallback = setTimeout(() => { setInitError(prev => prev || 'Initialization timed out — showing UI'); setIsInitialized(true); }, 10000);
     try {
       setInitStep('Connecting');
-      // Debug tap: full event payloads in dev only — never in prod builds.
-      if (import.meta.env.DEV) {
-        listen('agent-event', (e: any) => console.log('agent-event', e.payload)).catch(()=>{});
-      }
       loadUiConfig();
       setInitStep('Loading sessions');
       let target = sessionId;
@@ -142,15 +210,16 @@ export default function App() {
       setInitStep('Loading tools');
       try { const tl = await withTimeout(invoke<string[]>('list_tools'),5000,'list_tools'); setTools(tl.filter(t=> t !== 'test_tool')) } catch(e){ setInitError(`Tools: ${String(e)}`)}
       setInitStep('Opening session');
-      try { await withTimeout(invoke('init_session', { sessionId: target, providerId: chosenProvider }), 10000, 'init_session'); } catch(e){
+      try { await withTimeout(invoke('init_session', { session_id: target, provider_id: chosenProvider }), 10000, 'init_session'); await syncGenUiPrompt(target); } catch(e){
         setInitError(`${String(e)}`);
         // Retry with a brand-new session instead of a shared placeholder —
         // the placeholder used to leave a phantom `demo-session` directory in
         // the sidebar every time startup hiccuped.
         try {
           const fresh = `session-${Date.now()}`;
-          await withTimeout(invoke('init_session',{sessionId:fresh, providerId: chosenProvider}),8000,'retry');
+          await withTimeout(invoke('init_session',{session_id:fresh, provider_id: chosenProvider}),8000,'retry');
           setSessionId(fresh);
+          await syncGenUiPrompt(fresh);
           setSessions(prev => (prev.includes(fresh) ? prev : [...prev, fresh]));
           setInitError(null);
         }catch{}
@@ -161,15 +230,15 @@ export default function App() {
 
   const handleSelectSession = async (id:string) => {
     setSessionId(id);
-    try{ await invoke('init_session',{sessionId:id, providerId: selectedProvider}); }catch(e){ console.error(e)}
+    try{ await invoke('init_session',{session_id:id, provider_id: selectedProvider}); await syncGenUiPrompt(id); }catch(e){ console.error(e)}
   };
   const handleNewSession = async () => {
     const nid=`session-${Date.now()}`;
-    try{ await invoke('init_session',{sessionId:nid, providerId: selectedProvider}); const l=await invoke<string[]>('list_sessions'); setSessions(l); setSessionId(nid);}catch(e){console.error(e)}
+    try{ await invoke('init_session',{session_id:nid, provider_id: selectedProvider}); await syncGenUiPrompt(nid); const l=await invoke<string[]>('list_sessions'); setSessions(l); setSessionId(nid);}catch(e){console.error(e)}
   };
   const handleDeleteSession = async (id: string) => {
     try {
-      await invoke('delete_session', { sessionId: id });
+      await invoke('delete_session', { session_id: id });
       const updated = sessions.filter(s => s !== id);
       setSessions(updated);
       if (sessionId === id) {
@@ -187,7 +256,7 @@ export default function App() {
     const trimmed = newId.trim();
     if (!trimmed || trimmed === oldId) return;
     try {
-      await invoke('rename_session', { oldId, newId: trimmed });
+      await invoke('rename_session', { old_id: oldId, new_id: trimmed });
       const updated = sessions.map(s => (s === oldId ? trimmed : s));
       setSessions(updated);
       if (sessionId === oldId) {
@@ -200,9 +269,9 @@ export default function App() {
 
   const handleProviderChange = async (id: string) => {
     setSelectedProvider(id);
-    try { await invoke('set_default_provider', { providerId: id }); } catch(e){ console.error('set_default_provider failed', e); }
+    try { await invoke('set_default_provider', { provider_id: id }); } catch(e){ console.error('set_default_provider failed', e); }
     // Re-init current session with new provider so next message uses it
-    try { await invoke('init_session', { sessionId, providerId: id }); } catch(e){ console.error('re-init with new provider failed', e); }
+    try { await invoke('init_session', { session_id: sessionId, provider_id: id }); await syncGenUiPrompt(sessionId); } catch(e){ console.error('re-init with new provider failed', e); }
   };
 
   // Apply a preset: persist the model onto its provider (merging base_url/kind —
@@ -211,11 +280,11 @@ export default function App() {
   const applyPreset = async (p: ModelPreset) => {
     try {
       const cur = await invoke<{ base_url?: string | null; kind?: string | null } | null>('get_provider_settings', {
-        providerId: p.provider_id,
+        provider_id: p.provider_id,
       });
       await invoke('set_provider_settings', {
-        providerId: p.provider_id,
-        baseUrl: cur?.base_url ?? null,
+        provider_id: p.provider_id,
+        base_url: cur?.base_url ?? null,
         model: p.model,
         kind: cur?.kind ?? null,
       });
@@ -371,7 +440,6 @@ export default function App() {
               onSavePreset={() => setPresetDialog({ open: true, name: '' })}
               onOpenSettings={()=>setShowSettings(true)}
             />
-            <WorkspaceChip sessionId={sessionId} />
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -413,6 +481,7 @@ export default function App() {
             onSavePresetRequest={() => setPresetDialog({ open: true, name: '' })}
             onEffortChange={setCurrentEffort}
             presetEffort={presetEffort}
+            onRunStatus={handleRunStatus}
           />
         </div>
       </div>
@@ -472,6 +541,9 @@ export default function App() {
         onApplyPreset={applyPreset}
         onDeletePreset={deletePreset}
         onSavePreset={()=>setPresetDialog({ open:true, name:'' })}
+        runStatus={runStatus}
+        runSummary={runSummary}
+        runTotals={runTotals}
       />
     </div>
   );

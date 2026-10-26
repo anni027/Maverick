@@ -46,24 +46,6 @@ impl From<&SkillInfo> for SkillDto {
     }
 }
 
-/// Hub manifest entry (agentskills.io spec minimal).
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
-pub struct HubIndex {
-    pub skills: HashMap<String, HubEntry>,
-}
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct HubEntry {
-    pub version: String,
-    pub description: String,
-    pub author: Option<String>,
-    pub path: String, // cache relative
-}
-
-#[allow(dead_code)]
-fn maverick_home(app_data_dir: &Path) -> PathBuf {
-    app_data_dir.to_path_buf()
-}
-
 fn home_skill_roots(app_data_dir: &Path, ws_dir: &Path) -> Vec<(PathBuf, SkillScope)> {
     let mut roots = Vec::new();
     // Workspace roots
@@ -422,70 +404,6 @@ pub async fn fetch_hub_skill(
             });
         Ok(dto)
     }
-}
-
-pub fn list_hub_index(app_data_dir: &Path) -> HubIndex {
-    let mut idx = HubIndex::default();
-    let hub_root = if let Some(home) = dirs_next::home_dir() {
-        home.join(".maverick").join("hub").join("skills")
-    } else {
-        app_data_dir.join("hub").join("skills")
-    };
-    if !hub_root.exists() {
-        return idx;
-    }
-    // Walk hub skills and build index
-    for owner in std::fs::read_dir(&hub_root).into_iter().flatten().flatten() {
-        let owner_name = owner.file_name().to_string_lossy().to_string();
-        for skill in std::fs::read_dir(owner.path())
-            .into_iter()
-            .flatten()
-            .flatten()
-        {
-            // Skip the marketplace namespace here — those installs are
-            // Server scope via discovery, listed by the marketplace UI.
-            if owner_name == "marketplace" {
-                continue;
-            }
-            let skill_name = skill.file_name().to_string_lossy().to_string();
-            let entry_path = skill.path().join("SKILL.md");
-            if entry_path.exists() {
-                idx.skills.insert(
-                    format!("{owner_name}/{skill_name}"),
-                    HubEntry {
-                        version: "latest".to_string(),
-                        description: "cached hub skill".to_string(),
-                        author: Some(owner_name.clone()),
-                        path: entry_path.to_string_lossy().to_string(),
-                    },
-                );
-            } else {
-                // Check version subdirs
-                for ver in std::fs::read_dir(skill.path())
-                    .into_iter()
-                    .flatten()
-                    .flatten()
-                {
-                    let v_path = ver.path().join("SKILL.md");
-                    if v_path.exists() {
-                        idx.skills.insert(
-                            format!(
-                                "{owner_name}/{skill_name}@{}",
-                                ver.file_name().to_string_lossy()
-                            ),
-                            HubEntry {
-                                version: ver.file_name().to_string_lossy().to_string(),
-                                description: "cached hub skill".to_string(),
-                                author: Some(owner_name.clone()),
-                                path: v_path.to_string_lossy().to_string(),
-                            },
-                        );
-                    }
-                }
-            }
-        }
-    }
-    idx
 }
 
 // ── Skills marketplace (GitHub-backed catalog) ────────────────────────────

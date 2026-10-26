@@ -2,8 +2,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { open } from '@tauri-apps/plugin-dialog';
-import type { InteractionConfig, MemoryConfig, MemoryScope, MemoryStats, ModelPreset } from '../types';
-import { DEFAULT_INTERACTION_CONFIG, DEFAULT_MEMORY_CONFIG } from '../types';
+import type { InteractionConfig, MemoryConfig, MemoryScope, MemoryStats, ModelPreset, EmailStatus, ComputerStatus } from '../types';
+import { DEFAULT_INTERACTION_CONFIG, DEFAULT_MEMORY_CONFIG, DEFAULT_EMAIL_STATUS } from '../types';
+import RunStatusBar, { type RunStatusData, fmtTokens, fmtUsd } from './RunStatusBar';
 
 interface SettingsProps {
   isOpen: boolean; onClose: () => void;
@@ -18,6 +19,11 @@ interface SettingsProps {
   onApplyPreset?: (p: ModelPreset) => void;
   onDeletePreset?: (id: string) => void;
   onSavePreset?: () => void;
+  /** Live run state mirrored up from Chat — drives the Status tab. */
+  runStatus?: RunStatusData | null;
+  runSummary?: string | null;
+  /** Spend accumulated across finished runs since the app launched. */
+  runTotals?: { runs: number; tokens: number; costUsd: number };
 }
 
 const KNOWN_PROVIDERS: Array<{id:string; name:string; hint:string}> = [
@@ -70,13 +76,16 @@ function splitArgs(input: string): string[] {
   return out;
 }
 
-export default function Settings({ isOpen, onClose, sessionId, providers, currentProvider: _cp, onProviderChange, onRefresh, presets = [], activePresetId, onApplyPreset, onDeletePreset, onSavePreset }: SettingsProps) {
+export default function Settings({ isOpen, onClose, sessionId, providers, currentProvider: _cp, onProviderChange, onRefresh, presets = [], activePresetId, onApplyPreset, onDeletePreset, onSavePreset, runStatus = null, runSummary = null, runTotals = { runs: 0, tokens: 0, costUsd: 0 } }: SettingsProps) {
   const [apiKeys, setApiKeys] = useState<Record<string,string>>({});
   const [providerSettings, setProviderSettings] = useState<Record<string, {base_url?: string, model?: string, kind?: string}>>({});
   const [mcpServers, setMcpServers] = useState<Array<{name:string;transport:string;command?:string;args:string;url?:string;enabled:boolean}>>([]);
   const [mcpStatus, setMcpStatus] = useState<Array<{name:string;transport:string;tool_count:number;status:string;tools:string[]}>>([]);
-  const [marketplace, setMarketplace] = useState<Array<{name:string;description:string;transport:string;command?:string;args:string[];url?:string;category:string;install_count?:number}>>([]);
-  const [uiConfig, setUiConfig] = useState({ theme:'dark', show_tool_calls:true, auto_scroll:true, compact_mode:false });
+  // Computer panel: the agent's browser (Playwright MCP).
+  const [comp, setComp] = useState<ComputerStatus|null>(null);
+  const [compOpts, setCompOpts] = useState({ headless:false, persistent:true });
+  const [marketplace, setMarketplace] = useState<Array<{name:string;description:string;transport:string;command?:string;args:string[];url?:string;category:string}>>([]);
+  const [uiConfig, setUiConfig] = useState({ theme:'dark', show_tool_calls:true, auto_scroll:true, compact_mode:false, generative_ui:true, auto_preview:true });
   // Phase 3 context management (auto-compact checkpoint + per-tool output budgets).
   const [contextConfig, setContextConfig] = useState<{ auto_compact_enabled:boolean; auto_compact_threshold_percent:number; tail_keep_items:number; tool_output_budgets: Record<string, number> }>({ auto_compact_enabled:true, auto_compact_threshold_percent:85, tail_keep_items:24, tool_output_budgets:{} });
   // Turn/segment budgets + spend guardrails (§5.6-B/F).
@@ -85,6 +94,12 @@ export default function Settings({ isOpen, onClose, sessionId, providers, curren
   const [interactionConfig, setInteractionConfig] = useState<InteractionConfig>(DEFAULT_INTERACTION_CONFIG);
   // Unified cross-chat memory (global + workspace MEMORY.md).
   const [memoryConfig, setMemoryConfig] = useState<MemoryConfig>(DEFAULT_MEMORY_CONFIG);
+  // Gmail integration (OAuth connect, send/read tools, drafts).
+  const [emailStatus, setEmailStatus] = useState<EmailStatus>(DEFAULT_EMAIL_STATUS);
+  const [emailClient, setEmailClient] = useState({ id:'', secret:'' });
+  const [emailBusy, setEmailBusy] = useState<string|null>(null);
+  const [emailMsg, setEmailMsg] = useState<string|null>(null);
+  const [emailTest, setEmailTest] = useState({ to:'', subject:'', body:'' });
   const [memScope, setMemScope] = useState<'global'|'workspace'>('global');
   const [memText, setMemText] = useState('');
   const [memDirty, setMemDirty] = useState(false);
@@ -93,7 +108,7 @@ export default function Settings({ isOpen, onClose, sessionId, providers, curren
   const [defaultWs, setDefaultWs] = useState<string|null>(null);
   const [wsDraft, setWsDraft] = useState('');
   const [defaultProvider, setDefaultProvider] = useState('');
-  const [activeTab, setActiveTab] = useState<'providers'|'mcp'|'skills'|'ui'|'context'|'memory'>('providers');
+  const [activeTab, setActiveTab] = useState<'providers'|'computer'|'mcp'|'skills'|'ui'|'context'|'memory'|'email'|'status'>('providers');
   const [skills, setSkills] = useState<Array<{name:string, description:string, path:string, scope:string, display_name?: string, enabled:boolean}>>([]);
   const [newSkill, setNewSkill] = useState({ name:'', content:'' });
   const [hubFetch, setHubFetch] = useState({ owner:'', name:'', version:'', url:'https://agentskills.io' });
@@ -157,7 +172,7 @@ export default function Settings({ isOpen, onClose, sessionId, providers, curren
     document.body.style.cursor = 'nwse-resize';
   };
 
-  useEffect(()=>{ if(isOpen) { loadConfig(); loadSkills(); loadMcpStatus(); loadMarketplace(); loadMpSources(); loadMemoryStats(); loadDefaultWs(); } },[isOpen]);
+  useEffect(()=>{ if(isOpen) { loadConfig(); loadSkills(); loadMcpStatus(); loadMarketplace(); loadMpSources(); loadMemoryStats(); loadDefaultWs(); loadComputer(); } },[isOpen]);
   // Reload the editor whenever the file scope flips.
   useEffect(()=>{ if(isOpen) loadMemoryText(memScope); },[isOpen, memScope]);
   // Browse the selected marketplace source (first browse auto-fetches).
@@ -176,18 +191,47 @@ export default function Settings({ isOpen, onClose, sessionId, providers, curren
   };
   const loadMarketplace = async () => {
     try {
-      const mp = await invoke<Array<{name:string,description:string,transport:string,command?:string,args:string[],url?:string,category:string,install_count?:number}>>('scan_marketplace');
+      const mp = await invoke<Array<{name:string,description:string,transport:string,command?:string,args:string[],url?:string,category:string}>>('scan_marketplace');
       setMarketplace(mp);
     } catch(e){ console.error('scan_marketplace failed', e); }
+  };
+  const loadComputer = async () => {
+    try {
+      const st = await invoke<ComputerStatus>('computer_status');
+      setComp(st);
+      setCompOpts({ headless: st.headless, persistent: st.persistent });
+    } catch(e){ console.error('computer_status failed', e); }
+  };
+  /** Connect (or reconnect with new options). First enable can take a while —
+   *  npx fetches the Playwright MCP package on a cold cache. */
+  const setComputer = async (enabled: boolean) => {
+    setSaving('computer');
+    try {
+      const st = await invoke<ComputerStatus>(enabled ? 'computer_enable' : 'computer_disable', enabled ? { headless: compOpts.headless, persistent: compOpts.persistent } : {});
+      setComp(st);
+      setCompOpts({ headless: st.headless, persistent: st.persistent });
+      loadMcpStatus(); loadConfig();
+    } catch(e){ alert(String(e)); }
+    finally{ setSaving(null); }
+  };
+  /** Reconnect after an option flips while already connected. */
+  const reconnectComputer = async (opts: {headless:boolean; persistent:boolean}) => {
+    setSaving('computer');
+    try {
+      const st = await invoke<ComputerStatus>('computer_enable', { headless: opts.headless, persistent: opts.persistent });
+      setComp(st);
+      loadMcpStatus(); loadConfig();
+    } catch(e){ alert(String(e)); }
+    finally{ setSaving(null); }
   };
 
   const fetchKiloModels = async (target: string) => {
     setShowKiloPicker(target); setKiloLoading(true); setKiloError(null);
     try {
       const list = await invoke<KiloModelRow[]>('list_kilo_models', {
-        providerId: target === 'new' ? null : target,
-        baseUrl: target === 'new' ? (newCustom.base_url.trim() || 'https://api.kilo.ai/api/gateway') : null,
-        apiKey: target === 'new' ? (newCustom.api_key.trim() || null) : null,
+        provider_id: target === 'new' ? null : target,
+        base_url: target === 'new' ? (newCustom.base_url.trim() || 'https://api.kilo.ai/api/gateway') : null,
+        api_key: target === 'new' ? (newCustom.api_key.trim() || null) : null,
       });
       setKiloModels(list);
     } catch(e){ setKiloError(String(e)); }
@@ -207,10 +251,10 @@ export default function Settings({ isOpen, onClose, sessionId, providers, curren
     setSaving(providerId);
     try {
       const key = customKeys[providerId]?.trim();
-      if (key) await invoke('set_api_key', { providerId, apiKey: key });
+      if (key) await invoke('set_api_key', { provider_id: providerId, api_key: key });
       await invoke('set_provider_settings', {
-        providerId,
-        baseUrl: settings.base_url?.trim() || null,
+        provider_id: providerId,
+        base_url: settings.base_url?.trim() || null,
         model: modelId,
         kind: settings.kind?.trim() || null,
       });
@@ -267,6 +311,7 @@ export default function Settings({ isOpen, onClose, sessionId, providers, curren
         extract_model: c.memory.extract_model ?? DEFAULT_MEMORY_CONFIG.extract_model,
         max_chars: c.memory.max_chars ?? DEFAULT_MEMORY_CONFIG.max_chars,
       });
+      if(c.email) setEmailStatus({ ...DEFAULT_EMAIL_STATUS, ...c.email });
     }catch(e){ console.error(e)} finally{ setLoading(false)}
   };
   const handleApiKeyChange=(p:string,v:string)=> setApiKeys(prev=>({...prev,[p]:v}));
@@ -284,9 +329,9 @@ export default function Settings({ isOpen, onClose, sessionId, providers, curren
     setSaving(p);
     try{
       if(k?.trim()){
-        await invoke('set_api_key',{providerId:p, apiKey:k});
+        await invoke('set_api_key',{provider_id:p, api_key:k});
       }
-      await invoke('set_provider_settings',{providerId:p, baseUrl: s.base_url?.trim() || null, model: s.model?.trim() || null, kind: s.kind?.trim() || null});
+      await invoke('set_provider_settings',{provider_id:p, base_url: s.base_url?.trim() || null, model: s.model?.trim() || null, kind: s.kind?.trim() || null});
       onRefresh?.();
       setApiKeys(prev=> ({...prev, [p]: ''}));
     } catch(e){ alert(String(e))} finally{ setSaving(null)}
@@ -294,8 +339,8 @@ export default function Settings({ isOpen, onClose, sessionId, providers, curren
   const removeApiKey=async(p:string)=>{
     if(!confirm(`Remove API key and settings for ${p}?`)) return;
     try{
-      await invoke('remove_api_key',{providerId:p});
-      await invoke('set_provider_settings',{providerId:p, baseUrl: null, model: null, kind: null});
+      await invoke('remove_api_key',{provider_id:p});
+      await invoke('set_provider_settings',{provider_id:p, base_url: null, model: null, kind: null});
       setApiKeys(prev=>{ const n={...prev}; delete n[p]; return n;});
       setProviderSettings(prev=>{ const n={...prev}; delete n[p]; return n;});
       onRefresh?.();
@@ -308,9 +353,9 @@ export default function Settings({ isOpen, onClose, sessionId, providers, curren
     setSaving('custom');
     try{
       if(newCustom.api_key.trim()){
-        await invoke('set_api_key',{providerId:id, apiKey:newCustom.api_key.trim()});
+        await invoke('set_api_key',{provider_id:id, api_key:newCustom.api_key.trim()});
       }
-      await invoke('set_provider_settings',{providerId:id, baseUrl:newCustom.base_url.trim(), model:newCustom.model.trim(), kind:newCustom.kind});
+      await invoke('set_provider_settings',{provider_id:id, base_url:newCustom.base_url.trim(), model:newCustom.model.trim(), kind:newCustom.kind});
       onRefresh?.();
       setNewCustom({id:'', base_url:'', model:'', api_key:'', kind:'openai'});
       // Also load config to show it
@@ -319,7 +364,7 @@ export default function Settings({ isOpen, onClose, sessionId, providers, curren
   };
   const handleDefaultProviderChange=async(e:React.ChangeEvent<HTMLSelectElement>)=>{
     const v=e.target.value||undefined; setDefaultProvider(e.target.value);
-    try{ await invoke('set_default_provider',{providerId:v}); onProviderChange(e.target.value);}catch(e){ console.error(e)}
+    try{ await invoke('set_default_provider',{provider_id:v}); onProviderChange(e.target.value);}catch(e){ console.error(e)}
   };
   const addMcpServer=async()=>{
     if(!newMcp.name.trim()) return;
@@ -378,22 +423,70 @@ export default function Settings({ isOpen, onClose, sessionId, providers, curren
     invoke('set_memory_config',{memory:next}).catch(e=>alert(String(e)));
     return next;
   };
+  // Gmail integration: status refresh, settings patch, connect flow,
+  // disconnect, and test send. Secrets are write-only (never read back).
+  const refreshEmailStatus = async () => {
+    try {
+      const st = await invoke<EmailStatus>('get_email_config');
+      setEmailStatus({ ...DEFAULT_EMAIL_STATUS, ...st });
+    } catch(e){ console.error(e); }
+  };
+  const patchEmail = async (patch: {enabled?: boolean; client_id?: string|null; client_secret?: string|null}) => {
+    setEmailBusy('saving'); setEmailMsg(null);
+    try {
+      const st = await invoke<EmailStatus>('set_email_config', { patch });
+      setEmailStatus({ ...DEFAULT_EMAIL_STATUS, ...st });
+      setEmailClient({ id:'', secret:'' });
+      onRefresh?.();
+    } catch(e){ setEmailMsg(String(e)); } finally { setEmailBusy(null); }
+  };
+  const connectEmail = async () => {
+    setEmailBusy('connect');
+    setEmailMsg('Your browser should open for Google consent — approve it, then return here (waiting up to 3 minutes)…');
+    try {
+      const account = await invoke<string>('email_connect');
+      setEmailMsg(`Connected as ${account}. The agent can now send and read mail when you ask.`);
+      await refreshEmailStatus();
+      onRefresh?.();
+    } catch(e){ setEmailMsg(String(e)); } finally { setEmailBusy(null); }
+  };
+  const disconnectEmail = async () => {
+    if (!confirm('Disconnect Gmail? Tokens are dropped; the agent mail tools disappear until you reconnect.')) return;
+    setEmailBusy('disconnect'); setEmailMsg(null);
+    try {
+      const st = await invoke<EmailStatus>('email_disconnect');
+      setEmailStatus({ ...DEFAULT_EMAIL_STATUS, ...st });
+      setEmailMsg('Disconnected.');
+      onRefresh?.();
+    } catch(e){ setEmailMsg(String(e)); } finally { setEmailBusy(null); }
+  };
+  const sendTestEmail = async () => {
+    if (!emailTest.to.includes('@')) { setEmailMsg('Enter a valid recipient address first.'); return; }
+    setEmailBusy('send'); setEmailMsg(null);
+    try {
+      const id = await invoke<string>('email_send', {
+        to: emailTest.to.trim(), subject: emailTest.subject, body_text: emailTest.body,
+        body_html: null, cc: null, bcc: null,
+      });
+      setEmailMsg(`Test email sent (Gmail id ${id}).`);
+    } catch(e){ setEmailMsg(String(e)); } finally { setEmailBusy(null); }
+  };
   const loadMemoryText = async (scope: 'global'|'workspace') => {
     try{
-      const text = await invoke<string>('get_memory_text',{scope, sessionId: sessionId ?? null});
+      const text = await invoke<string>('get_memory_text',{scope, session_id: sessionId ?? null});
       setMemText(text); setMemDirty(false);
     }catch(e){ alert(String(e)) }
   };
   const loadMemoryStats = async () => {
     try{
-      const s = await invoke<MemoryStats>('get_memory_stats',{sessionId: sessionId ?? null});
+      const s = await invoke<MemoryStats>('get_memory_stats',{session_id: sessionId ?? null});
       setMemStats(s);
     }catch(e){ console.error('get_memory_stats failed', e) }
   };
   const saveMemoryText = async () => {
     setSaving('memory');
     try{
-      await invoke('save_memory_text',{scope:memScope, text:memText, sessionId: sessionId ?? null});
+      await invoke('save_memory_text',{scope:memScope, text:memText, session_id: sessionId ?? null});
       setMemDirty(false); loadMemoryStats();
     }catch(e){ alert(String(e)) } finally{ setSaving(null) }
   };
@@ -401,7 +494,7 @@ export default function Settings({ isOpen, onClose, sessionId, providers, curren
     if(!confirm(`Delete ${scope === 'both' ? 'ALL' : scope} memor${scope === 'both' ? 'ies' : 'y'}? This cannot be undone.`)) return;
     setSaving('memory-clear');
     try{
-      await invoke('clear_memory',{scope, sessionId: sessionId ?? null});
+      await invoke('clear_memory',{scope, session_id: sessionId ?? null});
       loadMemoryText(memScope); loadMemoryStats();
     }catch(e){ alert(String(e)) } finally{ setSaving(null) }
   };
@@ -443,7 +536,7 @@ export default function Settings({ isOpen, onClose, sessionId, providers, curren
     if(!hubFetch.owner.trim() || !hubFetch.name.trim()){ alert('Owner and name required'); return; }
     setSaving('hub');
     try{
-      await invoke('fetch_hub_skill',{hubUrl: hubFetch.url || 'https://agentskills.io', owner: hubFetch.owner, name: hubFetch.name, version: hubFetch.version.trim() || null});
+      await invoke('fetch_hub_skill',{hub_url: hubFetch.url || 'https://agentskills.io', owner: hubFetch.owner, name: hubFetch.name, version: hubFetch.version.trim() || null});
       loadSkills();
       setHubFetch(prev=> ({...prev, owner:'', name:'', version:''}));
     }catch(e){ alert(String(e))} finally{ setSaving(null)}
@@ -459,7 +552,7 @@ export default function Settings({ isOpen, onClose, sessionId, providers, curren
     if(!mpSourceId) return;
     setMpLoading(true);
     try{
-      const list = await invoke<Array<{source_id:string; dir:string; name:string; description:string; installed:boolean}>>('list_marketplace_skills',{sourceId: mpSourceId, refresh});
+      const list = await invoke<Array<{source_id:string; dir:string; name:string; description:string; installed:boolean}>>('list_marketplace_skills',{source_id: mpSourceId, refresh});
       setMpSkills(list);
     }catch(e){ alert(String(e)) } finally{ setMpLoading(false) }
   };
@@ -469,15 +562,15 @@ export default function Settings({ isOpen, onClose, sessionId, providers, curren
     setMpLoading(true);
     try{
       const list = q
-        ? await invoke<Array<{source_id:string; dir:string; name:string; description:string; installed:boolean}>>('search_marketplace_skills',{sourceId: mpSourceId, query: q})
-        : await invoke<Array<{source_id:string; dir:string; name:string; description:string; installed:boolean}>>('list_marketplace_skills',{sourceId: mpSourceId, refresh: false});
+        ? await invoke<Array<{source_id:string; dir:string; name:string; description:string; installed:boolean}>>('search_marketplace_skills',{source_id: mpSourceId, query: q})
+        : await invoke<Array<{source_id:string; dir:string; name:string; description:string; installed:boolean}>>('list_marketplace_skills',{source_id: mpSourceId, refresh: false});
       setMpSkills(list);
     }catch(e){ alert(String(e)) } finally{ setMpLoading(false) }
   };
   const installMpSkill = async(skill: {source_id:string; dir:string; name:string})=>{
     setSaving('mp-skill-'+skill.dir);
     try{
-      await invoke('install_marketplace_skill',{sourceId: skill.source_id, dir: skill.dir});
+      await invoke('install_marketplace_skill',{source_id: skill.source_id, dir: skill.dir});
       loadSkills();
       setMpSkills(prev=> prev.map(s=> s.dir===skill.dir ? {...s, installed:true} : s));
       onRefresh?.();
@@ -488,8 +581,8 @@ export default function Settings({ isOpen, onClose, sessionId, providers, curren
     setSaving('mp-source');
     try{
       const list = await invoke<Array<{id:string; display_name:string; owner:string; repo:string; branch:string; skills_path:string}>>('add_marketplace_source',{
-        id: newSource.id, displayName: newSource.display_name, owner: newSource.owner, repo: newSource.repo,
-        branch: newSource.branch.trim() || null, skillsPath: newSource.skills_path.trim() || null,
+        id: newSource.id, display_name: newSource.display_name, owner: newSource.owner, repo: newSource.repo,
+        branch: newSource.branch.trim() || null, skills_path: newSource.skills_path.trim() || null,
       });
       setMpSources(list);
       // Backend sanitizes the id the same way (lowercase, non [a-z0-9_-] → '-').
@@ -523,15 +616,15 @@ export default function Settings({ isOpen, onClose, sessionId, providers, curren
           </button>
         </div>
 
-        <div style={{display:'flex', borderBottom:'1px solid var(--line)', padding:'0 8px', gap:'4px'}}>
-          {(['providers','mcp','skills','ui','context','memory'] as const).map(tab=>(
+        <div style={{display:'flex', borderBottom:'1px solid var(--line)', padding:'0 8px', gap:'4px', overflowX:'auto'}}>
+          {(['providers','computer','mcp','skills','ui','context','memory','email','status'] as const).map(tab=>(
             <button key={tab} onClick={()=>setActiveTab(tab)} style={{
-              flex:1, padding:'8px', borderRadius:'999px', border:'none',
+              flex:1, padding:'8px', borderRadius:'999px', border:'none', whiteSpace:'nowrap',
               background: activeTab===tab ? 'var(--text)' : 'transparent',
               color: activeTab===tab ? 'var(--bg)' : 'var(--muted)',
               fontSize:'12px', margin:'8px 0'
             }}>
-              {tab === 'providers' ? 'Providers' : tab === 'mcp' ? 'MCP' : tab === 'skills' ? 'Skills' : tab === 'context' ? 'Context' : tab === 'memory' ? 'Memory' : 'Interface'}
+              {tab === 'providers' ? 'Providers' : tab === 'computer' ? 'Computer' : tab === 'mcp' ? 'MCP' : tab === 'skills' ? 'Skills' : tab === 'context' ? 'Context' : tab === 'memory' ? 'Memory' : tab === 'email' ? 'Email' : tab === 'ui' ? 'Interface' : 'Status'}
             </button>
           ))}
         </div>
@@ -690,18 +783,89 @@ export default function Settings({ isOpen, onClose, sessionId, providers, curren
                                     <input placeholder="Model" value={s.model || ''} onChange={e=> handleProviderSettingsChange(p.id, 'model', e.target.value)} style={{flex:1}} />
                                     {p.id==='kilo' && <button className="btn-ghost" onClick={()=> fetchKiloModels(p.id)} style={{whiteSpace:'nowrap', borderRadius:'999px', fontSize:'11px', padding:'6px 10px'}}>Browse</button>}
                                   </div>
-                                  <button onClick={async()=>{ const k = customKeys[p.id]?.trim(); const set = {baseUrl: s.base_url?.trim()||null, model: s.model?.trim()||null, kind: s.kind?.trim()||null}; if(k){ await invoke('set_api_key',{providerId:p.id, apiKey:k}); } await invoke('set_provider_settings',{providerId:p.id, ...set}); setCustomKeys(prev=>{const n={...prev}; delete n[p.id]; return n;}); onRefresh?.(); }} style={{borderRadius:'999px', background:'var(--text)', color:'var(--bg)'}}>Save</button>
+                                  <button onClick={async()=>{ const k = customKeys[p.id]?.trim(); const set = {base_url: s.base_url?.trim()||null, model: s.model?.trim()||null, kind: s.kind?.trim()||null}; if(k){ await invoke('set_api_key',{provider_id:p.id, api_key:k}); } await invoke('set_provider_settings',{provider_id:p.id, ...set}); setCustomKeys(prev=>{const n={...prev}; delete n[p.id]; return n;}); onRefresh?.(); }} style={{borderRadius:'999px', background:'var(--text)', color:'var(--bg)'}}>Save</button>
                                 </div>
                               </div>
                             )}
-                            <button className="btn-ghost" onClick={async()=>{ if(confirm(`Remove ${p.id}?`)){ await invoke('remove_api_key',{providerId:p.id}); await invoke('set_provider_settings',{providerId:p.id, baseUrl:null, model:null, kind:null}); onRefresh?.(); loadConfig(); } }} style={{color:'var(--danger)', borderRadius:'999px', alignSelf:'flex-start'}}>Remove</button>
+                            <button className="btn-ghost" onClick={async()=>{ if(confirm(`Remove ${p.id}?`)){ await invoke('remove_api_key',{provider_id:p.id}); await invoke('set_provider_settings',{provider_id:p.id, base_url:null, model:null, kind:null}); onRefresh?.(); loadConfig(); } }} style={{color:'var(--danger)', borderRadius:'999px', alignSelf:'flex-start'}}>Remove</button>
                           </div>
                         );
                       })}
                     </div>
                   )}
                   <div className="mono" style={{fontSize:'11px', color:'var(--muted)', background:'var(--panel)', border:'1px solid var(--line)', padding:'10px 12px', borderRadius:'8px'}}>
-                    How to add: 1) Get API key from <span style={{color:'var(--text)'}}>x.ai/api</span> or <span style={{color:'var(--text)'}}>platform.openai.com</span> or <span style={{color:'var(--text)'}}>console.anthropic.com</span> → 2) For custom endpoints, set Base URL to <span style={{color:'var(--text)'}}>/v1</span> and Model name → Save → Select provider in header or set as default. No mock data — real keys only.
+                    How to add: 1) Get API key from <span style={{color:'var(--text)'}}>platform.openai.com</span> or <span style={{color:'var(--text)'}}>console.anthropic.com</span> → 2) For custom endpoints, set Base URL to <span style={{color:'var(--text)'}}>/v1</span> and Model name → Save → Select provider in header or set as default. No mock data — real keys only.
+                  </div>
+                </div>
+              )}
+
+              {activeTab==='computer' && (
+                <div style={{display:'flex', flexDirection:'column', gap:'16px'}}>
+                  <div style={{padding:'16px', border:'1px solid var(--line)', borderRadius:'12px', background:'var(--bg)'}}>
+                    <div style={{display:'flex', alignItems:'center', gap:'8px'}}>
+                      <span style={{fontWeight:600, fontSize:'13px'}}>Browser</span>
+                      <span className="mono" style={{fontSize:'10px', padding:'2px 6px', borderRadius:999, border:'1px solid var(--line)', color: comp?.status==='Ready' ? 'var(--ok-text)' : comp?.status==='Disabled' ? 'var(--muted)' : 'var(--danger)'}}>
+                        {comp ? `${comp.status} • ${comp.tool_count} tools` : '…'}
+                      </span>
+                      <button onClick={()=>setComputer(!comp?.enabled)} disabled={saving==='computer'} style={{marginLeft:'auto', borderRadius:'999px'}}>
+                        {saving==='computer' ? 'Connecting…' : comp?.enabled ? 'Disconnect' : 'Connect'}
+                      </button>
+                    </div>
+                    <div className="mono" style={{fontSize:'11px', color:'var(--muted)', marginTop:'10px', lineHeight:1.5}}>
+                      Lets the agent drive a real browser (Playwright MCP). Headed by default — a Chrome window opens and you watch it work.
+                      First connect downloads the package, so give it a moment on a cold cache.
+                    </div>
+                    {!comp?.browser_found && (
+                      <div className="mono" style={{fontSize:'11px', color:'var(--danger)', marginTop:'8px'}}>
+                        No Chrome or Edge found on a known path — install Chrome, or the browser won't launch.
+                      </div>
+                    )}
+                    {comp?.enabled && comp.tool_count===0 && (
+                      <div className="mono" style={{fontSize:'11px', color:'var(--danger)', marginTop:'8px'}}>
+                        Connected but no tools registered — check the MCP tab status, or reconnect.
+                      </div>
+                    )}
+                  </div>
+
+                  <div style={{padding:'16px', border:'1px solid var(--line)', borderRadius:'12px', background:'var(--bg)'}}>
+                    <div className="mono" style={{fontSize:'11px', color:'var(--muted)', marginBottom:'12px'}}>Options — changing either reconnects</div>
+                    <div style={{display:'flex', flexDirection:'column', gap:'12px'}}>
+                      <label style={{display:'flex', alignItems:'flex-start', gap:'10px', cursor:'pointer', fontSize:'13px'}}>
+                        <input type="checkbox" checked={!compOpts.headless} disabled={saving==='computer'}
+                          onChange={e=>{ const o={...compOpts, headless:!e.target.checked}; setCompOpts(o); if(comp?.enabled) reconnectComputer(o); }}
+                          style={{width:'16px', height:'16px', marginTop:'2px', accentColor:'var(--text)'}} />
+                        <span>
+                          <span>Headed (show the window)</span>
+                          <span className="mono" style={{display:'block', fontSize:'11px', color:'var(--muted)', marginTop:'2px'}}>Watch the agent browse. Turn off for headless runs.</span>
+                        </span>
+                      </label>
+                      <label style={{display:'flex', alignItems:'flex-start', gap:'10px', cursor:'pointer', fontSize:'13px'}}>
+                        <input type="checkbox" checked={compOpts.persistent} disabled={saving==='computer'}
+                          onChange={e=>{ const o={...compOpts, persistent:e.target.checked}; setCompOpts(o); if(comp?.enabled) reconnectComputer(o); }}
+                          style={{width:'16px', height:'16px', marginTop:'2px', accentColor:'var(--text)'}} />
+                        <span>
+                          <span>Persistent profile (keep logins)</span>
+                          <span className="mono" style={{display:'block', fontSize:'11px', color:'var(--muted)', marginTop:'2px'}}>Cookies and sessions survive stop/start. Off = a clean throwaway profile.</span>
+                        </span>
+                      </label>
+                    </div>
+                    <div className="mono" style={{fontSize:'11px', color:'var(--muted)', marginTop:'12px', wordBreak:'break-all'}}>
+                      Profile: {comp?.profile_dir ?? '—'}
+                    </div>
+                  </div>
+
+                  <div style={{padding:'16px', border:'1px dashed var(--line)', borderRadius:'12px', background:'var(--panel)'}}>
+                    <div style={{fontWeight:600, fontSize:'13px', marginBottom:'8px'}}>Tools the model sees</div>
+                    {comp?.enabled && comp.tools.length>0 ? (
+                      <div className="mono" style={{fontSize:'11px', color:'var(--muted)', background:'var(--bg)', border:'1px solid var(--line)', padding:'8px', borderRadius:'8px', wordBreak:'break-all', lineHeight:1.6}}>
+                        {comp.tools.join(' • ')}
+                      </div>
+                    ) : (
+                      <div className="mono" style={{fontSize:'11px', color:'var(--muted)'}}>Nothing yet — connect to register the browser tools.</div>
+                    )}
+                    <div className="mono" style={{fontSize:'11px', color:'var(--muted)', marginTop:'10px', lineHeight:1.5}}>
+                      These also appear on the MCP tab as the <span style={{color:'var(--text)'}}>browser</span> server, so the usual allow/deny lists and the audit log apply to them.
+                    </div>
                   </div>
                 </div>
               )}
@@ -742,13 +906,13 @@ export default function Settings({ isOpen, onClose, sessionId, providers, curren
                   )}
                   <div style={{height:'1px', background:'var(--line)'}} />
                   <div style={{padding:'16px', border:'1px dashed var(--line)', borderRadius:'12px', background:'var(--panel)'}}>
-                    <div style={{display:'flex', alignItems:'center', gap:'8px', marginBottom:'10px'}}><span style={{fontWeight:600, fontSize:'13px'}}>Marketplace</span><span className="badge mono">{marketplace.length} servers</span><button className="btn-ghost" onClick={loadMarketplace} style={{marginLeft:'auto', fontSize:'11px', padding:'4px 8px', borderRadius:'999px'}}>Refresh</button></div>
-                    <div className="mono" style={{fontSize:'11px', color:'var(--muted)', marginBottom:'12px'}}>Full marketplace via <span style={{color:'var(--text)'}}>xai-org/plugin-marketplace</span> scaffold — one-click install. Hub cache is <span style={{color:'var(--text)'}}>Server</span> scope.</div>
+                    <div style={{display:'flex', alignItems:'center', gap:'8px', marginBottom:'10px'}}><span style={{fontWeight:600, fontSize:'13px'}}>Popular servers</span><span className="badge mono">{marketplace.length} servers</span><button className="btn-ghost" onClick={loadMarketplace} style={{marginLeft:'auto', fontSize:'11px', padding:'4px 8px', borderRadius:'999px'}}>Refresh</button></div>
+                    <div className="mono" style={{fontSize:'11px', color:'var(--muted)', marginBottom:'12px'}}>A hand-picked list of well-known MCP servers, not a live registry — Install adds the command shown, which you can edit afterwards. Servers needing tokens (<span style={{color:'var(--text)'}}>github</span>, <span style={{color:'var(--text)'}}>brave-search</span>) stay offline until you add the env vars.</div>
                     <div style={{display:'flex', flexDirection:'column', gap:'8px', maxHeight:'280px', overflowY:'auto'}}>
                       {marketplace.map(entry=>(
                         <div key={entry.name} style={{padding:'12px', border:'1px solid var(--line)', borderRadius:'12px', background:'var(--bg)', display:'flex', gap:'12px', alignItems:'center'}}>
                           <div style={{flex:1, minWidth:0}}>
-                            <div style={{display:'flex', gap:'8px', alignItems:'center', flexWrap:'wrap'}}><span style={{fontWeight:600, fontSize:'13px'}}>{entry.name}</span><span className="badge mono">{entry.category}</span><span className="mono" style={{fontSize:'10px', color:'var(--muted)'}}>{entry.transport}</span>{entry.install_count && <span className="mono" style={{fontSize:'10px', color:'var(--faint)'}}>{entry.install_count.toLocaleString()} installs</span>}</div>
+                            <div style={{display:'flex', gap:'8px', alignItems:'center', flexWrap:'wrap'}}><span style={{fontWeight:600, fontSize:'13px'}}>{entry.name}</span><span className="badge mono">{entry.category}</span><span className="mono" style={{fontSize:'10px', color:'var(--muted)'}}>{entry.transport}</span></div>
                             <div className="mono" style={{fontSize:'11px', color:'var(--muted)', marginTop:'4px', lineHeight:1.4}}>{entry.description}</div>
                             <div className="mono" style={{fontSize:'10px', color:'var(--faint)', marginTop:'2px'}}>{entry.transport==='stdio' ? `${entry.command} ${(entry.args||[]).join(' ')}` : entry.url}</div>
                           </div>
@@ -894,6 +1058,8 @@ export default function Settings({ isOpen, onClose, sessionId, providers, curren
                         ['show_tool_calls','Show tool calls inline'],
                         ['auto_scroll','Auto-scroll to new messages'],
                         ['compact_mode','Compact mode'],
+                        ['generative_ui','Generative UI (charts, tables, forms)'],
+                        ['auto_preview','Auto-open previews (agent writes a .html/.svg/.md file)'],
                       ].map(([k,label])=>(
                         <label key={k} style={{display:'flex', alignItems:'center', gap:'10px', cursor:'pointer', fontSize:'13px'}}>
                           <input type="checkbox" checked={(uiConfig as any)[k]} onChange={e=>handleUiChange(k,e.target.checked)} style={{width:'16px', height:'16px', accentColor:'var(--text)'}} />
@@ -1142,6 +1308,95 @@ export default function Settings({ isOpen, onClose, sessionId, providers, curren
                       <button className="btn-ghost" onClick={()=>clearMemory('global')} style={{borderRadius:999}}>Clear global</button>
                       <button className="btn-ghost" onClick={()=>clearMemory('workspace')} style={{borderRadius:999}}>Clear workspace</button>
                       <button className="btn-ghost" onClick={()=>clearMemory('both')} style={{borderRadius:999, color:'var(--error)'}}>Clear all</button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeTab==='email' && (
+                <div style={{display:'flex', flexDirection:'column', gap:'16px'}}>
+                  <div style={{padding:'16px', border:'1px solid var(--line)', borderRadius:'12px', background:'var(--bg)'}}>
+                    <div className="mono" style={{fontSize:'11px', color:'var(--muted)', marginBottom:'12px'}}>Status</div>
+                    {emailStatus.connected ? (
+                      <div style={{display:'flex', alignItems:'center', gap:'10px', flexWrap:'wrap'}}>
+                        <span style={{fontSize:'13px'}}>Connected as <strong>{emailStatus.account_email || 'unknown account'}</strong></span>
+                        <span style={{flex:1}} />
+                        <button className="btn-ghost" onClick={disconnectEmail} disabled={!!emailBusy} style={{borderRadius:999}}>Disconnect</button>
+                      </div>
+                    ) : (
+                      <div style={{fontSize:'13px', color:'var(--muted)'}}>Not connected — the agent mail tools stay hidden until you connect.</div>
+                    )}
+                    <label style={{display:'flex', alignItems:'center', gap:'10px', cursor:'pointer', fontSize:'13px', marginTop:'12px'}}>
+                      <input type="checkbox" checked={emailStatus.enabled} onChange={e=>patchEmail({ enabled: e.target.checked })} style={{width:'16px', height:'16px', accentColor:'var(--text)'}} />
+                      <span>Enable email integration</span>
+                    </label>
+                  </div>
+                  <div style={{padding:'16px', border:'1px solid var(--line)', borderRadius:'12px', background:'var(--bg)'}}>
+                    <div className="mono" style={{fontSize:'11px', color:'var(--muted)', marginBottom:'4px'}}>Google OAuth client</div>
+                    <div className="mono" style={{fontSize:'11px', color:'var(--muted)', marginBottom:'12px'}}>
+                      One-time setup: create a project at console.cloud.google.com, enable the Gmail API, add an OAuth client ID of type Desktop app, then paste the id + secret here. Secrets are write-only — they are never shown again.
+                    </div>
+                    <div style={{display:'flex', flexDirection:'column', gap:'8px'}}>
+                      <input value={emailClient.id} onChange={e=>setEmailClient({...emailClient, id:e.target.value})} placeholder="Client ID (…apps.googleusercontent.com)" style={{fontSize:'12px'}} />
+                      <input value={emailClient.secret} onChange={e=>setEmailClient({...emailClient, secret:e.target.value})} placeholder="Client secret" type="password" style={{fontSize:'12px'}} />
+                      <div>
+                        <button className="btn-ghost" onClick={()=>patchEmail({ client_id: emailClient.id.trim() || null, client_secret: emailClient.secret.trim() || null })} disabled={emailBusy==='saving' || (!emailClient.id.trim() && !emailClient.secret.trim())} style={{borderRadius:999}}>
+                          {emailBusy==='saving' ? 'Saving…' : emailStatus.client_configured ? 'Update client credentials' : 'Save client credentials'}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{padding:'16px', border:'1px solid var(--line)', borderRadius:'12px', background:'var(--bg)'}}>
+                    <div className="mono" style={{fontSize:'11px', color:'var(--muted)', marginBottom:'12px'}}>Connect</div>
+                    <button className="btn-accent" onClick={connectEmail} disabled={!!emailBusy || !emailStatus.client_configured} style={{borderRadius:999}}>
+                      {emailBusy==='connect' ? 'Waiting for browser…' : emailStatus.connected ? 'Reconnect Gmail' : 'Connect Gmail'}
+                    </button>
+                    {!emailStatus.client_configured && (
+                      <div className="mono" style={{fontSize:'11px', color:'var(--muted)', marginTop:'8px'}}>Save the OAuth client credentials first.</div>
+                    )}
+                  </div>
+                  {emailStatus.connected && (
+                    <div style={{padding:'16px', border:'1px solid var(--line)', borderRadius:'12px', background:'var(--bg)'}}>
+                      <div className="mono" style={{fontSize:'11px', color:'var(--muted)', marginBottom:'12px'}}>Send a test email</div>
+                      <div style={{display:'flex', flexDirection:'column', gap:'8px'}}>
+                        <input value={emailTest.to} onChange={e=>setEmailTest({...emailTest, to:e.target.value})} placeholder="To" style={{fontSize:'12px'}} />
+                        <input value={emailTest.subject} onChange={e=>setEmailTest({...emailTest, subject:e.target.value})} placeholder="Subject" style={{fontSize:'12px'}} />
+                        <textarea value={emailTest.body} onChange={e=>setEmailTest({...emailTest, body:e.target.value})} placeholder="Body" rows={3} style={{fontSize:'12px'}} />
+                        <div>
+                          <button className="btn-ghost" onClick={sendTestEmail} disabled={emailBusy==='send'} style={{borderRadius:999}}>
+                            {emailBusy==='send' ? 'Sending…' : 'Send test email'}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  {emailMsg && (
+                    <div className="mono" style={{fontSize:'12px', color:'var(--text)', wordBreak:'break-word'}}>{emailMsg}</div>
+                  )}
+                </div>
+              )}
+
+              {activeTab==='status' && (
+                <div style={{display:'flex', flexDirection:'column', gap:'16px'}}>
+                  <div>
+                    <div className="mono" style={{fontSize:'11px', color:'var(--muted)', marginBottom:'6px'}}>
+                      {runStatus && !runStatus.finished ? 'Running' : 'Last run'}
+                    </div>
+                    {runStatus ? (
+                      <RunStatusBar status={runStatus} summary={runSummary} />
+                    ) : (
+                      <div className="mono" style={{fontSize:'11px', color:'var(--muted)'}}>
+                        No run in this chat yet — send a message to start one.
+                      </div>
+                    )}
+                  </div>
+                  <div style={{padding:'16px', border:'1px solid var(--line)', borderRadius:'12px', background:'var(--bg)'}}>
+                    <div className="mono" style={{fontSize:'11px', color:'var(--muted)', marginBottom:'8px'}}>Since launch</div>
+                    <div className="mono" style={{fontSize:'12px'}}>
+                      {runTotals.runs} {runTotals.runs === 1 ? 'run' : 'runs'} · {fmtTokens(runTotals.tokens)} tokens · {fmtUsd(runTotals.costUsd)}
+                    </div>
+                    <div className="mono" style={{marginTop:'8px', fontSize:'11px', color:'var(--muted)'}}>
+                      Summed from every finished run in this chat session. A live run appears here while it works.
                     </div>
                   </div>
                 </div>

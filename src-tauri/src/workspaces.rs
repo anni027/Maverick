@@ -31,6 +31,18 @@ pub struct WorkspaceStore {
     path: PathBuf,
 }
 
+/// Serializes load→modify→save. Every mutator rewrites the whole file, so
+/// two concurrent ones (switching a workspace while another session is
+/// created or deleted) each write back their own snapshot and the loser's
+/// change vanishes.
+static WORKSPACE_WRITE_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
+fn write_guard() -> std::sync::MutexGuard<'static, ()> {
+    WORKSPACE_WRITE_LOCK
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner())
+}
+
 impl WorkspaceStore {
     pub fn new(app_data_dir: &Path) -> Self {
         Self {
@@ -38,11 +50,42 @@ impl WorkspaceStore {
         }
     }
 
+    /// Read the mapping. A file that exists but does not parse is *not*
+    /// silently treated as empty: the next save would then rewrite it from
+    /// the empty default and every mapping would be lost with no trace. The
+    /// unreadable file is parked beside the store instead.
     fn load(&self) -> WorkspaceMap {
-        std::fs::read_to_string(&self.path)
-            .ok()
-            .and_then(|t| serde_json::from_str(&t).ok())
-            .unwrap_or_default()
+        let text = match std::fs::read_to_string(&self.path) {
+            Ok(text) if !text.trim().is_empty() => text,
+            _ => return WorkspaceMap::default(),
+        };
+        match serde_json::from_str::<WorkspaceMap>(&text) {
+            Ok(map) => map,
+            Err(e) => {
+                let name = self
+                    .path
+                    .file_name()
+                    .map(|n| n.to_string_lossy().into_owned())
+                    .unwrap_or_else(|| WORKSPACES_FILE.to_string());
+                let parked = self.path.with_file_name(format!(
+                    "{name}.corrupt-{}",
+                    std::time::SystemTime::now()
+                        .duration_since(std::time::UNIX_EPOCH)
+                        .map(|d| d.as_millis())
+                        .unwrap_or(0)
+                ));
+                tracing::error!(
+                    error = %e,
+                    path = %self.path.display(),
+                    parked = %parked.display(),
+                    "session workspace map unreadable; starting fresh"
+                );
+                if std::fs::rename(&self.path, &parked).is_err() {
+                    let _ = std::fs::remove_file(&self.path);
+                }
+                WorkspaceMap::default()
+            }
+        }
     }
 
     fn save(&self, map: &WorkspaceMap) -> Result<()> {
@@ -80,6 +123,7 @@ impl WorkspaceStore {
     /// (explicit launch-time intent). `None` means "use the live global
     /// resolver". Stale entries (moved/deleted folders) self-drop.
     pub fn effective_session_dir(&self, session_id: &str) -> Option<PathBuf> {
+        let _write = write_guard();
         let mut map = self.load();
         let mut dirty = false;
         if let Some(raw) = map.sessions.get(session_id).cloned() {
@@ -119,6 +163,7 @@ impl WorkspaceStore {
 
     /// Raw mapping for a session (no default fallback), validated live.
     pub fn session_workspace(&self, session_id: &str) -> Option<String> {
+        let _write = write_guard();
         let map = self.load();
         let raw = map.sessions.get(session_id)?.clone();
         match Self::validate(&raw) {
@@ -139,6 +184,7 @@ impl WorkspaceStore {
         session_id: &str,
         path: Option<&str>,
     ) -> Result<Option<String>, String> {
+        let _write = write_guard();
         let mut map = self.load();
         let out = match path {
             Some(p) => {
@@ -158,6 +204,7 @@ impl WorkspaceStore {
 
     /// Drop a session's mapping (call on session delete).
     pub fn remove_session(&self, session_id: &str) -> Result<()> {
+        let _write = write_guard();
         let mut map = self.load();
         if map.sessions.remove(session_id).is_some() {
             self.save(&map)?;
@@ -167,6 +214,7 @@ impl WorkspaceStore {
 
     /// Stored default workspace, validated live (self-drops when stale).
     pub fn default_workspace(&self) -> Option<String> {
+        let _write = write_guard();
         let map = self.load();
         let raw = map.default.clone()?;
         match Self::validate(&raw) {
@@ -198,6 +246,7 @@ impl WorkspaceStore {
 
     /// Set (or clear with `None`) the default workspace.
     pub fn set_default_workspace(&self, path: Option<&str>) -> Result<Option<String>, String> {
+        let _write = write_guard();
         let mut map = self.load();
         let out = match path {
             Some(p) => {
@@ -301,6 +350,28 @@ mod tests {
         // Most-recent first, capped and deduped.
         assert_eq!(recent[0], WorkspaceStore::validate(&b).unwrap());
         assert!(recent.len() <= MAX_RECENT);
+    }
+
+    #[test]
+    fn unreadable_map_is_parked_not_ignored() {
+        // Regression: a half-written file used to read as "no mappings", and
+        // the next save then rewrote it from that empty default — every
+        // session mapping gone with no trace of the old content.
+        let store = test_store("corrupt");
+        std::fs::write(&store.path, "{ not json").unwrap();
+        assert!(store.recent().is_empty());
+        let dir = store.path.parent().unwrap();
+        let parked: Vec<String> = std::fs::read_dir(dir)
+            .unwrap()
+            .filter_map(|e| e.ok())
+            .map(|e| e.file_name().to_string_lossy().into_owned())
+            .filter(|n| n.starts_with("session_workspaces.json.corrupt-"))
+            .collect();
+        assert_eq!(parked.len(), 1, "expected one backup of the bad file");
+        assert_eq!(
+            std::fs::read_to_string(dir.join(&parked[0])).unwrap(),
+            "{ not json"
+        );
     }
 
     #[test]
